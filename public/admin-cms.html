@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Foundation Room — CMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <style>
+    :root {
+      --bg: #080706;
+      --bg-2: #0F0D0B;
+      --bg-card: #161412;
+      --bg-elevated: #1E1B17;
+      --gold: #C8A84B;
+      --gold-bright: #E8C96E;
+      --gold-dim: #7A6530;
+      --text: #F0E6D3;
+      --text-2: #B8A898;
+      --text-3: #6B5E50;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'DM Sans', sans-serif;
+      --radius-sm: 3px;
+      --radius: 6px;
+      --radius-lg: 10px;
+      --emerald: #2A6B4A;
+      --emerald-text: #5ECFA0;
+      --ruby: #6B2A2A;
+      --ruby-text: #CF5E5E;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── SHELL LAYOUT ─── */
+    .shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 260px;
+      min-height: 100vh;
+      background: var(--bg);
+      border-right: 1px solid rgba(200,168,75,0.08);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .sidebar-brand {
+      padding: 28px 22px 22px;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo-mark {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(200,168,75,0.35);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-logo-mark svg { width: 20px; height: 20px; }
+    .brand-text { flex: 1; min-width: 0; }
+    .brand-title {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+    }
+    .brand-badge {
+      display: inline-block;
+      background: rgba(200,168,75,0.15);
+      color: var(--gold);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 2px;
+      margin-top: 3px;
+      border: 1px solid rgba(200,168,75,0.2);
+    }
+
+    .sidebar-nav {
+      padding: 14px 10px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .nav-section-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 10px 14px 6px;
+      margin-top: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-3);
+      text-decoration: none;
+      transition: all 0.16s ease;
+      margin-bottom: 2px;
+      border-left: 2px solid transparent;
+      cursor: pointer;
+      user-select: none;
+    }
+    .nav-item:hover {
+      color: var(--text-2);
+      background: rgba(200,168,75,0.05);
+    }
+    .nav-item.active {
+      color: var(--gold);
+      background: var(--bg-elevated);
+      border-left-color: var(--gold);
+    }
+    .nav-icon { font-size: 15px; flex-shrink: 0; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 14px 12px;
+      border-top: 1px solid rgba(200,168,75,0.08);
+    }
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+    }
+    .sidebar-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(200,168,75,0.15);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(200,168,75,0.2);
+    }
+    .sidebar-user-info { flex: 1; min-width: 0; }
+    .user-name {
+      font-size: 12.5px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .user-role { font-size: 10.5px; color: var(--text-3); margin-top: 1px; }
+    .btn-logout {
+      width: 100%;
+      padding: 8px 14px;
+      background: transparent;
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: var(--radius-sm);
+      color: var(--text-3);
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .btn-logout:hover {
+      border-color: rgba(200,168,75,0.3);
+      color: var(--text-2);
+      background: rgba(200,168,75,0.05);
+    }
+
+    /* ─── MAIN WRAP ─── */
+    .main-wrap {
+      margin-left: 260px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── TOPBAR ─── */
+    .topbar {
+      position: sticky; top: 0; z-index: 90;
+      background: rgba(8,7,6,0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      height: 62px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px;
+      gap: 16px;
+    }
+    .topbar-left {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .topbar-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+    .topbar-right {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .search-input {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 8px 14px 8px 36px;
+      width: 220px;
+      outline: none;
+      transition: border-color 0.15s;
+      position: relative;
+    }
+    .search-input:focus { border-color: rgba(200,168,75,0.35); }
+    .search-wrap {
+      position: relative;
+    }
+    .search-icon {
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      color: var(--text-3); font-size: 14px; pointer-events: none;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: #080706;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 18px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
+    }
+    .btn-primary:hover { background: var(--gold-bright); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── PAGE CONTENT ─── */
+    .page-content {
+      flex: 1;
+      padding: 28px 28px 48px;
+      overflow-y: auto;
+    }
+
+    /* ─── SECTIONS ─── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ─── STAT CARDS ─── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 1400px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: var(--radius-lg);
+      padding: 20px 20px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--gold-dim), transparent);
+    }
+    .stat-number {
+      font-family: var(--serif);
+      font-size: 42px;
+      font-weight: 500;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-3);
+      margin-top: 8px;
+    }
+    .stat-icon {
+      position: absolute; top: 18px; right: 18px;
+      font-size: 20px; opacity: 0.3;
+    }
+
+    /* ─── RECENT ACTIVITY ─── */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .dash-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .dash-card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .dash-card-title {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .dash-card-body { padding: 4px 0; }
+    .activity-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(200,168,75,0.05);
+      transition: background 0.13s;
+    }
+    .activity-row:last-child { border-bottom: none; }
+    .activity-row:hover { background: var(--bg-elevated); }
+    .activity-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      flex-shrink: 0;
+    }
+    .activity-text { flex: 1; font-size: 13px; color: var(--text-2); line-height: 1.4; }
+    .activity-text strong { color: var(--text); font-weight: 600; }
+    .activity-time { font-size: 11px; color: var(--text-3); white-space: nowrap; }
+
+    /* ─── TABLE ─── */
+    .table-wrap {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead tr {
+      background: var(--bg-elevated);
+    }
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-3);
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(200,168,75,0.05);
+      transition: background 0.12s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg-elevated); }
+    tbody td {
+      padding: 13px 16px;
+      font-size: 13.5px;
+      color: var(--text-2);
+      vertical-align: middle;
+    }
+    tbody td strong { color: var(--text); font-weight: 600; }
+    .td-muted { color: var(--text-3); font-size: 12.5px; }
+
+    /* ─── BADGES ─── */
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 2px;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+    .badge-published, .badge-active {
+      color: var(--gold);
+      border-color: rgba(200,168,75,0.35);
+      background: rgba(200,168,75,0.08);
+    }
+    .badge-draft, .badge-inactive {
+      color: var(--text-3);
+      border-color: rgba(107,94,80,0.3);
+      background: rgba(107,94,80,0.08);
+    }
+    .badge-emerald {
+      color: var(--emerald-text);
+      border-color: rgba(42,107,74,0.4);
+      background: rgba(42,107,74,0.1);
+    }
+    .badge-ruby {
+      color: var(--ruby-text);
+      border-color: rgba(107,42,42,0.4);
+      background: rgba(107,42,42,0.1);
+    }
+
+    /* ─── ACTION BUTTONS ─── */
+    .actions { display: flex; align-items: center; gap: 4px; }
+    .btn-icon {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-3);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.14s;
+    }
+    .btn-icon:hover {
+      background: var(--bg-elevated);
+      border-color: rgba(200,168,75,0.25);
+      color: var(--text-2);
+    }
+    .btn-icon.danger:hover {
+      background: rgba(107,42,42,0.25);
+      border-color: rgba(207,94,94,0.3);
+      color: var(--ruby-text);
+    }
+    .btn-icon.success:hover {
+      background: rgba(42,107,74,0.2);
+      border-color: rgba(94,207,160,0.3);
+      color: var(--emerald-text);
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-3);
+    }
+    .empty-state-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 14px; }
+
+    /* ─── LOADING STATE ─── */
+    .loading-rows {
+      display: flex; flex-direction: column; gap: 1px;
+    }
+    .loading-row {
+      height: 50px;
+      background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%);
+      background-size: 400% 100%;
+      animation: shimmer 1.4s ease infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+
+    /* ─── DRAWER ─── */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 200;
+      display: none;
+      backdrop-filter: blur(2px);
+    }
+    .drawer-overlay.open { display: block; }
+    .drawer-panel {
+      position: fixed; right: 0; top: 0; bottom: 0;
+      width: 480px;
+      background: var(--bg-2);
+      border-left: 1px solid rgba(200,168,75,0.15);
+      padding: 0;
+      overflow-y: auto;
+      z-index: 201;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(480px);
+    }
+    .drawer-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid rgba(200,168,75,0.1);
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0;
+      background: var(--bg-2);
+      z-index: 1;
+    }
+    .drawer-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .btn-close {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-3);
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.14s;
+    }
+    .btn-close:hover {
+      background: var(--bg-elevated);
+      color: var(--text);
+    }
+    .drawer-body {
+      padding: 24px 28px;
+      flex: 1;
+    }
+    .drawer-footer {
+      padding: 16px 28px 24px;
+      border-top: 1px solid rgba(200,168,75,0.08);
+      background: var(--bg-2);
+    }
+    .btn-submit {
+      width: 100%;
+      background: var(--gold);
+      color: #080706;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .btn-submit:hover { background: var(--gold-bright); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── FORM ELEMENTS ─── */
+    .form-group { margin-bottom: 18px; }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-3);
+      margin-bottom: 7px;
+    }
+    label .required { color: var(--gold); margin-left: 2px; }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="url"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.15);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13.5px;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(200,168,75,0.45);
+    }
+    input::placeholder, textarea::placeholder {
+      color: var(--text-3);
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B5E50' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+    select option { background: var(--bg-card); color: var(--text); }
+    textarea { resize: vertical; min-height: 90px; line-height: 1.55; }
+    textarea.code-area {
+      font-family: 'Courier New', 'Consolas', monospace;
+      font-size: 12.5px;
+      min-height: 300px;
+      color: #d4c5a9;
+      background: #0a0906;
+      line-height: 1.6;
+    }
+    input[type="color"] {
+      width: 100%; height: 40px;
+      padding: 3px 6px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+    }
+    .toggle-row {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .toggle {
+      position: relative;
+      width: 42px; height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: rgba(200,168,75,0.1);
+      border: 1px solid rgba(200,168,75,0.2);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--text-3);
+      transition: all 0.2s;
+    }
+    .toggle input:checked + .toggle-track { background: rgba(200,168,75,0.25); border-color: var(--gold); }
+    .toggle input:checked ~ .toggle-thumb { left: 21px; background: var(--gold); }
+    .toggle-label { font-size: 13px; color: var(--text-2); }
+    .slug-preview {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 5px;
+      font-family: monospace;
+    }
+    .slug-preview span { color: var(--gold-dim); }
+
+    /* ─── MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      width: 420px;
+      max-width: 90vw;
+    }
+    .modal-icon { font-size: 28px; margin-bottom: 12px; }
+    .modal-title {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .modal-body {
+      font-size: 13.5px;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-cancel {
+      padding: 9px 18px;
+      background: transparent;
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: var(--radius-sm);
+      color: var(--text-2);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.14s;
+    }
+    .btn-cancel:hover { background: var(--bg-elevated); border-color: rgba(200,168,75,0.25); }
+    .btn-danger {
+      padding: 9px 18px;
+      background: rgba(107,42,42,0.4);
+      border: 1px solid rgba(207,94,94,0.3);
+      border-radius: var(--radius-sm);
+      color: var(--ruby-text);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.14s;
+    }
+    .btn-danger:hover { background: rgba(107,42,42,0.6); }
+
+    /* ─── TOAST ─── */
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px;
+      z-index: 400;
+      display: flex; flex-direction: column; gap: 8px;
+      align-items: flex-end;
+    }
+    .toast {
+      background: var(--bg-elevated);
+      border: 1px solid;
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      min-width: 260px;
+      max-width: 380px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .toast.success {
+      border-color: rgba(94,207,160,0.3);
+      color: var(--emerald-text);
+      background: rgba(42,107,74,0.15);
+    }
+    .toast.error {
+      border-color: rgba(207,94,94,0.3);
+      color: var(--ruby-text);
+      background: rgba(107,42,42,0.15);
+    }
+    .toast.info {
+      border-color: rgba(200,168,75,0.25);
+      color: var(--text-2);
+    }
+    .toast-icon { font-size: 15px; flex-shrink: 0; }
+
+    /* ─── MISC ─── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-header-title {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .text-truncate {
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    a { color: inherit; }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(200,168,75,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(200,168,75,0.2); }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════ SHELL ════════════════════ -->
+<div class="shell">
+
+  <!-- ── SIDEBAR (rendered by admin-sidebar.js) ── -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- ── MAIN WRAP ── -->
+  <div class="main-wrap">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="search-wrap" id="searchWrap" style="display:none">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="Search…" oninput="handleSearch(this.value)">
+        </div>
+        <button class="btn-primary" id="topbarNewBtn" style="display:none" onclick="openDrawer('create')">+ New Item</button>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <!-- ══════ DASHBOARD ══════ -->
+      <div class="section active" id="section-dashboard">
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-number" id="stat-courses">—</div><div class="stat-label">Total Courses</div></div>
+          <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-number" id="stat-students">—</div><div class="stat-label">Total Students</div></div>
+          <div class="stat-card"><div class="stat-icon">👤</div><div class="stat-number" id="stat-instructors">—</div><div class="stat-label">Instructors</div></div>
+          <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-number" id="stat-posts">—</div><div class="stat-label">Blog Posts</div></div>
+          <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-number" id="stat-enrollments">—</div><div class="stat-label">Active Enrollments</div></div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">Recent Blog Posts</span>
+            </div>
+            <div class="dash-card-body" id="recentPosts">
+              <div class="empty-state"><div class="empty-state-icon">📝</div><p>Loading…</p></div>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">Recent Enrollments</span>
+            </div>
+            <div class="dash-card-body" id="recentEnrollments">
+              <div class="empty-state"><div class="empty-state-icon">🎓</div><p>Loading…</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ COURSES ══════ -->
+      <div class="section" id="section-courses">
+        <div class="table-wrap">
+          <table id="coursesTable">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Instructor</th>
+                <th>Category</th>
+                <th>Level</th>
+                <th>Status</th>
+                <th>Lessons</th>
+                <th style="width:180px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="coursesTbody">
+              <tr><td colspan="7"><div class="loading-rows"><div class="loading-row"></div><div class="loading-row"></div><div class="loading-row"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ INSTRUCTORS ══════ -->
+      <div class="section" id="section-instructors">
+        <div class="table-wrap">
+          <table id="instructorsTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Instrument</th>
+                <th>Courses</th>
+                <th>Bio</th>
+                <th style="width:90px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="instructorsTbody">
+              <tr><td colspan="6"><div class="loading-rows"><div class="loading-row"></div><div class="loading-row"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ BLOG ══════ -->
+      <div class="section" id="section-blog">
+        <div class="table-wrap">
+          <table id="blogTable">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Author</th>
+                <th>Date</th>
+                <th>Views</th>
+                <th style="width:110px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="blogTbody">
+              <tr><td colspan="7"><div class="loading-rows"><div class="loading-row"></div><div class="loading-row"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ STUDENTS ══════ -->
+      <div class="section" id="section-students">
+        <div class="table-wrap">
+          <table id="studentsTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Enrolled Courses</th>
+                <th>Joined</th>
+                <th style="width:90px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTbody">
+              <tr><td colspan="5"><div class="loading-rows"><div class="loading-row"></div><div class="loading-row"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-wrap -->
+</div><!-- /shell -->
+
+
+<!-- ════════════════════ DRAWER ════════════════════ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer-panel" id="drawerPanel">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitle">New Course</div>
+    <button class="btn-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <!-- dynamic content injected here -->
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-submit" id="drawerSubmitBtn" onclick="submitDrawer()">Save</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════ MODAL ════════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="deleteModal">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title" id="modalTitle">Delete Item</div>
+    <div class="modal-body" id="modalBody">Are you sure you want to delete this item? This cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-danger" id="modalConfirmBtn" onclick="executeDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════ TOASTS ════════════════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+<!-- ════════════════════ JAVASCRIPT ════════════════════ -->
+<script>
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let activeSection = 'dashboard';
+let drawerMode = 'create'; // 'create' | 'edit'
+let drawerItem = null;     // item being edited
+let deleteCallback = null;
+let searchQuery = '';
+
+// Section config
+const SECTIONS = {
+  dashboard:   { title: 'Dashboard',   newLabel: null },
+  courses:     { title: 'Courses',     newLabel: '+ New Course' },
+  instructors: { title: 'Instructors', newLabel: '+ New Instructor' },
+  blog:        { title: 'Blog Posts',  newLabel: '+ New Post' },
+  students:    { title: 'Students',    newLabel: null },
+};
+
+// ─────────────────────────────────────────────
+//  AUTH
+// ─────────────────────────────────────────────
+function getToken() {
+  return localStorage.getItem('archive_token');
+}
+
+function checkAuth() {
+  const token = getToken();
+  if (!token) { window.location.href = '/login'; return false; }
+  return true;
+}
+
+function handleLogout() {
+  localStorage.removeItem('archive_token');
+  window.location.href = '/login';
+}
+
+// ─────────────────────────────────────────────
+//  API WRAPPER
+// ─────────────────────────────────────────────
+async function cmsApi(method, path, body) {
+  const token = getToken();
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+    },
+  };
+  if (body !== undefined) opts.body = JSON.stringify(body);
+
+  const res = await fetch(path, opts);
+  if (res.status === 403) {
+    showToast('Access denied — admin only', 'error');
+    setTimeout(() => { window.location.href = '/login'; }, 1500);
+    throw new Error('403');
+  }
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.message || `HTTP ${res.status}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+// ─────────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  gsap.fromTo(toast, { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: 'power2.out' });
+  setTimeout(() => {
+    gsap.to(toast, { x: 40, opacity: 0, duration: 0.25, ease: 'power2.in',
+      onComplete: () => toast.remove() });
+  }, 3000);
+}
+
+// ─────────────────────────────────────────────
+//  MODAL (delete confirm)
+// ─────────────────────────────────────────────
+function confirmDelete(id, name, callback) {
+  document.getElementById('modalTitle').textContent = 'Delete ' + name;
+  document.getElementById('modalBody').textContent =
+    `Are you sure you want to delete "${name}"? This cannot be undone.`;
+  deleteCallback = callback;
+  document.getElementById('modalOverlay').classList.add('open');
+  gsap.fromTo('#deleteModal', { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: 'back.out(1.4)' });
+}
+
+function closeModal() {
+  gsap.to('#deleteModal', { scale: 0.92, opacity: 0, duration: 0.16, ease: 'power2.in',
+    onComplete: () => document.getElementById('modalOverlay').classList.remove('open') });
+  deleteCallback = null;
+}
+
+function executeDelete() {
+  if (deleteCallback) deleteCallback();
+  closeModal();
+}
+
+// ─────────────────────────────────────────────
+//  SECTION SWITCHING
+// ─────────────────────────────────────────────
+function switchSection(name) {
+  if (activeSection === name) return;
+
+  const oldEl = document.getElementById('section-' + activeSection);
+  const newEl = document.getElementById('section-' + name);
+  const cfg = SECTIONS[name];
+
+  // Update nav
+  document.querySelectorAll('.nav-item[data-section]').forEach(el => {
+    el.classList.toggle('active', el.dataset.section === name);
+  });
+
+  // Topbar
+  document.getElementById('topbarTitle').textContent = cfg.title;
+  const newBtn = document.getElementById('topbarNewBtn');
+  const searchWrap = document.getElementById('searchWrap');
+  if (cfg.newLabel) {
+    newBtn.textContent = cfg.newLabel;
+    newBtn.style.display = '';
+  } else {
+    newBtn.style.display = 'none';
+  }
+  if (name !== 'dashboard') {
+    searchWrap.style.display = '';
+    document.getElementById('searchInput').value = '';
+    searchQuery = '';
+  } else {
+    searchWrap.style.display = 'none';
+  }
+
+  // Animate out old
+  gsap.to(oldEl, { opacity: 0, y: -6, duration: 0.18, ease: 'power2.in',
+    onComplete: () => {
+      oldEl.classList.remove('active');
+      newEl.classList.add('active');
+      activeSection = name;
+      gsap.fromTo(newEl, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' });
+      loadSection(name);
+    }
+  });
+}
+
+function loadSection(name) {
+  switch(name) {
+    case 'dashboard':   loadDashboard(); break;
+    case 'courses':     loadCourses(); break;
+    case 'instructors': loadInstructors(); break;
+    case 'blog':        loadBlog(); break;
+    case 'students':    loadStudents(); break;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  SEARCH
+// ─────────────────────────────────────────────
+function handleSearch(val) {
+  searchQuery = val.toLowerCase();
+  filterCurrentSection();
+}
+
+function filterCurrentSection() {
+  const tbodyId = { courses: 'coursesTbody', instructors: 'instructorsTbody', blog: 'blogTbody', students: 'studentsTbody' }[activeSection];
+  if (!tbodyId) return;
+  const rows = document.querySelectorAll('#' + tbodyId + ' tr[data-search]');
+  rows.forEach(row => {
+    const text = (row.dataset.search || '').toLowerCase();
+    row.style.display = text.includes(searchQuery) ? '' : 'none';
+  });
+}
+
+// ─────────────────────────────────────────────
+//  DRAWER
+// ─────────────────────────────────────────────
+function openDrawer(mode, item = null) {
+  drawerMode = mode;
+  drawerItem = item;
+
+  const overlay = document.getElementById('drawerOverlay');
+  const panel = document.getElementById('drawerPanel');
+  overlay.classList.add('open');
+
+  const titles = { courses: 'Course', instructors: 'Instructor', blog: 'Blog Post' };
+  const label = titles[activeSection] || 'Item';
+  document.getElementById('drawerTitle').textContent = (mode === 'create' ? 'New ' : 'Edit ') + label;
+
+  // Render form
+  document.getElementById('drawerBody').innerHTML = getDrawerForm(activeSection, mode, item);
+  document.getElementById('drawerSubmitBtn').textContent = mode === 'create' ? 'Create' : 'Save Changes';
+
+  // Init any post-render logic
+  if (activeSection === 'blog') initBlogDrawer(item);
+
+  gsap.fromTo(panel, { x: 480 }, { x: 0, duration: 0.35, ease: 'power3.out' });
+}
+
+function closeDrawer() {
+  const panel = document.getElementById('drawerPanel');
+  gsap.to(panel, { x: 480, duration: 0.28, ease: 'power3.in',
+    onComplete: () => {
+      document.getElementById('drawerOverlay').classList.remove('open');
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+//  DRAWER FORMS
+// ─────────────────────────────────────────────
+function getDrawerForm(section, mode, item) {
+  if (section === 'courses')     return getCourseForm(mode, item);
+  if (section === 'instructors') return getInstructorForm(mode, item);
+  if (section === 'blog')        return getBlogForm(mode, item);
+  return '';
+}
+
+function getCourseForm(mode, item) {
+  const v = item || {};
+  // Instructors dropdown populated async after render
+  return `
+    <div class="form-group">
+      <label>Title <span class="required">*</span></label>
+      <input type="text" id="f-title" value="${esc(v.title)}" placeholder="e.g. Foundations of Tabla">
+    </div>
+    <div class="form-group">
+      <label>Subtitle</label>
+      <input type="text" id="f-subtitle" value="${esc(v.subtitle)}" placeholder="Short descriptor">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="f-description" placeholder="Course overview…">${esc(v.description)}</textarea>
+    </div>
+    <div class="form-group">
+      <label>Instructor <span class="required">*</span></label>
+      <select id="f-instructor"><option value="">Loading instructors…</option></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Instrument</label>
+        <input type="text" id="f-instrument" value="${esc(v.instrument)}" placeholder="e.g. Tabla">
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <select id="f-level">
+          <option value="Beginner" ${v.level==='Beginner'?'selected':''}>Beginner</option>
+          <option value="Intermediate" ${v.level==='Intermediate'?'selected':''}>Intermediate</option>
+          <option value="Advanced" ${v.level==='Advanced'?'selected':''}>Advanced</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <input type="text" id="f-category" value="${esc(v.category)}" placeholder="e.g. Rhythm">
+      </div>
+      <div class="form-group">
+        <label>Duration (weeks)</label>
+        <input type="number" id="f-duration" value="${v.duration_weeks||''}" placeholder="12" min="1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Cover Color</label>
+        <input type="color" id="f-color" value="${v.cover_color||'#C8A84B'}">
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="active" ${v.status==='active'||!v.status?'selected':''}>Active</option>
+          <option value="inactive" ${v.status==='inactive'?'selected':''}>Inactive</option>
+          <option value="draft" ${v.status==='draft'?'selected':''}>Draft</option>
+        </select>
+      </div>
+    </div>`;
+}
+
+function getInstructorForm(mode, item) {
+  const v = item || {};
+  return `
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name <span class="required">*</span></label>
+        <input type="text" id="f-first-name" value="${esc(v.first_name)}" placeholder="Ravi">
+      </div>
+      <div class="form-group">
+        <label>Last Name <span class="required">*</span></label>
+        <input type="text" id="f-last-name" value="${esc(v.last_name)}" placeholder="Shankar">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email <span class="required">*</span></label>
+      <input type="email" id="f-email" value="${esc(v.email)}" placeholder="ravi@example.com">
+    </div>
+    ${mode === 'create' ? `
+    <div class="form-group">
+      <label>Password <span class="required">*</span></label>
+      <input type="password" id="f-password" placeholder="Min 8 characters">
+    </div>` : ''}
+    <div class="form-group">
+      <label>Instrument</label>
+      <input type="text" id="f-instrument" value="${esc(v.instrument)}" placeholder="e.g. Sitar">
+    </div>
+    <div class="form-group">
+      <label>Bio</label>
+      <textarea id="f-bio" rows="4" placeholder="Short biography…">${esc(v.bio)}</textarea>
+    </div>`;
+}
+
+function getBlogForm(mode, item) {
+  const v = item || {};
+  const cats = ['Music Theory','Artist Spotlight','Practice Tips','Culture & Heritage','TFR News','General'];
+  return `
+    <div class="form-group">
+      <label>Title <span class="required">*</span></label>
+      <input type="text" id="f-title" value="${esc(v.title)}" placeholder="Your post title" oninput="updateSlugPreview(this.value)">
+      <div class="slug-preview">Slug: <span id="slugPreview">${v.slug || 'your-post-title'}</span></div>
+    </div>
+    <div class="form-group">
+      <label>Excerpt</label>
+      <textarea id="f-excerpt" rows="2" placeholder="Short summary (shown in listings)…">${esc(v.excerpt)}</textarea>
+    </div>
+    <div class="form-group">
+      <label>HTML Content</label>
+      <textarea id="f-body" class="code-area" placeholder="&lt;p&gt;Your content here…&lt;/p&gt;">${esc(v.body)}</textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="f-category">
+          ${cats.map(c => `<option value="${c}" ${v.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="draft" ${v.status==='draft'||!v.status?'selected':''}>Draft</option>
+          <option value="published" ${v.status==='published'?'selected':''}>Published</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tags <span style="font-weight:400;text-transform:none;letter-spacing:0">(comma-separated)</span></label>
+      <input type="text" id="f-tags" value="${Array.isArray(v.tags) ? v.tags.join(', ') : esc(v.tags)}" placeholder="tabla, rhythm, beginners">
+    </div>
+    <div class="form-group">
+      <label>Cover Image URL</label>
+      <input type="url" id="f-cover-image" value="${esc(v.cover_image)}" placeholder="https://…">
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+//  BLOG: slug preview
+// ─────────────────────────────────────────────
+function updateSlugPreview(val) {
+  const slug = val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const el = document.getElementById('slugPreview');
+  if (el) el.textContent = slug || 'your-post-title';
+}
+
+function initBlogDrawer(item) {
+  if (item && item.title) updateSlugPreview(item.title);
+}
+
+// ─────────────────────────────────────────────
+//  SUBMIT DRAWER
+// ─────────────────────────────────────────────
+async function submitDrawer() {
+  const btn = document.getElementById('drawerSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    if (activeSection === 'courses')     await submitCourse();
+    if (activeSection === 'instructors') await submitInstructor();
+    if (activeSection === 'blog')        await submitBlog();
+    closeDrawer();
+    loadSection(activeSection);
+  } catch(e) {
+    showToast(e.message || 'Save failed', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = drawerMode === 'create' ? 'Create' : 'Save Changes';
+  }
+}
+
+function g(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+async function submitCourse() {
+  const title = g('f-title');
+  if (!title) throw new Error('Title is required');
+  const body = {
+    title,
+    subtitle: g('f-subtitle'),
+    description: g('f-description'),
+    instructor_id: g('f-instructor'),
+    instrument: g('f-instrument'),
+    level: g('f-level'),
+    category: g('f-category'),
+    cover_color: g('f-color'),
+    duration_weeks: parseInt(g('f-duration')) || null,
+    status: g('f-status'),
+  };
+  if (drawerMode === 'create') {
+    await cmsApi('POST', '/api/cms/courses', body);
+    showToast('Course created', 'success');
+  } else {
+    await cmsApi('PUT', '/api/cms/courses/' + drawerItem.id, body);
+    showToast('Course updated', 'success');
+  }
+}
+
+async function submitInstructor() {
+  const firstName = g('f-first-name');
+  const lastName = g('f-last-name');
+  const email = g('f-email');
+  if (!firstName || !lastName || !email) throw new Error('Name and email are required');
+  const body = {
+    first_name: firstName,
+    last_name: lastName,
+    email,
+    instrument: g('f-instrument'),
+    bio: g('f-bio'),
+  };
+  if (drawerMode === 'create') {
+    const pwd = g('f-password');
+    if (!pwd) throw new Error('Password is required');
+    body.password = pwd;
+    await cmsApi('POST', '/api/cms/instructors', body);
+    showToast('Instructor created', 'success');
+  } else {
+    await cmsApi('PUT', '/api/cms/instructors/' + drawerItem.id, body);
+    showToast('Instructor updated', 'success');
+  }
+}
+
+async function submitBlog() {
+  const title = g('f-title');
+  if (!title) throw new Error('Title is required');
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const tagsRaw = g('f-tags');
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const body = {
+    title,
+    slug,
+    excerpt: g('f-excerpt'),
+    body: document.getElementById('f-body') ? document.getElementById('f-body').value : '',
+    category: g('f-category'),
+    status: g('f-status'),
+    tags,
+    cover_image: g('f-cover-image'),
+  };
+  if (drawerMode === 'create') {
+    await cmsApi('POST', '/api/cms/blog', body);
+    showToast('Post created', 'success');
+  } else {
+    await cmsApi('PUT', '/api/cms/blog/' + drawerItem.id, body);
+    showToast('Post updated', 'success');
+  }
+}
+
+// ─────────────────────────────────────────────
+//  LOAD DASHBOARD
+// ─────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const stats = await cmsApi('GET', '/api/cms/stats');
+    animateStat('stat-courses', stats.totalCourses || 0);
+    animateStat('stat-students', stats.totalStudents || 0);
+    animateStat('stat-instructors', stats.totalInstructors || 0);
+    animateStat('stat-posts', stats.totalPosts || 0);
+    animateStat('stat-enrollments', stats.activeEnrollments || 0);
+  } catch(e) {
+    // Fill with zeros on error
+    ['stat-courses','stat-students','stat-instructors','stat-posts','stat-enrollments']
+      .forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '0'; });
+  }
+
+  // Stagger stat cards
+  gsap.fromTo('#statsGrid .stat-card', { y: 16, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.4, stagger: 0.07, ease: 'power2.out' });
+
+  // Recent posts
+  try {
+    const posts = await cmsApi('GET', '/api/cms/blog');
+    const recent = (posts || []).slice(0, 5);
+    const el = document.getElementById('recentPosts');
+    if (!recent.length) {
+      el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><p>No posts yet</p></div>';
+    } else {
+      el.innerHTML = recent.map(p => `
+        <div class="activity-row">
+          <div class="activity-dot" style="background:${p.status==='published'?'var(--gold)':'var(--text-3)'}"></div>
+          <div class="activity-text"><strong>${esc(p.title)}</strong> — ${esc(p.category||'')}</div>
+          <div class="activity-time">${formatDate(p.created_at)}</div>
+        </div>`).join('');
+    }
+  } catch(e) {
+    document.getElementById('recentPosts').innerHTML = '<div class="empty-state"><p>Could not load</p></div>';
+  }
+
+  // Recent enrollments
+  try {
+    const students = await cmsApi('GET', '/api/cms/students');
+    const recent = (students || []).slice(0, 5);
+    const el = document.getElementById('recentEnrollments');
+    if (!recent.length) {
+      el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎓</div><p>No enrollments yet</p></div>';
+    } else {
+      el.innerHTML = recent.map(s => `
+        <div class="activity-row">
+          <div class="activity-dot" style="background:var(--emerald-text)"></div>
+          <div class="activity-text"><strong>${esc(s.first_name||'')} ${esc(s.last_name||'')}</strong> enrolled</div>
+          <div class="activity-time">${formatDate(s.created_at)}</div>
+        </div>`).join('');
+    }
+  } catch(e) {
+    document.getElementById('recentEnrollments').innerHTML = '<div class="empty-state"><p>Could not load</p></div>';
+  }
+}
+
+function animateStat(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const obj = { val: 0 };
+  gsap.to(obj, {
+    val: target,
+    duration: 1.2,
+    ease: 'power2.out',
+    onUpdate: () => { el.textContent = Math.round(obj.val).toLocaleString(); }
+  });
+}
+
+// ─────────────────────────────────────────────
+//  LOAD COURSES
+// ─────────────────────────────────────────────
+async function loadCourses() {
+  const tbody = document.getElementById('coursesTbody');
+  tbody.innerHTML = '<tr><td colspan="7"><div class="loading-rows"><div class="loading-row"></div><div class="loading-row"></div><div class="loading-row"></div></div></td></tr>';
+  try {
+    const { courses } = await cmsApi('GET', '/api/cms/courses');
+    if (!courses || !courses.length) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📚</div><p>No courses yet. Create one!</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = courses.map(c => `
+      <tr data-search="${esc((c.title||'')+' '+(c.category||'')+' '+(c.level||''))}" data-id="${c.id}">
+        <td><strong>${esc(c.title)}</strong>${c.subtitle?`<div class="td-muted">${esc(c.subtitle)}</div>`:''}</td>
+        <td class="td-muted">${esc(c.instructor_name||c.instructor||'—')}</td>
+        <td class="td-muted">${esc(c.category||'—')}</td>
+        <td><span class="badge badge-${(c.level||'').toLowerCase()==='beginner'?'emerald':(c.level||'').toLowerCase()==='advanced'?'ruby':'published'}">${esc(c.level||'—')}</span></td>
+        <td><span class="badge badge-${c.status==='active'?'active':c.status==='inactive'?'inactive':'draft'}">${esc(c.status||'draft')}</span></td>
+        <td class="td-muted">${c.lesson_count||c.lessons||0}</td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon" title="Preview public page" onclick="window.open('/courses/${esc(c.slug || c.id)}', '_blank')">👁</button>
+            <button class="btn-icon" title="Manage Chapters & Lessons" onclick="window.open('/course-manager.html#${c.id}', '_blank')">📂</button>
+            <button class="btn-icon" title="Edit metadata" onclick="editCourse(${JSON.stringify(c).replace(/"/g,'&quot;')})">✏️</button>
+            <button class="btn-icon success" title="Toggle Status" onclick="toggleCourseStatus('${c.id}','${c.status}')">⟳</button>
+            <button class="btn-icon danger" title="Delete" onclick="deleteCourse('${c.id}','${esc(c.title)}')">🗑</button>
+          </div>
+        </td>
+      </tr>`).join('');
+    animateTableRows('#coursesTbody tr');
+    filterCurrentSection();
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><p>Failed to load: ${e.message}</p></div></td></tr>`;
+  }
+}
+
+function editCourse(course) {
+  // Also load instructors into dropdown after open
+  openDrawer('edit', course);
+  loadInstructorsIntoSelect(course.instructor_id);
+}
+
+async function loadInstructorsIntoSelect(selectedId) {
+  try {
+    const { instructors } = await cmsApi('GET', '/api/cms/instructors');
+    const sel = document.getElementById('f-instructor');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Select instructor…</option>' +
+      (instructors||[]).map(i =>
+        `<option value="${i.id}" ${i.id==selectedId?'selected':''}>${esc(i.first_name)} ${esc(i.last_name)}</option>`
+      ).join('');
+  } catch(e) {}
+}
+
+async function toggleCourseStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+  try {
+    await cmsApi('PATCH', `/api/cms/courses/${id}/status`, { status: newStatus });
+    showToast(`Course marked ${newStatus}`, 'success');
+    loadCourses();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function deleteCourse(id, name) {
+  confirmDelete(id, name, async () => {
+    try {
+      await cmsApi('DELETE', `/api/cms/courses/${id}`);
+      showToast('Course deleted', 'success');
+      loadCourses();
+    } catch(e) { showToast(e.message, 'error'); }
+  });
+}
+
+// Override openDrawer for courses to load instructors
+const _origOpenDrawer = openDrawer;
+// We handle instructor loading inline in editCourse / "new course"
+
+// When "+ New Course" is clicked, also load instructors
+document.getElementById('topbarNewBtn').addEventListener('click', () => {
+  if (activeSection === 'courses') {
+    // Re-open with instructor load
+    openDrawer('create', null);
+    loadInstructorsIntoSelect(null);
+  }
+}, true);
+
+// ─────────────────────────────────────────────
+//  LOAD INSTRUCTORS
+// ─────────────────────────────────────────────
+async function loadInstructors() {
+  const tbody = document.getElementById('instructorsTbody');
+  tbody.innerHTML = '<tr><td colspan="6"><div class="loading-rows"><div class="loading-row"></div><div class="loading-row"></div></div></td></tr>';
+  try {
+    const { instructors } = await cmsApi('GET', '/api/cms/instructors');
+    if (!instructors || !instructors.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">👤</div><p>No instructors yet.</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = instructors.map(i => `
+      <tr data-search="${esc((i.first_name||'')+' '+(i.last_name||'')+' '+(i.email||'')+' '+(i.instrument||''))}" data-id="${i.id}">
+        <td><strong>${esc(i.first_name)} ${esc(i.last_name)}</strong></td>
+        <td class="td-muted">${esc(i.email||'—')}</td>
+        <td class="td-muted">${esc(i.instrument||'—')}</td>
+        <td class="td-muted">${i.course_count||0}</td>
+        <td><span class="text-truncate td-muted" style="display:block;max-width:200px">${esc((i.bio||'').substring(0,60))}${(i.bio||'').length>60?'…':''}</span></td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon" title="Edit" onclick="openDrawer('edit', ${JSON.stringify(i).replace(/"/g,'&quot;')})">✏️</button>
+            <button class="btn-icon danger" title="Delete" onclick="deleteInstructor('${i.id}','${esc(i.first_name+' '+i.last_name)}')">🗑</button>
+          </div>
+        </td>
+      </tr>`).join('');
+    animateTableRows('#instructorsTbody tr');
+    filterCurrentSection();
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><p>Failed to load: ${e.message}</p></div></td></tr>`;
+  }
+}
+
+function deleteInstructor(id, name) {
+  confirmDelete(id, name, async () => {
+    try {
+      await cmsApi('DELETE', `/api/cms/instructors/${id}`);
+      showToast('Instructor deleted', 'success');
+      loadInstructors();
+    } catch(e) { showToast(e.message, 'error'); }
+  });
+}
+
+// ─────────────────────────────────────────────
+//  LOAD BLOG
+// ─────────────────────────────────────────────
+async function loadBlog() {
+  const tbody = document.getElementById('blogTbody');
+  tbody.innerHTML = '<tr><td colspan="7"><div class="loading-rows"><div class="loading-row"></div><div class="loading-row"></div></div></td></tr>';
+  try {
+    const { posts } = await cmsApi('GET', '/api/cms/blog');
+    if (!posts || !posts.length) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📝</div><p>No posts yet.</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = posts.map(p => `
+      <tr data-search="${esc((p.title||'')+' '+(p.category||'')+' '+(p.author||''))}" data-id="${p.id}">
+        <td><strong class="text-truncate" style="display:block;max-width:220px">${esc(p.title)}</strong><div class="td-muted" style="font-family:monospace;font-size:11px">${esc(p.slug||'')}</div></td>
+        <td class="td-muted">${esc(p.category||'—')}</td>
+        <td><span class="badge badge-${p.status==='published'?'published':'draft'}">${esc(p.status||'draft')}</span></td>
+        <td class="td-muted">${esc(p.author||'—')}</td>
+        <td class="td-muted">${formatDate(p.published_at || p.created_at)}</td>
+        <td class="td-muted">${(p.views||0).toLocaleString()}</td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon" title="Edit" onclick="openDrawer('edit', ${JSON.stringify(p).replace(/"/g,'&quot;')})">✏️</button>
+            <button class="btn-icon success" title="Toggle Status" onclick="toggleBlogStatus('${p.id}','${p.status}')">⟳</button>
+            <button class="btn-icon danger" title="Delete" onclick="deleteBlogPost('${p.id}','${esc(p.title)}')">🗑</button>
+          </div>
+        </td>
+      </tr>`).join('');
+    animateTableRows('#blogTbody tr');
+    filterCurrentSection();
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><p>Failed to load: ${e.message}</p></div></td></tr>`;
+  }
+}
+
+async function toggleBlogStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+  try {
+    await cmsApi('PATCH', `/api/cms/blog/${id}/status`, { status: newStatus });
+    showToast(`Post ${newStatus}`, 'success');
+    loadBlog();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function deleteBlogPost(id, name) {
+  confirmDelete(id, name, async () => {
+    try {
+      await cmsApi('DELETE', `/api/cms/blog/${id}`);
+      showToast('Post deleted', 'success');
+      loadBlog();
+    } catch(e) { showToast(e.message, 'error'); }
+  });
+}
+
+// ─────────────────────────────────────────────
+//  LOAD STUDENTS
+// ─────────────────────────────────────────────
+async function loadStudents() {
+  const tbody = document.getElementById('studentsTbody');
+  tbody.innerHTML = '<tr><td colspan="5"><div class="loading-rows"><div class="loading-row"></div><div class="loading-row"></div></div></td></tr>';
+  try {
+    const { students } = await cmsApi('GET', '/api/cms/students');
+    if (!students || !students.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">🎓</div><p>No students yet.</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = students.map(s => `
+      <tr data-search="${esc((s.first_name||'')+' '+(s.last_name||'')+' '+(s.email||''))}" data-id="${s.id}">
+        <td><strong>${esc(s.first_name||'')} ${esc(s.last_name||'')}</strong></td>
+        <td class="td-muted">${esc(s.email||'—')}</td>
+        <td class="td-muted">${s.enrolled_courses||s.enrollment_count||0}</td>
+        <td class="td-muted">${formatDate(s.created_at)}</td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon" title="View Profile" onclick="viewStudent('${s.id}')">👁</button>
+            <button class="btn-icon danger" title="Disable Account" onclick="disableStudent('${s.id}','${esc(s.first_name+' '+s.last_name)}')">🚫</button>
+          </div>
+        </td>
+      </tr>`).join('');
+    animateTableRows('#studentsTbody tr');
+    filterCurrentSection();
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><p>Failed to load: ${e.message}</p></div></td></tr>`;
+  }
+}
+
+function viewStudent(id) {
+  window.open(`/student-profile.html?id=${id}`, '_blank');
+}
+
+function disableStudent(id, name) {
+  confirmDelete(id, name + ' (disable account)', async () => {
+    try {
+      await cmsApi('DELETE', `/api/cms/students/${id}`);
+      showToast('Student account disabled', 'success');
+      loadStudents();
+    } catch(e) { showToast(e.message, 'error'); }
+  });
+}
+
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
+function esc(str) {
+  if (str === undefined || str === null) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch(e) { return '—'; }
+}
+
+function animateTableRows(selector) {
+  const rows = document.querySelectorAll(selector);
+  gsap.fromTo(rows,
+    { y: 8, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.28, stagger: 0.04, ease: 'power2.out' }
+  );
+}
+
+// ─────────────────────────────────────────────
+//  INIT ANIMATIONS
+// ─────────────────────────────────────────────
+function initAnimations() {
+  // Sidebar nav items stagger
+  gsap.fromTo('#sidebarNav .nav-item',
+    { x: -16, opacity: 0 },
+    { x: 0, opacity: 1, duration: 0.35, stagger: 0.06, ease: 'power2.out', delay: 0.1 }
+  );
+  // Sidebar brand
+  gsap.fromTo('.sidebar-brand',
+    { opacity: 0 },
+    { opacity: 1, duration: 0.4, ease: 'power2.out' }
+  );
+}
+
+// ─────────────────────────────────────────────
+//  BOOT — triggered by auth-guard after session is verified
+// ─────────────────────────────────────────────
+function boot() {
+  initAnimations();
+  loadDashboard();
+}
+document.addEventListener('userLoaded', boot, { once: true });
+</script>
+<script src="/assets/js/api.js?v=2"></script>
+<script src="/assets/js/auth-guard.js?v=2"></script>
+<script>requireRole(['admin']);</script>
+<script src="/assets/js/admin-sidebar.js?v=2"></script>
+</body>
+</html>

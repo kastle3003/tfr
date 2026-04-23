@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Opt-in to smooth instructor-portal sidebar (View Transitions + hover easing)
+    // before first paint, for instructor role only. Student/admin untouched.
+    (function(){
+      try {
+        var u = JSON.parse(localStorage.getItem('archive_user') || 'null');
+        if (u && u.role === 'instructor') {
+          document.documentElement.classList.add('instructor-portal');
+          var s = document.createElement('style');
+          s.textContent = '@view-transition{navigation:auto}';
+          document.head.appendChild(s);
+        }
+      } catch(e){}
+    })();
+  </script>
+  <title>Instructor Dashboard — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    .insight-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: var(--r-md);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .dash-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 900px) {
+      .dash-header-row { flex-direction: column; }
+    }
+
+    /* New submissions list scroll */
+    #submissions-list { max-height: 480px; overflow-y: auto; }
+
+    /* CTA card gradient border */
+    .cta-course-card {
+      background: var(--bg-card);
+      border-radius: var(--r-md);
+      padding: 24px;
+      text-align: center;
+      margin-top: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-course-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--r-md);
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(200,168,75,0.40), rgba(200,168,75,0.06));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-monogram">TFR</div>
+      <div class="brand-title">The Foundation Room</div>
+      <div class="brand-sub" id="sb-portal">Portal</div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <!-- Dynamic Nav -->
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="handleLogout()">
+        <div class="sidebar-avatar" id="sb-avatar">--</div>
+        <div class="sidebar-user-info">
+          <div class="user-name" id="sb-name">Instructor</div>
+          <div class="user-role">Instructor</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">The Foundation Room</div>
+      <div class="topbar-search">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search students, submissions…">
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" title="Notifications">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge-dot"></span>
+        </button>
+        <div class="topbar-avatar" id="topbar-avatar" onclick="if(confirm('Log out?')) logout()" title="Click to log out" style="cursor:pointer;">--</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <!-- Header row: Title + Insight card -->
+      <div class="dash-header-row">
+        <div>
+          <div class="eyebrow" style="margin-bottom:8px;">Instructor Dashboard</div>
+          <h1 class="page-title" id="page-greeting" style="font-size:52px; margin-bottom:6px;">Welcome</h1>
+          <p class="page-subtitle">Overseeing the next generation of master performers.</p>
+        </div>
+        <div class="insight-card" style="min-width:260px; max-width:320px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="eyebrow" style="color:var(--text-3);">Weekly Insight</span>
+          </div>
+          <div style="font-family:var(--serif); font-style:italic; font-size:15px; color:var(--text); line-height:1.55;">"The most powerful tool an instructor has is consistent feedback delivered with care."</div>
+          <div style="font-size:11px; color:var(--text-3); margin-top:10px;">— Keep checking submissions regularly.</div>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="stat-number" id="stat-grading">—</div>
+          <div class="stat-label">Grading Queue</div>
+          <div class="stat-badge" id="stat-grading-badge" style="display:none;">+0 Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="stat-number" id="stat-enrollments">—</div>
+          <div class="stat-label">Total Enrollments</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="stat-number" id="stat-avg-score">—%</div>
+          <div class="stat-label">Average Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="stat-number" id="stat-avg-progress">—h</div>
+          <div class="stat-label">Avg. Practice Time</div>
+        </div>
+      </div>
+
+      <!-- My Courses widget -->
+      <div style="margin-bottom:28px;">
+        <div class="section-header mb-16">
+          <div class="section-title">Your Courses</div>
+          <a href="/instructor-course-hub.html" style="font-size:12px; color:var(--gold); font-weight:600; letter-spacing:0.04em;">Course Hub →</a>
+        </div>
+        <div id="my-courses-grid" class="stats-row" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));">
+          <div class="skeleton" style="height:140px;"></div>
+          <div class="skeleton" style="height:140px;"></div>
+          <div class="skeleton" style="height:140px;"></div>
+        </div>
+      </div>
+
+      <!-- Main two-column -->
+      <div class="instructor-grid">
+
+        <!-- Student Performance Table -->
+        <div>
+          <div class="section-header mb-16">
+            <div class="section-title">Student Performance</div>
+            <a href="/gradebook.html" style="font-size:12px; color:var(--gold); font-weight:600; letter-spacing:0.04em;">View All →</a>
+          </div>
+          <div class="table-wrap" id="students-table">
+            <div class="skeleton" style="height:280px;"></div>
+          </div>
+        </div>
+
+        <!-- Right: Submissions + CTA -->
+        <div>
+          <div class="section-header mb-16">
+            <div class="section-title">New Submissions</div>
+            <span id="submissions-count" class="badge badge-warning">—</span>
+          </div>
+          <div id="submissions-list">
+            <div class="skeleton" style="height:96px; margin-bottom:10px;"></div>
+            <div class="skeleton" style="height:96px; margin-bottom:10px;"></div>
+            <div class="skeleton" style="height:96px;"></div>
+          </div>
+
+          <!-- New Course CTA -->
+          <div class="cta-course-card">
+            <div style="font-size:28px; margin-bottom:12px; opacity:0.8;">🎼</div>
+            <div style="font-family:var(--serif); font-style:italic; font-size:18px; color:var(--text); margin-bottom:6px;">Start a New Course?</div>
+            <p style="font-size:12px; color:var(--text-3); margin-bottom:18px; line-height:1.6;">Share your expertise with the next generation of performers. Create a course and start building your curriculum.</p>
+            <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="openCreateCourseModal()">+ Create Course</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Create Course Modal -->
+<div class="modal-overlay" id="create-course-modal" style="display:none;">
+  <div class="modal">
+    <div class="modal-title">Create New Course</div>
+    <div id="create-error" style="background:rgba(139,46,38,0.15); color:#D0675D; border-radius:var(--r-sm); padding:10px 14px; font-size:13px; margin-bottom:14px; display:none; border:1px solid rgba(139,46,38,0.25);"></div>
+    <div class="form-group">
+      <label class="form-label">Course Title</label>
+      <input class="form-input" id="new-title" placeholder="e.g. Introduction to Sitar">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Subtitle</label>
+      <input class="form-input" id="new-subtitle" placeholder="A brief tagline…">
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="form-group">
+        <label class="form-label">Level</label>
+        <select class="form-select" id="new-level">
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="new-category">
+          <option>Classical</option>
+          <option>Hindustani</option>
+          <option>Kathak</option>
+          <option>Percussion</option>
+          <option>Film Songs</option>
+          <option>Writer's Room</option>
+          <option>Theory</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Instrument / Discipline</label>
+      <input class="form-input" id="new-instrument" placeholder="Sitar, Vocals, Djembe, Dance…">
+    </div>
+    <div style="display:flex; gap:12px; margin-top:8px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="createCourse()">Create Course</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('create-course-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Grade Modal -->
+<div class="modal-overlay" id="grade-modal" style="display:none;">
+  <div class="modal">
+    <div class="modal-title">Grade Submission</div>
+    <input type="hidden" id="grade-submission-id">
+    <div class="form-group">
+      <label class="form-label">Grade</label>
+      <select class="form-select" id="grade-value">
+        <option>A+</option><option>A</option><option>A-</option>
+        <option>B+</option><option>B</option><option>B-</option>
+        <option>C+</option><option>C</option>
+        <option>Needs Work</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Feedback</label>
+      <textarea class="form-textarea" id="grade-feedback" placeholder="Provide detailed, constructive feedback for the student…"></textarea>
+    </div>
+    <div style="display:flex; gap:12px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="submitGrade()">Submit Grade</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('grade-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['instructor','admin']);</script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ─── PAGE LOAD ENTRANCE ───
+  window.addEventListener('DOMContentLoaded', () => {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.from('#sidebar', { x: -20, opacity: 0, duration: 0.5 }, 0);
+    tl.from('.topbar', { y: -10, opacity: 0, duration: 0.45 }, 0.1);
+    tl.from('.dash-header-row > div', { opacity: 0, y: 16, duration: 0.45, stagger: 0.1 }, 0.25);
+    tl.from('#stats-row .stat-card', {
+      opacity: 0, y: 20, duration: 0.4, stagger: 0.08
+    }, 0.45);
+  });
+
+  // ─── COUNT-UP ───
+  function countUp(el, target, suffix = '') {
+    if (!el) return;
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: target, duration: 1.4, ease: 'power2.out',
+      onUpdate: () => { el.textContent = Math.round(obj.val) + suffix; }
+    });
+  }
+
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/index.html';
+  }
+
+  document.addEventListener('userLoaded', (e) => {
+    const user = e.detail;
+    if (user.role !== 'instructor' && user.role !== 'admin') window.location.href = '/student-dashboard.html';
+    const initials = user.avatar_initials || (user.first_name[0] + user.last_name[0]);
+    document.getElementById('sb-avatar').textContent = initials;
+    document.getElementById('sb-name').textContent = user.first_name + ' ' + user.last_name;
+    document.getElementById('topbar-avatar').textContent = initials;
+    document.getElementById('page-greeting').textContent = user.first_name + '.';
+
+    // Dynamic Sidebar (Instructor Only page)
+    const nav = document.getElementById('sidebar-nav');
+    document.getElementById('sb-portal').textContent = 'Instructor Portal';
+    nav.innerHTML = `
+      <a href="/instructor-dashboard.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </a>
+      <a href="/instructor-course-hub.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        Course Hub
+      </a>
+      <a href="/gradebook.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Gradebook
+      </a>
+      <a href="/quiz-builder.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Quiz Builder
+      </a>
+      <a href="/analytics-instructor.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </a>
+      <a href="/live-classes.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        Live Classes
+      </a>
+      <a href="/messages.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+      </a>
+      ${user.role === 'admin' ? `
+      <a href="/admin.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        System Admin
+      </a>` : ''}
+    `;
+    loadDashboard();
+  });
+
+  async function loadDashboard() {
+    // Load instructor's own courses
+    loadMyCourses();
+    // Load student performance
+    try {
+      const data = await api.get('/api/enrollments/instructor');
+      const students = data.students || [];
+      renderStudentsTable(students);
+      const count = students.length;
+      countUp(document.getElementById('stat-enrollments'), count);
+      if (count > 0) {
+        const avg = Math.round(students.reduce((s, st) => s + (st.progress_pct || 0), 0) / count);
+        countUp(document.getElementById('stat-avg-progress'), avg, '%');
+        countUp(document.getElementById('stat-avg-score'), avg, '%');
+      }
+    } catch (e) {
+      document.getElementById('students-table').innerHTML = '<div class="card"><p style="padding:20px; color:var(--text-3); font-size:13px;">Could not load student data.</p></div>';
+    }
+
+    // Load submissions
+    try {
+      const data = await api.get('/api/submissions/instructor');
+      const subs = data.submissions || [];
+      countUp(document.getElementById('stat-grading'), subs.length);
+      if (subs.length > 0) {
+        const badge = document.getElementById('stat-grading-badge');
+        badge.textContent = `+${Math.min(subs.length, 3)} Today`;
+        badge.style.display = 'flex';
+      }
+      document.getElementById('submissions-count').textContent = subs.length + ' pending';
+      renderSubmissions(subs);
+    } catch (e) {
+      document.getElementById('submissions-list').innerHTML = '<div class="card card-sm"><p style="font-size:13px; color:var(--text-3);">No pending submissions.</p></div>';
+    }
+  }
+
+  function statusBadge(label) {
+    if (!label) return '<span class="badge badge-muted">—</span>';
+    const l = label.toLowerCase();
+    if (l === 'excellent') return `<span class="badge badge-warning" style="text-transform:uppercase;">${label}</span>`;
+    if (l === 'on track')  return `<span class="badge badge-success" style="text-transform:uppercase;">${label}</span>`;
+    return `<span class="badge badge-danger" style="text-transform:uppercase;">${label}</span>`;
+  }
+
+  async function loadMyCourses() {
+    const grid = document.getElementById('my-courses-grid');
+    if (!grid) return;
+    try {
+      const data = await api.get('/api/courses?status=all');
+      const me = currentUser || window.currentUser;
+      const mine = (data.courses || []).filter(c => c.instructor_id === me.id);
+      if (!mine.length) {
+        grid.innerHTML = `
+          <div class="card" style="grid-column:1/-1; text-align:center; padding:30px;">
+            <div style="font-size:28px; margin-bottom:10px; opacity:0.6;">🎼</div>
+            <div style="font-family:var(--serif); font-style:italic; font-size:18px; color:var(--text); margin-bottom:6px;">No courses yet</div>
+            <p style="font-size:12px; color:var(--text-3); margin-bottom:14px;">Create your first course to start teaching.</p>
+            <button class="btn btn-primary" onclick="openCreateCourseModal()">+ Create Course</button>
+          </div>`;
+        return;
+      }
+      grid.innerHTML = mine.map(c => `
+        <div class="card" style="padding:16px; display:flex; flex-direction:column; gap:10px; position:relative; overflow:hidden;">
+          ${c.cover_image_url
+            ? `<div style="position:absolute;inset:0;background:url('${c.cover_image_url}') center/cover;opacity:0.22;"></div>`
+            : `<div style="position:absolute;inset:0;background:${c.cover_color || '#2D4F1E'};opacity:0.3;"></div>`}
+          <div style="position:relative;z-index:1;">
+            <div style="font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); margin-bottom:4px;">
+              ${c.level || 'All Levels'} · ${c.category || ''}
+            </div>
+            <div style="font-family:var(--serif); font-style:italic; font-size:20px; color:var(--text); line-height:1.2; margin-bottom:6px;">
+              ${escapeHTML(c.title)}
+            </div>
+            <div style="font-size:12px; color:var(--text-3); margin-bottom:10px;">
+              ${c.lesson_count || 0} lessons · status: <span style="color:${c.status === 'active' ? '#6fcf6f' : '#e07070'};">${c.status || 'draft'}</span>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <a href="/course-manager.html#${c.id}" class="btn btn-primary btn-sm" style="font-size:11px;">Edit</a>
+              <a href="/instructor-course-hub.html" class="btn btn-outline btn-sm" style="font-size:11px;">Hub</a>
+              <a href="/courses/${c.slug || c.id}" target="_blank" rel="noopener" class="btn btn-outline btn-sm" style="font-size:11px;">Preview ↗</a>
+            </div>
+          </div>
+        </div>`).join('');
+    } catch (e) {
+      grid.innerHTML = `<div class="card" style="grid-column:1/-1; padding:20px; color:var(--text-3); font-size:13px;">Could not load your courses.</div>`;
+    }
+  }
+
+  function escapeHTML(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function renderStudentsTable(students) {
+    const container = document.getElementById('students-table');
+    if (!students.length) {
+      container.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">🎓</div><h3>No students yet</h3><p>Students will appear here once they enroll in your courses.</p></div></div>';
+      return;
+    }
+    // Render table first
+    container.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Course</th>
+            <th>Progress</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${students.map(s => `
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="user-avatar-initials" style="width:32px; height:32px; font-size:11px; flex-shrink:0;">${s.avatar_initials || (s.first_name ? s.first_name[0] + s.last_name[0] : '??')}</div>
+                  <div>
+                    <div style="font-weight:600; font-size:13px; color:var(--text);">${s.first_name} ${s.last_name}</div>
+                    <div style="font-size:11px; color:var(--text-3);">${s.email || ''}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-size:13px; color:var(--text-2); max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${s.course_title}</td>
+              <td style="min-width:130px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:${s.progress_pct || 0}%;"></div></div>
+                  <span style="font-size:11px; color:var(--text-3); flex-shrink:0;">${s.progress_pct || 0}%</span>
+                </div>
+              </td>
+              <td>${statusBadge(s.status_label)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+    // Stagger table rows on scroll
+    gsap.from(container.querySelectorAll('tbody tr'), {
+      scrollTrigger: { trigger: container, start: 'top 85%', once: true },
+      opacity: 0, x: -12, duration: 0.4, stagger: 0.05, ease: 'power3.out'
+    });
+  }
+
+  function subTypeIcon(type) {
+    if (!type) return '';
+    const t = type.toLowerCase();
+    if (t.includes('audio') || t.includes('mp3') || t.includes('recording')) {
+      return `<div class="sub-type-icon sub-type-audio"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>`;
+    }
+    if (t.includes('quiz')) {
+      return `<div class="sub-type-icon sub-type-quiz"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>`;
+    }
+    return `<div class="sub-type-icon sub-type-doc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>`;
+  }
+
+  function formatTime(str) {
+    if (!str) return '';
+    return new Date(str).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderSubmissions(subs) {
+    const container = document.getElementById('submissions-list');
+    if (!subs.length) {
+      container.innerHTML = '<div class="card card-sm"><p style="font-size:13px; color:var(--text-3); text-align:center; padding:12px;">No pending submissions. 🎉</p></div>';
+      return;
+    }
+    container.innerHTML = subs.slice(0, 6).map(s => `
+      <div class="submission-card pending">
+        <div style="font-size:10px; color:var(--text-3); margin-bottom:8px; letter-spacing:0.04em;">${formatTime(s.submitted_at)}</div>
+        <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:10px;">
+          ${subTypeIcon(s.submission_type)}
+          <div style="flex:1; min-width:0;">
+            <div style="font-weight:600; font-size:13px; color:var(--text); margin-bottom:2px;">${s.lesson_title || 'Submission'}</div>
+            <div style="font-size:12px; color:var(--text-3);">Submitted by ${s.student_first} ${s.student_last}</div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="openGradeModal(${s.id})">Evaluate / Grade</button>
+      </div>
+    `).join('');
+  }
+
+  function openCreateCourseModal() {
+    document.getElementById('create-course-modal').style.display = 'flex';
+    document.getElementById('create-error').style.display = 'none';
+  }
+
+  async function createCourse() {
+    const errEl = document.getElementById('create-error');
+    errEl.style.display = 'none';
+    try {
+      const body = {
+        title: document.getElementById('new-title').value,
+        subtitle: document.getElementById('new-subtitle').value,
+        level: document.getElementById('new-level').value,
+        category: document.getElementById('new-category').value,
+        instrument: document.getElementById('new-instrument').value,
+      };
+      if (!body.title) { errEl.textContent = 'Title is required'; errEl.style.display = 'block'; return; }
+      await api.post('/api/courses', body);
+      document.getElementById('create-course-modal').style.display = 'none';
+      toast('Course created successfully!');
+      setTimeout(() => window.location.href = '/student-course-catalog.html', 1200);
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    }
+  }
+
+  function openGradeModal(id) {
+    document.getElementById('grade-submission-id').value = id;
+    document.getElementById('grade-value').value = 'A';
+    document.getElementById('grade-feedback').value = '';
+    document.getElementById('grade-modal').style.display = 'flex';
+  }
+
+  async function submitGrade() {
+    try {
+      const id = document.getElementById('grade-submission-id').value;
+      await api.put(`/api/submissions/${id}/grade`, {
+        grade: document.getElementById('grade-value').value,
+        feedback: document.getElementById('grade-feedback').value
+      });
+      document.getElementById('grade-modal').style.display = 'none';
+      toast('Grade submitted!');
+      loadDashboard();
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  }
+</script>
+</body>
+</html>

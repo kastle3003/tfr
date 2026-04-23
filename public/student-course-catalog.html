@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Library — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #080706;
+      --bg-2:        #0F0D0B;
+      --bg-card:     #161412;
+      --bg-elevated: #1E1B17;
+      --bg-hover:    #252119;
+      --gold:        #C8A84B;
+      --gold-bright: #E8C96E;
+      --gold-dim:    #7A6530;
+      --gold-glow:   rgba(200,168,75,0.12);
+      --text:        #F0E6D3;
+      --text-2:      #B8A898;
+      --text-3:      #6B5E50;
+      --ruby:        #8B2E26;
+      --emerald:     #2D5A27;
+      --serif:       'Cormorant Garamond', Georgia, serif;
+      --sans:        'DM Sans', sans-serif;
+      --sidebar-w:   240px;
+      --topbar-h:    60px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    input, select { font-family: inherit; }
+
+    /* ── Shell ── */
+    .shell {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      z-index: 100;
+      border-right: 1px solid rgba(200,168,75,0.06);
+    }
+
+    .sidebar-brand {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid rgba(200,168,75,0.06);
+    }
+
+    .brand-name {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1.2;
+    }
+
+    .brand-tagline {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-3);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 10px;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      color: var(--text-3);
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 2px;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-elevated);
+      color: var(--text-2);
+    }
+
+    .nav-item.active {
+      background: var(--gold-glow);
+      color: var(--gold);
+      border: 1px solid rgba(200,168,75,0.15);
+    }
+
+    .nav-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      padding: 14px 10px 18px;
+      border-top: 1px solid rgba(200,168,75,0.06);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .sidebar-user:hover { background: var(--bg-elevated); }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold-glow);
+      border: 1px solid rgba(200,168,75,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+
+    .user-role {
+      font-size: 10px;
+      color: var(--text-3);
+      margin-top: 1px;
+      text-transform: capitalize;
+    }
+
+    /* ── Main wrap ── */
+    .main-wrap {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--bg-2);
+      border-bottom: 1px solid rgba(200,168,75,0.06);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .topbar-brand {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--gold);
+      flex: 1;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-3);
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+      text-decoration: none;
+    }
+
+    .topbar-icon-btn:hover { background: var(--bg-elevated); color: var(--text-2); }
+
+    .badge-dot {
+      position: absolute;
+      top: 5px; right: 5px;
+      width: 7px; height: 7px;
+      background: var(--gold);
+      border-radius: 50%;
+      border: 1.5px solid var(--bg-2);
+    }
+
+    .topbar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold-glow);
+      border: 1px solid rgba(200,168,75,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ── Main Content ── */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    /* ── Hero Strip ── */
+    .hero-strip {
+      background: var(--bg-2);
+      padding: 48px 32px;
+      border-bottom: 1px solid rgba(200,168,75,0.06);
+    }
+
+    .hero-eyebrow {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .hero-heading {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 48px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .hero-sub {
+      font-family: var(--sans);
+      font-size: 16px;
+      color: var(--text-2);
+      font-weight: 400;
+    }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+      position: sticky;
+      top: var(--topbar-h);
+      z-index: 40;
+      background: rgba(8,7,6,0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .filter-chip {
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: transparent;
+      border: 1px solid rgba(200,168,75,0.2);
+      color: var(--gold);
+    }
+
+    .filter-chip:hover {
+      border-color: var(--gold);
+      background: var(--gold-glow);
+    }
+
+    .filter-chip.active {
+      background: var(--gold);
+      color: #080706;
+      border-color: var(--gold);
+    }
+
+    .filter-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 6px;
+      padding: 7px 14px;
+    }
+
+    .search-wrap svg { color: var(--text-3); flex-shrink: 0; }
+
+    .search-input {
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 12px;
+      color: var(--text);
+      width: 160px;
+    }
+
+    .search-input::placeholder { color: var(--text-3); }
+
+    .sort-select {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 12px;
+      color: var(--text-2);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .sort-select option { background: var(--bg-card); }
+
+    /* ── Grid wrapper ── */
+    .grid-wrapper {
+      padding: 2px 0;
+    }
+
+    /* ── Course Grid ── */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+      padding: 0 32px 40px;
+    }
+
+    /* ── Course Card ── */
+    .course-card {
+      position: relative;
+      aspect-ratio: 4/3;
+      cursor: pointer;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid rgba(200,168,75,0.08);
+      background: var(--bg-card);
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .course-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(200,168,75,0.3);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+      z-index: 2;
+    }
+
+    .card-bg {
+      position: absolute;
+      inset: 0;
+    }
+
+    .card-initials {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--gold);
+      opacity: 0.18;
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+      z-index: 2;
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(8,7,6,0.96) 0%, rgba(8,7,6,0.78) 38%, rgba(8,7,6,0.22) 70%, transparent 100%);
+    }
+
+    .card-enrolled-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--emerald);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+    }
+
+    .card-price-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 5px 10px;
+      border-radius: 14px;
+      background: rgba(8,7,6,0.72);
+      border: 1px solid rgba(200,168,75,0.35);
+      color: var(--gold);
+      font-family: var(--serif);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      backdrop-filter: blur(8px);
+      z-index: 3;
+    }
+
+    .card-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 14px 14px 14px;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-course-name {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.2;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-taught-by {
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .card-instructor {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-2);
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .card-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .meta-left { display: flex; align-items: center; gap: 6px; }
+
+    .level-badge {
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 500;
+      border: 1px solid rgba(200,168,75,0.4);
+      color: var(--gold);
+      padding: 2px 7px;
+      border-radius: 100px;
+      letter-spacing: 0.04em;
+    }
+
+    .lessons-count {
+      font-family: var(--sans);
+      font-size: 10px;
+      color: var(--text-3);
+    }
+
+    .card-cta {
+      z-index: 3;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--gold);
+      color: #080706;
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 100px;
+      cursor: pointer;
+      border: none;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .cta-btn:hover { background: var(--gold-bright); }
+
+    .cta-btn.continue {
+      background: var(--emerald);
+      color: var(--text);
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 20px;
+      border: 1px dashed rgba(200,168,75,0.2);
+      margin: 24px 32px;
+      background: var(--bg-card);
+    }
+
+    .empty-state h3 {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 26px;
+      color: var(--text-2);
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text-3);
+    }
+
+    /* ── Skeleton ── */
+    .skeleton-card {
+      aspect-ratio: 4/3;
+      border-radius: 8px;
+      background: linear-gradient(160deg, var(--bg-card) 0%, var(--bg-elevated) 50%, var(--bg-card) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+    }
+
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .toast {
+      background: var(--bg-elevated);
+      border: 1px solid rgba(200,168,75,0.15);
+      border-left: 3px solid var(--gold);
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text);
+      min-width: 240px;
+      animation: toastIn 0.2s ease;
+    }
+
+    .toast.error { border-left-color: var(--ruby); }
+
+    @keyframes toastIn {
+      from { transform: translateY(12px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 720px) {
+      .courses-grid { grid-template-columns: 1fr; padding: 0 18px 30px; }
+      .hero-heading { font-size: 32px; }
+      .filter-bar { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- ── Main Wrap ── -->
+  <div class="main-wrap">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-brand">The Foundation Room</div>
+      <div class="topbar-actions">
+        <a href="/student-notifications.html" class="topbar-icon-btn" title="Notifications">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge-dot"></span>
+        </a>
+        <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar" title="Profile">?</a>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Hero Strip -->
+      <div class="hero-strip">
+        <div class="hero-eyebrow">Explore Courses</div>
+        <h1 class="hero-heading">Every discipline. Every level.</h1>
+        <p class="hero-sub">Train live with India's greatest performing artists.</p>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-chips">
+          <button class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">All Disciplines</button>
+          <button class="filter-chip" data-filter="Sitar" onclick="setFilter('Sitar', this)">Sitar</button>
+          <button class="filter-chip" data-filter="Percussion" onclick="setFilter('Percussion', this)">Percussion</button>
+          <button class="filter-chip" data-filter="Vocals" onclick="setFilter('Vocals', this)">Vocals</button>
+          <button class="filter-chip" data-filter="Dance" onclick="setFilter('Dance', this)">Dance</button>
+          <button class="filter-chip" data-filter="Film Songs" onclick="setFilter('Film Songs', this)">Film Songs</button>
+          <button class="filter-chip" data-filter="Acting" onclick="setFilter('Acting', this)">Acting</button>
+        </div>
+        <div class="filter-right">
+          <div class="search-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" type="text" placeholder="Search courses…" id="search-input">
+          </div>
+          <select class="sort-select" id="sort-select" onchange="loadCourses()">
+            <option value="latest">Latest</option>
+            <option value="popular">Popular</option>
+            <option value="level">Level</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="grid-wrapper">
+        <div class="courses-grid" id="courses-grid">
+          <!-- skeleton placeholders -->
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="/assets/js/api.js"></script>
+<script>
+  // Deferred-auth: unauthenticated visitors land on the public catalog instead
+  // of being bounced to /login. Only authed users see the "Continue / Enrolled" UI.
+  if (!localStorage.getItem('archive_token')) {
+    window.location.replace('/courses.html');
+  }
+</script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['student','admin']);</script>
+<script src="/assets/js/sidebar-loader.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ── State ── */
+  let currentFilter = 'all';
+  let currentUser = null;
+  let enrolledCourseIds = new Set();
+
+  /* ── Category gradients & colours ── */
+  const categoryGradients = {
+    'Sitar':      'linear-gradient(160deg, #1A0D00 0%, #3D2400 60%, #1A0D00 100%)',
+    'Percussion': 'linear-gradient(160deg, #001A08 0%, #003314 60%, #001A08 100%)',
+    'Vocals':     'linear-gradient(160deg, #1A0014 0%, #330028 60%, #1A0014 100%)',
+    'Dance':      'linear-gradient(160deg, #001A1A 0%, #003333 60%, #001A1A 100%)',
+    'Kathak':     'linear-gradient(160deg, #001A1A 0%, #003333 60%, #001A1A 100%)',
+    'Film Songs': 'linear-gradient(160deg, #1A1000 0%, #332000 60%, #1A1000 100%)',
+    'Acting':     'linear-gradient(160deg, #0A0A1A 0%, #141433 60%, #0A0A1A 100%)',
+  };
+
+  function getCategoryGradient(cat) {
+    return categoryGradients[cat] || 'linear-gradient(160deg, #0F0D0B 0%, #1E1B17 100%)';
+  }
+
+  /* ── Toast ── */
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t  = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  /* ── User loaded (fired by auth-guard.js; student-sidebar.js handles sidebar itself) ── */
+  document.addEventListener('userLoaded', (e) => {
+    const user = e.detail;
+    currentUser = user;
+
+    document.getElementById('topbar-avatar').textContent = user.avatar_initials || '?';
+
+    // Restore search param
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('search')) document.getElementById('search-input').value = params.get('search');
+
+    // Load enrollments, then courses
+    if (user.role === 'student') {
+      api.get('/api/enrollments/me')
+        .then(d => { (d.enrollments || []).forEach(e => enrolledCourseIds.add(e.course_id)); })
+        .catch(() => {})
+        .finally(() => loadCourses());
+    } else {
+      loadCourses();
+    }
+  });
+
+  /* ── Filter chip with GSAP ── */
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+
+    const grid = document.getElementById('courses-grid');
+    const cards = grid.querySelectorAll('.course-card');
+
+    if (cards.length) {
+      gsap.to(cards, {
+        scale: 0.9, opacity: 0, duration: 0.2, ease: 'power2.inOut',
+        onComplete: () => loadCourses()
+      });
+    } else {
+      loadCourses();
+    }
+  }
+
+  /* ── Load courses ── */
+  async function loadCourses(filter) {
+    const grid = document.getElementById('courses-grid');
+    // Skeleton
+    grid.innerHTML = Array(6).fill(0).map(() => '<div class="skeleton-card"></div>').join('');
+
+    try {
+      const qs = new URLSearchParams();
+      qs.set('status', 'active');
+      if (currentFilter !== 'all') qs.set('category', currentFilter);
+      const search = document.getElementById('search-input').value.trim();
+      if (search) qs.set('search', search);
+      const sort   = document.getElementById('sort-select').value;
+      if (sort) qs.set('sort', sort);
+
+      const data = await api.get('/api/courses?' + qs.toString());
+      renderCourses(data.courses || []);
+    } catch (err) {
+      grid.innerHTML = `<div class="empty-state"><h3>Could not load courses</h3><p>${err.message}</p></div>`;
+    }
+  }
+
+  /* ── Render cards ── */
+  function renderCourses(courses) {
+    const grid = document.getElementById('courses-grid');
+
+    if (!courses.length) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <h3>No courses found</h3>
+          <p>Try a different discipline or clear your search.</p>
+        </div>`;
+      return;
+    }
+
+    // Animate cards in after render
+    const _renderCards = () => {
+      gsap.from(grid.querySelectorAll('.course-card'), {
+        opacity: 0, y: 30, scale: 0.96,
+        duration: 0.5, stagger: 0.08, ease: 'power3.out'
+      });
+    };
+
+    grid.innerHTML = courses.map(c => {
+      const isEnrolled = enrolledCourseIds.has(c.id);
+      const category   = c.category || '';
+      const gradient   = getCategoryGradient(category);
+      const instructor = c.instructor_name || 'TFR Faculty';
+      const initial    = instructor.charAt(0).toUpperCase();
+      const level      = c.level || 'All Levels';
+      const lessons    = c.lesson_count || 0;
+      const isPaid     = c.is_paid && c.price_paise > 0;
+      const priceStr   = isPaid ? `₹${(c.price_paise / 100).toLocaleString('en-IN')}` : 'Free';
+      let ctaLabel;
+      if (isEnrolled)     ctaLabel = 'Continue →';
+      else if (isPaid)    ctaLabel = `Buy · ${priceStr}`;
+      else                ctaLabel = 'Enroll Now →';
+      const ctaClass   = isEnrolled ? 'cta-btn continue' : 'cta-btn';
+
+      return `
+        <div class="course-card" onclick="window.location.href='/student-course-detail.html?id=${c.id}'">
+          <div class="card-bg" style="background:${gradient};"></div>
+          ${c.cover_image_url ? `<img class="card-cover-img" src="${c.cover_image_url}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;">` : ''}
+          <div class="card-initials">${initial}</div>
+          <div class="card-overlay"></div>
+          ${isEnrolled ? `
+            <div class="card-enrolled-badge" title="Enrolled">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>` : ''}
+          ${isPaid && !isEnrolled ? `<div class="card-price-badge">${priceStr}</div>` : ''}
+          <div class="card-content">
+            <div class="card-course-name">${c.title}</div>
+            <div class="card-taught-by">Taught by</div>
+            <div class="card-instructor">${instructor}</div>
+            <div class="card-meta-row">
+              <div class="meta-left">
+                <span class="level-badge">${level}</span>
+                <span class="lessons-count">${lessons} lesson${lessons === 1 ? '' : 's'}</span>
+              </div>
+              <div class="card-cta">
+                <button class="${ctaClass}" onclick="handleCta(event, ${c.id}, ${isEnrolled}, ${isPaid ? 1 : 0})">${ctaLabel}</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    setTimeout(_renderCards, 20);
+  }
+
+  /* ── CTA handler ── */
+  function handleCta(event, courseId, isEnrolled, isPaid) {
+    event.stopPropagation();
+    if (isEnrolled) {
+      window.location.href = `/student-course-detail.html?id=${courseId}`;
+    } else if (isPaid) {
+      window.location.href = `/student-checkout.html?course_id=${courseId}`;
+    } else {
+      enroll(courseId, event.currentTarget);
+    }
+  }
+
+  /* ── Enroll ── */
+  async function enroll(courseId, btn) {
+    btn.disabled   = true;
+    btn.textContent = 'Enrolling…';
+    try {
+      await api.post('/api/enrollments', { course_id: courseId });
+      enrolledCourseIds.add(courseId);
+      toast('Enrolled successfully!');
+      loadCourses();
+    } catch (err) {
+      toast(err.message, 'error');
+      btn.disabled   = false;
+      btn.textContent = 'Enroll Now →';
+    }
+  }
+
+  /* ── Search ── */
+  document.getElementById('search-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loadCourses();
+  });
+  document.getElementById('search-input').addEventListener('input', () => {
+    clearTimeout(window._searchTimer);
+    window._searchTimer = setTimeout(loadCourses, 400);
+  });
+</script>
+</body>
+</html>

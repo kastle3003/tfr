@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>From the Studio — The Foundation Room</title>
+  <meta name="description" content="Insights, stories, and wisdom from India's greatest performing artists. Music theory, practice tips, artist spotlights, and more.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #080706;
+      --bg-2:        #0F0D0B;
+      --bg-card:     #161412;
+      --bg-elevated: #1E1B17;
+      --bg-hover:    #252119;
+      --gold:        #C8A84B;
+      --gold-bright: #E8C96E;
+      --gold-dim:    #7A6530;
+      --gold-glow:   rgba(200,168,75,0.15);
+      --text:        #F0E6D3;
+      --text-2:      #B8A898;
+      --text-3:      #6B5E50;
+      --serif:       'Cormorant Garamond', 'Georgia', serif;
+      --sans:        'DM Sans', 'Inter', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      background-color: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVIGATION ─── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(8,7,6,0);
+      border-bottom: 1px solid transparent;
+      transition: background 0.4s ease, border-color 0.4s ease;
+      padding: 0 40px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav.scrolled {
+      background: rgba(8,7,6,0.95);
+      border-bottom-color: rgba(200,168,75,0.2);
+    }
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      text-decoration: none;
+    }
+    .nav-logo-main {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: 0.01em;
+    }
+    .nav-logo-sub {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-2);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-ghost {
+      padding: 9px 20px;
+      border: 1px solid rgba(200,168,75,0.4);
+      border-radius: 3px;
+      color: var(--gold);
+      background: transparent;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--gold); background: rgba(200,168,75,0.06); }
+    .btn-gold {
+      padding: 9px 20px;
+      background: var(--gold);
+      border: 1px solid var(--gold);
+      border-radius: 3px;
+      color: #080706;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-gold:hover { background: var(--gold-bright); transform: translateY(-1px); }
+
+    /* ─── BLOG HERO ─── */
+    .blog-hero {
+      padding: 140px 40px 80px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+    }
+    .blog-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 80% at 10% 100%, rgba(200,168,75,0.06) 0%, transparent 60%),
+                  radial-gradient(ellipse 50% 50% at 90% 0%, rgba(200,168,75,0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .blog-hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    .blog-hero-eyebrow {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .blog-hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--gold-dim);
+    }
+    .blog-hero-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(44px, 6vw, 72px);
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+      position: relative;
+      display: inline-block;
+    }
+    .blog-hero-title::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(to right, var(--gold), transparent);
+      margin-top: 14px;
+    }
+    .blog-hero-sub {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text-2);
+      max-width: 480px;
+      line-height: 1.7;
+      margin-top: 20px;
+    }
+
+    /* ─── FILTER CHIPS ─── */
+    .filters-wrap {
+      background: var(--bg-2);
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      position: sticky;
+      top: 72px;
+      z-index: 50;
+    }
+    .filters-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      height: 60px;
+    }
+    .filters-inner::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      flex-shrink: 0;
+      padding: 6px 16px;
+      border: 1px solid rgba(200,168,75,0.2);
+      border-radius: 100px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-3);
+      background: transparent;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .filter-chip:hover {
+      border-color: var(--gold-dim);
+      color: var(--text-2);
+    }
+    .filter-chip.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(200,168,75,0.08);
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    .blog-main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 40px 80px;
+    }
+
+    /* ─── FEATURED POST ─── */
+    .featured-post {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 64px;
+      text-decoration: none;
+      transition: border-color 0.3s;
+    }
+    .featured-post:hover { border-color: rgba(200,168,75,0.3); }
+    .featured-cover {
+      min-height: 420px;
+      position: relative;
+      overflow: hidden;
+    }
+    .featured-cover-inner {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #1a0f00 0%, #2D1F00 40%, #0F0D0B 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .featured-cover-ornament {
+      width: 200px;
+      height: 200px;
+      opacity: 0.12;
+    }
+    .featured-cover-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, transparent 60%, var(--bg-card));
+    }
+    .featured-body {
+      padding: 48px 48px 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .featured-label {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .featured-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid rgba(200,168,75,0.3);
+      border-radius: 3px;
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 20px;
+    }
+    .featured-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(26px, 3vw, 38px);
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .featured-excerpt {
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.75;
+      margin-bottom: 28px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .featured-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .author-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid rgba(200,168,75,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .meta-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .meta-author {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .meta-date {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+    }
+    .featured-cta {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: gap 0.2s;
+    }
+    .featured-post:hover .featured-cta { gap: 12px; }
+
+    /* ─── SECTION HEADING ─── */
+    .section-label {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 32px;
+    }
+
+    /* ─── BLOG GRID ─── */
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-bottom: 56px;
+    }
+    .blog-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      transition: border-color 0.3s, transform 0.25s;
+    }
+    .blog-card:hover {
+      border-color: rgba(200,168,75,0.25);
+      transform: translateY(-3px);
+    }
+    .card-cover {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .card-cover-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-cover-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, var(--bg-card));
+    }
+    .card-cover-svg {
+      width: 80px;
+      height: 80px;
+      opacity: 0.1;
+    }
+    .card-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .category-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      align-self: flex-start;
+    }
+    .badge-music-theory    { background: rgba(200,168,75,0.12); color: var(--gold); }
+    .badge-artist-spotlight { background: rgba(139,46,38,0.18); color: #D4705A; }
+    .badge-practice-tips   { background: rgba(45,90,39,0.18); color: #6BAE66; }
+    .badge-culture         { background: rgba(75,100,200,0.15); color: #7EA8D4; }
+    .badge-tfr-news        { background: rgba(122,101,48,0.2); color: var(--gold-dim); }
+    .badge-default         { background: rgba(200,168,75,0.08); color: var(--text-3); }
+
+    .card-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .card-excerpt {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.7;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 16px;
+      border-top: 1px solid rgba(200,168,75,0.06);
+      margin-top: auto;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid rgba(200,168,75,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .card-meta-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .card-author-name {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-2);
+    }
+    .card-date {
+      font-family: var(--sans);
+      font-size: 10px;
+      color: var(--text-3);
+    }
+    .card-read-link {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--gold-dim);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.2s, gap 0.2s;
+    }
+    .blog-card:hover .card-read-link {
+      color: var(--gold);
+      gap: 8px;
+    }
+
+    /* ─── LOAD MORE ─── */
+    .load-more-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .btn-load-more {
+      padding: 12px 36px;
+      border: 1px solid rgba(200,168,75,0.3);
+      border-radius: 3px;
+      background: transparent;
+      color: var(--gold);
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-load-more:hover { border-color: var(--gold); background: rgba(200,168,75,0.06); }
+    .btn-load-more:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      text-align: center;
+      padding: 96px 24px;
+    }
+    .empty-ornament {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px;
+      opacity: 0.2;
+    }
+    .empty-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 32px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .empty-sub {
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--text-3);
+    }
+
+    /* ─── LOADER ─── */
+    .loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 80px 24px;
+      gap: 8px;
+    }
+    .loader-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      animation: pulse-dot 1.4s ease-in-out infinite;
+    }
+    .loader-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loader-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse-dot {
+      0%, 80%, 100% { transform: scale(1); opacity: 0.4; }
+      40% { transform: scale(1.4); opacity: 1; }
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--bg-2);
+      border-top: 1px solid rgba(200,168,75,0.1);
+      padding: 64px 40px 0;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+      gap: 48px;
+      max-width: 1200px;
+      margin: 0 auto 48px;
+    }
+    .footer-brand-logo-main {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .footer-brand-logo-sub {
+      font-family: var(--sans);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--text-3);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .footer-tagline {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .footer-socials { display: flex; gap: 12px; }
+    .footer-social {
+      width: 34px; height: 34px;
+      border: 1px solid rgba(200,168,75,0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s, background 0.2s;
+      text-decoration: none;
+    }
+    .footer-social:hover { border-color: var(--gold); background: rgba(200,168,75,0.08); }
+    .footer-social svg { width: 14px; height: 14px; fill: var(--gold); }
+    .footer-col-title {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: var(--text-2);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer-links a { font-family: var(--sans); font-size: 13px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-connect-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .footer-connect-item svg { width: 14px; height: 14px; stroke: var(--gold-dim); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px; }
+    .footer-connect-text { font-family: var(--sans); font-size: 13px; color: var(--text-3); line-height: 1.5; }
+    .footer-connect-text a { color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+    .footer-connect-text a:hover { color: var(--gold); }
+    .footer-bar {
+      max-width: 1200px; margin: 0 auto;
+      border-top: 1px solid rgba(200,168,75,0.08);
+      padding: 20px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-copy { font-family: var(--sans); font-size: 12px; color: var(--text-3); }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a { font-family: var(--sans); font-size: 12px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+    .footer-legal a:hover { color: var(--gold); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .blog-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .blog-hero { padding: 120px 20px 60px; }
+      .blog-main { padding: 40px 20px 60px; }
+      .featured-post { grid-template-columns: 1fr; }
+      .featured-cover { min-height: 240px; }
+      .featured-cover-inner::after { background: linear-gradient(to bottom, transparent 40%, var(--bg-card)); }
+      .featured-body { padding: 32px 28px; }
+      .blog-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      footer { padding: 48px 20px 0; }
+      .footer-bar { flex-direction: column; align-items: flex-start; }
+      .filters-inner { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="nav" id="main-nav">
+    <a href="/home.html" class="nav-logo">
+      <span class="nav-logo-main">TFR</span>
+      <span class="nav-logo-sub">The Foundation Room</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/home.html#experience">Experience</a></li>
+      <li><a href="/home.html#explore">Courses</a></li>
+      <li><a href="/home.html#community">Community</a></li>
+      <li><a href="/blog.html" class="active">Journal</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/login" class="btn-ghost">Sign In</a>
+      <a href="/login#panel-register" class="btn-gold">Start Learning</a>
+    </div>
+  </nav>
+
+  <!-- BLOG HERO -->
+  <header class="blog-hero">
+    <div class="blog-hero-bg"></div>
+    <div class="blog-hero-inner">
+      <div class="blog-hero-eyebrow" id="hero-eyebrow">The Foundation Room Journal</div>
+      <h1 class="blog-hero-title" id="hero-title">From the Studio</h1>
+      <p class="blog-hero-sub" id="hero-sub">Insights, practice wisdom, and stories from India's greatest performing artists — crafted for the serious student.</p>
+    </div>
+  </header>
+
+  <!-- CATEGORY FILTERS -->
+  <div class="filters-wrap">
+    <div class="filters-inner" id="filter-bar">
+      <button class="filter-chip active" data-cat="all">All</button>
+      <button class="filter-chip" data-cat="Music Theory">Music Theory</button>
+      <button class="filter-chip" data-cat="Artist Spotlight">Artist Spotlight</button>
+      <button class="filter-chip" data-cat="Practice Tips">Practice Tips</button>
+      <button class="filter-chip" data-cat="Culture &amp; Heritage">Culture &amp; Heritage</button>
+      <button class="filter-chip" data-cat="TFR News">TFR News</button>
+    </div>
+  </div>
+
+  <!-- MAIN BLOG CONTENT -->
+  <main class="blog-main" id="blog-main">
+    <!-- Loader shown initially -->
+    <div class="loader" id="blog-loader">
+      <div class="loader-dot"></div>
+      <div class="loader-dot"></div>
+      <div class="loader-dot"></div>
+    </div>
+
+    <!-- Featured post injected here -->
+    <div id="featured-wrap"></div>
+
+    <!-- Grid label + grid injected here -->
+    <div id="grid-wrap"></div>
+
+    <!-- Load More -->
+    <div class="load-more-wrap" id="load-more-wrap" style="display:none;">
+      <button class="btn-load-more" id="load-more-btn">Load More Articles</button>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-logo-main">TFR</div>
+        <div class="footer-brand-logo-sub">The Foundation Room</div>
+        <p class="footer-tagline">Training is a Science.<br>Performing is an Art.</p>
+        <div class="footer-socials">
+          <a href="https://instagram.com/thisistfr" class="footer-social" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="https://facebook.com/thefoundationroom" class="footer-social" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <p class="footer-col-title">Courses</p>
+        <ul class="footer-links">
+          <li><a href="/login">Sitar with Niladri Kumar</a></li>
+          <li><a href="/login">Djembe &amp; Percussions — Taufiq Qureshi</a></li>
+          <li><a href="/login">Hindustani Vocals — Sveta Kilpady</a></li>
+          <li><a href="/login">Kathak — Guruma Sangeeta Sinha</a></li>
+          <li><a href="/login">Film Songs — Milind Singh</a></li>
+          <li><a href="/login">Acting — Makarand Deshpande</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Platform</p>
+        <ul class="footer-links">
+          <li><a href="/home.html">Experience TFR</a></li>
+          <li><a href="/login">TFR Play</a></li>
+          <li><a href="/blog.html">Journal</a></li>
+          <li><a href="/home.html#courses">Instructors</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Connect</p>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
+          <span class="footer-connect-text"><a href="tel:+919920615500">+91 99206 15500</a></span>
+        </div>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span class="footer-connect-text"><a href="mailto:join@thefoundationroom.in">join@thefoundationroom.in</a></span>
+        </div>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="footer-connect-text">403 Windermere, North Avenue,<br>Santacruz West, Mumbai 400054</span>
+        </div>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+          <span class="footer-connect-text">@thisistfr on Instagram</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved.</p>
+      <div class="footer-legal">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/refund-policy">Refund Policy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // ─── STICKY NAV ───
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    }, { passive: true });
+
+    // ─── HERO ENTRANCE ───
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReducedMotion) {
+      gsap.set(['#hero-eyebrow', '#hero-title', '#hero-sub'], { opacity: 0, y: 24 });
+      gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .to('#hero-eyebrow', { opacity: 1, y: 0, duration: 0.7 }, 0.2)
+        .to('#hero-title',   { opacity: 1, y: 0, duration: 0.8 }, 0.35)
+        .to('#hero-sub',     { opacity: 1, y: 0, duration: 0.7 }, 0.5);
+    }
+
+    // ─── FILTER CHIPS ───
+    const chips = document.querySelectorAll('.filter-chip');
+    let activeCategory = 'all';
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeCategory = chip.dataset.cat;
+        renderFiltered();
+      });
+    });
+
+    // ─── COVER GRADIENTS PER CATEGORY ───
+    const coverGradients = {
+      'Music Theory':      'linear-gradient(135deg, #1a0f00 0%, #3D2A00 100%)',
+      'Artist Spotlight':  'linear-gradient(135deg, #1a0008 0%, #2D0015 100%)',
+      'Practice Tips':     'linear-gradient(135deg, #001a0a 0%, #002D15 100%)',
+      'Culture & Heritage':'linear-gradient(135deg, #0a0f1a 0%, #121C2D 100%)',
+      'TFR News':          'linear-gradient(135deg, #1a1200 0%, #2D1F00 100%)',
+    };
+    const defaultGradient = 'linear-gradient(135deg, #161412 0%, #1E1B17 100%)';
+
+    function getCoverGradient(cat) {
+      return coverGradients[cat] || defaultGradient;
+    }
+
+    function getCategoryClass(cat) {
+      const map = {
+        'Music Theory': 'badge-music-theory',
+        'Artist Spotlight': 'badge-artist-spotlight',
+        'Practice Tips': 'badge-practice-tips',
+        'Culture & Heritage': 'badge-culture',
+        'TFR News': 'badge-tfr-news',
+      };
+      return map[cat] || 'badge-default';
+    }
+
+    function estimateReadTime(views) {
+      // Fallback estimate based on typical article length
+      return Math.max(3, Math.floor((views || 0) / 400) + 4);
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function buildCoverSVG() {
+      return `<svg class="card-cover-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="36" stroke="#C8A84B" stroke-width="1"/>
+        <circle cx="40" cy="40" r="24" stroke="#C8A84B" stroke-width="0.5"/>
+        <circle cx="40" cy="40" r="12" stroke="#C8A84B" stroke-width="0.5"/>
+        <line x1="4" y1="40" x2="76" y2="40" stroke="#C8A84B" stroke-width="0.5"/>
+        <line x1="40" y1="4" x2="40" y2="76" stroke="#C8A84B" stroke-width="0.5"/>
+      </svg>`;
+    }
+
+    function renderCard(post) {
+      const badge = getCategoryClass(post.category);
+      const gradient = getCoverGradient(post.category);
+      const readTime = estimateReadTime(post.views);
+      const date = formatDate(post.published_at);
+      return `
+        <a class="blog-card" href="/blog-post.html?slug=${encodeURIComponent(post.slug)}">
+          <div class="card-cover">
+            <div class="card-cover-inner" style="background:${gradient};">
+              ${buildCoverSVG()}
+            </div>
+          </div>
+          <div class="card-body">
+            <span class="category-badge ${badge}">${post.category || 'Article'}</span>
+            <h2 class="card-title">${post.title}</h2>
+            <p class="card-excerpt">${post.excerpt || ''}</p>
+            <div class="card-footer">
+              <div class="card-meta">
+                <div class="card-avatar">${post.author_initials || 'TFR'}</div>
+                <div class="card-meta-text">
+                  <span class="card-author-name">${post.author_name || 'TFR Team'}</span>
+                  <span class="card-date">${date} &middot; ${readTime} min read</span>
+                </div>
+              </div>
+              <span class="card-read-link">Read &rarr;</span>
+            </div>
+          </div>
+        </a>`;
+    }
+
+    function renderFeatured(post) {
+      const badge = getCategoryClass(post.category);
+      const gradient = getCoverGradient(post.category);
+      const readTime = estimateReadTime(post.views);
+      const date = formatDate(post.published_at);
+      return `
+        <a class="featured-post" href="/blog-post.html?slug=${encodeURIComponent(post.slug)}">
+          <div class="featured-cover">
+            <div class="featured-cover-inner" style="background:${gradient};">
+              <svg class="featured-cover-ornament" viewBox="0 0 200 200" fill="none">
+                <circle cx="100" cy="100" r="90" stroke="#C8A84B" stroke-width="1"/>
+                <circle cx="100" cy="100" r="60" stroke="#C8A84B" stroke-width="0.6"/>
+                <circle cx="100" cy="100" r="30" stroke="#C8A84B" stroke-width="0.4"/>
+                <line x1="10" y1="100" x2="190" y2="100" stroke="#C8A84B" stroke-width="0.4"/>
+                <line x1="100" y1="10" x2="100" y2="190" stroke="#C8A84B" stroke-width="0.4"/>
+              </svg>
+            </div>
+          </div>
+          <div class="featured-body">
+            <p class="featured-label">Featured Article</p>
+            <span class="featured-badge">${post.category || 'Article'}</span>
+            <h2 class="featured-title">${post.title}</h2>
+            <p class="featured-excerpt">${post.excerpt || ''}</p>
+            <div class="featured-meta">
+              <div class="author-avatar">${post.author_initials || 'TFR'}</div>
+              <div class="meta-details">
+                <span class="meta-author">${post.author_name || 'TFR Team'}</span>
+                <span class="meta-date">${date} &middot; ${readTime} min read</span>
+              </div>
+            </div>
+            <span class="featured-cta">Read Full Article &rarr;</span>
+          </div>
+        </a>`;
+    }
+
+    function renderEmptyState() {
+      return `
+        <div class="empty-state">
+          <svg class="empty-ornament" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="28" stroke="#C8A84B" stroke-width="1"/>
+            <circle cx="32" cy="32" r="16" stroke="#C8A84B" stroke-width="0.6"/>
+            <line x1="4" y1="32" x2="60" y2="32" stroke="#C8A84B" stroke-width="0.6"/>
+            <line x1="32" y1="4" x2="32" y2="60" stroke="#C8A84B" stroke-width="0.6"/>
+          </svg>
+          <h2 class="empty-title">No articles yet</h2>
+          <p class="empty-sub">The studio is quiet for now — check back soon for insights and stories.</p>
+        </div>`;
+    }
+
+    // ─── STATE ───
+    let allPosts = [];
+    let displayedCount = 0;
+    const PAGE_SIZE = 12;
+
+    function getFilteredPosts() {
+      if (activeCategory === 'all') return allPosts;
+      return allPosts.filter(p => p.category === activeCategory);
+    }
+
+    function animateCards() {
+      if (prefersReducedMotion) return;
+      const cards = document.querySelectorAll('.blog-card:not(.animated), .featured-post:not(.animated)');
+      cards.forEach(c => c.classList.add('animated'));
+      if (cards.length === 0) return;
+      gsap.fromTo(cards,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1, y: 0,
+          duration: 0.55,
+          ease: 'power3.out',
+          stagger: 0.08,
+          scrollTrigger: {
+            trigger: cards[0],
+            start: 'top 90%',
+            once: true,
+          }
+        }
+      );
+    }
+
+    function renderFiltered() {
+      const filtered = getFilteredPosts();
+      displayedCount = Math.min(PAGE_SIZE, filtered.length);
+
+      const featuredWrap = document.getElementById('featured-wrap');
+      const gridWrap = document.getElementById('grid-wrap');
+      const loadMoreWrap = document.getElementById('load-more-wrap');
+
+      if (filtered.length === 0) {
+        featuredWrap.innerHTML = '';
+        gridWrap.innerHTML = renderEmptyState();
+        loadMoreWrap.style.display = 'none';
+        return;
+      }
+
+      // Featured: first post when on "all", or first of category
+      const featured = filtered[0];
+      const rest = filtered.slice(1, displayedCount);
+
+      featuredWrap.innerHTML = renderFeatured(featured);
+
+      let gridHTML = `<p class="section-label">${filtered.length - 1 > 0 ? 'More Articles' : 'Articles'}</p><div class="blog-grid" id="blog-grid">`;
+      rest.forEach(p => { gridHTML += renderCard(p); });
+      gridHTML += '</div>';
+      gridWrap.innerHTML = rest.length > 0 ? gridHTML : '';
+
+      if (displayedCount < filtered.length) {
+        loadMoreWrap.style.display = 'flex';
+        document.getElementById('load-more-btn').disabled = false;
+      } else {
+        loadMoreWrap.style.display = 'none';
+      }
+
+      // Trigger scroll animations
+      ScrollTrigger.refresh();
+      setTimeout(animateCards, 50);
+    }
+
+    function loadMore() {
+      const btn = document.getElementById('load-more-btn');
+      const filtered = getFilteredPosts();
+      const nextBatch = filtered.slice(displayedCount, displayedCount + PAGE_SIZE);
+      displayedCount += nextBatch.length;
+
+      const grid = document.getElementById('blog-grid');
+      if (grid) {
+        nextBatch.forEach(p => {
+          grid.insertAdjacentHTML('beforeend', renderCard(p));
+        });
+      }
+
+      if (displayedCount >= filtered.length) {
+        document.getElementById('load-more-wrap').style.display = 'none';
+      }
+
+      ScrollTrigger.refresh();
+      setTimeout(animateCards, 50);
+    }
+
+    document.getElementById('load-more-btn').addEventListener('click', loadMore);
+
+    // ─── FETCH POSTS ───
+    async function fetchPosts() {
+      try {
+        const res = await fetch('/api/public/blog?limit=12');
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        allPosts = Array.isArray(data) ? data : (data.posts || []);
+      } catch (err) {
+        // Use fallback demo data so page is never blank
+        allPosts = [
+          { id: 1, title: 'The Geometry of Raag: How Structure Creates Feeling', slug: 'geometry-of-raag', excerpt: 'Every raag is a mathematical universe — a set of ascending and descending notes that conspire to produce a specific emotional state. Pandit Niladri Kumar explains the architecture that underpins Indian classical music.', category: 'Music Theory', author_name: 'Niladri Kumar', author_initials: 'NK', published_at: '2026-03-15T00:00:00Z', views: 3200 },
+          { id: 2, title: 'A Life in Rhythm: The Taufiq Qureshi Story', slug: 'taufiq-qureshi-story', excerpt: 'Born into a dynasty of music, Taufiq Qureshi forged his own path by bridging continents and genres. We sit with the percussionist to discuss legacy, practice, and the language of drums.', category: 'Artist Spotlight', author_name: 'TFR Editorial', author_initials: 'TE', published_at: '2026-03-02T00:00:00Z', views: 2900 },
+          { id: 3, title: 'The First 30 Minutes: A Morning Practice Protocol', slug: 'morning-practice-protocol', excerpt: 'How you begin your practice session determines everything that follows. We asked six TFR instructors to share the rituals, scales, and mental frameworks that start their day.', category: 'Practice Tips', author_name: 'Sveta Kilpady', author_initials: 'SK', published_at: '2026-02-18T00:00:00Z', views: 5100 },
+          { id: 4, title: 'Kathak and the Grammar of Gesture', slug: 'kathak-grammar-of-gesture', excerpt: 'In Kathak, every hand position, every glance, every footfall is a word in a vast vocabulary. Guruma Sangeeta Sinha takes us inside the language of this ancient dance form.', category: 'Culture & Heritage', author_name: 'Guruma Sangeeta Sinha', author_initials: 'GS', published_at: '2026-02-05T00:00:00Z', views: 2400 },
+          { id: 5, title: 'What Bollywood Owes to the Raga', slug: 'bollywood-owes-to-raga', excerpt: 'The film songs that defined generations were built on classical foundations most listeners never noticed. Milind Singh traces the invisible thread from Yaman to "Yeh Dil Deewana."', category: 'Music Theory', author_name: 'Milind Singh', author_initials: 'MS', published_at: '2026-01-22T00:00:00Z', views: 4700 },
+          { id: 6, title: 'TFR Launches Live Studio Sessions — A New Way to Learn', slug: 'tfr-live-studio-sessions', excerpt: 'Starting this April, Foundation Room students can join Makarand Deshpande for live, unscripted creative sessions. Here is what to expect and how to prepare.', category: 'TFR News', author_name: 'TFR Team', author_initials: 'TF', published_at: '2026-01-10T00:00:00Z', views: 1800 },
+          { id: 7, title: 'Listening as Practice: The Art of Active Reception', slug: 'listening-as-practice', excerpt: 'Most students focus entirely on playing. But the masters say listening — truly listening — is a practice in itself. We explore why your ears are your most important instrument.', category: 'Practice Tips', author_name: 'Niladri Kumar', author_initials: 'NK', published_at: '2025-12-20T00:00:00Z', views: 3800 },
+          { id: 8, title: 'The Memory Palace of the Tabla: Mnemonic Systems in Indian Music', slug: 'tabla-mnemonic-systems', excerpt: 'Long before notation, Indian classical musicians memorized vast compositions through rhythmic syllables called bols. This is how an ancient oral tradition became a science.', category: 'Culture & Heritage', author_name: 'Taufiq Qureshi', author_initials: 'TQ', published_at: '2025-12-08T00:00:00Z', views: 2200 },
+          { id: 9, title: 'Finding Your Voice: The Student\'s Journey into Hindustani Vocals', slug: 'finding-your-voice-hindustani', excerpt: 'Sveta Kilpady on the three phases every vocal student passes through, the common plateaus that discourage them, and the mindset shift that unlocks real progress.', category: 'Artist Spotlight', author_name: 'Sveta Kilpady', author_initials: 'SK', published_at: '2025-11-25T00:00:00Z', views: 3300 },
+        ];
+      }
+
+      document.getElementById('blog-loader').style.display = 'none';
+      renderFiltered();
+    }
+
+    fetchPosts();
+
+    // ─── SCROLL CARD ANIMATIONS (registered after render) ───
+    // animateCards() is called from renderFiltered()
+  </script>
+</body>
+</html>

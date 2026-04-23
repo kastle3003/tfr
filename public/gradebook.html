@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gradebook — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #080706;
+      --bg-2:        #0F0D0B;
+      --bg-card:     #161412;
+      --bg-elevated: #1E1B17;
+      --bg-hover:    #252119;
+      --gold:        #C8A84B;
+      --gold-bright: #E8C96E;
+      --gold-dim:    #7A6530;
+      --gold-glow:   rgba(200,168,75,0.12);
+      --text:        #F0E6D3;
+      --text-2:      #B8A898;
+      --text-3:      #6B5E50;
+      --ruby:        #8B2E26;
+      --emerald:     #2D5A27;
+      --serif:       'Cormorant Garamond', Georgia, serif;
+      --sans:        'DM Sans', sans-serif;
+      --sidebar-w:   240px;
+      --topbar-h:    60px;
+      --radius:      6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--sans); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .shell { display: flex; height: 100vh; overflow: hidden; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-w); min-width: var(--sidebar-w);
+      background: var(--bg-card); display: flex; flex-direction: column;
+      height: 100vh; position: fixed; left: 0; top: 0; z-index: 100;
+      border-right: 1px solid rgba(200,168,75,0.06);
+    }
+    .sidebar-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(200,168,75,0.06); }
+    .brand-title { font-family: var(--serif); font-style: italic; font-size: 18px; font-weight: 600; color: var(--gold); }
+    .brand-sub { font-size: 10px; color: var(--text-3); margin-top: 3px; letter-spacing: 0.04em; }
+    .sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+      border-radius: 6px; color: var(--text-3); font-size: 13px; font-weight: 500;
+      transition: background 0.15s, color 0.15s; margin-bottom: 2px; cursor: pointer;
+    }
+    .nav-item:hover { background: var(--bg-elevated); color: var(--text-2); }
+    .nav-item.active {
+      background: var(--gold-glow); color: var(--gold);
+      border-left: 3px solid var(--gold); padding-left: 9px;
+    }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-footer { padding: 14px 10px 18px; border-top: 1px solid rgba(200,168,75,0.06); }
+    .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
+    .sidebar-user:hover { background: var(--bg-elevated); }
+    .sidebar-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: var(--gold); flex-shrink: 0;
+    }
+    .sidebar-user-info .user-name { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .sidebar-user-info .user-role { font-size: 10px; color: var(--text-3); }
+
+    /* Main */
+    .main-wrap { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
+    .topbar {
+      height: var(--topbar-h); background: var(--bg-2);
+      border-bottom: 1px solid rgba(200,168,75,0.06);
+      display: flex; align-items: center; gap: 16px;
+      padding: 0 28px; position: sticky; top: 0; z-index: 50; flex-shrink: 0;
+    }
+    .topbar-title { font-family: var(--serif); font-style: italic; font-size: 20px; font-weight: 600; color: var(--gold); flex: 1; }
+    .topbar-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 6px; padding: 8px 14px; max-width: 260px;
+    }
+    .topbar-search input { border: none; outline: none; background: none; font-family: inherit; font-size: 13px; color: var(--text); width: 100%; }
+    .topbar-search input::placeholder { color: var(--text-3); }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn { position: relative; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; color: var(--text-3); transition: background 0.15s, color 0.15s; }
+    .icon-btn:hover { background: var(--bg-elevated); color: var(--text-2); }
+    .badge-dot { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+    .topbar-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; color: var(--gold); cursor: pointer;
+    }
+    .main-content { flex: 1; overflow-y: auto; background: var(--bg); padding: 28px; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 6px; font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: var(--gold); color: #080706; }
+    .btn-primary:hover { background: var(--gold-bright); }
+    .btn-ghost { background: transparent; color: var(--text-3); }
+    .btn-ghost:hover { background: var(--bg-elevated); color: var(--text-2); }
+    .btn-outline { background: transparent; border: 1px solid rgba(200,168,75,0.25); color: var(--gold); }
+    .btn-outline:hover { border-color: var(--gold); background: var(--gold-glow); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+    /* Page header */
+    .page-header { margin-bottom: 28px; }
+    .page-title { font-family: var(--serif); font-style: italic; font-size: 32px; font-weight: 600; color: var(--gold); margin-bottom: 6px; }
+    .page-subtitle { font-size: 14px; color: var(--text-3); }
+
+    /* Stats row */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 8px; padding: 22px 24px;
+      transition: border-color 0.15s;
+    }
+    .stat-card:hover { border-color: rgba(200,168,75,0.25); }
+    .stat-icon { margin-bottom: 10px; color: var(--text-3); }
+    .stat-icon.green { color: #6fcf6f; }
+    .stat-icon.gold { color: var(--gold); }
+    /* Cormorant Garamond 42px gold numbers */
+    .stat-number {
+      font-family: var(--serif); font-size: 42px; font-weight: 600;
+      color: var(--gold); line-height: 1; margin-bottom: 6px;
+    }
+    .stat-label { font-size: 12px; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Grade tabs */
+    .grade-tabs {
+      display: flex; gap: 4px; margin-bottom: 24px;
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 8px; padding: 4px; width: fit-content;
+    }
+    .grade-tab {
+      padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 600;
+      color: var(--text-3); cursor: pointer; transition: all 0.15s;
+    }
+    .grade-tab.active { background: var(--gold); color: #080706; }
+    .grade-tab:hover:not(.active) { background: var(--bg-elevated); color: var(--text-2); }
+
+    /* Course section */
+    .course-section { margin-bottom: 32px; }
+    .course-section-title {
+      font-family: var(--serif); font-style: italic; font-size: 20px;
+      font-weight: 600; color: var(--text); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .course-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid rgba(200,168,75,0.12); }
+    .table { width: 100%; border-collapse: collapse; }
+    .table thead { background: var(--bg-elevated); }
+    .table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      color: var(--text-3); text-align: left; text-transform: uppercase;
+      letter-spacing: 0.08em; border-bottom: 1px solid rgba(200,168,75,0.12);
+    }
+    .table tbody tr { background: var(--bg-card); border-bottom: 1px solid rgba(200,168,75,0.06); transition: all 0.12s; }
+    .table tbody tr:last-child { border-bottom: none; }
+    .table tbody tr:hover { background: var(--bg-2); border-left: 2px solid var(--gold); }
+    .table tbody td { padding: 12px 16px; font-size: 13px; color: var(--text-2); vertical-align: middle; }
+
+    /* Grade letter badges */
+    .grade-letter {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 8px; font-weight: 700; font-size: 14px;
+    }
+    .grade-A { background: rgba(200,168,75,0.18); color: var(--gold); border: 1px solid rgba(200,168,75,0.30); }
+    .grade-B { background: rgba(240,230,211,0.12); color: var(--text); border: 1px solid rgba(240,230,211,0.20); }
+    .grade-C { background: rgba(180,120,40,0.18); color: #D4963A; border: 1px solid rgba(180,120,40,0.30); }
+    .grade-D { background: rgba(139,46,38,0.15); color: #E07070; border: 1px solid rgba(139,46,38,0.25); }
+    .grade-F { background: rgba(80,30,25,0.30); color: var(--text-3); border: 1px solid rgba(139,46,38,0.15); }
+
+    /* Grade score */
+    .grade-score .fraction { color: var(--text); font-weight: 600; font-size: 13px; }
+    .grade-score .score-bar { height: 4px; background: var(--bg-elevated); border-radius: 99px; margin-top: 4px; overflow: hidden; min-width: 80px; }
+    .grade-score .score-fill { height: 100%; border-radius: 99px; background: var(--gold); }
+
+    /* Status badges */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+    .status-pending { background: rgba(200,168,75,0.15); color: var(--gold); }
+    .status-submitted { background: transparent; color: #6fcf6f; border: 1.5px solid #6fcf6f; }
+    .status-graded { background: rgba(200,168,75,0.15); color: var(--gold-bright); }
+    .status-returned { background: rgba(107,94,80,0.20); color: var(--text-3); }
+    .badge-dark { background: var(--bg-elevated); color: var(--text-2); }
+    .badge-green { background: rgba(45,90,39,0.20); color: #6fcf6f; }
+    .badge-crimson { background: rgba(139,46,38,0.20); color: #E07070; }
+
+    /* Pending card */
+    .pending-card {
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 8px; padding: 16px 20px;
+      display: flex; align-items: center; gap: 16px; margin-bottom: 10px;
+      transition: border-color 0.15s;
+    }
+    .pending-card:hover { border-color: rgba(200,168,75,0.25); }
+    .pending-card .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px; color: var(--gold); flex-shrink: 0;
+    }
+    .pending-card-info { flex: 1; min-width: 0; }
+    .pending-card-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .pending-card-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+    /* Student search */
+    .student-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.15);
+      border-radius: 6px; padding: 9px 14px; max-width: 320px; margin-bottom: 16px;
+    }
+    .student-search input {
+      border: none; outline: none; background: none;
+      font-family: inherit; font-size: 14px; color: var(--text); width: 100%;
+    }
+    .student-search input::placeholder { color: var(--text-3); }
+    .student-search svg { color: var(--text-3); flex-shrink: 0; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Card */
+    .card { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+    .card-sm { padding: 14px 16px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(8,7,6,0.85);
+      display: flex; align-items: center; justify-content: center; z-index: 300;
+    }
+    .modal {
+      background: var(--bg-elevated); border: 1px solid rgba(200,168,75,0.18);
+      border-radius: 8px; padding: 28px; width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-title { font-family: var(--serif); font-style: italic; font-size: 22px; font-weight: 600; color: var(--gold); margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-3); margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .form-input, .form-textarea {
+      width: 100%; background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.15); border-radius: 6px;
+      padding: 9px 12px; font-family: var(--sans); font-size: 13px;
+      color: var(--text); outline: none; transition: border-color 0.15s;
+    }
+    .form-input:focus, .form-textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(200,168,75,0.12); }
+    .form-textarea { min-height: 100px; resize: vertical; }
+
+    /* Toast */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+    .toast {
+      background: var(--bg-elevated); border: 1px solid rgba(200,168,75,0.15);
+      border-left: 3px solid var(--gold); border-radius: 6px;
+      padding: 12px 16px; font-family: var(--sans); font-size: 13px; color: var(--text);
+      min-width: 240px; animation: toastIn 0.2s ease;
+    }
+    .toast.error { border-left-color: var(--ruby); }
+    @keyframes toastIn { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Progress bar */
+    .progress-bar { height: 4px; background: var(--bg-elevated); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--gold); border-radius: 99px; transition: width 0.5s ease; }
+
+    /* Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%);
+      background-size: 200% 100%; animation: shimmer 1.6s infinite; border-radius: 6px;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 40px; }
+    .empty-state h3 { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--text-2); margin-bottom: 8px; }
+    .empty-state p { color: var(--text-3); font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-title">The Foundation Room</div>
+      <div class="brand-sub" id="sb-portal">Student Portal</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/student-dashboard.html" class="nav-item" id="nav-dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </a>
+      <a href="/student-course-catalog.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        My Courses
+      </a>
+      <a href="/gradebook.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Gradebook
+      </a>
+      <a href="/quiz-builder.html" class="nav-item" id="nav-quiz-builder" style="display:none;">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Quiz Builder
+      </a>
+      <a href="/student-messaging.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+      </a>
+      <a href="/student-notifications.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </a>
+      <a href="/student-profile.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
+      <a href="/student-sheet-music.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        Sheet Music
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="handleLogout()">
+        <div class="sidebar-avatar" id="sb-avatar">—</div>
+        <div class="sidebar-user-info">
+          <div class="user-name" id="sb-name">Loading…</div>
+          <div class="user-role" id="sb-role">student</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title" id="page-title">Gradebook</div>
+      <div class="topbar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search assignments…" id="search-input">
+      </div>
+      <div class="topbar-actions">
+        <a href="/student-notifications.html" class="icon-btn" title="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge-dot" id="notif-dot" style="display:none;"></span>
+        </a>
+        <div class="topbar-avatar" id="topbar-avatar">—</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Student View -->
+      <div id="student-view">
+        <div class="page-header">
+          <h1 class="page-title">My Gradebook</h1>
+          <p class="page-subtitle">Track your assignment scores, feedback, and overall academic progress.</p>
+        </div>
+        <div class="stats-row" id="student-stats">
+          <div class="stat-card">
+            <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div class="stat-number" id="stat-avg">—</div>
+            <div class="stat-label">Overall Average</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <div class="stat-number" id="stat-completed">—</div>
+            <div class="stat-label">Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon gold"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="stat-number" id="stat-pending-count">—</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+        <div id="student-grades-content">
+          <div class="card skeleton" style="height:200px;"></div>
+        </div>
+      </div>
+
+      <!-- Instructor View -->
+      <div id="instructor-view" style="display:none;">
+        <div class="page-header">
+          <h1 class="page-title">Gradebook</h1>
+          <p class="page-subtitle">Review student submissions, assign grades, and track class performance.</p>
+        </div>
+        <div class="grade-tabs">
+          <div class="grade-tab active" onclick="switchTab('pending')">Pending Grading</div>
+          <div class="grade-tab" onclick="switchTab('students')">All Students</div>
+          <div class="grade-tab" onclick="switchTab('bycourse')">By Course</div>
+        </div>
+        <div id="tab-pending" class="tab-panel active">
+          <div id="pending-list"><div class="card skeleton" style="height:100px;"></div></div>
+        </div>
+        <div id="tab-students" class="tab-panel">
+          <div class="student-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search students…" id="student-search" oninput="filterStudents()">
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="students-table">
+              <thead><tr><th>Student</th><th>Enrolled Courses</th><th>Avg Grade</th><th>Submissions</th></tr></thead>
+              <tbody id="students-tbody"><tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-3);">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="tab-bycourse" class="tab-panel">
+          <div id="bycourse-content"><div class="card skeleton" style="height:200px;"></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal-overlay" id="feedback-modal" style="display:none;">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-title">Submission Feedback</div>
+    <div id="feedback-content" style="margin-bottom:20px;"></div>
+    <div id="feedback-audio-wrap" style="display:none;margin-bottom:16px;">
+      <div class="form-label">Audio Feedback</div>
+      <audio id="feedback-audio" controls style="width:100%;margin-top:6px;filter:invert(1) hue-rotate(180deg);"></audio>
+    </div>
+    <button class="btn btn-ghost" onclick="document.getElementById('feedback-modal').style.display='none'">Close</button>
+  </div>
+</div>
+
+<!-- Grade Modal (Instructor) -->
+<div class="modal-overlay" id="grade-modal" style="display:none;">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-title">Grade Submission</div>
+    <input type="hidden" id="grade-sub-id">
+    <div id="grade-sub-info" style="background:var(--bg-2);border:1px solid rgba(200,168,75,0.12);border-radius:6px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:var(--text-2);"></div>
+    <div class="form-group">
+      <label class="form-label">Score (0–100)</label>
+      <input class="form-input" type="number" id="grade-score" min="0" max="100" placeholder="e.g. 87">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Written Feedback</label>
+      <textarea class="form-textarea" id="grade-feedback" placeholder="Provide detailed feedback for the student…"></textarea>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:8px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="submitGrade()">Submit Grade</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('grade-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>
+  let currentUser = null;
+  let allStudentsData = [];
+  let activeTab = 'pending';
+
+  function toast(msg, type='success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/index.html';
+  }
+
+  function gradeLetter(score) {
+    if (score >= 90) return 'A';
+    if (score >= 80) return 'B';
+    if (score >= 70) return 'C';
+    if (score >= 60) return 'D';
+    return 'F';
+  }
+
+  function formatDate(str) {
+    if (!str) return '—';
+    return new Date(str).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function relativeTime(str) {
+    if (!str) return '';
+    const diff = Date.now() - new Date(str).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  }
+
+  function statusBadge(status) {
+    const map = { pending: 'Pending', submitted: 'Submitted', graded: 'Graded', returned: 'Returned' };
+    const cls = `status-${status || 'pending'}`;
+    return `<span class="badge ${cls}">${map[status] || status || 'Pending'}</span>`;
+  }
+
+  document.addEventListener('userLoaded', (e) => {
+    currentUser = e.detail;
+    const initials = currentUser.avatar_initials || (currentUser.first_name[0] + currentUser.last_name[0]);
+    document.getElementById('sb-avatar').textContent = initials;
+    document.getElementById('topbar-avatar').textContent = initials;
+    document.getElementById('sb-name').textContent = `${currentUser.first_name} ${currentUser.last_name}`;
+    document.getElementById('sb-role').textContent = currentUser.role;
+
+    if (currentUser.role === 'instructor') {
+      document.getElementById('sb-portal').textContent = 'Instructor Portal';
+      document.querySelector('.sidebar-nav').innerHTML = `
+        <a href="/instructor-dashboard.html" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          Dashboard
+        </a>
+        <a href="/instructor-course-hub.html" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          Course Hub
+        </a>
+        <a href="/gradebook.html" class="nav-item active">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Gradebook
+        </a>
+        <a href="/quiz-builder.html" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Quiz Builder
+        </a>
+        <a href="/analytics-instructor.html" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </a>
+        <a href="/live-classes.html" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          Live Classes
+        </a>
+        <a href="/messages.html" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Messages
+        </a>
+      `;
+      document.getElementById('student-view').style.display = 'none';
+      document.getElementById('instructor-view').style.display = 'block';
+      document.getElementById('page-title').textContent = 'Gradebook';
+      loadInstructorView();
+    } else {
+      loadStudentView();
+    }
+
+    loadUnreadCount();
+  });
+
+  async function loadUnreadCount() {
+    try {
+      const data = await api.get('/api/notifications/unread-count');
+      if (data.count > 0) document.getElementById('notif-dot').style.display = 'block';
+    } catch {}
+  }
+
+  async function loadStudentView() {
+    try {
+      const data = await api.get('/api/submissions/me');
+      const subs = data.submissions || [];
+      const graded = subs.filter(s => s.status === 'graded' && s.grade);
+      const scores = graded.map(s => parseFloat(s.grade)).filter(n => !isNaN(n));
+      const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+      document.getElementById('stat-avg').textContent = avg !== null ? avg + '%' : '—';
+      document.getElementById('stat-completed').textContent = graded.length;
+      document.getElementById('stat-pending-count').textContent = subs.filter(s => s.status === 'pending').length;
+      renderStudentGrades(subs);
+    } catch (err) {
+      document.getElementById('student-grades-content').innerHTML = '<div class="card card-sm"><p style="color:var(--text-3);font-size:13px;">Could not load grades.</p></div>';
+    }
+  }
+
+  function renderStudentGrades(subs) {
+    const container = document.getElementById('student-grades-content');
+    if (!subs.length) {
+      container.innerHTML = `<div class="card"><div class="empty-state">
+        <div style="font-size:40px;margin-bottom:12px;">📝</div>
+        <h3>No submissions yet</h3>
+        <p>Your assignment grades will appear here once you submit work.</p>
+      </div></div>`;
+      return;
+    }
+    const byCourse = {};
+    subs.forEach(s => {
+      const key = s.course_title || 'Uncategorised';
+      if (!byCourse[key]) byCourse[key] = [];
+      byCourse[key].push(s);
+    });
+    container.innerHTML = Object.entries(byCourse).map(([course, items]) => `
+      <div class="course-section">
+        <div class="course-section-title"><span class="course-dot"></span>${course}</div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Assignment</th>
+                <th>Submitted</th>
+                <th>Score</th>
+                <th>Grade</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(s => {
+                const score = parseFloat(s.grade);
+                const isNumeric = !isNaN(score);
+                const letter = isNumeric ? gradeLetter(score) : '—';
+                return `
+                  <tr>
+                    <td style="font-weight:600;font-size:13px;color:var(--text);">${s.lesson_title || 'Assignment'}</td>
+                    <td style="font-size:12px;color:var(--text-3);">${formatDate(s.submitted_at)}</td>
+                    <td>
+                      ${isNumeric ? `
+                        <div class="grade-score">
+                          <div class="fraction">${score}/100</div>
+                          <div class="score-bar"><div class="score-fill" style="width:${score}%;"></div></div>
+                        </div>
+                      ` : `<span style="color:var(--text-3);font-size:13px;">${s.grade || '—'}</span>`}
+                    </td>
+                    <td>
+                      ${isNumeric ? `<div class="grade-letter grade-${letter}">${letter}</div>` : '<span style="color:var(--text-3);">—</span>'}
+                    </td>
+                    <td>${statusBadge(s.status)}</td>
+                    <td>
+                      ${s.feedback ? `<button class="btn btn-sm btn-outline" onclick="viewFeedback('${encodeURIComponent(s.feedback || '')}', '${s.audio_feedback || ''}')">View Feedback</button>` : ''}
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function viewFeedback(feedbackEncoded, audioUrl) {
+    const feedback = decodeURIComponent(feedbackEncoded);
+    document.getElementById('feedback-content').innerHTML = `<p style="font-size:14px;line-height:1.7;color:var(--text-2);">${feedback}</p>`;
+    const audioWrap = document.getElementById('feedback-audio-wrap');
+    if (audioUrl) {
+      document.getElementById('feedback-audio').src = audioUrl;
+      audioWrap.style.display = 'block';
+    } else {
+      audioWrap.style.display = 'none';
+    }
+    document.getElementById('feedback-modal').style.display = 'flex';
+  }
+
+  // ── Instructor view ──
+  function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.grade-tab').forEach((el, i) => {
+      el.classList.toggle('active', ['pending','students','bycourse'][i] === tab);
+    });
+    document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    if (tab === 'students' && !allStudentsData.length) loadAllStudents();
+    if (tab === 'bycourse') loadByCourse();
+  }
+
+  async function loadInstructorView() {
+    try {
+      const data = await api.get('/api/submissions/instructor');
+      renderPendingSubmissions(data.submissions || []);
+    } catch {
+      document.getElementById('pending-list').innerHTML = '<div class="card card-sm"><p style="color:var(--text-3);font-size:13px;">Could not load submissions.</p></div>';
+    }
+  }
+
+  function renderPendingSubmissions(subs) {
+    const container = document.getElementById('pending-list');
+    if (!subs.length) {
+      container.innerHTML = `<div class="card"><div class="empty-state">
+        <div style="font-size:36px;margin-bottom:12px;">🎉</div>
+        <h3>All caught up!</h3>
+        <p style="margin-top:6px;">No submissions waiting to be graded.</p>
+      </div></div>`;
+      return;
+    }
+    container.innerHTML = subs.map(s => `
+      <div class="pending-card">
+        <div class="avatar">${s.avatar_initials || (s.student_first[0] + s.student_last[0])}</div>
+        <div class="pending-card-info">
+          <div class="pending-card-name">${s.student_first} ${s.student_last}</div>
+          <div class="pending-card-sub">${s.course_title || ''} · ${s.lesson_title || 'Submission'} · ${relativeTime(s.submitted_at)}</div>
+        </div>
+        ${s.file_path ? `<a href="${s.file_path}" target="_blank" class="btn btn-sm btn-outline" style="flex-shrink:0;">Download</a>` : ''}
+        <button class="btn btn-sm btn-primary" style="flex-shrink:0;" onclick="openGradeModal(${s.id}, '${s.student_first} ${s.student_last}', '${s.lesson_title || 'Submission'}')">Grade Now</button>
+      </div>
+    `).join('');
+  }
+
+  async function loadAllStudents() {
+    try {
+      const data = await api.get('/api/enrollments/instructor');
+      allStudentsData = data.students || [];
+      renderStudentsTable(allStudentsData);
+    } catch {
+      document.getElementById('students-tbody').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-3);">Could not load students.</td></tr>';
+    }
+  }
+
+  function renderStudentsTable(students) {
+    const tbody = document.getElementById('students-tbody');
+    if (!students.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-3);">No students found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = students.map(s => `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--gold-glow);border:1px solid rgba(200,168,75,0.25);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--gold);">${s.avatar_initials || '??'}</div>
+            <div>
+              <div style="font-weight:600;font-size:13px;color:var(--text);">${s.first_name} ${s.last_name}</div>
+              <div style="font-size:11px;color:var(--text-3);">${s.email}</div>
+            </div>
+          </div>
+        </td>
+        <td style="font-size:13px;color:var(--text-2);">${s.course_title || '—'}</td>
+        <td style="font-size:13px;color:var(--text-2);">${s.progress_pct || 0}%</td>
+        <td><span class="badge ${s.status_label === 'Excellent' ? 'badge-dark' : s.status_label === 'On Track' ? 'badge-green' : 'badge-crimson'}">${s.status_label || 'Student'}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function filterStudents() {
+    const q = document.getElementById('student-search').value.toLowerCase();
+    const filtered = allStudentsData.filter(s =>
+      `${s.first_name} ${s.last_name} ${s.email}`.toLowerCase().includes(q)
+    );
+    renderStudentsTable(filtered);
+  }
+
+  async function loadByCourse() {
+    try {
+      const data = await api.get('/api/submissions/instructor');
+      const subs = data.submissions || [];
+      const byCourse = {};
+      subs.forEach(s => {
+        const key = s.course_title || 'Uncategorised';
+        if (!byCourse[key]) byCourse[key] = [];
+        byCourse[key].push(s);
+      });
+      const container = document.getElementById('bycourse-content');
+      if (!Object.keys(byCourse).length) {
+        container.innerHTML = '<div class="card card-sm"><p style="color:var(--text-3);font-size:13px;">No pending submissions.</p></div>';
+        return;
+      }
+      container.innerHTML = Object.entries(byCourse).map(([course, items]) => `
+        <div class="course-section">
+          <div class="course-section-title"><span class="course-dot"></span>${course} <span class="badge badge-crimson">${items.length} pending</span></div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Student</th><th>Assignment</th><th>Submitted</th><th></th></tr></thead>
+              <tbody>
+                ${items.map(s => `
+                  <tr>
+                    <td style="font-size:13px;font-weight:600;color:var(--text);">${s.student_first} ${s.student_last}</td>
+                    <td style="font-size:13px;color:var(--text-2);">${s.lesson_title || 'Assignment'}</td>
+                    <td style="font-size:12px;color:var(--text-3);">${formatDate(s.submitted_at)}</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="openGradeModal(${s.id}, '${s.student_first} ${s.student_last}', '${s.lesson_title || 'Assignment'}')">Grade</button></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `).join('');
+    } catch {
+      document.getElementById('bycourse-content').innerHTML = '<div class="card card-sm"><p style="color:var(--text-3);font-size:13px;">Could not load data.</p></div>';
+    }
+  }
+
+  function openGradeModal(id, studentName, assignmentName) {
+    document.getElementById('grade-sub-id').value = id;
+    document.getElementById('grade-sub-info').textContent = `${studentName} — ${assignmentName}`;
+    document.getElementById('grade-score').value = '';
+    document.getElementById('grade-feedback').value = '';
+    document.getElementById('grade-modal').style.display = 'flex';
+  }
+
+  async function submitGrade() {
+    const id = document.getElementById('grade-sub-id').value;
+    const score = document.getElementById('grade-score').value;
+    const feedback = document.getElementById('grade-feedback').value;
+    if (!score) { toast('Please enter a score', 'error'); return; }
+    try {
+      await api.put(`/api/submissions/${id}/grade`, { grade: score, feedback });
+      document.getElementById('grade-modal').style.display = 'none';
+      toast('Grade submitted!');
+      loadInstructorView();
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from('.page-header, .stat-card, .card, .content-section', {
+    y: 24, opacity: 0, duration: 0.65, stagger: 0.07, ease: 'power3.out', delay: 0.1
+  });
+  gsap.utils.toArray('.card, tr, .list-item').forEach(el => {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 90%' },
+      y: 14, opacity: 0, duration: 0.45, ease: 'power2.out' });
+  });
+</script>
+</body>
+</html>

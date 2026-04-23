@@ -1,0 +1,38 @@
+/* Shared Enroll/Buy modal — used by course-landing.html and student-course-detail.html */
+.em-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.82); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 24px; font-family: inherit; }
+.em-overlay.open { display: flex; }
+.em-modal { width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; background: #120a04; border: 1px solid rgba(212,175,55,.25); border-radius: 10px; color: #f0e9db; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.em-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; margin: 0 0 4px; color: #d4af37; }
+.em-subtitle { font-size: 13px; color: #a09889; margin: 0 0 20px; }
+.em-close { float: right; background: transparent; border: none; color: #a09889; cursor: pointer; font-size: 22px; padding: 0 4px; }
+.em-tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid rgba(212,175,55,.15); }
+.em-tab { flex: 1; background: transparent; border: none; color: #a09889; padding: 10px 12px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; }
+.em-tab.active { color: #d4af37; border-bottom-color: #d4af37; }
+.em-pane { display: none; }
+.em-pane.active { display: block; }
+.em-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; margin-bottom: 8px; border: 1px solid rgba(212,175,55,.12); border-radius: 6px; background: rgba(255,255,255,.02); font-size: 14px; }
+.em-row.locked { opacity: .55; }
+.em-row.owned { border-color: rgba(125,200,125,.4); background: rgba(125,200,125,.05); }
+.em-row-main { display: flex; flex-direction: column; gap: 3px; }
+.em-row-title { color: #f0e9db; font-weight: 500; }
+.em-row-note { font-size: 11px; color: #a09889; }
+.em-row-price { font-size: 15px; color: #d4af37; font-weight: 600; margin-left: 12px; white-space: nowrap; }
+.em-row .em-btn { margin-left: 10px; padding: 6px 14px; font-size: 11px; }
+.em-upgrade { margin-top: 14px; padding: 14px; border: 1px dashed rgba(212,175,55,.35); border-radius: 6px; background: rgba(212,175,55,.05); }
+.em-upgrade-title { color: #d4af37; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.em-upgrade-note { color: #a09889; font-size: 12px; margin-bottom: 10px; }
+.em-coupon { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(212,175,55,.12); }
+.em-coupon-row { display: flex; gap: 8px; }
+.em-coupon-row input { flex: 1; background: rgba(0,0,0,.4); border: 1px solid rgba(212,175,55,.25); color: #f0e9db; padding: 8px 12px; border-radius: 4px; font-family: inherit; letter-spacing: .04em; text-transform: uppercase; font-size: 13px; }
+.em-coupon-row input:focus { outline: none; border-color: #d4af37; }
+.em-coupon-msg { font-size: 12px; margin-top: 8px; min-height: 16px; }
+.em-coupon-msg.ok { color: #7dc87d; }
+.em-coupon-msg.err { color: #e78a8a; }
+.em-btn { background: #d4af37; color: #120a04; border: none; padding: 10px 18px; border-radius: 4px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; font-weight: 600; transition: opacity .15s; font-family: inherit; }
+.em-btn:disabled { opacity: .45; cursor: not-allowed; }
+.em-btn-ghost { background: transparent; color: #a09889; border: 1px solid rgba(212,175,55,.3); }
+.em-summary { margin-top: 16px; padding: 14px; background: rgba(0,0,0,.3); border-radius: 6px; font-size: 13px; }
+.em-summary-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.em-summary-row.total { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212,175,55,.15); color: #d4af37; font-size: 16px; font-weight: 600; }
+.em-primary-row { display: flex; gap: 10px; margin-top: 16px; }
+.em-primary-row .em-btn { flex: 1; padding: 13px 18px; font-size: 13px; }

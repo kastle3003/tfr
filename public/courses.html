@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Courses — The Foundation Room</title>
+  <meta name="description" content="Explore every discipline at The Foundation Room. Sitar, Percussion, Hindustani Vocals, Kathak, Film Songs, and Acting — taught by India's greatest artists.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #080706;
+      --bg-2:        #0F0D0B;
+      --bg-card:     #161412;
+      --bg-elevated: #1E1B17;
+      --bg-hover:    #252119;
+      --gold:        #C8A84B;
+      --gold-bright: #E8C96E;
+      --gold-dim:    #7A6530;
+      --gold-glow:   rgba(200,168,75,0.15);
+      --text:        #F0E6D3;
+      --text-2:      #B8A898;
+      --text-3:      #6B5E50;
+      --white:       #FFFFFF;
+      --serif:       'Cormorant Garamond', 'Georgia', serif;
+      --sans:        'DM Sans', 'Inter', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      background-color: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVIGATION ─── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(8,7,6,0.95);
+      border-bottom: 1px solid rgba(200,168,75,0.15);
+      padding: 0 40px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color 0.4s ease;
+    }
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      text-decoration: none;
+    }
+    .nav-logo-main {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: 0.01em;
+    }
+    .nav-logo-sub {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-2);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--gold); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-ghost {
+      padding: 9px 20px;
+      border: 1px solid rgba(200,168,75,0.4);
+      border-radius: 3px;
+      color: var(--gold);
+      background: transparent;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--gold); background: rgba(200,168,75,0.06); }
+    .btn-gold {
+      padding: 9px 20px;
+      background: var(--gold);
+      border: 1px solid var(--gold);
+      border-radius: 3px;
+      color: #080706;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-gold:hover { background: var(--gold-bright); transform: translateY(-1px); }
+
+    /* ─── HERO ─── */
+    .courses-hero {
+      padding: 140px 40px 80px;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .hero-bg-gradient {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(200,168,75,0.07) 0%, transparent 60%),
+                  radial-gradient(ellipse 50% 40% at 10% 30%, rgba(200,168,75,0.03) 0%, transparent 60%),
+                  radial-gradient(ellipse 50% 40% at 90% 30%, rgba(200,168,75,0.03) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+      pointer-events: none;
+    }
+    .hero-ornament {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 480px;
+      height: 480px;
+      pointer-events: none;
+      opacity: 0.03;
+    }
+    .hero-ornament circle {
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 1;
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .hero-eyebrow {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      opacity: 0;
+    }
+    .hero-eyebrow::before, .hero-eyebrow::after {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--gold-dim);
+    }
+    .hero-h1 {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(44px, 6vw, 68px);
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.08;
+      letter-spacing: -0.01em;
+      margin-bottom: 18px;
+      opacity: 0;
+    }
+    .hero-sub {
+      font-family: var(--sans);
+      font-size: clamp(14px, 1.8vw, 16px);
+      font-weight: 300;
+      color: var(--text-2);
+      line-height: 1.7;
+      opacity: 0;
+    }
+
+    /* ─── COURSES BODY ─── */
+    .courses-body {
+      background: var(--bg-2);
+      padding: 0 40px 100px;
+    }
+
+    /* ─── CONTROLS BAR ─── */
+    .controls-bar {
+      position: sticky;
+      top: 72px;
+      z-index: 50;
+      background: var(--bg-2);
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      padding: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .filter-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      height: 34px;
+      padding: 0 18px;
+      border-radius: 100px;
+      border: 1px solid rgba(200,168,75,0.3);
+      background: transparent;
+      color: var(--gold);
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .filter-chip:hover { border-color: var(--gold); background: rgba(200,168,75,0.06); }
+    .filter-chip.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #080706;
+      font-weight: 700;
+    }
+    .search-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      stroke: var(--text-3);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+    .search-input {
+      width: 220px;
+      height: 34px;
+      padding: 0 14px 0 36px;
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.2);
+      border-radius: 100px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 400;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input::placeholder { color: var(--text-3); }
+    .search-input:focus {
+      border-color: rgba(200,168,75,0.5);
+      box-shadow: 0 0 0 3px rgba(200,168,75,0.06);
+    }
+
+    /* ─── RESULTS COUNT ─── */
+    .results-count {
+      padding: 20px 0 28px;
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+    }
+    .results-count strong {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* ─── COURSE GRID ─── */
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    /* ─── COURSE CARD ─── */
+    .course-card {
+      background: var(--bg-card);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(200,168,75,0.08);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+    }
+    .course-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(200,168,75,0.35);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(200,168,75,0.08);
+    }
+
+    /* cover */
+    .course-cover {
+      position: relative;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .course-watermark {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 80px;
+      font-weight: 600;
+      color: var(--gold);
+      opacity: 0.18;
+      user-select: none;
+      z-index: 1;
+      position: relative;
+      letter-spacing: -0.02em;
+    }
+    .course-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.05) 100%);
+      z-index: 2;
+      transition: opacity 0.3s ease;
+    }
+    .course-card:hover .course-overlay { opacity: 0.6; }
+    .course-level-tag {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 3;
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(8,7,6,0.7);
+      border: 1px solid rgba(200,168,75,0.3);
+      border-radius: 100px;
+      padding: 3px 10px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* body */
+    .course-body {
+      padding: 22px 22px 24px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .course-taught-by {
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .course-name {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .course-subject {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 12px;
+    }
+    .course-sep {
+      width: 32px;
+      height: 1px;
+      background: var(--gold-dim);
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+    .course-excerpt {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text-3);
+      line-height: 1.7;
+      flex: 1;
+      margin-bottom: 18px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .course-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .course-lessons {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+    }
+    .course-lessons::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--gold-dim);
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .course-price {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+    }
+    .btn-view-course {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 36px;
+      padding: 0 16px;
+      background: transparent;
+      border: 1px solid rgba(200,168,75,0.4);
+      border-radius: 3px;
+      color: var(--gold);
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      align-self: flex-start;
+    }
+    .btn-view-course:hover {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #080706;
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      display: none;
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 40px;
+    }
+    .empty-state.visible { display: block; }
+    .empty-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: 50%;
+    }
+    .empty-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--gold-dim);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .empty-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 22px;
+      color: var(--text-2);
+      margin-bottom: 8px;
+    }
+    .empty-sub {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text-3);
+      line-height: 1.6;
+    }
+    .empty-reset {
+      display: inline-block;
+      margin-top: 20px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      border: none;
+      background: none;
+      transition: color 0.2s;
+    }
+    .empty-reset:hover { color: var(--gold-bright); }
+
+    /* ─── LOADING SKELETON ─── */
+    .skeleton-card {
+      background: var(--bg-card);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(200,168,75,0.06);
+    }
+    .skeleton-cover {
+      aspect-ratio: 16/9;
+      background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-hover) 50%, var(--bg-elevated) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+    }
+    .skeleton-body {
+      padding: 22px;
+    }
+    .skeleton-line {
+      height: 10px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-hover) 50%, var(--bg-elevated) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+      margin-bottom: 10px;
+    }
+    .skeleton-line.wide { width: 80%; }
+    .skeleton-line.medium { width: 55%; }
+    .skeleton-line.narrow { width: 35%; }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--bg-2);
+      border-top: 1px solid rgba(200,168,75,0.1);
+      padding: 64px 40px 0;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+      gap: 48px;
+      max-width: 1200px;
+      margin: 0 auto 48px;
+    }
+    .footer-brand-logo-main {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .footer-brand-logo-sub {
+      font-family: var(--sans);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--text-3);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .footer-tagline {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .footer-socials { display: flex; gap: 12px; }
+    .footer-social {
+      width: 34px; height: 34px;
+      border: 1px solid rgba(200,168,75,0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s, background 0.2s;
+      text-decoration: none;
+    }
+    .footer-social:hover { border-color: var(--gold); background: rgba(200,168,75,0.08); }
+    .footer-social svg { width: 14px; height: 14px; fill: var(--gold); }
+    .footer-col-title {
+      font-family: var(--sans);
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.2em;
+      color: var(--text-2);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer-links a {
+      font-family: var(--sans);
+      font-size: 13px; color: var(--text-3);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-connect-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .footer-connect-item svg {
+      width: 14px; height: 14px;
+      stroke: var(--gold-dim); fill: none;
+      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .footer-connect-text {
+      font-family: var(--sans); font-size: 13px;
+      color: var(--text-3); line-height: 1.5;
+    }
+    .footer-connect-text a { color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+    .footer-connect-text a:hover { color: var(--gold); }
+    .footer-bar {
+      max-width: 1200px; margin: 0 auto;
+      border-top: 1px solid rgba(200,168,75,0.08);
+      padding: 20px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-copy { font-family: var(--sans); font-size: 12px; color: var(--text-3); }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a {
+      font-family: var(--sans); font-size: 12px;
+      color: var(--text-3); text-decoration: none; transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: var(--gold); }
+
+    /* ─── CURSOR FOLLOWER ─── */
+    #cursor-dot {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: screen;
+      transition: width 0.2s, height 0.2s;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1100px) {
+      .course-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .courses-hero { padding: 110px 24px 60px; }
+      .courses-body { padding: 0 20px 80px; }
+      .controls-bar { gap: 14px; }
+      .search-input { width: 180px; }
+      .course-grid { grid-template-columns: 1fr; gap: 12px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .controls-bar { flex-direction: column; align-items: flex-start; }
+      .search-wrap { width: 100%; }
+      .search-input { width: 100%; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bar { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .skeleton-cover, .skeleton-line { animation: none; }
+      .course-card { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CURSOR -->
+  <div id="cursor-dot"></div>
+
+  <!-- NAVIGATION -->
+  <nav class="nav" id="main-nav">
+    <a href="/home.html" class="nav-logo">
+      <span class="nav-logo-main">TFR</span>
+      <span class="nav-logo-sub">The Foundation Room</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/home.html#experience">Experience</a></li>
+      <li><a href="/courses.html" class="active">Courses</a></li>
+      <li><a href="/home.html#community">Community</a></li>
+      <li><a href="/home.html#connect">Connect</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/login" class="btn-ghost">Sign In</a>
+      <a href="/login#panel-register" class="btn-gold">Start Learning</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="courses-hero">
+    <div class="hero-bg-gradient"></div>
+    <div class="hero-grain"></div>
+    <svg class="hero-ornament" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="240" cy="240" r="230"/>
+      <circle cx="240" cy="240" r="180"/>
+      <circle cx="240" cy="240" r="130"/>
+      <circle cx="240" cy="240" r="80"/>
+      <circle cx="240" cy="240" r="36"/>
+    </svg>
+    <div class="hero-inner">
+      <div class="hero-eyebrow" id="hero-eyebrow">India's Premier Arts Learning Platform</div>
+      <h1 class="hero-h1" id="hero-h1">Our Courses</h1>
+      <p class="hero-sub" id="hero-sub">Every discipline. Every level.<br>Taught by artists who have spent their lives mastering their craft.</p>
+    </div>
+  </section>
+
+  <!-- COURSES BODY -->
+  <section class="courses-body">
+
+    <!-- CONTROLS BAR -->
+    <div class="controls-bar" id="controls-bar">
+      <div class="filter-chips" id="filter-chips">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="sitar">Sitar</button>
+        <button class="filter-chip" data-filter="percussion">Percussion</button>
+        <button class="filter-chip" data-filter="vocals">Vocals</button>
+        <button class="filter-chip" data-filter="dance">Dance</button>
+        <button class="filter-chip" data-filter="acting">Acting</button>
+      </div>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input
+          type="search"
+          class="search-input"
+          id="search-input"
+          placeholder="Search courses or instructors…"
+          autocomplete="off"
+        >
+      </div>
+    </div>
+
+    <p class="results-count" id="results-count">Loading courses…</p>
+
+    <!-- COURSE GRID -->
+    <div class="course-grid" id="course-grid">
+      <!-- Skeleton loaders (3) -->
+      <div class="skeleton-card">
+        <div class="skeleton-cover"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line narrow" style="margin-bottom:14px;"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line wide" style="margin-top:8px;"></div>
+          <div class="skeleton-line medium"></div>
+        </div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-cover"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line narrow" style="margin-bottom:14px;"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line wide" style="margin-top:8px;"></div>
+          <div class="skeleton-line narrow"></div>
+        </div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-cover"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line narrow" style="margin-bottom:14px;"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line medium" style="margin-top:8px;"></div>
+          <div class="skeleton-line narrow"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24"><path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <p class="empty-title">No courses found</p>
+      <p class="empty-sub">Try a different filter or search term.</p>
+      <button class="empty-reset" id="empty-reset">Clear filters &rarr;</button>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="connect">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-logo-main">TFR</div>
+        <div class="footer-brand-logo-sub">The Foundation Room</div>
+        <p class="footer-tagline">Training is a Science.<br>Performing is an Art.</p>
+        <div class="footer-socials">
+          <a href="https://instagram.com/thisistfr" class="footer-social" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="https://facebook.com/thefoundationroom" class="footer-social" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <p class="footer-col-title">Courses</p>
+        <ul class="footer-links">
+          <li><a href="/experience/sitar-the-complete-foundation">Sitar with Niladri Kumar</a></li>
+          <li><a href="/experience/djembe-world-percussions">Djembe &amp; Percussions — Taufiq Qureshi</a></li>
+          <li><a href="/experience/hindustani-vocals-kirana-gharana">Hindustani Vocals — Sveta Kilpady</a></li>
+          <li><a href="/experience/kathak-lucknow-gharana">Kathak — Guruma Sangeeta Sinha</a></li>
+          <li><span style="opacity:0.55; cursor:default;">Film Songs — Milind Singh <em>(soon)</em></span></li>
+          <li><span style="opacity:0.55; cursor:default;">Acting — Makarand Deshpande <em>(soon)</em></span></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Platform</p>
+        <ul class="footer-links">
+          <li><a href="/home.html#experience">Experience TFR</a></li>
+          <li><a href="/login">TFR Play</a></li>
+          <li><a href="/home.html#community">Community</a></li>
+          <li><a href="/home.html#courses">Instructors</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Connect</p>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
+          <span class="footer-connect-text"><a href="tel:+919920615500">+91 99206 15500</a></span>
+        </div>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span class="footer-connect-text"><a href="mailto:join@thefoundationroom.in">join@thefoundationroom.in</a></span>
+        </div>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="footer-connect-text">403 Windermere, North Avenue,<br>Santacruz West, Mumbai 400054</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved.</p>
+      <div class="footer-legal">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/refund-policy">Refund Policy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ─── CURSOR ─── */
+    const cursorDot = document.getElementById('cursor-dot');
+    const xTo = gsap.quickTo(cursorDot, 'x', { duration: 0.4, ease: 'power3' });
+    const yTo = gsap.quickTo(cursorDot, 'y', { duration: 0.4, ease: 'power3' });
+    window.addEventListener('mousemove', e => { xTo(e.clientX); yTo(e.clientY); });
+
+    /* ─── HERO ANIMATION ─── */
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReducedMotion) {
+      const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      heroTl
+        .to('#hero-eyebrow', { opacity: 1, y: 0, duration: 0.55 }, 0.15)
+        .to('#hero-h1',      { opacity: 1, y: 0, duration: 0.6  }, 0.35)
+        .to('#hero-sub',     { opacity: 1, y: 0, duration: 0.5  }, 0.55);
+
+      /* filter chips entrance */
+      gsap.fromTo('.filter-chip',
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.4, stagger: 0.06, ease: 'power2.out', delay: 0.7 }
+      );
+    } else {
+      /* ensure visibility with no animation */
+      ['#hero-eyebrow', '#hero-h1', '#hero-sub'].forEach(sel => {
+        gsap.set(sel, { opacity: 1 });
+      });
+    }
+
+    /* ─── STATE ─── */
+    let allCourses = [];
+    let activeFilter = 'all';
+    let searchQuery = '';
+
+    /* ─── CATEGORY → filter key mapping ─── */
+    const CATEGORY_MAP = {
+      sitar:      'sitar',
+      percussion: 'percussion',
+      percussions:'percussion',
+      djembe:     'percussion',
+      vocals:     'vocals',
+      hindustani: 'vocals',
+      kathak:     'dance',
+      dance:      'dance',
+      acting:     'acting',
+      film:       'acting',
+      songs:      'acting',
+    };
+
+    function getCategoryKey(course) {
+      const raw = (course.category || course.instrument || '').toLowerCase();
+      for (const [key, val] of Object.entries(CATEGORY_MAP)) {
+        if (raw.includes(key)) return val;
+      }
+      return 'other';
+    }
+
+    /* ─── COVER COLORS per category ─── */
+    const COVER_COLORS = {
+      sitar:      { bg: 'linear-gradient(135deg,#1A0D00 0%,#3D2600 100%)', accent: '#C8A84B' },
+      percussion: { bg: 'linear-gradient(135deg,#0A1A00 0%,#1A3000 100%)', accent: '#8BAF5A' },
+      vocals:     { bg: 'linear-gradient(135deg,#1A0010 0%,#2D0028 100%)', accent: '#C86B9A' },
+      dance:      { bg: 'linear-gradient(135deg,#001A1A 0%,#002D30 100%)', accent: '#5AB5AF' },
+      acting:     { bg: 'linear-gradient(135deg,#0A0A1A 0%,#141428 100%)', accent: '#8A7AC8' },
+      other:      { bg: 'linear-gradient(135deg,#1A1000 0%,#2D1F00 100%)', accent: '#C8A84B' },
+    };
+
+    /* override with server-provided color if present */
+    function getCoverStyle(course) {
+      const catKey = getCategoryKey(course);
+      if (course.cover_color) {
+        return `background:${course.cover_color}`;
+      }
+      return `background:${COVER_COLORS[catKey]?.bg || COVER_COLORS.other.bg}`;
+    }
+
+    /* ─── INITIALS from instructor name ─── */
+    function getInitials(name) {
+      if (!name) return '??';
+      return name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 3);
+    }
+
+    /* ─── PRICE formatter ─── */
+    function formatPrice(price) {
+      if (!price && price !== 0) return '';
+      const num = Number(price);
+      if (isNaN(num)) return price;
+      return '₹' + num.toLocaleString('en-IN');
+    }
+
+    /* ─── BUILD CARD HTML ─── */
+    function buildCard(course) {
+      const catKey     = getCategoryKey(course);
+      const coverStyle = getCoverStyle(course);
+      const initials   = getInitials(course.instructor_name);
+      const levelText  = course.level   || 'All Levels';
+      const instructor = course.instructor_name || 'TFR Faculty';
+      const subject    = course.subtitle || (course.instrument ? `${course.instrument} — ${levelText}` : levelText);
+      const excerpt    = course.description || course.excerpt || 'Master the craft with India\'s finest performing artists in an intimate, live learning environment.';
+      const lessons    = course.lesson_count ? `${course.lesson_count} lesson${course.lesson_count === 1 ? '' : 's'}` : '';
+      const price      = formatPrice(course.price);
+      const href       = `/experience/${course.slug || course.id}`;
+
+      return `
+        <div class="course-card" data-cat="${catKey}" data-id="${course.id}">
+          <div class="course-cover" style="${coverStyle}">
+            ${course.cover_image_url ? `<img src="${course.cover_image_url}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">` : ''}
+            <span class="course-watermark" style="position:relative;z-index:2;">${initials}</span>
+            <div class="course-overlay" style="z-index:1;"></div>
+            <span class="course-level-tag" style="z-index:3;">${levelText}</span>
+          </div>
+          <div class="course-body">
+            <h3 class="course-name">${course.title}</h3>
+            <p class="course-taught-by">Taught by ${instructor}</p>
+            <p class="course-subject">${subject}</p>
+            <div class="course-sep"></div>
+            <p class="course-excerpt">${excerpt}</p>
+            <div class="course-meta">
+              <span class="course-lessons">${lessons}</span>
+              ${price ? `<span class="course-price">${price}</span>` : ''}
+            </div>
+            <a href="${href}" class="btn-view-course">View Course &rarr;</a>
+          </div>
+        </div>
+      `.trim();
+    }
+
+    /* ─── RENDER ─── */
+    function getVisibleCourses() {
+      return allCourses.filter(course => {
+        const catKey = getCategoryKey(course);
+        const matchesFilter = activeFilter === 'all' || catKey === activeFilter;
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch = !q ||
+          (course.title || '').toLowerCase().includes(q) ||
+          (course.instructor_name || '').toLowerCase().includes(q) ||
+          (course.subtitle || '').toLowerCase().includes(q) ||
+          (course.instrument || '').toLowerCase().includes(q);
+        return matchesFilter && matchesSearch;
+      });
+    }
+
+    function updateResultsCount(visible) {
+      const el = document.getElementById('results-count');
+      if (visible.length === allCourses.length) {
+        el.innerHTML = `Showing <strong>${visible.length}</strong> course${visible.length !== 1 ? 's' : ''}`;
+      } else {
+        el.innerHTML = `Showing <strong>${visible.length}</strong> of <strong>${allCourses.length}</strong> course${allCourses.length !== 1 ? 's' : ''}`;
+      }
+    }
+
+    function renderCards(animate = true) {
+      const grid = document.getElementById('course-grid');
+      const emptyState = document.getElementById('empty-state');
+      const visible = getVisibleCourses();
+
+      updateResultsCount(visible);
+
+      if (visible.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.add('visible');
+        return;
+      }
+
+      emptyState.classList.remove('visible');
+      grid.innerHTML = visible.map(buildCard).join('');
+
+      const cards = grid.querySelectorAll('.course-card');
+
+      if (animate && !prefersReducedMotion) {
+        gsap.fromTo(cards,
+          { opacity: 0, y: 28, scale: 0.97 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.07, ease: 'power3.out',
+            onComplete: () => setupScrollTriggers(cards) }
+        );
+      } else {
+        setupScrollTriggers(cards);
+      }
+    }
+
+    function setupScrollTriggers(cards) {
+      if (prefersReducedMotion) return;
+      cards.forEach(card => {
+        ScrollTrigger.create({
+          trigger: card,
+          start: 'top 92%',
+          once: true,
+          onEnter: () => {
+            gsap.to(card, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: 'power3.out', overwrite: 'auto' });
+          }
+        });
+      });
+    }
+
+    /* ─── FILTER CHIP INTERACTION ─── */
+    document.getElementById('filter-chips').addEventListener('click', e => {
+      const chip = e.target.closest('.filter-chip');
+      if (!chip) return;
+
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+
+      if (!prefersReducedMotion) {
+        const grid = document.getElementById('course-grid');
+        gsap.to(grid.querySelectorAll('.course-card'), {
+          opacity: 0, scale: 0.95, y: 10, duration: 0.2, ease: 'power2.in',
+          onComplete: () => renderCards(true)
+        });
+      } else {
+        renderCards(false);
+      }
+    });
+
+    /* ─── SEARCH INTERACTION ─── */
+    let searchTimer;
+    document.getElementById('search-input').addEventListener('input', e => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        searchQuery = e.target.value;
+        renderCards(true);
+      }, 220);
+    });
+
+    /* ─── EMPTY STATE RESET ─── */
+    document.getElementById('empty-reset').addEventListener('click', () => {
+      searchQuery = '';
+      activeFilter = 'all';
+      document.getElementById('search-input').value = '';
+      document.querySelectorAll('.filter-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.filter === 'all');
+      });
+      renderCards(true);
+    });
+
+    /* ─── FALLBACK DATA (used when API is unavailable) ─── */
+    const FALLBACK_COURSES = [
+      {
+        id: 1,
+        title: 'Sitar Mastery',
+        subtitle: 'Classical & Contemporary',
+        instructor_name: 'Niladri Kumar',
+        instrument: 'Sitar',
+        level: 'All Levels',
+        category: 'sitar',
+        lesson_count: 24,
+        duration_weeks: 12,
+        price: 12000,
+        description: 'Master the alchemy of tone, raga and improvisation with one of India\'s foremost sitar virtuosos. From meend to mizrab technique.'
+      },
+      {
+        id: 2,
+        title: 'Djembe & Percussions',
+        subtitle: 'World Rhythms & Indian Classical Percussion',
+        instructor_name: 'Taufiq Qureshi',
+        instrument: 'Percussion',
+        level: 'Beginner',
+        category: 'percussion',
+        lesson_count: 20,
+        duration_weeks: 10,
+        price: 10000,
+        description: 'Discover the meditative power of rhythm. Taufiq Qureshi teaches you to feel music in your body through world-class djembe and tabla traditions.'
+      },
+      {
+        id: 3,
+        title: 'Hindustani Vocals',
+        subtitle: 'Kirana Gharana Tradition',
+        instructor_name: 'Sveta Kilpady',
+        instrument: 'Vocals',
+        level: 'Intermediate',
+        category: 'vocals',
+        lesson_count: 18,
+        duration_weeks: 9,
+        price: 9500,
+        description: 'The Kirana gharana approach to sur, raga and taan. Develop surgical pitch control, breath support and emotional depth in every note you sing.'
+      },
+      {
+        id: 4,
+        title: 'Kathak',
+        subtitle: 'Classical Dance — Jaipur Gharana',
+        instructor_name: 'Guruma Sangeeta Sinha',
+        instrument: 'Kathak',
+        level: 'Beginner',
+        category: 'dance',
+        lesson_count: 22,
+        duration_weeks: 11,
+        price: 11000,
+        description: 'Explore the poetry of footwork and expression with Guruma Sangeeta Sinha. Every tattkar tells a story, every abhinaya a universe of feeling.'
+      },
+      // Film Songs (Milind Singh) and Writer's Room (Makarand Deshpande) temporarily
+      // removed from the fallback until the course rows are re-seeded — they are
+      // advertised as "Coming Soon" on the homepage instructor grid.
+    ];
+
+    /* ─── FETCH COURSES ─── */
+    async function loadCourses() {
+      try {
+        const res = await fetch('/api/public/courses', {
+          headers: { 'Accept': 'application/json' },
+          signal: AbortSignal.timeout(8000)
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        allCourses = Array.isArray(data) ? data : (data.courses || data.data || []);
+        if (!allCourses.length) throw new Error('empty');
+      } catch {
+        /* API unavailable — use rich fallback data */
+        allCourses = FALLBACK_COURSES;
+      }
+
+      /* clear skeletons */
+      document.getElementById('course-grid').innerHTML = '';
+
+      renderCards(true);
+
+      /* ScrollTrigger for initial visible cards */
+      if (!prefersReducedMotion) {
+        ScrollTrigger.refresh();
+      }
+    }
+
+    loadCourses();
+  </script>
+
+</body>
+</html>

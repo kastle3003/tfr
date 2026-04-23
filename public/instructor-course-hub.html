@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Opt-in to smooth instructor-portal sidebar (View Transitions + hover easing)
+    // before first paint, for instructor role only. Student/admin untouched.
+    (function(){
+      try {
+        var u = JSON.parse(localStorage.getItem('archive_user') || 'null');
+        if (u && u.role === 'instructor') {
+          document.documentElement.classList.add('instructor-portal');
+          var s = document.createElement('style');
+          s.textContent = '@view-transition{navigation:auto}';
+          document.head.appendChild(s);
+        }
+      } catch(e){}
+    })();
+  </script>
+  <title>Course Hub — The Foundation Room</title>
+  <meta name="description" content="Manage your course, upload content, track students, and communicate — all in one place.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    /* ── Tabs ── */
+    .hub-tabs { display:flex; gap:2px; border-bottom:1px solid rgba(200,168,75,0.12); margin-bottom:28px; overflow-x:auto; scrollbar-width:none; flex-wrap:nowrap; }
+    .hub-tabs::-webkit-scrollbar { display:none; }
+    .hub-tab { display:flex; align-items:center; gap:7px; padding:10px 16px; font-size:12.5px; font-weight:500; color:var(--text-3); border-bottom:2px solid transparent; cursor:pointer; white-space:nowrap; transition:color .2s, border-color .2s; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--sans); letter-spacing:.02em; }
+    .hub-tab:hover { color:var(--text); }
+    .hub-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+    .tab-pane { display:none; animation:fadeUp .3s ease; }
+    .tab-pane.active { display:block; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+    /* ── Course Selector ── */
+    .course-selector-wrap { display:flex; align-items:center; gap:12px; margin-bottom:24px; background:var(--bg-card); border:1px solid rgba(200,168,75,0.15); border-radius:var(--r-md); padding:14px 18px; }
+    .course-selector-wrap select { flex:1; background:transparent; border:none; color:var(--text); font-family:var(--serif); font-size:18px; font-style:italic; cursor:pointer; outline:none; }
+    .course-selector-wrap select option { background:#1a1208; font-family:var(--sans); font-style:normal; font-size:14px; }
+
+    /* ── Stats Row ── */
+    .hub-stats { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:24px; }
+    @media(max-width:1000px){.hub-stats{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:700px){.hub-stats{grid-template-columns:repeat(2,1fr)}}
+    .hub-stat { background:var(--bg-card); border:1px solid rgba(200,168,75,0.12); border-radius:var(--r-md); padding:14px 16px; text-align:center; }
+    .hub-stat-val { font-family:var(--serif); font-size:26px; font-weight:600; color:var(--gold); line-height:1; margin-bottom:5px; }
+    .hub-stat-lbl { font-size:10px; color:var(--text-3); letter-spacing:.04em; text-transform:uppercase; }
+
+    /* ── Curriculum ── */
+    .curriculum-tree { display:flex; flex-direction:column; gap:10px; }
+    .chapter-block { background:var(--bg-card); border:1px solid rgba(200,168,75,0.12); border-radius:var(--r-md); overflow:hidden; }
+    .chapter-hdr { display:flex; align-items:center; gap:10px; padding:13px 18px; cursor:pointer; user-select:none; transition:background .2s; }
+    .chapter-hdr:hover { background:rgba(200,168,75,0.04); }
+    .ch-expand { width:16px; height:16px; color:var(--gold); transition:transform .2s; flex-shrink:0; }
+    .chapter-block.open .ch-expand { transform:rotate(90deg); }
+    .ch-title { flex:1; font-weight:600; font-size:14px; color:var(--text); }
+    .ch-meta { font-size:11px; color:var(--text-3); }
+    .lessons-list { border-top:1px solid rgba(200,168,75,0.08); display:none; }
+    .chapter-block.open .lessons-list { display:block; }
+    .lesson-row { display:flex; align-items:center; gap:12px; padding:10px 18px 10px 38px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:13px; transition:background .15s; }
+    .lesson-row:last-child { border-bottom:none; }
+    .lesson-row:hover { background:rgba(200,168,75,0.03); }
+    .type-pill { font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:20px; flex-shrink:0; }
+    .pill-video    { background:rgba(139,46,38,0.2); color:#E07A72; }
+    .pill-exercise { background:rgba(34,139,34,0.15); color:#72C472; }
+    .pill-reading  { background:rgba(200,168,75,0.15); color:var(--gold); }
+    .free-badge { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; background:rgba(200,168,75,0.2); color:var(--gold); border:1px solid rgba(200,168,75,0.3); padding:1px 6px; border-radius:20px; flex-shrink:0; }
+    .lesson-name { flex:1; color:var(--text-2); }
+    .lesson-dur { font-size:11px; color:var(--text-3); }
+    .add-lesson-row { display:flex; align-items:center; gap:12px; padding:8px 18px 8px 38px; font-size:12px; color:var(--text-3); font-style:italic; cursor:pointer; opacity:.6; transition:opacity .2s; }
+    .add-lesson-row:hover { opacity:1; }
+
+    /* ── Upload Panel ── */
+    .upload-panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:200; display:none; align-items:flex-end; justify-content:flex-end; }
+    .upload-panel-overlay.open { display:flex; }
+    .upload-panel { background:var(--bg-card); border-left:1px solid rgba(200,168,75,0.15); width:min(520px,100vw); height:100vh; overflow-y:auto; padding:32px 28px; transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1); position:relative; }
+    .upload-panel-overlay.open .upload-panel { transform:translateX(0); }
+    .panel-close { position:absolute; top:18px; right:20px; background:none; border:none; cursor:pointer; color:var(--text-3); transition:color .2s; }
+    .panel-close:hover { color:var(--text); }
+    .panel-title { font-family:var(--serif); font-style:italic; font-size:22px; color:var(--text); margin-bottom:4px; }
+    .panel-sub { font-size:12px; color:var(--text-3); margin-bottom:22px; }
+    .drop-zone { border:2px dashed rgba(200,168,75,0.3); border-radius:var(--r-md); padding:28px; text-align:center; cursor:pointer; transition:all .2s; margin-bottom:16px; }
+    .drop-zone:hover, .drop-zone.drag-over { border-color:var(--gold); background:rgba(200,168,75,0.04); }
+    .drop-zone input[type=file] { display:none; }
+    .dz-icon { font-size:28px; margin-bottom:8px; }
+    .dz-text { font-size:13px; color:var(--text-2); margin-bottom:3px; }
+    .dz-hint { font-size:11px; color:var(--text-3); }
+
+    /* ── Upload Cards ── */
+    .upload-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; margin-bottom:28px; }
+    .upload-card { background:var(--bg-card); border:1px solid rgba(200,168,75,0.12); border-radius:var(--r-md); padding:20px; cursor:pointer; transition:border-color .2s, transform .2s, box-shadow .2s; position:relative; overflow:hidden; }
+    .upload-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--gold),transparent); opacity:0; transition:opacity .2s; }
+    .upload-card:hover { border-color:rgba(200,168,75,0.4); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.25); }
+    .upload-card:hover::before { opacity:1; }
+    .uc-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; font-size:17px; }
+    .uc-red{background:rgba(139,46,38,0.2)} .uc-gold{background:rgba(200,168,75,0.15)} .uc-green{background:rgba(34,139,34,0.12)} .uc-blue{background:rgba(50,120,200,0.15)} .uc-purple{background:rgba(120,50,180,0.15)} .uc-teal{background:rgba(20,160,160,0.15)}
+    .uc-title { font-weight:600; font-size:13.5px; color:var(--text); margin-bottom:4px; }
+    .uc-desc { font-size:12px; color:var(--text-3); line-height:1.6; }
+
+    /* ── Settings Form ── */
+    .settings-section { background:var(--bg-card); border:1px solid rgba(200,168,75,0.12); border-radius:var(--r-md); padding:22px; margin-bottom:16px; }
+    .settings-section-title { font-weight:600; font-size:14px; color:var(--text); margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid rgba(200,168,75,0.08); display:flex; align-items:center; gap:8px; }
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .toggle-row:last-child { border-bottom:none; }
+    .toggle-label { font-size:13px; color:var(--text-2); }
+    .toggle-desc { font-size:11px; color:var(--text-3); margin-top:2px; }
+    .toggle-switch { position:relative; width:38px; height:20px; flex-shrink:0; }
+    .toggle-switch input { opacity:0; width:0; height:0; }
+    .toggle-slider { position:absolute; inset:0; background:rgba(255,255,255,0.1); border-radius:20px; cursor:pointer; transition:background .2s; }
+    .toggle-slider::before { content:''; position:absolute; height:14px; width:14px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:transform .2s; }
+    input:checked + .toggle-slider { background:var(--gold); }
+    input:checked + .toggle-slider::before { transform:translateX(18px); }
+
+    /* ── Analytics ── */
+    .analytics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+    @media(max-width:900px){.analytics-grid{grid-template-columns:repeat(2,1fr)}}
+    .a-card { background:var(--bg-card); border:1px solid rgba(200,168,75,0.12); border-radius:var(--r-md); padding:18px; }
+    .a-val { font-family:var(--serif); font-size:32px; font-weight:600; color:var(--gold); line-height:1; margin-bottom:6px; }
+    .a-lbl { font-size:11px; color:var(--text-3); letter-spacing:.04em; text-transform:uppercase; }
+    .a-change { font-size:11px; margin-top:6px; }
+    .a-up { color:#72C472; } .a-down { color:#E07A72; }
+    .bar-chart { display:flex; align-items:flex-end; gap:6px; height:80px; margin-top:16px; }
+    .bar { flex:1; border-radius:3px 3px 0 0; background:rgba(200,168,75,0.2); transition:background .2s; }
+    .bar:hover { background:rgba(200,168,75,0.5); }
+
+    /* ── Gradebook ── */
+    .sub-card { background:var(--bg-card); border:1px solid rgba(200,168,75,0.1); border-radius:var(--r-sm); padding:14px 16px; margin-bottom:8px; display:flex; align-items:center; gap:14px; }
+    .sub-type-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+    .sub-info { flex:1; min-width:0; }
+    .sub-title { font-weight:600; font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sub-meta { font-size:11px; color:var(--text-3); margin-top:2px; }
+    .sub-status { font-size:11px; font-weight:600; letter-spacing:.04em; }
+    .status-pending { color:#E2B04A; }
+    .status-graded  { color:#72C472; }
+
+    /* ── Messaging ── */
+    .thread-row { display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:var(--r-sm); transition:background .15s; cursor:pointer; margin-bottom:4px; }
+    .thread-row:hover { background:rgba(200,168,75,0.04); }
+    .thread-avatar { width:36px; height:36px; border-radius:50%; background:rgba(200,168,75,0.12); border:1px solid rgba(200,168,75,0.2); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--gold); flex-shrink:0; }
+    .thread-info { flex:1; min-width:0; }
+    .thread-name { font-weight:600; font-size:13px; color:var(--text); }
+    .thread-preview { font-size:12px; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .thread-time { font-size:11px; color:var(--text-3); flex-shrink:0; }
+    .unread-dot { width:8px; height:8px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+
+    /* ── Students ── */
+    .student-actions { display:flex; gap:8px; }
+
+    /* ── Announcement ── */
+    .ann-item { background:var(--bg-card); border:1px solid rgba(200,168,75,0.1); border-radius:var(--r-sm); padding:16px; margin-bottom:10px; }
+    .ann-title { font-weight:600; font-size:14px; color:var(--text); margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+    .ann-body { font-size:13px; color:var(--text-2); line-height:1.6; margin-bottom:8px; }
+    .ann-meta { font-size:11px; color:var(--text-3); display:flex; align-items:center; gap:10px; }
+    .pinned-badge { background:rgba(200,168,75,0.15); color:var(--gold); border-radius:4px; padding:1px 6px; font-size:10px; font-weight:700; letter-spacing:.06em; }
+
+    /* ── Res cards ── */
+    .res-card { background:var(--bg-card); border:1px solid rgba(200,168,75,0.1); border-radius:var(--r-sm); padding:13px 16px; display:flex; gap:12px; align-items:flex-start; margin-bottom:8px; }
+    .res-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:15px; }
+    .res-info { flex:1; min-width:0; }
+    .res-name { font-weight:600; font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .res-meta { font-size:11px; color:var(--text-3); margin-top:2px; }
+
+    /* ── File list ── */
+    .file-list { display:flex; flex-direction:column; gap:8px; }
+    .file-item { display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(200,168,75,0.1); border-radius:var(--r-sm); padding:10px 14px; }
+    .file-item-name { flex:1; font-size:13px; color:var(--text-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .file-item-size { font-size:11px; color:var(--text-3); flex-shrink:0; }
+    .file-remove { background:none; border:none; cursor:pointer; color:var(--text-3); transition:color .2s; }
+    .file-remove:hover { color:#E07A72; }
+
+    /* ── Grade modal ── */
+    .grade-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:300; display:none; align-items:center; justify-content:center; }
+    .grade-modal-overlay.open { display:flex; }
+    .grade-modal { background:var(--bg-card); border:1px solid rgba(200,168,75,0.2); border-radius:var(--r-md); padding:28px; width:min(480px,95vw); }
+
+    /* Progress bar */
+    .progress-bar-wrap { flex:1; }
+    .progress-ring { display:flex; align-items:center; gap:10px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-monogram">TFR</div>
+      <div class="brand-title">The Foundation Room</div>
+      <div class="brand-sub">Instructor Portal</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/instructor-dashboard.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </a>
+      <a href="/instructor-course-hub.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        Course Hub
+      </a>
+      <a href="/gradebook.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Gradebook
+      </a>
+      <a href="/analytics-instructor.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </a>
+      <a href="/live-classes.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        Live Classes
+      </a>
+      <a href="/messages.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+      </a>
+      <a href="/admin.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        System Admin
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="handleLogout()">
+        <div class="sidebar-avatar" id="sb-avatar">--</div>
+        <div class="sidebar-user-info">
+          <div class="user-name" id="sb-name">Instructor</div>
+          <div class="user-role">Instructor</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title" id="page-title">Course Hub</div>
+      <div class="topbar-actions">
+        <button class="btn btn-outline btn-sm" id="btn-publish" onclick="togglePublish()" style="display:none;">Publish</button>
+        <button class="btn btn-primary btn-sm" onclick="openPanel('lesson')">+ Add Lesson</button>
+        <div class="topbar-avatar" id="topbar-avatar" title="Click to log out" style="cursor:pointer;" onclick="if(confirm('Log out?')) logout()">--</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Heading -->
+      <div style="margin-bottom:20px;">
+        <div class="eyebrow" style="margin-bottom:6px;">Instructor Course Hub</div>
+        <h1 class="page-title" style="font-size:38px;margin-bottom:4px;" id="page-heading">My Courses</h1>
+        <p class="page-subtitle">Everything you need to teach, manage, and grow your course.</p>
+      </div>
+
+      <!-- Course Selector -->
+      <div class="course-selector-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        <select id="course-select" onchange="switchCourse()">
+          <option value="">Loading your courses…</option>
+        </select>
+        <span id="course-badge" class="badge badge-muted" style="display:none; flex-shrink:0;">Draft</span>
+        <a id="course-preview-link" href="#" target="_blank" style="font-size:12px; color:var(--gold); display:none; flex-shrink:0;">
+          Preview ↗
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="hub-stats">
+        <div class="hub-stat"><div class="hub-stat-val" id="hs-students">—</div><div class="hub-stat-lbl">Students</div></div>
+        <div class="hub-stat"><div class="hub-stat-val" id="hs-lessons">—</div><div class="hub-stat-lbl">Lessons</div></div>
+        <div class="hub-stat"><div class="hub-stat-val" id="hs-progress">—%</div><div class="hub-stat-lbl">Avg Progress</div></div>
+        <div class="hub-stat"><div class="hub-stat-val" id="hs-pending">—</div><div class="hub-stat-lbl">Pending Grades</div></div>
+        <div class="hub-stat"><div class="hub-stat-val" id="hs-resources">—</div><div class="hub-stat-lbl">Resources</div></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="hub-tabs">
+        <button class="hub-tab active" data-tab="curriculum" onclick="switchTab('curriculum')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          Curriculum
+        </button>
+        <button class="hub-tab" data-tab="students" onclick="switchTab('students')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Students
+        </button>
+        <button class="hub-tab" data-tab="gradebook" onclick="switchTab('gradebook')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Gradebook
+        </button>
+        <button class="hub-tab" data-tab="analytics" onclick="switchTab('analytics')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </button>
+        <button class="hub-tab" data-tab="uploads" onclick="switchTab('uploads')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+          Upload Center
+        </button>
+        <button class="hub-tab" data-tab="resources" onclick="switchTab('resources')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          Resources
+        </button>
+        <button class="hub-tab" data-tab="announcements" onclick="switchTab('announcements')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Announcements
+        </button>
+        <button class="hub-tab" data-tab="messages" onclick="switchTab('messages')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Messages
+        </button>
+        <button class="hub-tab" data-tab="settings" onclick="switchTab('settings')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Settings
+        </button>
+      </div>
+
+      <!-- ══════ CURRICULUM ══════ -->
+      <div class="tab-pane active" id="tab-curriculum">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="section-title">Course Curriculum</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="openPanel('chapter')">+ Chapter</button>
+            <button class="btn btn-primary btn-sm" onclick="openPanel('lesson')">+ Lesson</button>
+          </div>
+        </div>
+        <div class="curriculum-tree" id="curriculum-tree">
+          <div class="skeleton" style="height:68px;"></div>
+          <div class="skeleton" style="height:68px;"></div>
+          <div class="skeleton" style="height:68px;"></div>
+        </div>
+      </div>
+
+      <!-- ══════ STUDENTS ══════ -->
+      <div class="tab-pane" id="tab-students">
+        <div class="section-header mb-16">
+          <div class="section-title">Enrolled Students</div>
+          <span id="students-count" class="badge badge-success">—</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Student</th><th>Progress</th><th>Enrolled</th><th>Last Active</th><th>Status</th><th></th></tr></thead>
+            <tbody id="students-tbody"><tr><td colspan="6"><div class="skeleton" style="height:44px;"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ GRADEBOOK ══════ -->
+      <div class="tab-pane" id="tab-gradebook">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="section-title">Submissions & Grading</div>
+          <div style="display:flex;gap:8px;">
+            <select class="form-select" id="grade-filter" onchange="loadSubmissions()" style="font-size:12px;padding:6px 10px;height:auto;">
+              <option value="pending">Pending</option>
+              <option value="graded">Graded</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+        </div>
+        <div id="submissions-list">
+          <div class="skeleton" style="height:64px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:64px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:64px;"></div>
+        </div>
+      </div>
+
+      <!-- ══════ ANALYTICS ══════ -->
+      <div class="tab-pane" id="tab-analytics">
+        <div class="section-title" style="margin-bottom:20px;">Course Analytics</div>
+        <div class="analytics-grid" id="analytics-grid">
+          <div class="a-card"><div class="a-val" id="an-enrollments">—</div><div class="a-lbl">Total Enrollments</div><div class="a-change a-up" id="an-enroll-trend"></div></div>
+          <div class="a-card"><div class="a-val" id="an-completions">—</div><div class="a-lbl">Completions</div></div>
+          <div class="a-card"><div class="a-val" id="an-avg-score">—%</div><div class="a-lbl">Avg Quiz Score</div></div>
+          <div class="a-card"><div class="a-val" id="an-practice">—h</div><div class="a-lbl">Total Practice Time</div></div>
+        </div>
+        <!-- Progress distribution bar chart -->
+        <div style="background:var(--bg-card);border:1px solid rgba(200,168,75,0.12);border-radius:var(--r-md);padding:20px;margin-bottom:16px;">
+          <div style="font-weight:600;font-size:13px;color:var(--text);margin-bottom:4px;">Student Progress Distribution</div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:16px;">How far along your students are</div>
+          <div id="progress-chart" style="display:flex;gap:4px;height:100px;align-items:flex-end;">
+            <div class="skeleton" style="flex:1;height:80%;"></div>
+            <div class="skeleton" style="flex:1;height:60%;"></div>
+            <div class="skeleton" style="flex:1;height:40%;"></div>
+            <div class="skeleton" style="flex:1;height:90%;"></div>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:8px;" id="progress-chart-labels"></div>
+        </div>
+        <!-- Top lessons -->
+        <div style="background:var(--bg-card);border:1px solid rgba(200,168,75,0.12);border-radius:var(--r-md);padding:20px;">
+          <div style="font-weight:600;font-size:13px;color:var(--text);margin-bottom:16px;">Most Completed Lessons</div>
+          <div id="top-lessons-list"><div class="skeleton" style="height:40px;margin-bottom:8px;"></div><div class="skeleton" style="height:40px;"></div></div>
+        </div>
+      </div>
+
+      <!-- ══════ UPLOAD CENTER ══════ -->
+      <div class="tab-pane" id="tab-uploads">
+        <div class="section-title" style="margin-bottom:6px;">Upload Center</div>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:20px;">Add content, assessments, and communication to your course.</p>
+        <div class="upload-grid">
+          <div class="upload-card" onclick="openPanel('lesson')"><div class="uc-icon uc-red">🎬</div><div class="uc-title">Video Lesson</div><div class="uc-desc">Add a video lecture, exercise, or reading to your curriculum.</div></div>
+          <div class="upload-card" onclick="openPanel('resource')"><div class="uc-icon uc-gold">📄</div><div class="uc-title">Resource / File</div><div class="uc-desc">Upload PDFs, slides, workbooks or documents for download.</div></div>
+          <div class="upload-card" onclick="openPanel('sheetmusic')"><div class="uc-icon uc-green">🎼</div><div class="uc-title">Sheet Music</div><div class="uc-desc">Upload notation files — ragas, compositions, exercises.</div></div>
+          <div class="upload-card" onclick="openPanel('assignment')"><div class="uc-icon uc-blue">📝</div><div class="uc-title">Assignment</div><div class="uc-desc">Create a graded task with instructions and due dates.</div></div>
+          <div class="upload-card" onclick="openPanel('quiz')"><div class="uc-icon uc-purple">❓</div><div class="uc-title">Quiz</div><div class="uc-desc">Design MCQ or listening quizzes to test understanding.</div></div>
+          <div class="upload-card" onclick="openPanel('announcement')"><div class="uc-icon uc-teal">📢</div><div class="uc-title">Announcement</div><div class="uc-desc">Broadcast updates, schedule changes, or milestones.</div></div>
+        </div>
+      </div>
+
+      <!-- ══════ RESOURCES ══════ -->
+      <div class="tab-pane" id="tab-resources">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="section-title">Uploaded Resources</div>
+          <button class="btn btn-primary btn-sm" onclick="openPanel('resource')">+ Upload</button>
+        </div>
+        <div id="resources-list"><div class="skeleton" style="height:58px;margin-bottom:8px;"></div><div class="skeleton" style="height:58px;margin-bottom:8px;"></div></div>
+      </div>
+
+      <!-- ══════ ANNOUNCEMENTS ══════ -->
+      <div class="tab-pane" id="tab-announcements">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="section-title">Course Announcements</div>
+          <button class="btn btn-primary btn-sm" onclick="openPanel('announcement')">+ Post</button>
+        </div>
+        <div id="announcements-list"><div class="skeleton" style="height:80px;margin-bottom:10px;"></div><div class="skeleton" style="height:80px;"></div></div>
+      </div>
+
+      <!-- ══════ MESSAGES ══════ -->
+      <div class="tab-pane" id="tab-messages">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="section-title">Student Messages</div>
+          <a href="/messages.html" class="btn btn-outline btn-sm">Open Full Inbox →</a>
+        </div>
+        <div id="threads-list">
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;"></div>
+        </div>
+      </div>
+
+      <!-- ══════ SETTINGS ══════ -->
+      <div class="tab-pane" id="tab-settings">
+        <div class="section-title" style="margin-bottom:20px;">Course Settings</div>
+
+        <!-- Basic Info -->
+        <div class="settings-section">
+          <div class="settings-section-title">✏️ Basic Information</div>
+          <div class="form-group"><label class="form-label">Course Title</label><input class="form-input" id="set-title" placeholder="Course title…"></div>
+          <div class="form-group"><label class="form-label">Subtitle</label><input class="form-input" id="set-subtitle" placeholder="Short tagline…"></div>
+          <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="set-desc" style="height:100px;"></textarea></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div class="form-group"><label class="form-label">Level</label>
+              <select class="form-select" id="set-level"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Masterclass</option></select></div>
+            <div class="form-group"><label class="form-label">Category</label>
+              <select class="form-select" id="set-category"><option>Sitar</option><option>Vocals</option><option>Percussion</option><option>Dance</option><option>Film Songs</option><option>Acting</option><option>Theory</option></select></div>
+            <div class="form-group"><label class="form-label">Duration (weeks)</label><input class="form-input" id="set-weeks" type="number" min="1"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="saveCourseInfo()">Save Changes</button>
+        </div>
+
+        <!-- Pricing -->
+        <div class="settings-section">
+          <div class="settings-section-title">💰 Pricing Control</div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Paid Course</div><div class="toggle-desc">Enable to set a price for enrollment</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="set-is-paid" onchange="togglePricing()"><span class="toggle-slider"></span></label>
+          </div>
+          <div id="pricing-section" style="display:none; margin-top:16px;">
+            <div class="form-group"><label class="form-label">Price (₹)</label><input class="form-input" id="set-price" type="number" min="0" placeholder="e.g. 2999"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="savePricing()">Update Pricing</button>
+        </div>
+
+        <!-- Visibility -->
+        <div class="settings-section">
+          <div class="settings-section-title">👁️ Visibility & Publishing</div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Course Status</div><div class="toggle-desc" id="vis-desc">Course is a draft — not visible to students</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="set-published" onchange="savePublishStatus()"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Free Preview Lesson</div><div class="toggle-desc">First lesson of Chapter 1 is publicly watchable</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="set-preview" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <!-- Enrollment Management -->
+        <div class="settings-section">
+          <div class="settings-section-title">👥 Enrollment Management</div>
+          <div style="font-size:13px;color:var(--text-3);margin-bottom:12px;">Manually enroll or remove students from this course.</div>
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <input class="form-input" id="enroll-email" placeholder="student@email.com" style="flex:1;">
+            <button class="btn btn-primary btn-sm" onclick="manualEnroll()">Enroll Student</button>
+          </div>
+          <div id="enrollment-list-settings"><div class="skeleton" style="height:40px;margin-bottom:6px;"></div></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ══════ UPLOAD PANEL ══════ -->
+<div class="upload-panel-overlay" id="upload-panel-overlay" onclick="panelBgClick(event)">
+  <div class="upload-panel" id="upload-panel">
+    <button class="panel-close" onclick="closePanel()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="panel-title" id="panel-title">Upload</div>
+    <div class="panel-sub" id="panel-sub"></div>
+    <div id="panel-body"></div>
+  </div>
+</div>
+
+<!-- ══════ GRADE MODAL ══════ -->
+<div class="grade-modal-overlay" id="grade-modal-overlay">
+  <div class="grade-modal">
+    <div class="modal-title" style="margin-bottom:16px;">Grade Submission</div>
+    <input type="hidden" id="grade-sub-id">
+    <div class="form-group"><label class="form-label">Grade</label>
+      <select class="form-select" id="grade-val">
+        <option>A+</option><option>A</option><option>A-</option>
+        <option>B+</option><option>B</option><option>B-</option>
+        <option>C</option><option>Needs Work</option>
+      </select></div>
+    <div class="form-group"><label class="form-label">Feedback to Student</label>
+      <textarea class="form-textarea" id="grade-feedback" placeholder="Provide detailed, constructive feedback…"></textarea></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="submitGrade()">Submit Grade</button>
+      <button class="btn btn-ghost" onclick="closeGradeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>
+// ── State ──
+let currentCourseId = null, myCourses = [], currentUser = null, courseChapters = [];
+
+// ── Entrance ──
+window.addEventListener('DOMContentLoaded', () => {
+  gsap.from('#sidebar', { x:-20, opacity:0, duration:.5, ease:'power3.out' });
+  gsap.from('.topbar',  { y:-10, opacity:0, duration:.45, ease:'power3.out', delay:.1 });
+  gsap.from('.hub-stats .hub-stat', { opacity:0, y:16, stagger:.07, duration:.38, ease:'power3.out', delay:.25 });
+});
+
+// ── Auth ──
+document.addEventListener('userLoaded', e => {
+  currentUser = e.detail;
+  if (currentUser.role !== 'instructor') { window.location.href = '/student-dashboard.html'; return; }
+  const init = currentUser.avatar_initials || (currentUser.first_name[0]+currentUser.last_name[0]);
+  document.getElementById('sb-avatar').textContent = init;
+  document.getElementById('topbar-avatar').textContent = init;
+  document.getElementById('sb-name').textContent = currentUser.first_name + ' ' + currentUser.last_name;
+  document.getElementById('page-heading').textContent = currentUser.first_name + "'s Course Hub";
+  loadMyCourses();
+});
+
+async function loadMyCourses() {
+  try {
+    const data = await api.get('/api/courses?status=all');
+    myCourses = (data.courses || []).filter(c => c.instructor_id === currentUser.id);
+    const sel = document.getElementById('course-select');
+    if (!myCourses.length) { sel.innerHTML = '<option value="">No courses — create one from the Dashboard</option>'; return; }
+    sel.innerHTML = myCourses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+    currentCourseId = myCourses[0].id;
+    loadCourseData();
+  } catch(e) { toast('Could not load courses', 'error'); }
+}
+
+function switchCourse() {
+  currentCourseId = document.getElementById('course-select').value;
+  loadCourseData();
+}
+
+async function loadCourseData() {
+  if (!currentCourseId) return;
+  const course = myCourses.find(c => c.id == currentCourseId);
+  if (course) {
+    const badge = document.getElementById('course-badge');
+    badge.textContent = course.status === 'active' ? 'Published' : 'Draft';
+    badge.className = 'badge ' + (course.status === 'active' ? 'badge-success' : 'badge-muted');
+    badge.style.display = 'inline-flex';
+    const previewLink = document.getElementById('course-preview-link');
+    previewLink.href = `/courses/${course.slug || course.id}`;
+    previewLink.style.display = 'inline';
+    const pubBtn = document.getElementById('btn-publish');
+    pubBtn.textContent = course.status === 'active' ? 'Unpublish' : 'Publish';
+    pubBtn.style.display = 'inline-flex';
+    // Pre-fill settings
+    document.getElementById('set-title').value = course.title || '';
+    document.getElementById('set-subtitle').value = course.subtitle || '';
+    document.getElementById('set-desc').value = course.description || '';
+    document.getElementById('set-weeks').value = course.duration_weeks || '';
+    document.getElementById('set-level').value = course.level || 'Foundation';
+    document.getElementById('set-category').value = course.category || 'Sitar';
+    document.getElementById('set-is-paid').checked = !!course.is_paid;
+    document.getElementById('set-published').checked = course.status === 'active';
+    document.getElementById('pricing-section').style.display = course.is_paid ? 'block' : 'none';
+    document.getElementById('set-price').value = course.price_paise ? course.price_paise/100 : '';
+    updateVisDesc(course.status === 'active');
+  }
+  loadCurriculum();
+  loadStudents();
+  loadSubmissions();
+  loadAnalytics();
+  loadResources();
+  loadAnnouncements();
+  loadMessages();
+}
+
+// ── Tabs ──
+function switchTab(tab) {
+  document.querySelectorAll('.hub-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-'+tab));
+}
+
+// ══════════════════════════════
+//  CURRICULUM
+// ══════════════════════════════
+async function loadCurriculum() {
+  const tree = document.getElementById('curriculum-tree');
+  tree.innerHTML = '<div class="skeleton" style="height:68px;margin-bottom:8px;"></div><div class="skeleton" style="height:68px;"></div>';
+  try {
+    const data = await api.get(`/api/courses/${currentCourseId}/chapters`);
+    courseChapters = data.chapters || [];
+    const totalLessons = courseChapters.reduce((s,ch) => s + (ch.lessons||[]).length, 0);
+    document.getElementById('hs-lessons').textContent = totalLessons;
+    if (!courseChapters.length) {
+      tree.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📚</div><h3>No chapters yet</h3><p>Click + Chapter to start building your curriculum.</p><button class="btn btn-primary" style="margin-top:14px;" onclick="openPanel('chapter')">+ Add First Chapter</button></div></div>`;
+      return;
+    }
+    tree.innerHTML = courseChapters.map((ch, ci) => `
+      <div class="chapter-block" id="chb-${ch.id}">
+        <div class="chapter-hdr" onclick="toggleChapter(${ch.id})">
+          <svg class="ch-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          <div class="ch-title">Chapter ${ci+1}: ${ch.title}</div>
+          <span class="ch-meta">${(ch.lessons||[]).length} lessons</span>
+          <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:3px 8px;" onclick="event.stopPropagation();deleteChapter(${ch.id})">Delete</button>
+        </div>
+        <div class="lessons-list" id="ll-${ch.id}">
+          ${(ch.lessons||[]).map((l,li) => `
+            <div class="lesson-row">
+              <span style="font-size:11px;color:var(--text-3);width:20px;">${li+1}.</span>
+              <span class="type-pill ${lessonPill(l.type)}">${l.type||'video'}</span>
+              ${(ci===0&&li===0) ? '<span class="free-badge">FREE PREVIEW</span>' : ''}
+              <span class="lesson-name">${l.title}</span>
+              <span class="lesson-dur">${l.duration_minutes ? l.duration_minutes+'m' : ''}</span>
+              <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:2px 6px;" onclick="deleteLesson(${l.id})">✕</button>
+            </div>
+          `).join('')}
+          <div class="add-lesson-row" onclick="openPanel('lesson', ${ch.id})">
+            <span>＋</span><span>Add lesson to this chapter…</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    gsap.from('.chapter-block', { opacity:0, y:10, stagger:.06, duration:.32, ease:'power3.out' });
+    // Auto-open first
+    if (courseChapters.length) toggleChapter(courseChapters[0].id);
+  } catch(e) {
+    tree.innerHTML = `<div class="card"><p style="font-size:13px;color:var(--text-3);padding:16px;">Could not load curriculum.</p></div>`;
+  }
+}
+
+function lessonPill(type) {
+  if (type==='exercise') return 'pill-exercise';
+  if (type==='reading') return 'pill-reading';
+  return 'pill-video';
+}
+function toggleChapter(id) { document.getElementById('chb-'+id)?.classList.toggle('open'); }
+async function deleteChapter(id) {
+  if (!confirm('Delete this chapter and all its lessons?')) return;
+  try { await api.delete(`/api/chapters/${id}`); toast('Chapter deleted'); loadCurriculum(); } catch(e){toast(e.message,'error');}
+}
+async function deleteLesson(id) {
+  if (!confirm('Delete this lesson?')) return;
+  try { await api.delete(`/api/lessons/${id}`); toast('Lesson deleted'); loadCurriculum(); } catch(e){toast(e.message,'error');}
+}
+
+// ══════════════════════════════
+//  STUDENTS
+// ══════════════════════════════
+async function loadStudents() {
+  try {
+    const data = await api.get('/api/enrollments/instructor');
+    const students = data.students || [];
+    document.getElementById('hs-students').textContent = students.length;
+    document.getElementById('students-count').textContent = students.length + ' enrolled';
+    const avg = students.length ? Math.round(students.reduce((s,st)=>s+(st.progress_pct||0),0)/students.length) : 0;
+    document.getElementById('hs-progress').textContent = avg+'%';
+    renderStudents(students);
+    renderEnrollmentList(students);
+  } catch(e) { document.getElementById('students-tbody').innerHTML = `<tr><td colspan="6" style="padding:16px;color:var(--text-3);font-size:13px;text-align:center;">Could not load students.</td></tr>`; }
+}
+
+function renderStudents(students) {
+  const tbody = document.getElementById('students-tbody');
+  if (!students.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state" style="padding:40px 0;"><div class="empty-icon">🎓</div><h3 style="font-size:15px;">No students yet</h3><p>Share your course link to get enrollments.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = students.map(s => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px;">
+        <div class="user-avatar-initials" style="width:30px;height:30px;font-size:11px;">${s.avatar_initials||((s.first_name||'?')[0]+(s.last_name||'?')[0])}</div>
+        <div><div style="font-weight:600;font-size:13px;">${s.first_name} ${s.last_name}</div><div style="font-size:11px;color:var(--text-3);">${s.email||''}</div></div>
+      </div></td>
+      <td style="min-width:130px;">
+        <div class="progress-ring">
+          <div class="progress-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${s.progress_pct||0}%;"></div></div></div>
+          <span style="font-size:11px;color:var(--text-3);flex-shrink:0;">${s.progress_pct||0}%</span>
+        </div>
+      </td>
+      <td style="font-size:12px;color:var(--text-3);">${s.enrolled_at ? new Date(s.enrolled_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '—'}</td>
+      <td style="font-size:12px;color:var(--text-3);">${s.last_accessed_at ? new Date(s.last_accessed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '—'}</td>
+      <td>${progressBadge(s.progress_pct||0)}</td>
+      <td><button class="btn btn-ghost btn-sm" style="font-size:11px;" onclick="unenrollStudent(${s.student_id||s.id})">Remove</button></td>
+    </tr>`).join('');
+}
+
+function renderEnrollmentList(students) {
+  const el = document.getElementById('enrollment-list-settings');
+  if (!students.length) { el.innerHTML = '<p style="font-size:12px;color:var(--text-3);">No students enrolled yet.</p>'; return; }
+  el.innerHTML = students.slice(0,8).map(s => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <div class="user-avatar-initials" style="width:26px;height:26px;font-size:10px;">${(s.first_name||'?')[0]+(s.last_name||'?')[0]}</div>
+      <div style="flex:1;font-size:13px;">${s.first_name} ${s.last_name} <span style="color:var(--text-3);font-size:11px;">${s.email||''}</span></div>
+      <button class="btn btn-ghost btn-sm" style="font-size:11px;" onclick="unenrollStudent(${s.student_id||s.id})">Remove</button>
+    </div>`).join('');
+}
+
+function progressBadge(pct) {
+  if (pct>=80) return `<span class="badge badge-warning">Excellent</span>`;
+  if (pct>=40) return `<span class="badge badge-success">On Track</span>`;
+  return `<span class="badge badge-muted">Started</span>`;
+}
+
+async function manualEnroll() {
+  const email = document.getElementById('enroll-email').value.trim();
+  if (!email) return toast('Enter a student email', 'error');
+  try {
+    // Find user by email — use admin endpoint or basic search
+    await api.post('/api/enrollments', { course_id: currentCourseId, email });
+    toast('Student enrolled!'); loadStudents();
+    document.getElementById('enroll-email').value = '';
+  } catch(e) { toast(e.message||'Could not enroll — check the email', 'error'); }
+}
+async function unenrollStudent(sid) {
+  if (!confirm('Remove this student from the course?')) return;
+  try { await api.delete(`/api/enrollments/${sid}/${currentCourseId}`); toast('Student removed'); loadStudents(); } catch(e){toast(e.message,'error');}
+}
+
+// ══════════════════════════════
+//  GRADEBOOK
+// ══════════════════════════════
+async function loadSubmissions() {
+  const el = document.getElementById('submissions-list');
+  el.innerHTML = '<div class="skeleton" style="height:58px;margin-bottom:8px;"></div><div class="skeleton" style="height:58px;"></div>';
+  const filter = document.getElementById('grade-filter')?.value || 'pending';
+  try {
+    const data = await api.get(`/api/submissions/instructor?status=${filter}`);
+    const subs = data.submissions || [];
+    // Count all pending for the stats badge (always fetch pending count)
+    if (filter === 'pending') document.getElementById('hs-pending').textContent = subs.length;
+    if (!subs.length) {
+      el.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">✅</div><h3 style="font-size:15px;">${filter==='pending'?'No pending submissions!':'No submissions found'}</h3><p>${filter==='pending'?'All caught up — nothing to grade.':'Try a different filter.'}</p></div></div>`;
+      return;
+    }
+    el.innerHTML = subs.map(s => `
+      <div class="sub-card">
+        <div class="sub-type-icon uc-gold">${s.submission_type==='recording'?'🎵':'📄'}</div>
+        <div class="sub-info">
+          <div class="sub-title">${s.lesson_title || 'Submission'}</div>
+          <div class="sub-meta">${s.student_first||''} ${s.student_last||''} · ${new Date(s.submitted_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
+        </div>
+        <span class="sub-status ${s.status==='pending'?'status-pending':'status-graded'}">${s.grade || (s.status==='pending'?'PENDING':'GRADED')}</span>
+        ${s.status==='pending' ? `<button class="btn btn-primary btn-sm" onclick="openGradeModal(${s.id})">Grade</button>` : `<button class="btn btn-outline btn-sm" onclick="openGradeModal(${s.id})">Update</button>`}
+      </div>`).join('');
+  } catch(e) { el.innerHTML = `<p style="color:var(--text-3);font-size:13px;padding:12px;">Could not load submissions.</p>`; }
+}
+
+function openGradeModal(id) {
+  document.getElementById('grade-sub-id').value = id;
+  document.getElementById('grade-val').value = 'A';
+  document.getElementById('grade-feedback').value = '';
+  document.getElementById('grade-modal-overlay').classList.add('open');
+}
+function closeGradeModal() { document.getElementById('grade-modal-overlay').classList.remove('open'); }
+async function submitGrade() {
+  try {
+    const id = document.getElementById('grade-sub-id').value;
+    await api.put(`/api/submissions/${id}/grade`, { grade: document.getElementById('grade-val').value, feedback: document.getElementById('grade-feedback').value });
+    closeGradeModal(); toast('Grade submitted!'); loadSubmissions();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ══════════════════════════════
+//  ANALYTICS
+// ══════════════════════════════
+async function loadAnalytics() {
+  try {
+    const [studData, subData] = await Promise.all([
+      api.get('/api/enrollments/instructor').catch(()=>({students:[]})),
+      api.get('/api/submissions/instructor').catch(()=>({submissions:[]}))
+    ]);
+    const students = studData.students || [];
+    const subs = subData.submissions || [];
+    const completions = students.filter(s=>(s.progress_pct||0)>=100).length;
+    const gradedSubs = subs.filter(s=>s.score!==undefined&&s.score!==null);
+    const avgScore = gradedSubs.length ? Math.round(gradedSubs.reduce((a,s)=>a+(s.score||0),0)/gradedSubs.length) : 0;
+    document.getElementById('an-enrollments').textContent = students.length;
+    document.getElementById('an-completions').textContent = completions;
+    document.getElementById('an-avg-score').textContent = avgScore+'%';
+    document.getElementById('an-practice').textContent = '—';
+    // Progress distribution buckets: 0-25, 25-50, 50-75, 75-100
+    const buckets = [0,0,0,0];
+    students.forEach(s => {
+      const p = s.progress_pct||0;
+      if (p<25) buckets[0]++; else if (p<50) buckets[1]++; else if (p<75) buckets[2]++; else buckets[3]++;
+    });
+    const maxB = Math.max(...buckets, 1);
+    const chart = document.getElementById('progress-chart');
+    const labels = document.getElementById('progress-chart-labels');
+    const colors = ['rgba(200,168,75,0.25)','rgba(200,168,75,0.4)','rgba(200,168,75,0.65)','rgba(200,168,75,0.9)'];
+    chart.innerHTML = buckets.map((b,i)=>`
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;">
+        <span style="font-size:11px;color:var(--text-3);">${b}</span>
+        <div style="width:100%;height:${Math.round((b/maxB)*100)}px;background:${colors[i]};border-radius:3px 3px 0 0;min-height:4px;" title="${b} students"></div>
+      </div>`).join('');
+    labels.innerHTML = ['0–25%','25–50%','50–75%','75–100%'].map(l=>`<div style="flex:1;text-align:center;font-size:10px;color:var(--text-3);">${l}</div>`).join('');
+    // Top lessons (simplified — just show chapters)
+    const topList = document.getElementById('top-lessons-list');
+    const allLessons = courseChapters.flatMap(ch=>ch.lessons||[]).slice(0,5);
+    topList.innerHTML = allLessons.length ? allLessons.map((l,i)=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+        <span style="font-size:11px;color:var(--text-3);width:18px;">${i+1}.</span>
+        <span style="flex:1;font-size:13px;color:var(--text-2);">${l.title}</span>
+        <span style="font-size:11px;color:var(--text-3);">${l.type||'video'}</span>
+      </div>`).join('') : '<p style="font-size:13px;color:var(--text-3);">No lessons yet.</p>';
+  } catch(e) {}
+}
+
+// ══════════════════════════════
+//  RESOURCES
+// ══════════════════════════════
+async function loadResources() {
+  const el = document.getElementById('resources-list');
+  try {
+    const data = await api.get(`/api/resources?course_id=${currentCourseId}`);
+    const resources = data.resources || [];
+    document.getElementById('hs-resources').textContent = resources.length;
+    if (!resources.length) { el.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📂</div><h3>No resources yet</h3><p>Upload files for your students via Upload Center.</p></div></div>`; return; }
+    el.innerHTML = resources.map(r=>`
+      <div class="res-card">
+        <div class="res-icon uc-gold">${fileEmoji(r.file_type)}</div>
+        <div class="res-info"><div class="res-name">${r.title}</div><div class="res-meta">${(r.file_type||'').toUpperCase()} · ${fmtBytes(r.file_size_bytes)} · ${r.download_count||0} downloads · ${r.is_public?'Public':'Enrolled only'}</div></div>
+        <span class="badge badge-muted">${r.category||'general'}</span>
+      </div>`).join('');
+  } catch(e) { el.innerHTML = `<p style="color:var(--text-3);font-size:13px;padding:12px;">Could not load resources.</p>`; }
+}
+
+// ══════════════════════════════
+//  ANNOUNCEMENTS
+// ══════════════════════════════
+async function loadAnnouncements() {
+  const el = document.getElementById('announcements-list');
+  try {
+    const data = await api.get(`/api/announcements?course_id=${currentCourseId}`);
+    const anns = data.announcements || [];
+    if (!anns.length) { el.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📢</div><h3>No announcements</h3><p>Use Upload Center to post updates.</p></div></div>`; return; }
+    el.innerHTML = anns.map(a=>`
+      <div class="ann-item">
+        <div class="ann-title">${a.title}${a.pinned?'<span class="pinned-badge">PINNED</span>':''}</div>
+        <div class="ann-body">${a.body}</div>
+        <div class="ann-meta">
+          <span>${new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span>
+          ${a.send_email?'<span>· Email sent</span>':''}
+        </div>
+      </div>`).join('');
+  } catch(e) { el.innerHTML = `<p style="color:var(--text-3);font-size:13px;padding:12px;">Could not load announcements.</p>`; }
+}
+
+// ══════════════════════════════
+//  MESSAGES
+// ══════════════════════════════
+async function loadMessages() {
+  const el = document.getElementById('threads-list');
+  try {
+    const data = await api.get('/api/messages/threads');
+    const threads = data.threads || [];
+    if (!threads.length) { el.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">💬</div><h3>No messages yet</h3><p>Students can message you directly from their dashboard.</p></div></div>`; return; }
+    el.innerHTML = threads.slice(0,8).map(t=>`
+      <a href="/messages.html" class="thread-row" style="text-decoration:none;">
+        <div class="thread-avatar">${(t.other_user_name||'??').substring(0,2).toUpperCase()}</div>
+        <div class="thread-info">
+          <div class="thread-name">${t.other_user_name||t.subject}</div>
+          <div class="thread-preview">${t.subject}</div>
+        </div>
+        <div class="thread-time">${t.last_at ? new Date(t.last_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : ''}</div>
+        ${t.unread_count > 0 ? '<div class="unread-dot"></div>' : ''}
+      </a>`).join('');
+  } catch(e) { el.innerHTML = `<a href="/messages.html" class="btn btn-outline btn-sm">Open Messages →</a>`; }
+}
+
+// ══════════════════════════════
+//  SETTINGS
+// ══════════════════════════════
+function togglePricing() {
+  document.getElementById('pricing-section').style.display = document.getElementById('set-is-paid').checked ? 'block' : 'none';
+}
+function updateVisDesc(isActive) {
+  document.getElementById('vis-desc').textContent = isActive ? 'Course is published — visible to students' : 'Course is a draft — not visible to students';
+}
+async function saveCourseInfo() {
+  try {
+    await api.put(`/api/courses/${currentCourseId}`, {
+      title: document.getElementById('set-title').value,
+      subtitle: document.getElementById('set-subtitle').value,
+      description: document.getElementById('set-desc').value,
+      level: document.getElementById('set-level').value,
+      category: document.getElementById('set-category').value,
+      duration_weeks: parseInt(document.getElementById('set-weeks').value)||null
+    });
+    toast('Course info saved!');
+    await loadMyCourses();
+  } catch(e) { toast(e.message,'error'); }
+}
+async function savePricing() {
+  try {
+    const isPaid = document.getElementById('set-is-paid').checked;
+    const price = parseFloat(document.getElementById('set-price').value)||0;
+    await api.put(`/api/courses/${currentCourseId}`, { is_paid: isPaid?1:0, price_paise: Math.round(price*100) });
+    toast('Pricing updated!');
+  } catch(e) { toast(e.message,'error'); }
+}
+async function savePublishStatus() {
+  const isActive = document.getElementById('set-published').checked;
+  try {
+    await api.put(`/api/courses/${currentCourseId}`, { status: isActive?'active':'draft' });
+    updateVisDesc(isActive);
+    await loadMyCourses();
+    toast(isActive ? 'Course published!' : 'Course set to draft');
+  } catch(e) { toast(e.message,'error'); }
+}
+async function togglePublish() {
+  const course = myCourses.find(c=>c.id==currentCourseId);
+  if (!course) return;
+  const newStatus = course.status==='active' ? 'draft' : 'active';
+  try {
+    await api.put(`/api/courses/${currentCourseId}`, { status: newStatus });
+    toast(newStatus==='active'?'Course published!':'Course unpublished');
+    await loadMyCourses();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ══════════════════════════════
+//  UPLOAD PANEL
+// ══════════════════════════════
+const PANELS = {
+  lesson: {
+    title: 'Add a Lesson',
+    sub: 'Video, reading, or exercise lesson for your curriculum.',
+    body: (chId) => `
+      <div class="form-group"><label class="form-label">Lesson Title</label><input class="form-input" id="up-lesson-title" placeholder="e.g. Meend — The Soul of the Sitar"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label class="form-label">Chapter</label>
+          <select class="form-select" id="up-lesson-chapter">${courseChapters.map(ch=>`<option value="${ch.id}" ${ch.id==chId?'selected':''}>${ch.title}</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-select" id="up-lesson-type"><option value="video">Video</option><option value="exercise">Exercise</option><option value="reading">Reading</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Duration (minutes)</label><input class="form-input" id="up-lesson-dur" type="number" min="1" placeholder="e.g. 25"></div>
+      <div class="form-group"><label class="form-label">Content URL <span style="font-weight:400;color:var(--text-3);">(YouTube, Vimeo, S3…)</span></label><input class="form-input" id="up-lesson-url" placeholder="https://…"></div>
+      <div class="drop-zone" onclick="document.getElementById('up-lesson-file').click()">
+        <input type="file" id="up-lesson-file" accept="video/*" onchange="previewFiles('up-lesson-file','up-lesson-flist')">
+        <div class="dz-icon">📹</div><div class="dz-text">Drop video or click to browse</div><div class="dz-hint">MP4, MOV up to 2 GB</div>
+      </div>
+      <div class="file-list" id="up-lesson-flist"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;" onclick="submitLesson()">Add Lesson</button>`
+  },
+  chapter: {
+    title: 'Add a Chapter',
+    sub: 'Chapters group related lessons into sections.',
+    body: () => `
+      <div class="form-group"><label class="form-label">Chapter Title</label><input class="form-input" id="up-chap-title" placeholder="e.g. Posture & Right Hand Technique"></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="up-chap-desc" placeholder="What will students learn?"></textarea></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="submitChapter()">Create Chapter</button>`
+  },
+  resource: {
+    title: 'Upload a Resource',
+    sub: 'PDFs, slides, workbooks for students to download.',
+    body: () => `
+      <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="up-res-title" placeholder="e.g. Raga Yaman Notation PDF"></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="up-res-desc" placeholder="Brief description…" style="height:70px;"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label class="form-label">Category</label>
+          <select class="form-select" id="up-res-cat"><option value="general">General</option><option value="notation">Notation</option><option value="exercise">Exercise</option><option value="reference">Reference</option></select></div>
+        <div class="form-group"><label class="form-label">Visibility</label>
+          <select class="form-select" id="up-res-pub"><option value="0">Enrolled Only</option><option value="1">Public</option></select></div>
+      </div>
+      <div class="drop-zone" onclick="document.getElementById('up-res-file').click()">
+        <input type="file" id="up-res-file" onchange="previewFiles('up-res-file','up-res-flist')">
+        <div class="dz-icon">📎</div><div class="dz-text">Drop file or click to browse</div><div class="dz-hint">PDF, DOCX, PPT, MP3 — up to 200 MB</div>
+      </div>
+      <div class="file-list" id="up-res-flist"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;" onclick="submitResource()">Upload Resource</button>`
+  },
+  sheetmusic: {
+    title: 'Upload Sheet Music',
+    sub: 'Notation files — ragas, compositions, exercises.',
+    body: () => `
+      <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="up-sm-title" placeholder="e.g. Raga Bhairav Notation"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label class="form-label">Composer</label><input class="form-input" id="up-sm-composer" placeholder="Composer name"></div>
+        <div class="form-group"><label class="form-label">Difficulty</label>
+          <select class="form-select" id="up-sm-diff"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label class="form-label">Instrument</label><input class="form-input" id="up-sm-instr" placeholder="Sitar, Vocals…"></div>
+        <div class="form-group"><label class="form-label">Period</label>
+          <select class="form-select" id="up-sm-period"><option>Classical</option><option>Contemporary</option><option>Traditional</option></select></div>
+      </div>
+      <div class="drop-zone" onclick="document.getElementById('up-sm-file').click()">
+        <input type="file" id="up-sm-file" accept=".pdf" onchange="previewFiles('up-sm-file','up-sm-flist')">
+        <div class="dz-icon">🎼</div><div class="dz-text">Drop PDF or click to browse</div><div class="dz-hint">PDF only</div>
+      </div>
+      <div class="file-list" id="up-sm-flist"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;" onclick="submitSheetMusic()">Upload Sheet Music</button>`
+  },
+  assignment: {
+    title: 'Create an Assignment',
+    sub: 'Graded task for students to complete and submit.',
+    body: () => `
+      <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="up-ass-title" placeholder="e.g. Raga Yaman Performance Recording"></div>
+      <div class="form-group"><label class="form-label">Instructions</label><textarea class="form-textarea" id="up-ass-instr" placeholder="What should students submit?"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label class="form-label">Submission Type</label>
+          <select class="form-select" id="up-ass-type"><option value="file">File Upload</option><option value="recording">Audio Recording</option><option value="text">Written Response</option><option value="url">URL / Link</option></select></div>
+        <div class="form-group"><label class="form-label">Max Score</label><input class="form-input" id="up-ass-score" type="number" value="100" min="1"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Due (days from enrollment)</label><input class="form-input" id="up-ass-days" type="number" placeholder="e.g. 14"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="submitAssignment()">Create Assignment</button>`
+  },
+  quiz: {
+    title: 'Create a Quiz',
+    sub: 'Multiple choice or listening questions for your students.',
+    body: () => `
+      <div class="form-group"><label class="form-label">Quiz Title</label><input class="form-input" id="up-quiz-title" placeholder="e.g. Raga Grammar — Week 1 Quiz"></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="up-quiz-desc" placeholder="Brief description…" style="height:60px;"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="form-group"><label class="form-label">Time Limit (min)</label><input class="form-input" id="up-quiz-time" type="number" placeholder="0=unlimited"></div>
+        <div class="form-group"><label class="form-label">Passing Score (%)</label><input class="form-input" id="up-quiz-pass" type="number" value="70"></div>
+        <div class="form-group"><label class="form-label">Attempts</label><input class="form-input" id="up-quiz-att" type="number" value="3"></div>
+      </div>
+      <div style="background:rgba(200,168,75,0.05);border:1px solid rgba(200,168,75,0.15);border-radius:var(--r-sm);padding:12px;margin-bottom:16px;font-size:12px;color:var(--text-3);">💡 Questions can be added after creation in the Quiz Builder.</div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitQuiz()">Create Quiz</button>`
+  },
+  announcement: {
+    title: 'Post an Announcement',
+    sub: 'Broadcast to all enrolled students.',
+    body: () => `
+      <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="up-ann-title" placeholder="e.g. Live Session This Saturday!"></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" id="up-ann-body" placeholder="Your announcement…" style="height:120px;"></textarea></div>
+      <div style="display:flex;gap:20px;margin-bottom:18px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" id="up-ann-pinned"> Pin announcement</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" id="up-ann-email"> Also send email</label>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitAnnouncement()">Post Announcement</button>`
+  }
+};
+
+function openPanel(type, chId) {
+  const p = PANELS[type]; if (!p) return;
+  document.getElementById('panel-title').textContent = p.title;
+  document.getElementById('panel-sub').textContent = p.sub;
+  document.getElementById('panel-body').innerHTML = p.body(chId);
+  setupDropZones();
+  const ov = document.getElementById('upload-panel-overlay');
+  ov.style.display = 'flex';
+  requestAnimationFrame(() => ov.classList.add('open'));
+}
+function closePanel() {
+  const ov = document.getElementById('upload-panel-overlay');
+  ov.classList.remove('open');
+  setTimeout(() => { ov.style.display='none'; }, 350);
+}
+function panelBgClick(e) { if (e.target===document.getElementById('upload-panel-overlay')) closePanel(); }
+
+function setupDropZones() {
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('drag-over'); });
+    z.addEventListener('dragleave', () => z.classList.remove('drag-over'));
+    z.addEventListener('drop', e => {
+      e.preventDefault(); z.classList.remove('drag-over');
+      const inp = z.querySelector('input[type=file]');
+      if (inp && e.dataTransfer.files.length) { inp.files = e.dataTransfer.files; inp.dispatchEvent(new Event('change')); }
+    });
+  });
+}
+function previewFiles(inputId, listId) {
+  const inp = document.getElementById(inputId), list = document.getElementById(listId);
+  if (!inp||!list) return;
+  list.innerHTML = Array.from(inp.files).map(f=>`
+    <div class="file-item">
+      <span>${fileEmoji(f.name.split('.').pop())}</span>
+      <span class="file-item-name">${f.name}</span>
+      <span class="file-item-size">${fmtBytes(f.size)}</span>
+      <button class="file-remove" onclick="document.getElementById('${inputId}').value='';document.getElementById('${listId}').innerHTML='';">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+// ── Submit handlers ──
+async function submitLesson() {
+  const title = document.getElementById('up-lesson-title')?.value;
+  const chapterId = document.getElementById('up-lesson-chapter')?.value;
+  if (!title) return toast('Lesson title is required','error');
+  if (!chapterId) return toast('Select a chapter','error');
+  try {
+    await api.post('/api/lessons', { title, chapter_id:chapterId, course_id:currentCourseId, type:document.getElementById('up-lesson-type').value, duration_minutes:parseInt(document.getElementById('up-lesson-dur').value)||null, content_url:document.getElementById('up-lesson-url').value||null });
+    closePanel(); toast('Lesson added!'); loadCurriculum();
+  } catch(e){toast(e.message,'error');}
+}
+async function submitChapter() {
+  const title = document.getElementById('up-chap-title')?.value;
+  if (!title) return toast('Chapter title is required','error');
+  try {
+    await api.post('/api/chapters', { course_id:currentCourseId, title, description:document.getElementById('up-chap-desc').value });
+    closePanel(); toast('Chapter created!'); loadCurriculum();
+  } catch(e){toast(e.message,'error');}
+}
+async function submitResource() {
+  const title = document.getElementById('up-res-title')?.value;
+  const fileInp = document.getElementById('up-res-file');
+  if (!title) return toast('Title is required','error');
+  if (!fileInp?.files?.length) return toast('Select a file to upload','error');
+  try {
+    const fd = new FormData();
+    fd.append('file', fileInp.files[0]);
+    fd.append('title', title);
+    fd.append('description', document.getElementById('up-res-desc').value);
+    fd.append('course_id', currentCourseId);
+    fd.append('category', document.getElementById('up-res-cat').value);
+    fd.append('is_public', document.getElementById('up-res-pub').value);
+    const token = localStorage.getItem('archive_token');
+    const r = await fetch('/api/resources', { method:'POST', headers:{Authorization:'Bearer '+token}, body:fd });
+    if (!r.ok) { const d=await r.json(); throw new Error(d.error||'Upload failed'); }
+    closePanel(); toast('Resource uploaded!'); loadResources();
+  } catch(e){toast(e.message,'error');}
+}
+async function submitSheetMusic() {
+  const title = document.getElementById('up-sm-title')?.value;
+  if (!title) return toast('Title is required','error');
+  try {
+    await api.post('/api/sheet-music', { title, composer:document.getElementById('up-sm-composer').value, period:document.getElementById('up-sm-period').value, instrument:document.getElementById('up-sm-instr').value, difficulty:document.getElementById('up-sm-diff').value, course_id:currentCourseId });
+    closePanel(); toast('Sheet music added!');
+  } catch(e){toast(e.message,'error');}
+}
+async function submitAssignment() {
+  const title = document.getElementById('up-ass-title')?.value;
+  if (!title) return toast('Title is required','error');
+  try {
+    await api.post('/api/assignments', { course_id:currentCourseId, title, instructions:document.getElementById('up-ass-instr').value, submission_type:document.getElementById('up-ass-type').value, max_score:parseInt(document.getElementById('up-ass-score').value)||100, due_days:parseInt(document.getElementById('up-ass-days').value)||null });
+    closePanel(); toast('Assignment created!');
+  } catch(e){toast(e.message,'error');}
+}
+async function submitQuiz() {
+  const title = document.getElementById('up-quiz-title')?.value;
+  if (!title) return toast('Quiz title is required','error');
+  try {
+    await api.post('/api/quizzes', { course_id:currentCourseId, title, description:document.getElementById('up-quiz-desc').value, time_limit_minutes:parseInt(document.getElementById('up-quiz-time').value)||null, passing_score:parseInt(document.getElementById('up-quiz-pass').value)||70, attempts_allowed:parseInt(document.getElementById('up-quiz-att').value)||3 });
+    closePanel(); toast('Quiz created! Add questions in Quiz Builder.');
+    setTimeout(() => window.location.href='/quiz-builder.html', 1500);
+  } catch(e){toast(e.message,'error');}
+}
+async function submitAnnouncement() {
+  const title = document.getElementById('up-ann-title')?.value;
+  const body = document.getElementById('up-ann-body')?.value;
+  if (!title||!body) return toast('Title and message required','error');
+  try {
+    await api.post('/api/announcements', { course_id:currentCourseId, title, body, pinned:document.getElementById('up-ann-pinned').checked?1:0, send_email:document.getElementById('up-ann-email').checked?1:0 });
+    closePanel(); toast('Announcement posted!'); loadAnnouncements(); switchTab('announcements');
+  } catch(e){toast(e.message,'error');}
+}
+
+// ── Helpers ──
+function fileEmoji(t) { if(!t)return'📄'; if(['pdf'].includes(t))return'📕'; if(['mp3','wav','m4a'].includes(t))return'🎵'; if(['mp4','mov'].includes(t))return'🎬'; if(['jpg','png','jpeg','webp'].includes(t))return'🖼️'; return'📄'; }
+function fmtBytes(b) { if(!b)return'—'; if(b<1024)return b+'B'; if(b<1048576)return Math.round(b/1024)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
+function toast(msg, type='success') {
+  const tc=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className=`toast${type==='error'?' error':''}`;
+  t.textContent=msg; tc.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+function handleLogout() { localStorage.removeItem('archive_token'); localStorage.removeItem('archive_user'); window.location.href='/index.html'; }
+</script>
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    /* Welcome banner geometry */
+    .wb-geo {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 180px;
+      height: 130px;
+    }
+    .wb-geo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+    /* Decorative gold link */
+    .link-gold {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+      transition: color var(--transition);
+    }
+    .link-gold:hover { color: var(--gold-bright); }
+
+    /* Course horizontal card inner */
+    .course-card-link { display: block; text-decoration: none; margin-bottom: 14px; }
+    .course-card-link:last-child { margin-bottom: 0; }
+
+    .course-swatch-inner {
+      width: 80px;
+      flex-shrink: 0;
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .course-body-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--gold);
+      font-weight: 600;
+      margin-top: 6px;
+      letter-spacing: 0.02em;
+      text-transform: none;
+    }
+
+    /* stat cards row on student */
+    .student-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 900px) { .student-stats { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .student-stats { grid-template-columns: 1fr 1fr; } }
+
+    /* Two column main */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 1024px) { .dash-grid { grid-template-columns: 1fr; } }
+
+    /* Bottom two col */
+    .dash-bottom {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+      align-items: start;
+      margin-top: 24px;
+    }
+    @media (max-width: 1024px) { .dash-bottom { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- Main -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">The Foundation Room</div>
+      <div class="topbar-search">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search courses, instructors…" id="topbar-search-input">
+      </div>
+      <div class="topbar-actions">
+        <a href="/student-notifications.html" class="icon-btn" title="Notifications">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge-dot"></span>
+        </a>
+        <a href="/student-profile.html" class="icon-btn" title="Settings">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </a>
+        <div class="topbar-avatar" id="topbar-avatar" title="Click to log out" style="cursor:pointer;" onclick="if(confirm('Log out?')) logout()">--</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner" id="welcome-banner">
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13px; color:var(--text-2); margin-bottom:4px; font-weight:400;">Welcome back,</div>
+          <h1 id="welcome-heading" style="font-family:var(--serif); font-style:italic; font-size:42px; font-weight:600; color:var(--text); line-height:1.1; margin-bottom:10px;">Student</h1>
+          <div style="font-size:14px; color:var(--text-2); margin-bottom:4px;">Your practice streak: <strong style="color:var(--gold);" id="streak-count">14 days</strong> 🔥</div>
+          <div style="font-size:13px; color:var(--text-3);" id="welcome-sub">Today's focus: Keep learning and growing.</div>
+          <div style="display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;">
+            <a href="/student-lessons.html" class="btn btn-primary">Resume Session</a>
+            <a href="/student-practice-log.html" class="btn btn-outline">View Goals</a>
+          </div>
+        </div>
+        <!-- Decorative geometry -->
+        <div class="wb-geo">
+          <svg viewBox="0 0 180 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="90" cy="65" r="60" stroke="rgba(200,168,75,0.06)" stroke-width="1.5"/>
+            <circle cx="90" cy="65" r="42" stroke="rgba(200,168,75,0.05)" stroke-width="1"/>
+            <circle cx="90" cy="65" r="24" stroke="rgba(200,168,75,0.08)" stroke-width="1"/>
+            <circle cx="130" cy="30" r="32" stroke="rgba(200,168,75,0.04)" stroke-width="1"/>
+            <circle cx="50" cy="100" r="26" stroke="rgba(200,168,75,0.04)" stroke-width="1"/>
+            <circle cx="90" cy="65" r="6" fill="rgba(200,168,75,0.12)"/>
+          </svg>
+        </div>
+      </div>
+      <div style="height:1px; background:linear-gradient(90deg,rgba(200,168,75,0.25),transparent); margin-bottom:28px;"></div>
+
+      <!-- Stats Row -->
+      <div class="student-stats" id="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div class="stat-number" id="stat-courses">—</div>
+          <div class="stat-label">Courses Enrolled</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="stat-number" id="stat-hours">12h</div>
+          <div class="stat-label">Practice Hrs This Week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          </div>
+          <div class="stat-number" style="color:var(--gold);" id="stat-streak">14</div>
+          <div class="stat-label">Day Streak 🔥</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="stat-number" id="stat-avg">—%</div>
+          <div class="stat-label">Average Grade</div>
+        </div>
+      </div>
+
+      <!-- Two-column main -->
+      <div class="dash-grid">
+
+        <!-- Left: Currently Practicing + Live Classes -->
+        <div>
+          <!-- Currently Practicing -->
+          <div class="section-header mb-16">
+            <div class="section-title">Currently Practicing</div>
+            <a href="/student-course-catalog.html" class="link-gold">View All →</a>
+          </div>
+          <div id="enrollments-grid" style="margin-bottom:28px;">
+            <div class="skeleton" style="height:110px; margin-bottom:14px;"></div>
+            <div class="skeleton" style="height:110px;"></div>
+          </div>
+
+          <!-- Upcoming Live Classes -->
+          <div class="section-header mb-16">
+            <div class="section-title">Live Classes</div>
+            <a href="/student-archive.html" class="link-gold">View All →</a>
+          </div>
+          <div id="masterclasses-list">
+            <div class="skeleton" style="height:72px; margin-bottom:10px;"></div>
+            <div class="skeleton" style="height:72px; margin-bottom:10px;"></div>
+            <div class="skeleton" style="height:72px;"></div>
+          </div>
+        </div>
+
+        <!-- Right: Quote + Recent Activity -->
+        <div>
+          <!-- Quote Widget -->
+          <div class="quote-widget mb-20" id="quote-widget">
+            <div class="quote-mark">"</div>
+            <div class="quote-text" id="quote-text">"Training is a Science. Performing is an Art."</div>
+            <div class="quote-attribution" id="quote-attribution">— The Foundation Room</div>
+          </div>
+
+          <!-- Recent Activity (sheet music table) -->
+          <div class="section-header mb-16">
+            <div class="section-title">Recent Activity</div>
+          </div>
+          <div id="sheet-music-table">
+            <div class="skeleton" style="height:200px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['student']);</script>
+<script src="/assets/js/student-sidebar.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ─── PAGE LOAD ENTRANCE ANIMATION ───
+  window.addEventListener('DOMContentLoaded', () => {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.from('#sidebar', { x: -20, opacity: 0, duration: 0.5 }, 0);
+    tl.from('.topbar', { y: -10, opacity: 0, duration: 0.45 }, 0.1);
+    tl.from('#welcome-banner', { opacity: 0, y: 18, duration: 0.5 }, 0.25);
+    tl.from('#stats-row .stat-card', {
+      opacity: 0, y: 20, duration: 0.4,
+      stagger: 0.08,
+    }, 0.45);
+  });
+
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/index.html';
+  }
+
+  function formatDate(str) {
+    if (!str) return '';
+    const d = new Date(str);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function formatTime(str) {
+    if (!str) return '';
+    const d = new Date(str);
+    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Instructor accent gradients indexed by instructor name initial
+  const INSTRUCTOR_GRADIENTS = [
+    'linear-gradient(160deg,#1A2A0A,#2D4F1E)',
+    'linear-gradient(160deg,#1A0A0A,#4A1515)',
+    'linear-gradient(160deg,#0A1020,#1A2A50)',
+    'linear-gradient(160deg,#1A1000,#4A3000)',
+    'linear-gradient(160deg,#100A1A,#2D1A4A)',
+    'linear-gradient(160deg,#0A1A18,#1A4A40)',
+  ];
+
+  function instructorGradient(name) {
+    if (!name) return INSTRUCTOR_GRADIENTS[0];
+    const idx = name.charCodeAt(0) % INSTRUCTOR_GRADIENTS.length;
+    return INSTRUCTOR_GRADIENTS[idx];
+  }
+
+  // ─── COUNT-UP HELPER ───
+  function countUp(el, target, suffix = '') {
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: target, duration: 1.4, ease: 'power2.out',
+      onUpdate: () => { el.textContent = Math.round(obj.val) + suffix; }
+    });
+  }
+
+  // ─── PROGRESS BAR ANIMATION ───
+  function animateProgressBars() {
+    document.querySelectorAll('.progress-fill').forEach(bar => {
+      const targetWidth = bar.style.width;
+      bar.style.width = '0%';
+      ScrollTrigger.create({
+        trigger: bar,
+        start: 'top 90%',
+        once: true,
+        onEnter: () => {
+          gsap.to(bar, { width: targetWidth, duration: 0.9, ease: 'power2.out' });
+        }
+      });
+    });
+  }
+
+  // ─── QUOTE WIDGET WORD REVEAL ───
+  function animateQuote() {
+    const quoteEl = document.getElementById('quote-text');
+    if (!quoteEl) return;
+    const words = quoteEl.textContent.split(' ');
+    quoteEl.innerHTML = words.map(w => `<span style="display:inline-block; opacity:0;">${w}</span>`).join(' ');
+    gsap.to(quoteEl.querySelectorAll('span'), {
+      scrollTrigger: { trigger: quoteEl, start: 'top 85%', once: true },
+      opacity: 1, duration: 0.4, stagger: 0.05, ease: 'power2.out'
+    });
+  }
+
+  document.addEventListener('userLoaded', (e) => {
+    const user = e.detail;
+    const initials = user.avatar_initials || (user.first_name[0] + user.last_name[0]);
+    document.getElementById('sb-avatar').textContent = initials;
+    document.getElementById('sb-name').textContent = user.first_name + ' ' + user.last_name;
+    document.getElementById('topbar-avatar').textContent = initials;
+    document.getElementById('welcome-heading').textContent = user.first_name;
+    loadDashboard();
+  });
+
+  async function loadDashboard() {
+    // Load enrollments
+    try {
+      const data = await api.get('/api/enrollments/me');
+      const enrollments = data.enrollments || [];
+      renderEnrollments(enrollments);
+      const count = enrollments.length;
+      const avg = count > 0
+        ? Math.round(enrollments.reduce((s, e) => s + (e.progress_pct || 0), 0) / count)
+        : 0;
+      countUp(document.getElementById('stat-courses'), count);
+      countUp(document.getElementById('stat-avg'), avg, '%');
+      // Animate progress bars after DOM settles
+      setTimeout(animateProgressBars, 200);
+    } catch (e) {
+      document.getElementById('enrollments-grid').innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">📚</div><h3>No courses yet</h3><p>Browse the catalog to enroll in your first course.</p><a href="/student-course-catalog.html" class="btn btn-primary" style="margin-top:14px; display:inline-flex;">Browse Catalog</a></div></div>';
+    }
+
+    // Load masterclasses
+    try {
+      const data = await api.get('/api/masterclasses?status=upcoming&limit=3');
+      renderMasterclasses(data.masterclasses || []);
+    } catch (e) {
+      document.getElementById('masterclasses-list').innerHTML = '<div class="card card-sm"><p style="font-size:13px; color:var(--text-3); text-align:center; padding:12px;">Could not load live classes.</p></div>';
+    }
+
+    // Load sheet music / recent activity
+    try {
+      const data = await api.get('/api/sheet-music');
+      renderSheetMusic((data.items || []).slice(0, 5));
+    } catch (e) {
+      document.getElementById('sheet-music-table').innerHTML = '';
+    }
+
+    // Load quote
+    try {
+      const data = await api.get('/api/quotes/random');
+      if (data.quote) {
+        document.getElementById('quote-text').textContent = `"${data.quote.text}"`;
+        document.getElementById('quote-attribution').textContent = `— ${data.quote.attribution}`;
+      }
+    } catch (e) {}
+    // Animate quote widget
+    setTimeout(animateQuote, 300);
+  }
+
+  function renderEnrollments(enrollments) {
+    const container = document.getElementById('enrollments-grid');
+    if (!enrollments.length) {
+      container.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📚</div><h3>No courses yet</h3><p>Browse the catalog to enroll in your first course.</p><a href="/student-course-catalog.html" class="btn btn-primary" style="margin-top:14px; display:inline-flex;">Browse Catalog</a></div></div>`;
+      return;
+    }
+    container.innerHTML = enrollments.slice(0, 3).map(e => `
+      <a href="/student-course-detail.html?id=${e.course_id}" class="course-card-link">
+        <div class="course-card-h">
+          <div class="course-swatch-inner" style="background:${instructorGradient(e.instructor_name)};">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(200,168,75,0.40)" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div class="course-body" style="padding:14px 18px; display:flex; flex-direction:column; justify-content:center; gap:3px;">
+            <div class="eyebrow" style="margin-bottom:2px;">Taught by</div>
+            <div style="font-family:var(--serif); font-style:italic; font-size:16px; color:var(--text); font-weight:600;">${e.instructor_name || 'Instructor'}</div>
+            <div style="font-size:13px; color:var(--text-2); margin-bottom:6px;">${e.course_title}</div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="progress-bar" style="flex:1;">
+                <div class="progress-fill" style="width:${e.progress_pct || 0}%;"></div>
+              </div>
+              <span style="font-size:11px; color:var(--text-3); flex-shrink:0;">${e.progress_pct || 0}%</span>
+            </div>
+            <div class="course-body-link">Continue →</div>
+          </div>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  function renderMasterclasses(mcs) {
+    const container = document.getElementById('masterclasses-list');
+    if (!mcs.length) {
+      container.innerHTML = '<div class="card card-sm"><p style="font-size:13px; color:var(--text-3); text-align:center; padding:12px;">No upcoming live classes.</p></div>';
+      return;
+    }
+    const now = new Date();
+    container.innerHTML = mcs.map(m => {
+      const d = new Date(m.scheduled_at);
+      const day = d.getDate();
+      const month = d.toLocaleString('en', { month: 'short' }).toUpperCase();
+      const isLive = Math.abs(d - now) < 3600000;
+      return `
+        <div class="live-card ${isLive ? 'is-live' : ''}">
+          <div class="live-date-box">
+            <div class="mc-day">${day}</div>
+            <div class="mc-month">${month}</div>
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-weight:600; font-size:13px; color:var(--text); margin-bottom:2px;">${m.title}</div>
+            <div style="font-size:12px; color:var(--text-3);">${m.instructor_name || ''} · ${formatTime(m.scheduled_at)}</div>
+          </div>
+          <button onclick="registerMC(event, ${m.id}, this)" class="btn btn-sm ${m.is_registered ? 'btn-outline' : isLive ? 'btn-primary' : 'btn-outline'}" style="flex-shrink:0; display:flex; align-items:center; gap:5px;">
+            ${isLive ? '<span class="live-dot"></span>Join Now' : m.is_registered ? 'Registered ✓' : 'Register'}
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function registerMC(e, id, btn) {
+    e.preventDefault();
+    try {
+      await api.post(`/api/masterclasses/${id}/register`, {});
+      btn.textContent = 'Registered ✓';
+      btn.className = 'btn btn-sm btn-outline';
+      toast('Registered for live class!');
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  }
+
+  function renderSheetMusic(items) {
+    const container = document.getElementById('sheet-music-table');
+    if (!items.length) {
+      container.innerHTML = '<div class="card card-sm"><p style="font-size:13px; color:var(--text-3); text-align:center; padding:12px;">No recent activity.</p></div>';
+      return;
+    }
+    const fmtBadge = (fmt) => {
+      if (!fmt || fmt.toLowerCase() === 'pdf') return '<span class="badge badge-pdf">PDF</span>';
+      if (fmt.toLowerCase().includes('mp3') || fmt.toLowerCase().includes('audio')) return '<span class="badge badge-mp3">MP3</span>';
+      return '<span class="badge badge-muted">IMG</span>';
+    };
+    container.innerHTML = `
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Format</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(s => `
+              <tr>
+                <td style="font-weight:600; color:var(--text);">${s.title}</td>
+                <td>${fmtBadge(s.format)}</td>
+                <td style="color:var(--text-3); font-size:12px;">${s.created_at ? formatDate(s.created_at) : '—'}</td>
+                <td>
+                  <button class="btn btn-ghost btn-sm" style="color:var(--gold);">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  // Search redirect
+  document.getElementById('topbar-search-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.value) {
+      window.location.href = `/student-course-catalog.html?search=${encodeURIComponent(e.target.value)}`;
+    }
+  });
+</script>
+</body>
+</html>

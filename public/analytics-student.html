@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Progress — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Work+Sans:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    body { background: var(--bg); color: var(--text); }
+
+    /* Heatmap */
+    .heatmap-wrap { overflow-x: auto; padding-bottom: 8px; }
+    .heatmap-grid { display: grid; grid-template-rows: repeat(7, 13px); grid-auto-flow: column; gap: 3px; width: max-content; }
+    .heatmap-cell { width: 13px; height: 13px; border-radius: 3px; background: #1E1B17; cursor: default; position: relative; transition: transform 0.1s; }
+    .heatmap-cell:hover { transform: scale(1.3); z-index: 10; }
+    .heatmap-cell.lv1 { background: #3D2E00; }
+    .heatmap-cell.lv2 { background: #7A6530; }
+    .heatmap-cell.lv3 { background: #C8A84B; }
+    .heatmap-cell.lv4 { background: #E8C96E; }
+    .heatmap-month-labels { display: flex; width: max-content; margin-bottom: 6px; }
+    .heatmap-month-label { font-size: 11px; color: var(--text-3); font-weight: 500; }
+    .heatmap-day-labels { display: grid; grid-template-rows: repeat(7, 13px); gap: 3px; margin-right: 6px; flex-shrink: 0; }
+    .heatmap-day-label { font-size: 10px; color: var(--text-3); line-height: 13px; text-align: right; }
+    .heatmap-outer { display: flex; align-items: flex-start; }
+    .heatmap-legend { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 11px; color: var(--text-3); }
+    .heatmap-legend-cell { width: 13px; height: 13px; border-radius: 3px; }
+
+    /* Tooltip */
+    .chart-tooltip {
+      position: fixed;
+      background: var(--bg-elevated);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
+      display: none;
+      border: 1px solid var(--gold-dim);
+    }
+
+    /* SVG chart wrappers */
+    .chart-svg-wrap { width: 100%; overflow: hidden; background: var(--bg-2); border-radius: var(--radius); }
+    .chart-svg-wrap svg { display: block; width: 100%; }
+
+    /* Stat card dark overrides */
+    .stat-card { background: var(--bg-card); border: 1px solid #2a2520; }
+    .stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 48px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-3); }
+
+    /* Course progress rows */
+    .course-progress-row {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      border: 1px solid #2a2520;
+    }
+    .course-progress-row:last-child { margin-bottom: 0; }
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(200,168,75,0.15);
+      color: var(--gold);
+    }
+
+    /* Card dark */
+    .card { background: var(--bg-card); border: 1px solid #2a2520; }
+    .card-label { color: var(--text-2); }
+    .page-title { color: var(--text); }
+    .page-subtitle { color: var(--text-3); }
+
+    /* Progress bar */
+    .progress-bar { background: var(--bg-elevated); }
+    .progress-fill { background: var(--gold); }
+
+    /* Sidebar & topbar dark */
+    .sidebar { background: var(--bg-2); border-right: 1px solid #2a2520; }
+    .sidebar-brand .brand-title { color: var(--gold); }
+    .sidebar-brand .brand-sub { color: var(--text-3); }
+    .nav-item { color: var(--text-2); }
+    .nav-item:hover { background: var(--bg-elevated); color: var(--text); }
+    .nav-item.active { background: rgba(200,168,75,0.12); color: var(--gold); }
+    .sidebar-avatar { background: var(--gold-dim); color: var(--bg); }
+    .user-name { color: var(--text); }
+    .user-role { color: var(--text-3); }
+    .topbar { background: var(--bg-2); border-bottom: 1px solid #2a2520; }
+    .topbar-title { color: var(--text); }
+    .topbar-search { background: var(--bg-elevated); border-color: #2a2520; }
+    .topbar-search input { color: var(--text); background: transparent; }
+    .topbar-search input::placeholder { color: var(--text-3); }
+    .topbar-avatar { background: var(--gold-dim); color: var(--bg); }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .mb-28 { margin-bottom: 28px; }
+    .mb-16 { margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-title">The Foundation Room</div>
+      <div class="brand-sub">Music School</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/student-dashboard.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </a>
+      <a href="/student-course-catalog.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Library
+      </a>
+      <a href="/student-lessons.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        My Lessons
+      </a>
+      <a href="/student-practice-log.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        Practice Log
+      </a>
+      <a href="/analytics-student.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </a>
+      <a href="/student-calendar.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendar
+      </a>
+      <a href="/student-sheet-music.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        Sheet Music
+      </a>
+      <a href="/student-archive.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        Archive
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="handleLogout()">
+        <div class="sidebar-avatar" id="sb-avatar">JW</div>
+        <div class="sidebar-user-info">
+          <div class="user-name" id="sb-name">Student</div>
+          <div class="user-role">Student</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">Your Progress</div>
+      <div class="topbar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search courses, lessons…" id="topbar-search-input">
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-avatar" id="topbar-avatar">JW</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Page Header -->
+      <div style="margin-bottom:28px;" data-gsap>
+        <h1 class="page-title">Your Progress</h1>
+        <p class="page-subtitle" id="date-range-label">Loading…</p>
+      </div>
+
+      <!-- Row 1: Stat Cards -->
+      <div class="stats-row mb-28">
+        <div class="stat-card" data-gsap>
+          <div class="stat-icon" style="font-size:22px;">🔥</div>
+          <div class="stat-number" id="stat-streak" data-value="0">—</div>
+          <div class="stat-label">Day Practice Streak</div>
+        </div>
+        <div class="stat-card" data-gsap>
+          <div class="stat-icon green" style="font-size:22px;">⏱️</div>
+          <div class="stat-number" id="stat-month-hours" data-value="0">—</div>
+          <div class="stat-label">Hours This Month</div>
+        </div>
+        <div class="stat-card" data-gsap>
+          <div class="stat-icon gold" style="font-size:22px;">📊</div>
+          <div class="stat-number" id="stat-avg-grade" data-value="0">—</div>
+          <div class="stat-label">Average Grade</div>
+        </div>
+        <div class="stat-card" data-gsap>
+          <div class="stat-icon" style="font-size:22px; background:rgba(200,168,75,0.12); color:var(--gold);">✅</div>
+          <div class="stat-number" id="stat-completed" data-value="0">—</div>
+          <div class="stat-label">Assignments Done</div>
+        </div>
+      </div>
+
+      <!-- Row 2: Heatmap -->
+      <div class="card mb-28 section-block">
+        <div class="card-label">Practice Heatmap — Last 12 Months</div>
+        <div id="heatmap-container">
+          <div class="skeleton" style="height:120px;"></div>
+        </div>
+      </div>
+
+      <!-- Row 3: Charts -->
+      <div class="grid-2 mb-28">
+        <!-- Weekly Practice Bar -->
+        <div class="card section-block">
+          <div class="card-label">Weekly Practice (last 12 weeks)</div>
+          <div class="chart-svg-wrap" id="bar-chart-wrap">
+            <div class="skeleton" style="height:180px;"></div>
+          </div>
+        </div>
+        <!-- Grade Trend Line -->
+        <div class="card section-block">
+          <div class="card-label">Grade Trend (last 6 months)</div>
+          <div class="chart-svg-wrap" id="line-chart-wrap">
+            <div class="skeleton" style="height:180px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4: Course Progress -->
+      <div class="card section-block">
+        <div class="card-label mb-16">Course Progress</div>
+        <div id="course-progress-list">
+          <div class="skeleton" style="height:70px; margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:70px; margin-bottom:10px;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="chart-tooltip" id="chart-tooltip"></div>
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['student']);</script>
+<script src="/assets/js/student-sidebar.js"></script>
+<script>
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/index.html';
+  }
+
+  document.addEventListener('userLoaded', (e) => {
+    const user = e.detail;
+    document.getElementById('sb-avatar').textContent = user.avatar_initials || (user.first_name[0] + user.last_name[0]);
+    document.getElementById('sb-name').textContent = user.first_name + ' ' + user.last_name;
+    document.getElementById('topbar-avatar').textContent = user.avatar_initials || (user.first_name[0] + user.last_name[0]);
+    loadAnalytics();
+  });
+
+  // Date range label
+  const now = new Date();
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('date-range-label').textContent =
+    `1 January ${now.getFullYear()} — ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+  async function loadAnalytics() {
+    try {
+      const [analytics, heatmap] = await Promise.all([
+        api.get('/api/analytics/student'),
+        api.get('/api/practice-log/heatmap')
+      ]);
+
+      // Stats
+      const streakVal = analytics.current_streak_days ?? 0;
+      document.getElementById('stat-streak').setAttribute('data-value', streakVal);
+      document.getElementById('stat-streak').textContent = streakVal;
+
+      const practiceStats = await api.get('/api/practice-log/stats').catch(() => null);
+      if (practiceStats) {
+        const hrs = parseFloat((practiceStats.this_month_minutes / 60).toFixed(1));
+        document.getElementById('stat-month-hours').setAttribute('data-value', hrs);
+        document.getElementById('stat-month-hours').textContent = hrs + 'h';
+      }
+
+      // Avg grade from grade trend
+      const grades = (analytics.grade_trend || []).filter(g => g.avg_score != null);
+      const avgGrade = grades.length
+        ? Math.round(grades.reduce((s, g) => s + g.avg_score, 0) / grades.length)
+        : 0;
+      document.getElementById('stat-avg-grade').setAttribute('data-value', avgGrade);
+      document.getElementById('stat-avg-grade').textContent = avgGrade ? avgGrade + '%' : '—';
+
+      const completedVal = analytics.assignments_completed ?? 0;
+      document.getElementById('stat-completed').setAttribute('data-value', completedVal);
+      document.getElementById('stat-completed').textContent = completedVal;
+
+      // Heatmap
+      renderHeatmap(heatmap.dates || {});
+
+      // Bar chart
+      renderBarChart(analytics.weekly_practice || []);
+
+      // Line chart
+      renderLineChart(analytics.grade_trend || []);
+
+      // Course progress
+      renderCourseProgress(analytics.course_progress || []);
+
+      // Animate stat counters
+      animateCounters();
+    } catch (err) {
+      toast('Failed to load analytics', 'error');
+    }
+  }
+
+  function animateCounters() {
+    document.querySelectorAll('.stat-number[data-value]').forEach(el => {
+      const raw = el.dataset.value;
+      const target = parseFloat(raw);
+      if (isNaN(target) || target === 0) return;
+      const isFloat = raw.includes('.');
+      gsap.from({ val: 0 }, {
+        val: target, duration: 1.5, ease: 'power2.out', delay: 0.5,
+        onUpdate: function() {
+          const v = this.targets()[0].val;
+          el.textContent = isFloat ? v.toFixed(1) + 'h' : Math.round(v) + (el.id === 'stat-avg-grade' ? '%' : '');
+        }
+      });
+    });
+  }
+
+  /* ─── Heatmap ─── */
+  function renderHeatmap(dateMap) {
+    const container = document.getElementById('heatmap-container');
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDay = new Date(today);
+    startDay.setDate(today.getDate() - 364);
+    startDay.setDate(startDay.getDate() - startDay.getDay());
+
+    const cells = [];
+    const d = new Date(startDay);
+    while (d <= today) {
+      const dateStr = d.toISOString().slice(0, 10);
+      const mins = dateMap[dateStr] || 0;
+      let cls = '';
+      if (mins > 0 && mins <= 30) cls = 'lv1';
+      else if (mins > 30 && mins <= 60) cls = 'lv2';
+      else if (mins > 60 && mins <= 120) cls = 'lv3';
+      else if (mins > 120) cls = 'lv4';
+      cells.push({ dateStr, mins, cls, day: d.getDay() });
+      d.setDate(d.getDate() + 1);
+    }
+
+    const monthLabels = [];
+    const weeks = Math.ceil(cells.length / 7);
+    let prevMonth = -1;
+    for (let w = 0; w < weeks; w++) {
+      const ci = w * 7;
+      if (ci < cells.length) {
+        const m = new Date(cells[ci].dateStr).getMonth();
+        if (m !== prevMonth) {
+          monthLabels.push({ week: w, label: months[m].slice(0, 3) });
+          prevMonth = m;
+        }
+      }
+    }
+
+    const CELL = 13, GAP = 3, UNIT = CELL + GAP;
+
+    let html = `
+      <div style="overflow-x:auto;">
+        <div style="display:flex; flex-direction:column; width:max-content;">
+          <div style="display:flex; margin-left:${CELL + GAP + 6}px; margin-bottom:4px; position:relative; height:16px;">
+    `;
+
+    monthLabels.forEach(({ week, label }) => {
+      html += `<div style="position:absolute; left:${week * UNIT}px; font-size:10px; color:var(--text-3); font-weight:500; white-space:nowrap;">${label}</div>`;
+    });
+
+    html += `</div>
+          <div style="display:flex; align-items:flex-start; gap:6px;">
+            <div style="display:grid; grid-template-rows:repeat(7, ${CELL}px); gap:${GAP}px; flex-shrink:0;">
+              ${['S','M','T','W','T','F','S'].map((dl, i) => `<div style="font-size:10px; color:var(--text-3); line-height:${CELL}px; text-align:right; width:${CELL}px;">${[1,3,5].includes(i) ? dl : ''}</div>`).join('')}
+            </div>
+            <div id="heatmap-grid" style="display:grid; grid-template-rows:repeat(7, ${CELL}px); grid-auto-flow:column; gap:${GAP}px;">
+    `;
+
+    for (let p = 0; p < cells[0].day; p++) {
+      html += `<div style="width:${CELL}px; height:${CELL}px;"></div>`;
+    }
+
+    cells.forEach(c => {
+      html += `<div class="heatmap-cell${c.cls ? ' ' + c.cls : ''}" title="${c.dateStr}: ${c.mins} min" data-date="${c.dateStr}" data-mins="${c.mins}"></div>`;
+    });
+
+    html += `
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:10px; margin-left:${CELL + GAP + 6}px; font-size:11px; color:var(--text-3);">
+            <span>Less</span>
+            <div style="width:13px;height:13px;border-radius:3px;background:#1E1B17;"></div>
+            <div style="width:13px;height:13px;border-radius:3px;background:#3D2E00;"></div>
+            <div style="width:13px;height:13px;border-radius:3px;background:#7A6530;"></div>
+            <div style="width:13px;height:13px;border-radius:3px;background:#C8A84B;"></div>
+            <div style="width:13px;height:13px;border-radius:3px;background:#E8C96E;"></div>
+            <span>More</span>
+            <span style="margin-left:12px;">1–30 min · 31–60 min · 61–120 min · 120+ min</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = html;
+
+    const tooltip = document.getElementById('chart-tooltip');
+    container.querySelectorAll('.heatmap-cell').forEach(cell => {
+      cell.addEventListener('mousemove', (e) => {
+        const date = cell.dataset.date;
+        const mins = cell.dataset.mins;
+        tooltip.textContent = `${date} — ${mins} min`;
+        tooltip.style.display = 'block';
+        tooltip.style.left = (e.clientX + 12) + 'px';
+        tooltip.style.top = (e.clientY - 28) + 'px';
+      });
+      cell.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+      });
+    });
+  }
+
+  /* ─── Bar Chart (Weekly Practice) ─── */
+  function renderBarChart(weeklyData) {
+    const wrap = document.getElementById('bar-chart-wrap');
+    const W = wrap.clientWidth || 400;
+    const H = 200;
+    const PAD = { top: 16, right: 16, bottom: 40, left: 44 };
+    const chartW = W - PAD.left - PAD.right;
+    const chartH = H - PAD.top - PAD.bottom;
+
+    const now = new Date();
+    const weekData = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i * 7);
+      const y = d.getFullYear();
+      const wk = getWeekNumber(d);
+      const label = `${y}-W${String(wk).padStart(2, '0')}`;
+      const found = weeklyData.find(w => w.week === label);
+      weekData.push({ week: label, minutes: found ? found.minutes : 0 });
+    }
+
+    const maxMin = Math.max(...weekData.map(w => w.minutes), 60);
+    const goalMin = 60 * 5;
+    const barW = Math.max(4, (chartW / weekData.length) - 6);
+
+    let bars = '';
+    let xLabels = '';
+    weekData.forEach((w, i) => {
+      const x = PAD.left + (i / weekData.length) * chartW + (chartW / weekData.length - barW) / 2;
+      const barH = Math.max(2, (w.minutes / maxMin) * chartH);
+      const y = PAD.top + chartH - barH;
+      bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW}" height="${barH.toFixed(1)}" fill="#C8A84B" rx="3" opacity="0.85">
+        <title>Week ${i + 1}: ${w.minutes} min</title>
+      </rect>`;
+      if (i % 3 === 0 || i === weekData.length - 1) {
+        const wkNum = w.week.split('W')[1];
+        xLabels += `<text x="${(x + barW / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" fill="#6B5E50">W${wkNum}</text>`;
+      }
+    });
+
+    const goalY = PAD.top + chartH - (goalMin / maxMin) * chartH;
+    const goalLine = goalMin <= maxMin
+      ? `<line x1="${PAD.left}" y1="${goalY.toFixed(1)}" x2="${W - PAD.right}" y2="${goalY.toFixed(1)}" stroke="#E8C96E" stroke-width="1.5" stroke-dasharray="6,3"/>
+         <text x="${W - PAD.right + 2}" y="${(goalY + 4).toFixed(1)}" font-size="10" fill="#C8A84B">Goal</text>`
+      : '';
+
+    let gridLines = '';
+    for (let i = 0; i <= 4; i++) {
+      const yy = PAD.top + (i / 4) * chartH;
+      const val = Math.round(maxMin * (1 - i / 4));
+      gridLines += `<line x1="${PAD.left}" y1="${yy.toFixed(1)}" x2="${W - PAD.right}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+      gridLines += `<text x="${PAD.left - 4}" y="${(yy + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#6B5E50">${val}</text>`;
+    }
+
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      ${gridLines}
+      ${bars}
+      ${goalLine}
+      ${xLabels}
+      <text x="${PAD.left}" y="${H - 2}" font-size="10" fill="#6B5E50">minutes</text>
+    </svg>`;
+  }
+
+  function getWeekNumber(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  }
+
+  /* ─── Line Chart (Grade Trend) ─── */
+  function renderLineChart(gradeTrend) {
+    const wrap = document.getElementById('line-chart-wrap');
+    const W = wrap.clientWidth || 400;
+    const H = 200;
+    const PAD = { top: 16, right: 24, bottom: 40, left: 44 };
+    const chartW = W - PAD.left - PAD.right;
+    const chartH = H - PAD.top - PAD.bottom;
+
+    const monthData = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const key = d.toISOString().slice(0, 7);
+      const found = gradeTrend.find(g => g.month === key);
+      monthData.push({ month: key, avg_score: found ? found.avg_score : null });
+    }
+
+    const validPoints = monthData.filter(m => m.avg_score != null);
+    if (!validPoints.length) {
+      wrap.innerHTML = `<div style="height:200px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:13px;">No grade data yet</div>`;
+      return;
+    }
+
+    const maxScore = 100;
+
+    let gridLines = '';
+    for (let i = 0; i <= 4; i++) {
+      const yy = PAD.top + (i / 4) * chartH;
+      const val = Math.round(maxScore * (1 - i / 4));
+      gridLines += `<line x1="${PAD.left}" y1="${yy.toFixed(1)}" x2="${W - PAD.right}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+      gridLines += `<text x="${PAD.left - 4}" y="${(yy + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#6B5E50">${val}</text>`;
+    }
+
+    const pts = monthData.map((m, i) => {
+      const x = PAD.left + (i / (monthData.length - 1)) * chartW;
+      const y = m.avg_score != null
+        ? PAD.top + chartH - (m.avg_score / maxScore) * chartH
+        : null;
+      return { x, y, ...m };
+    }).filter(p => p.y != null);
+
+    const polyline = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const areaPath = pts.length > 1
+      ? `${polyline} L${pts[pts.length - 1].x.toFixed(1)},${(PAD.top + chartH).toFixed(1)} L${pts[0].x.toFixed(1)},${(PAD.top + chartH).toFixed(1)} Z`
+      : '';
+
+    let dots = '';
+    let xLabels = '';
+    pts.forEach(p => {
+      dots += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="#C8A84B" stroke="#0F0D0B" stroke-width="2">
+        <title>${p.month}: ${Math.round(p.avg_score)}%</title>
+      </circle>`;
+    });
+
+    monthData.forEach((m, i) => {
+      const x = PAD.left + (i / (monthData.length - 1)) * chartW;
+      const lbl = m.month.slice(5);
+      const mName = months[parseInt(lbl) - 1].slice(0, 3);
+      xLabels += `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" fill="#6B5E50">${mName}</text>`;
+    });
+
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#C8A84B" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="#C8A84B" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+      ${gridLines}
+      ${areaPath ? `<path d="${areaPath}" fill="url(#areaGrad)"/>` : ''}
+      <path d="${polyline}" fill="none" stroke="#C8A84B" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      ${xLabels}
+      <text x="${PAD.left}" y="${H - 2}" font-size="10" fill="#6B5E50">% score</text>
+    </svg>`;
+  }
+
+  /* ─── Course Progress ─── */
+  function renderCourseProgress(courses) {
+    const container = document.getElementById('course-progress-list');
+    if (!courses.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">📚</div><h3>No courses enrolled</h3><p>Browse the library to get started.</p></div>`;
+      return;
+    }
+    container.innerHTML = courses.map(c => `
+      <div class="course-progress-row">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+          <div>
+            <div style="font-family:'Newsreader',serif; font-style:italic; font-size:16px; font-weight:600; color:var(--text);">${c.title}</div>
+            <div style="font-size:12px; color:var(--text-3); margin-top:2px;">${c.lessons_done || 0} / ${c.total_lessons || 0} lessons completed</div>
+          </div>
+          <span class="score-badge">${c.progress_pct || 0}% done</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${c.progress_pct || 0}%; transition:width 0.6s ease;"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('topbar-search-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.value) {
+      window.location.href = `/student-course-catalog.html?search=${encodeURIComponent(e.target.value)}`;
+    }
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from('[data-gsap], .stat-card, .card, .chart-wrap', {
+    y: 28, opacity: 0, stagger: 0.08, duration: 0.7, ease: 'power3.out', delay: 0.15
+  });
+  document.querySelectorAll('.section-block, .table-wrap, .filter-row').forEach(el => {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 90%' },
+      y: 20, opacity: 0, duration: 0.55, ease: 'power2.out' });
+  });
+</script>
+</body>
+</html>

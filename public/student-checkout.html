@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    :root {
+      --bg:          #080706;
+      --bg-2:        #0F0D0B;
+      --bg-card:     #161412;
+      --bg-elevated: #1E1B17;
+      --bg-hover:    #252119;
+      --gold:        #C8A84B;
+      --gold-bright: #E8C96E;
+      --gold-dim:    #7A6530;
+      --gold-glow:   rgba(200,168,75,0.12);
+      --text:        #F0E6D3;
+      --text-2:      #B8A898;
+      --text-3:      #6B5E50;
+      --ruby:        #8B2E26;
+      --forest:      #3D5A3D;
+      --serif:       'Cormorant Garamond', Georgia, serif;
+      --sans:        'DM Sans', sans-serif;
+      --sidebar-w:   240px;
+      --topbar-h:    60px;
+      --radius:      6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--sans); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .shell { display: flex; height: 100vh; overflow: hidden; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-w); min-width: var(--sidebar-w);
+      background: var(--bg-card); display: flex; flex-direction: column;
+      height: 100vh; position: fixed; left: 0; top: 0; z-index: 100;
+      border-right: 1px solid rgba(200,168,75,0.06);
+    }
+    .sidebar-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(200,168,75,0.06); }
+    .brand-title { font-family: var(--serif); font-style: italic; font-size: 18px; font-weight: 600; color: var(--gold); }
+    .brand-sub { font-size: 10px; color: var(--text-3); margin-top: 3px; letter-spacing: 0.04em; }
+    .sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+      border-radius: 6px; color: var(--text-3); font-size: 13px; font-weight: 500;
+      transition: background 0.15s, color 0.15s; margin-bottom: 2px; cursor: pointer;
+    }
+    .nav-item:hover { background: var(--bg-elevated); color: var(--text-2); }
+    .nav-item.active {
+      background: var(--gold-glow); color: var(--gold);
+      border-left: 3px solid var(--gold); padding-left: 9px;
+    }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-footer { padding: 14px 10px 18px; border-top: 1px solid rgba(200,168,75,0.06); }
+    .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
+    .sidebar-user:hover { background: var(--bg-elevated); }
+    .sidebar-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: var(--gold); flex-shrink: 0;
+    }
+    .sidebar-user-info .user-name { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .sidebar-user-info .user-role { font-size: 10px; color: var(--text-3); }
+
+    /* Main */
+    .main-wrap { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
+    .topbar {
+      height: var(--topbar-h); background: var(--bg-2);
+      border-bottom: 1px solid rgba(200,168,75,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; position: sticky; top: 0; z-index: 50; flex-shrink: 0;
+    }
+    .topbar-title { font-family: var(--serif); font-style: italic; font-size: 20px; font-weight: 600; color: var(--gold); }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; color: var(--text-3); transition: background 0.15s, color 0.15s; cursor: pointer; text-decoration: none; }
+    .icon-btn:hover { background: var(--bg-elevated); color: var(--text-2); }
+    .topbar-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; color: var(--gold); cursor: pointer;
+      text-decoration: none;
+    }
+    .main-content { flex: 1; overflow-y: auto; background: var(--bg); padding: 40px 28px; }
+
+    /* Layout */
+    .checkout-wrap { max-width: 1080px; margin: 0 auto; }
+    .checkout-header { margin-bottom: 28px; }
+    .checkout-title {
+      font-family: var(--serif); font-style: italic; font-size: 38px;
+      font-weight: 600; color: var(--text); letter-spacing: -0.01em;
+    }
+    .checkout-sub { font-size: 14px; color: var(--text-3); margin-top: 6px; }
+
+    .checkout-grid {
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px;
+    }
+    @media (max-width: 900px) {
+      .checkout-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.08);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.4px;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 18px;
+    }
+
+    /* Course summary card */
+    .course-preview {
+      display: flex; gap: 18px; padding-bottom: 20px;
+      border-bottom: 1px solid rgba(200,168,75,0.06); margin-bottom: 20px;
+    }
+    .course-cover {
+      width: 120px; height: 120px; border-radius: var(--radius);
+      background: linear-gradient(135deg, #2d2417 0%, #1a1510 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif); font-size: 42px; font-weight: 600;
+      color: var(--gold); flex-shrink: 0; border: 1px solid rgba(200,168,75,0.12);
+    }
+    .course-info { flex: 1; min-width: 0; }
+    .course-title {
+      font-family: var(--serif); font-size: 22px; font-weight: 600;
+      color: var(--text); line-height: 1.25; margin-bottom: 6px;
+    }
+    .course-instructor { font-size: 13px; color: var(--gold); margin-bottom: 10px; }
+    .course-meta {
+      display: flex; flex-wrap: wrap; gap: 6px 14px;
+      font-size: 12px; color: var(--text-3);
+    }
+    .course-meta span { display: inline-flex; align-items: center; gap: 5px; }
+    .course-meta span::before {
+      content: ''; width: 3px; height: 3px; border-radius: 50%;
+      background: var(--text-3); display: inline-block;
+    }
+    .course-meta span:first-child::before { display: none; }
+
+    .feature-list { list-style: none; }
+    .feature-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: var(--text-2); padding: 6px 0;
+    }
+    .feature-list svg { flex-shrink: 0; color: var(--gold); margin-top: 2px; }
+
+    /* Payment summary */
+    .summary-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 10px 0; font-size: 13px; color: var(--text-2);
+    }
+    .summary-row.divider { border-top: 1px solid rgba(200,168,75,0.08); margin-top: 6px; padding-top: 16px; }
+    .summary-row.total {
+      font-size: 14px; font-weight: 600; color: var(--text);
+    }
+    .summary-row.total .amount {
+      font-family: var(--serif); font-size: 32px; font-weight: 600;
+      color: var(--gold); letter-spacing: -0.01em;
+    }
+    .summary-amount { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--text); }
+
+    /* Pay button */
+    .pay-btn {
+      width: 100%; margin-top: 22px; padding: 14px 18px;
+      background: var(--gold); color: #080706;
+      border-radius: var(--radius); font-family: var(--sans);
+      font-size: 14px; font-weight: 700; letter-spacing: 0.02em;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .pay-btn:hover { background: var(--gold-bright); }
+    .pay-btn:active { transform: translateY(1px); }
+    .pay-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .secure-note {
+      margin-top: 14px; display: flex; align-items: center; justify-content: center;
+      gap: 6px; font-size: 11px; color: var(--text-3);
+    }
+    .secure-note svg { color: var(--forest); }
+
+    /* Modal (mock payment) */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(8,7,6,0.78);
+      backdrop-filter: blur(6px); display: none;
+      align-items: center; justify-content: center; z-index: 1500;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .modal-backdrop.open { display: flex; opacity: 1; }
+    .modal {
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 10px; padding: 32px; width: 100%; max-width: 440px;
+      transform: translateY(8px); transition: transform 0.2s;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal-backdrop.open .modal { transform: translateY(0); }
+    .modal-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+    }
+    .mock-logo {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: linear-gradient(135deg, #3d75f5 0%, #1e4bc6 100%);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 14px;
+    }
+    .modal-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .modal-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+    .modal-amount {
+      padding: 16px 0; border-top: 1px solid rgba(200,168,75,0.08);
+      border-bottom: 1px solid rgba(200,168,75,0.08); margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .modal-amount-label { font-size: 12px; color: var(--text-3); }
+    .modal-amount-val { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--gold); }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
+    .form-input {
+      width: 100%; padding: 11px 12px;
+      background: var(--bg-elevated); border: 1px solid rgba(200,168,75,0.1);
+      border-radius: 6px; color: var(--text); font-family: var(--sans);
+      font-size: 13px; letter-spacing: 0.02em;
+    }
+    .form-input:focus { outline: none; border-color: var(--gold-dim); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+    .btn-modal {
+      flex: 1; padding: 11px 14px; border-radius: 6px;
+      font-size: 13px; font-weight: 600; font-family: var(--sans);
+      transition: background 0.15s;
+    }
+    .btn-cancel { background: var(--bg-elevated); color: var(--text-2); }
+    .btn-cancel:hover { background: var(--bg-hover); }
+    .btn-confirm { background: var(--gold); color: #080706; }
+    .btn-confirm:hover { background: var(--gold-bright); }
+    .btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .mock-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 10px;
+      background: rgba(61,90,61,0.15); color: #8fb48f;
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; margin-left: auto;
+    }
+
+    /* Success modal */
+    .success-screen {
+      text-align: center; padding: 20px 0;
+    }
+    .success-ring {
+      width: 72px; height: 72px; margin: 0 auto 20px;
+      border-radius: 50%; background: rgba(61,90,61,0.15);
+      display: flex; align-items: center; justify-content: center;
+      color: #8fb48f;
+    }
+    .success-title { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .success-sub { font-size: 13px; color: var(--text-3); }
+
+    /* Skeleton */
+    .skeleton { color: var(--text-3); }
+
+    /* Toast */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 2000; }
+    .toast {
+      background: var(--bg-elevated); border: 1px solid rgba(200,168,75,0.15);
+      border-left: 3px solid var(--gold); border-radius: 6px;
+      padding: 12px 16px; font-size: 13px; color: var(--text);
+      min-width: 240px; animation: toastIn 0.2s ease;
+    }
+    .toast.error { border-left-color: var(--ruby); }
+    .toast.success { border-left-color: var(--forest); }
+    @keyframes toastIn { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Spinner */
+    .spinner {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid rgba(8,7,6,0.2); border-top-color: #080706;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">Checkout</div>
+      <div class="topbar-actions">
+        <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar" title="Profile">—</a>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="checkout-wrap">
+        <div class="checkout-header">
+          <h1 class="checkout-title">Complete your enrollment</h1>
+          <p class="checkout-sub">You're one step away from lifetime access to this course.</p>
+        </div>
+
+        <div class="checkout-grid">
+          <!-- Left: course summary -->
+          <div class="card">
+            <div class="card-title">Course Summary</div>
+
+            <div class="course-preview">
+              <div class="course-cover" id="course-cover">—</div>
+              <div class="course-info">
+                <div class="course-title skeleton" id="course-title">Loading course…</div>
+                <div class="course-instructor" id="course-instructor"></div>
+                <div class="course-meta" id="course-meta"></div>
+              </div>
+            </div>
+
+            <ul class="feature-list">
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Lifetime access to all course content
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Downloadable sheet music and resources
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Certificate of completion
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Direct instructor Q&amp;A access
+              </li>
+            </ul>
+          </div>
+
+          <!-- Right: payment summary -->
+          <div class="card">
+            <div class="card-title">Payment Details</div>
+
+            <div class="summary-row">
+              <span>Course price</span>
+              <span class="summary-amount" id="sum-price">—</span>
+            </div>
+            <div class="summary-row">
+              <span>Platform fee</span>
+              <span class="summary-amount">₹0</span>
+            </div>
+            <div class="summary-row">
+              <span>Tax</span>
+              <span class="summary-amount">Included</span>
+            </div>
+            <div class="summary-row divider total">
+              <span>Total</span>
+              <span class="amount" id="sum-total">—</span>
+            </div>
+
+            <button class="pay-btn" id="pay-btn" onclick="startPayment()" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span id="pay-btn-label">Pay Now</span>
+            </button>
+
+            <div class="secure-note">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Secure payment · encrypted end-to-end
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Mock payment modal -->
+<div class="modal-backdrop" id="mock-modal">
+  <div class="modal" id="mock-modal-body">
+    <div class="modal-header">
+      <div class="mock-logo">₹</div>
+      <div>
+        <div class="modal-title">Secure Payment</div>
+        <div class="modal-sub">The Foundation Room</div>
+      </div>
+      <span class="mock-badge">Test Mode</span>
+    </div>
+
+    <div id="mock-pay-form">
+      <div class="modal-amount">
+        <div class="modal-amount-label">Amount to pay</div>
+        <div class="modal-amount-val" id="modal-amount">—</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Card Number</label>
+        <input class="form-input" id="mock-card" value="4111 1111 1111 1111" maxlength="19">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Expiry</label>
+          <input class="form-input" id="mock-exp" value="12/28" maxlength="5">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CVV</label>
+          <input class="form-input" id="mock-cvv" value="123" maxlength="3" type="password">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Name on Card</label>
+        <input class="form-input" id="mock-name" value="" placeholder="Cardholder name">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal btn-cancel" onclick="closeMockModal()">Cancel</button>
+        <button class="btn-modal btn-confirm" id="mock-confirm" onclick="confirmMockPayment()">Pay ₹<span id="mock-amount-btn">0</span></button>
+      </div>
+    </div>
+
+    <div id="mock-success" style="display:none;">
+      <div class="success-screen">
+        <div class="success-ring">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="success-title">Payment Successful</div>
+        <div class="success-sub">Redirecting you to the course…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<link rel="stylesheet" href="/assets/css/archive.css">
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script src="/assets/js/student-sidebar.js"></script>
+<script>
+  if (window.requireRole) requireRole(['student']);
+
+  const courseId = new URLSearchParams(window.location.search).get('course_id');
+  let courseData = null;
+  let priceData  = null;
+  let orderData  = null;
+  let currentUser = null;
+
+  function toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+  }
+
+  function formatINR(paise) {
+    const rupees = (paise || 0) / 100;
+    return '₹' + rupees.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  }
+
+  document.addEventListener('userLoaded', async (e) => {
+    currentUser = e.detail;
+    const initials = currentUser.avatar_initials || ((currentUser.first_name || '')[0] + (currentUser.last_name || '')[0]);
+    document.getElementById('topbar-avatar').textContent = initials;
+    document.getElementById('mock-name').value = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim();
+
+    if (!courseId) {
+      toast('No course selected', 'error');
+      setTimeout(() => window.location.href = '/student-course-catalog.html', 1500);
+      return;
+    }
+
+    await loadCheckout();
+  });
+
+  async function loadCheckout() {
+    try {
+      const [courseRes, enrollRes] = await Promise.all([
+        api.get(`/api/courses/${courseId}`),
+        api.get('/api/enrollments/me').catch(() => ({ enrollments: [] }))
+      ]);
+
+      courseData = courseRes.course;
+      priceData = {
+        course_id:   courseData.id,
+        title:       courseData.title,
+        price_paise: courseData.price_paise || 0,
+        is_paid:     courseData.is_paid || 0,
+        currency:    'INR'
+      };
+
+      const already = (enrollRes.enrollments || []).some(e => e.course_id == courseId);
+      if (already) {
+        toast('You already own this course', 'success');
+        setTimeout(() => window.location.href = `/student-course-detail.html?id=${courseId}`, 1200);
+        return;
+      }
+
+      if (!priceData.is_paid || !priceData.price_paise) {
+        toast('This course is free — enrolling directly…', 'success');
+        await api.post('/api/enrollments', { course_id: parseInt(courseId) });
+        setTimeout(() => window.location.href = `/student-course-detail.html?id=${courseId}`, 1000);
+        return;
+      }
+
+      renderCheckout();
+    } catch (err) {
+      toast('Could not load checkout: ' + err.message, 'error');
+    }
+  }
+
+  function renderCheckout() {
+    document.title = `Checkout: ${courseData.title} — The Foundation Room`;
+
+    document.getElementById('course-cover').textContent = (courseData.title || '?').charAt(0).toUpperCase();
+    document.getElementById('course-title').textContent = courseData.title;
+    document.getElementById('course-title').classList.remove('skeleton');
+    document.getElementById('course-instructor').textContent = courseData.instructor_name || 'TFR Faculty';
+
+    const meta = [];
+    if (courseData.level)           meta.push(courseData.level);
+    if (courseData.duration_weeks)  meta.push(`${courseData.duration_weeks} weeks`);
+    if (courseData.lesson_count)    meta.push(`${courseData.lesson_count} lessons`);
+    if (courseData.instrument)      meta.push(courseData.instrument);
+    document.getElementById('course-meta').innerHTML = meta.map(m => `<span>${m}</span>`).join('');
+
+    const priceLabel = formatINR(priceData.price_paise);
+    document.getElementById('sum-price').textContent = priceLabel;
+    document.getElementById('sum-total').textContent = priceLabel;
+    document.getElementById('pay-btn-label').textContent = `Pay ${priceLabel}`;
+    document.getElementById('modal-amount').textContent  = priceLabel;
+    document.getElementById('mock-amount-btn').textContent = (priceData.price_paise / 100).toLocaleString('en-IN');
+
+    document.getElementById('pay-btn').disabled = false;
+  }
+
+  async function startPayment() {
+    const btn = document.getElementById('pay-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Preparing…';
+
+    try {
+      orderData = await api.post('/api/payments/create-order', { course_id: parseInt(courseId) });
+
+      const isMock = !orderData.order_id || orderData.order_id.startsWith('order_mock_');
+
+      if (isMock) {
+        openMockModal();
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Pay ${formatINR(priceData.price_paise)}`;
+        return;
+      }
+
+      // Real Razorpay
+      const options = {
+        key:         orderData.key_id,
+        amount:      orderData.amount,
+        currency:    orderData.currency || 'INR',
+        name:        'The Foundation Room',
+        description: orderData.course_title || 'Course Enrollment',
+        order_id:    orderData.order_id,
+        handler: (response) => verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature),
+        prefill: {
+          name:  currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : '',
+          email: currentUser ? currentUser.email : ''
+        },
+        theme: { color: '#C8A84B' },
+        modal: {
+          ondismiss: () => {
+            btn.disabled = false;
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Pay ${formatINR(priceData.price_paise)}`;
+          }
+        }
+      };
+
+      if (typeof Razorpay !== 'undefined') {
+        new Razorpay(options).open();
+      } else {
+        toast('Payment gateway unavailable.', 'error');
+        btn.disabled = false;
+      }
+    } catch (err) {
+      toast(err.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = `Retry Payment`;
+    }
+  }
+
+  function openMockModal() {
+    document.getElementById('mock-modal').classList.add('open');
+  }
+  function closeMockModal() {
+    document.getElementById('mock-modal').classList.remove('open');
+  }
+
+  async function confirmMockPayment() {
+    const card = document.getElementById('mock-card').value.replace(/\s/g, '');
+    const exp  = document.getElementById('mock-exp').value;
+    const cvv  = document.getElementById('mock-cvv').value;
+
+    if (card.length < 12 || !/^\d{2}\/\d{2}$/.test(exp) || cvv.length < 3) {
+      toast('Please fill valid card details', 'error');
+      return;
+    }
+
+    const confirmBtn = document.getElementById('mock-confirm');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<span class="spinner"></span> Processing…';
+
+    // Simulate gateway latency
+    await new Promise(r => setTimeout(r, 1200));
+
+    const mockPaymentId = 'pay_mock_' + Date.now();
+    await verifyPayment(orderData.order_id, mockPaymentId, 'mock_signature');
+  }
+
+  async function verifyPayment(order_id, payment_id, signature) {
+    try {
+      const res = await api.post('/api/payments/verify', {
+        razorpay_order_id:   order_id,
+        razorpay_payment_id: payment_id,
+        razorpay_signature:  signature,
+        course_id:           parseInt(courseId)
+      });
+
+      if (res.success) {
+        document.getElementById('mock-pay-form').style.display = 'none';
+        document.getElementById('mock-success').style.display  = 'block';
+        if (!document.getElementById('mock-modal').classList.contains('open')) {
+          openMockModal();
+        }
+        setTimeout(() => {
+          window.location.href = `/student-course-detail.html?id=${courseId}`;
+        }, 1800);
+      } else {
+        throw new Error('Verification failed');
+      }
+    } catch (err) {
+      toast('Payment failed: ' + err.message, 'error');
+      const confirmBtn = document.getElementById('mock-confirm');
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = `Pay ₹<span id="mock-amount-btn">${(priceData.price_paise / 100).toLocaleString('en-IN')}</span>`;
+      }
+    }
+  }
+</script>
+</body>
+</html>

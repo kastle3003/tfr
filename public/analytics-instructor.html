@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Opt-in to smooth instructor-portal sidebar (View Transitions + hover easing)
+    // before first paint, for instructor role only. Student/admin untouched.
+    (function(){
+      try {
+        var u = JSON.parse(localStorage.getItem('archive_user') || 'null');
+        if (u && u.role === 'instructor') {
+          document.documentElement.classList.add('instructor-portal');
+          var s = document.createElement('style');
+          s.textContent = '@view-transition{navigation:auto}';
+          document.head.appendChild(s);
+        }
+      } catch(e){}
+    })();
+  </script>
+  <title>Dashboard Analytics — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Work+Sans:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    body { background: var(--bg); color: var(--text); }
+
+    .chart-tooltip {
+      position: fixed;
+      background: var(--bg-elevated);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
+      display: none;
+      border: 1px solid var(--gold-dim);
+    }
+    .chart-svg-wrap { width: 100%; overflow: hidden; background: var(--bg-2); border-radius: var(--radius); }
+    .chart-svg-wrap svg { display: block; width: 100%; }
+
+    .sortable-th { cursor: pointer; user-select: none; }
+    .sortable-th:hover { color: var(--gold); }
+    .sortable-th.asc::after { content: ' ↑'; }
+    .sortable-th.desc::after { content: ' ↓'; }
+    .status-active { color: #4ade80; background: rgba(74,222,128,0.1); }
+    .status-at-risk { color: #f87171; background: rgba(248,113,113,0.1); }
+    .status-inactive { color: var(--text-3); background: rgba(255,255,255,0.05); }
+
+    .date-range-btn {
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.5px solid #2a2520;
+      background: var(--bg-card);
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .date-range-btn.active { background: var(--gold-dim); color: var(--text); border-color: var(--gold-dim); }
+    .date-range-btn:hover:not(.active) { border-color: var(--gold-dim); color: var(--gold); }
+
+    /* Stat cards */
+    .stat-card { background: var(--bg-card); border: 1px solid #2a2520; }
+    .stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 48px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-3); }
+
+    /* Card dark */
+    .card { background: var(--bg-card); border: 1px solid #2a2520; }
+    .card-label { color: var(--text-2); }
+    .page-title { color: var(--text); }
+    .page-subtitle { color: var(--text-3); }
+
+    /* Table */
+    .table { border-collapse: collapse; width: 100%; }
+    .table th { background: var(--bg-2); color: var(--text-3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 14px; border-bottom: 1px solid #2a2520; }
+    .table td { padding: 12px 14px; border-bottom: 1px solid #1a1714; color: var(--text-2); font-size: 13px; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover td { background: var(--bg-elevated); }
+    .table-wrap { border-radius: var(--radius); overflow: hidden; border: 1px solid #2a2520; }
+
+    /* Progress */
+    .progress-bar { background: var(--bg-elevated); height: 4px; border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 99px; background: var(--gold); }
+    .progress-fill.green { background: var(--gold); }
+
+    /* Sidebar & topbar */
+    .sidebar { background: var(--bg-2); border-right: 1px solid #2a2520; }
+    .sidebar-brand .brand-title { color: var(--gold); }
+    .sidebar-brand .brand-sub { color: var(--text-3); }
+    .nav-item { color: var(--text-2); }
+    .nav-item:hover { background: var(--bg-elevated); color: var(--text); }
+    .nav-item.active { background: rgba(200,168,75,0.12); color: var(--gold); }
+    .sidebar-avatar { background: var(--gold-dim); color: var(--bg); }
+    .user-name { color: var(--text); }
+    .user-role { color: var(--text-3); }
+    .topbar { background: var(--bg-2); border-bottom: 1px solid #2a2520; }
+    .topbar-title { color: var(--text); }
+    .topbar-search { background: var(--bg-elevated); border-color: #2a2520; }
+    .topbar-search input { color: var(--text); background: transparent; }
+    .topbar-search input::placeholder { color: var(--text-3); }
+    .topbar-avatar { background: var(--gold-dim); color: var(--bg); }
+
+    /* Form input */
+    .form-input { background: var(--bg-elevated); border-color: #2a2520; color: var(--text); }
+    .form-input::placeholder { color: var(--text-3); }
+    .form-input:focus { border-color: var(--gold-dim); }
+
+    /* Avatar initials */
+    .user-avatar-initials { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-dim); color: var(--bg); font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .mb-28 { margin-bottom: 28px; }
+    .mb-16 { margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <!-- Sidebar (Instructor) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-title">The Foundation Room</div>
+      <div class="brand-sub">Music School</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/instructor-dashboard.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </a>
+      <a href="/instructor-course-hub.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        Course Hub
+      </a>
+      <a href="/gradebook.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Gradebook
+      </a>
+      <a href="/quiz-builder.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Quiz Builder
+      </a>
+      <a href="/analytics-instructor.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </a>
+      <a href="/live-classes.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        Live Classes
+      </a>
+      <a href="/messages.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="handleLogout()">
+        <div class="sidebar-avatar" id="sb-avatar">EV</div>
+        <div class="sidebar-user-info">
+          <div class="user-name" id="sb-name">Instructor</div>
+          <div class="user-role">Instructor</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">Dashboard Analytics</div>
+      <div class="topbar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Filter students…" id="topbar-search-input">
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-avatar" id="topbar-avatar">EV</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Page Header with date range picker -->
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;" data-gsap>
+        <div>
+          <h1 class="page-title">Dashboard Analytics</h1>
+          <p class="page-subtitle" id="date-range-label">This Month</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="date-range-btn active" data-range="month" onclick="setRange(this)">This Month</button>
+          <button class="date-range-btn" data-range="3months" onclick="setRange(this)">Last 3 Months</button>
+          <button class="date-range-btn" data-range="6months" onclick="setRange(this)">Last 6 Months</button>
+          <button class="date-range-btn" data-range="year" onclick="setRange(this)">This Year</button>
+        </div>
+      </div>
+
+      <!-- Row 1: Key Metrics -->
+      <div class="stats-row mb-28">
+        <div class="stat-card" data-gsap>
+          <div style="font-size:22px; margin-bottom:4px;">👥</div>
+          <div class="stat-number" id="stat-students" data-value="0">—</div>
+          <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat-card" data-gsap>
+          <div style="font-size:22px; margin-bottom:4px;">📚</div>
+          <div class="stat-number" id="stat-courses" data-value="0">—</div>
+          <div class="stat-label">Active Courses</div>
+        </div>
+        <div class="stat-card" data-gsap>
+          <div style="font-size:22px; margin-bottom:4px;">🏆</div>
+          <div class="stat-number" id="stat-completion" data-value="0">—</div>
+          <div class="stat-label">Avg Completion Rate</div>
+        </div>
+        <div class="stat-card" data-gsap>
+          <div style="font-size:22px; margin-bottom:4px;">⭐</div>
+          <div class="stat-number" id="stat-score" data-value="0">—</div>
+          <div class="stat-label">Avg Score</div>
+        </div>
+      </div>
+
+      <!-- Row 2: Charts -->
+      <div class="grid-2 mb-28">
+        <div class="card section-block">
+          <div class="card-label">Monthly Enrollments (last 6 months)</div>
+          <div class="chart-svg-wrap" id="enroll-chart-wrap">
+            <div class="skeleton" style="height:180px;"></div>
+          </div>
+        </div>
+        <div class="card section-block">
+          <div class="card-label">Submissions by Week (last 8 weeks)</div>
+          <div class="chart-svg-wrap" id="submissions-chart-wrap">
+            <div class="skeleton" style="height:180px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Top Courses Table -->
+      <div class="card mb-28 section-block">
+        <div class="card-label mb-16">Top Courses</div>
+        <div class="table-wrap">
+          <table class="table" id="courses-table">
+            <thead>
+              <tr>
+                <th class="sortable-th" onclick="sortTable('courses-table', 0, this)">Course</th>
+                <th class="sortable-th" onclick="sortTable('courses-table', 1, this)">Enrolled</th>
+                <th class="sortable-th" onclick="sortTable('courses-table', 2, this)">Avg Score</th>
+                <th class="sortable-th" onclick="sortTable('courses-table', 3, this)">Completion Rate</th>
+                <th>Progress</th>
+              </tr>
+            </thead>
+            <tbody id="courses-tbody">
+              <tr><td colspan="5"><div class="skeleton" style="height:40px;"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Row 4: Student Activity -->
+      <div class="card section-block">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+          <div class="card-label" style="margin-bottom:0;">Student Activity</div>
+          <input type="text" class="form-input" id="student-search" placeholder="Search students…" style="width:240px; padding:8px 12px; font-size:13px;" oninput="filterStudents()">
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="students-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th class="sortable-th" onclick="sortTable('students-table', 2, this)">Courses</th>
+                <th class="sortable-th" onclick="sortTable('students-table', 3, this)">Avg Grade</th>
+                <th class="sortable-th" onclick="sortTable('students-table', 4, this)">Last Active</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <tr><td colspan="5"><div class="skeleton" style="height:40px;"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="chart-tooltip" id="chart-tooltip"></div>
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['instructor','admin']);</script>
+<script>
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/index.html';
+  }
+
+  function setRange(btn) {
+    document.querySelectorAll('.date-range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const labels = { month: 'This Month', '3months': 'Last 3 Months', '6months': 'Last 6 Months', year: 'This Year' };
+    document.getElementById('date-range-label').textContent = labels[btn.dataset.range] || '';
+  }
+
+  let allStudents = [];
+
+  document.addEventListener('userLoaded', (e) => {
+    const user = e.detail;
+    document.getElementById('sb-avatar').textContent = user.avatar_initials || (user.first_name[0] + user.last_name[0]);
+    document.getElementById('sb-name').textContent = user.first_name + ' ' + user.last_name;
+    document.getElementById('topbar-avatar').textContent = user.avatar_initials || (user.first_name[0] + user.last_name[0]);
+    loadAnalytics();
+  });
+
+  async function loadAnalytics() {
+    try {
+      const data = await api.get('/api/analytics/instructor');
+
+      // Stats
+      const studentsVal = data.total_students || 0;
+      const coursesVal = data.total_courses || 0;
+      const completionVal = data.avg_completion_rate || 0;
+      const scoreVal = data.avg_score_all || 0;
+
+      document.getElementById('stat-students').setAttribute('data-value', studentsVal);
+      document.getElementById('stat-students').textContent = studentsVal;
+      document.getElementById('stat-courses').setAttribute('data-value', coursesVal);
+      document.getElementById('stat-courses').textContent = coursesVal;
+      document.getElementById('stat-completion').setAttribute('data-value', completionVal);
+      document.getElementById('stat-completion').textContent = completionVal + '%';
+      document.getElementById('stat-score').setAttribute('data-value', scoreVal);
+      document.getElementById('stat-score').textContent = scoreVal ? scoreVal + '%' : '—';
+
+      // Charts
+      renderEnrollChart(data.enrollments_by_month || []);
+      renderSubmissionsChart(data.submissions_by_week || []);
+
+      // Tables
+      renderCoursesTable(data.top_courses || []);
+
+      allStudents = data.student_activity || [];
+      renderStudentsTable(allStudents);
+
+      // Animate counters
+      animateCounters();
+    } catch (err) {
+      toast('Failed to load analytics', 'error');
+    }
+  }
+
+  function animateCounters() {
+    document.querySelectorAll('.stat-number[data-value]').forEach(el => {
+      const target = parseFloat(el.dataset.value);
+      if (isNaN(target) || target === 0) return;
+      const hasPct = el.textContent.includes('%');
+      gsap.from({ val: 0 }, {
+        val: target, duration: 1.5, ease: 'power2.out', delay: 0.5,
+        onUpdate: function() {
+          el.textContent = Math.round(this.targets()[0].val) + (hasPct ? '%' : '');
+        }
+      });
+    });
+  }
+
+  /* ─── Monthly Enrollments Bar Chart ─── */
+  function renderEnrollChart(enrollData) {
+    const wrap = document.getElementById('enroll-chart-wrap');
+    const W = wrap.clientWidth || 400;
+    const H = 200;
+    const PAD = { top: 16, right: 16, bottom: 40, left: 44 };
+    const chartW = W - PAD.left - PAD.right;
+    const chartH = H - PAD.top - PAD.bottom;
+
+    const now = new Date();
+    const monthData = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = d.toISOString().slice(0, 7);
+      const found = enrollData.find(e => e.month === key);
+      monthData.push({ month: key, count: found ? found.count : 0 });
+    }
+
+    const maxVal = Math.max(...monthData.map(m => m.count), 1);
+    const barW = Math.max(4, (chartW / monthData.length) - 10);
+
+    let bars = '', xLabels = '', gridLines = '';
+
+    for (let i = 0; i <= 4; i++) {
+      const yy = PAD.top + (i / 4) * chartH;
+      const val = Math.round(maxVal * (1 - i / 4));
+      gridLines += `<line x1="${PAD.left}" y1="${yy.toFixed(1)}" x2="${W - PAD.right}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+      gridLines += `<text x="${PAD.left - 4}" y="${(yy + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#6B5E50">${val}</text>`;
+    }
+
+    monthData.forEach((m, i) => {
+      const x = PAD.left + (i / monthData.length) * chartW + (chartW / monthData.length - barW) / 2;
+      const barH = Math.max(2, (m.count / maxVal) * chartH);
+      const y = PAD.top + chartH - barH;
+      bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW}" height="${barH.toFixed(1)}" fill="#C8A84B" rx="3" opacity="0.85">
+        <title>${m.month}: ${m.count} enrollments</title>
+      </rect>`;
+      const lbl = months[parseInt(m.month.slice(5)) - 1].slice(0, 3);
+      xLabels += `<text x="${(x + barW / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" fill="#6B5E50">${lbl}</text>`;
+    });
+
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${gridLines}${bars}${xLabels}</svg>`;
+  }
+
+  /* ─── Submissions by Week Line Chart ─── */
+  function renderSubmissionsChart(subData) {
+    const wrap = document.getElementById('submissions-chart-wrap');
+    const W = wrap.clientWidth || 400;
+    const H = 200;
+    const PAD = { top: 16, right: 24, bottom: 40, left: 44 };
+    const chartW = W - PAD.left - PAD.right;
+    const chartH = H - PAD.top - PAD.bottom;
+
+    const now = new Date();
+    const weekData = [];
+    for (let i = 7; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i * 7);
+      const y = d.getFullYear();
+      const wk = getWeekNumber(d);
+      const key = `${y}-W${String(wk).padStart(2, '0')}`;
+      const found = subData.find(s => s.week === key);
+      weekData.push({ week: key, count: found ? found.count : 0 });
+    }
+
+    const maxVal = Math.max(...weekData.map(w => w.count), 1);
+    let gridLines = '', xLabels = '';
+
+    for (let i = 0; i <= 4; i++) {
+      const yy = PAD.top + (i / 4) * chartH;
+      const val = Math.round(maxVal * (1 - i / 4));
+      gridLines += `<line x1="${PAD.left}" y1="${yy.toFixed(1)}" x2="${W - PAD.right}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+      gridLines += `<text x="${PAD.left - 4}" y="${(yy + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#6B5E50">${val}</text>`;
+    }
+
+    const pts = weekData.map((w, i) => ({
+      x: PAD.left + (i / (weekData.length - 1)) * chartW,
+      y: PAD.top + chartH - (w.count / maxVal) * chartH,
+      ...w
+    }));
+
+    const polyline = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const areaPath = pts.length > 1
+      ? `${polyline} L${pts[pts.length - 1].x.toFixed(1)},${(PAD.top + chartH).toFixed(1)} L${pts[0].x.toFixed(1)},${(PAD.top + chartH).toFixed(1)} Z`
+      : '';
+
+    let dots = '';
+    pts.forEach((p, i) => {
+      dots += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="#E8C96E" stroke="#0F0D0B" stroke-width="2">
+        <title>${p.week}: ${p.count} submissions</title>
+      </circle>`;
+      if (i % 2 === 0 || i === pts.length - 1) {
+        const wkNum = p.week.split('W')[1];
+        xLabels += `<text x="${p.x.toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" fill="#6B5E50">W${wkNum}</text>`;
+      }
+    });
+
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="subGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#C8A84B" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#C8A84B" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+      ${gridLines}
+      ${areaPath ? `<path d="${areaPath}" fill="url(#subGrad)"/>` : ''}
+      <path d="${polyline}" fill="none" stroke="#C8A84B" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      ${xLabels}
+    </svg>`;
+  }
+
+  function getWeekNumber(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  }
+
+  /* ─── Courses Table ─── */
+  function renderCoursesTable(courses) {
+    const tbody = document.getElementById('courses-tbody');
+    if (!courses.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-3); padding:28px;">No courses found.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = courses.map(c => `
+      <tr>
+        <td style="font-weight:600; font-family:'Newsreader',serif; font-style:italic; color:var(--text);">${c.title}</td>
+        <td>${c.enrolled || 0}</td>
+        <td>${c.avg_score ? Math.round(c.avg_score) + '%' : '—'}</td>
+        <td>${c.completion_rate ? Math.round(c.completion_rate) + '%' : '—'}</td>
+        <td style="min-width:120px;">
+          <div class="progress-bar">
+            <div class="progress-fill green" style="width:${Math.round(c.completion_rate || 0)}%;"></div>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  /* ─── Students Table ─── */
+  function renderStudentsTable(students) {
+    const tbody = document.getElementById('students-tbody');
+    if (!students.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-3); padding:28px;">No students found.</td></tr>`;
+      return;
+    }
+
+    const now = new Date();
+    tbody.innerHTML = students.map(s => {
+      const lastActive = s.last_active ? new Date(s.last_active) : null;
+      const daysSince = lastActive ? Math.floor((now - lastActive) / 86400000) : 999;
+      const avgGrade = s.avg_grade ? Math.round(s.avg_grade) : null;
+
+      let status, statusClass;
+      if (daysSince > 30) {
+        status = 'Inactive'; statusClass = 'status-inactive';
+      } else if (daysSince > 14 || (avgGrade !== null && avgGrade < 60)) {
+        status = 'At Risk'; statusClass = 'status-at-risk';
+      } else {
+        status = 'Active'; statusClass = 'status-active';
+      }
+
+      const initials = s.avatar_initials || s.name.split(' ').map(n => n[0]).join('').slice(0, 2);
+
+      return `<tr data-name="${s.name.toLowerCase()}">
+        <td>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="user-avatar-initials">${initials}</div>
+            <span style="font-weight:600; color:var(--text);">${s.name}</span>
+          </div>
+        </td>
+        <td>${s.courses_enrolled || 0}</td>
+        <td>${avgGrade !== null ? avgGrade + '%' : '—'}</td>
+        <td style="font-size:12px; color:var(--text-3);">${lastActive ? lastActive.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</td>
+        <td><span class="badge ${statusClass}" style="font-size:11px; padding:3px 10px; border-radius:20px;">${status}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function filterStudents() {
+    const q = document.getElementById('student-search').value.toLowerCase();
+    const filtered = allStudents.filter(s => s.name.toLowerCase().includes(q));
+    renderStudentsTable(filtered);
+  }
+
+  /* ─── Sortable Table ─── */
+  function sortTable(tableId, colIndex, th) {
+    const table = document.getElementById(tableId);
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const isAsc = th.classList.contains('asc');
+    table.querySelectorAll('.sortable-th').forEach(h => h.classList.remove('asc', 'desc'));
+    th.classList.add(isAsc ? 'desc' : 'asc');
+    const dir = isAsc ? -1 : 1;
+
+    rows.sort((a, b) => {
+      const aVal = a.cells[colIndex]?.textContent.trim() || '';
+      const bVal = b.cells[colIndex]?.textContent.trim() || '';
+      const aNum = parseFloat(aVal);
+      const bNum = parseFloat(bVal);
+      if (!isNaN(aNum) && !isNaN(bNum)) return dir * (aNum - bNum);
+      return dir * aVal.localeCompare(bVal);
+    });
+
+    rows.forEach(r => tbody.appendChild(r));
+  }
+
+  // Topbar search filters students
+  document.getElementById('topbar-search-input').addEventListener('input', (e) => {
+    document.getElementById('student-search').value = e.target.value;
+    filterStudents();
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from('[data-gsap], .stat-card, .card, .chart-wrap', {
+    y: 28, opacity: 0, stagger: 0.08, duration: 0.7, ease: 'power3.out', delay: 0.15
+  });
+  document.querySelectorAll('.section-block, .table-wrap, .filter-row').forEach(el => {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 90%' },
+      y: 20, opacity: 0, duration: 0.55, ease: 'power2.out' });
+  });
+</script>
+</body>
+</html>

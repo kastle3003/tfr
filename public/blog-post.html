@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Article — The Foundation Room</title>
+  <meta name="description" content="Read insights and stories from India's greatest performing artists on The Foundation Room Journal.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #080706;
+      --bg-2:        #0F0D0B;
+      --bg-card:     #161412;
+      --bg-elevated: #1E1B17;
+      --bg-hover:    #252119;
+      --gold:        #C8A84B;
+      --gold-bright: #E8C96E;
+      --gold-dim:    #7A6530;
+      --gold-glow:   rgba(200,168,75,0.15);
+      --text:        #F0E6D3;
+      --text-2:      #B8A898;
+      --text-3:      #6B5E50;
+      --serif:       'Cormorant Garamond', 'Georgia', serif;
+      --sans:        'DM Sans', 'Inter', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      background-color: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVIGATION ─── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(8,7,6,0.95);
+      border-bottom: 1px solid rgba(200,168,75,0.15);
+      padding: 0 40px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      text-decoration: none;
+    }
+    .nav-logo-main {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: 0.01em;
+    }
+    .nav-logo-sub {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-2);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-ghost {
+      padding: 9px 20px;
+      border: 1px solid rgba(200,168,75,0.4);
+      border-radius: 3px;
+      color: var(--gold);
+      background: transparent;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--gold); background: rgba(200,168,75,0.06); }
+    .btn-gold {
+      padding: 9px 20px;
+      background: var(--gold);
+      border: 1px solid var(--gold);
+      border-radius: 3px;
+      color: #080706;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-gold:hover { background: var(--gold-bright); transform: translateY(-1px); }
+
+    /* ─── ARTICLE WRAPPER ─── */
+    .article-wrap {
+      padding-top: 72px;
+      min-height: 100vh;
+    }
+
+    /* ─── COVER BAND ─── */
+    .article-cover-band {
+      height: 340px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cover-band-bg {
+      position: absolute;
+      inset: 0;
+    }
+    .cover-band-ornament {
+      position: relative;
+      z-index: 2;
+      opacity: 0.08;
+    }
+    .cover-band-fade {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(to bottom, transparent, var(--bg));
+      z-index: 3;
+    }
+
+    /* ─── ARTICLE CONTAINER ─── */
+    .article-container {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ─── BACK LINK ─── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--text-3);
+      text-decoration: none;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+      margin-top: 8px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--gold); }
+    .back-link svg { transition: transform 0.2s; }
+    .back-link:hover svg { transform: translateX(-3px); }
+
+    /* ─── ARTICLE HEADER ─── */
+    .article-header { margin-bottom: 40px; }
+
+    .article-meta-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .category-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 3px;
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .badge-music-theory    { background: rgba(200,168,75,0.12); color: var(--gold); }
+    .badge-artist-spotlight { background: rgba(139,46,38,0.18); color: #D4705A; }
+    .badge-practice-tips   { background: rgba(45,90,39,0.18); color: #6BAE66; }
+    .badge-culture         { background: rgba(75,100,200,0.15); color: #7EA8D4; }
+    .badge-tfr-news        { background: rgba(122,101,48,0.2); color: var(--gold-dim); }
+    .badge-default         { background: rgba(200,168,75,0.08); color: var(--text-3); }
+
+    .read-time {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+    }
+
+    .article-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 28px;
+    }
+
+    .author-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .author-avatar-lg {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid rgba(200,168,75,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .author-details { display: flex; flex-direction: column; gap: 3px; }
+    .author-name {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .author-date-views {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .author-date-views span.sep {
+      display: inline-block;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--text-3);
+    }
+
+    .article-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, var(--gold-dim), transparent);
+      margin-bottom: 40px;
+      opacity: 0.5;
+    }
+
+    /* ─── ARTICLE BODY ─── */
+    .article-body h2 {
+      font-family: var(--serif);
+      font-size: 28px;
+      color: var(--text);
+      margin: 40px 0 16px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+    .article-body h3 {
+      font-family: var(--serif);
+      font-size: 22px;
+      color: var(--gold);
+      margin: 32px 0 12px;
+      font-weight: 500;
+    }
+    .article-body p {
+      font-size: 17px;
+      line-height: 1.85;
+      color: var(--text-2);
+      margin-bottom: 24px;
+    }
+    .article-body blockquote {
+      border-left: 3px solid var(--gold);
+      padding: 16px 24px;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 22px;
+      color: var(--text);
+      margin: 32px 0;
+      background: var(--bg-card);
+      border-radius: 0 4px 4px 0;
+    }
+    .article-body ul,
+    .article-body ol {
+      color: var(--text-2);
+      line-height: 1.9;
+      padding-left: 24px;
+      margin-bottom: 24px;
+    }
+    .article-body li {
+      font-size: 17px;
+      margin-bottom: 6px;
+    }
+    .article-body code {
+      background: var(--bg-elevated);
+      color: var(--gold);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+    .article-body pre {
+      background: var(--bg-elevated);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: 4px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin-bottom: 24px;
+    }
+    .article-body pre code {
+      background: transparent;
+      padding: 0;
+      font-size: 13px;
+    }
+    .article-body a {
+      color: var(--gold);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .article-body a:hover { color: var(--gold-bright); }
+    .article-body hr {
+      border: none;
+      border-top: 1px solid rgba(200,168,75,0.15);
+      margin: 40px 0;
+    }
+    .article-body img {
+      width: 100%;
+      border-radius: 4px;
+      margin-bottom: 24px;
+    }
+
+    /* ─── END DIVIDER ─── */
+    .article-end-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 56px 0 64px;
+    }
+    .article-end-divider::before,
+    .article-end-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(200,168,75,0.12);
+    }
+    .article-end-ornament {
+      width: 24px;
+      height: 24px;
+      opacity: 0.3;
+    }
+
+    /* ─── LOADER ─── */
+    .page-loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 20px;
+    }
+    .loader-ring {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(200,168,75,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text {
+      font-family: var(--sans);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    /* ─── ERROR STATE ─── */
+    .error-state {
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .error-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 36px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .error-sub {
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--text-3);
+      margin-bottom: 28px;
+    }
+
+    /* ─── MORE ARTICLES ─── */
+    .more-articles-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+    .more-articles-label {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 8px;
+    }
+    .more-articles-heading {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 32px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 36px;
+    }
+    .more-articles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    /* ─── BLOG CARD (reused) ─── */
+    .blog-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      transition: border-color 0.3s, transform 0.25s;
+    }
+    .blog-card:hover {
+      border-color: rgba(200,168,75,0.25);
+      transform: translateY(-3px);
+    }
+    .card-cover {
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .card-cover-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-cover-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, var(--bg-card));
+    }
+    .card-cover-svg {
+      width: 70px;
+      height: 70px;
+      opacity: 0.1;
+    }
+    .card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .card-cat-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .card-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .card-excerpt {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.7;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid rgba(200,168,75,0.06);
+      margin-top: auto;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid rgba(200,168,75,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--sans);
+      font-size: 8px; font-weight: 700;
+      color: var(--gold); flex-shrink: 0;
+    }
+    .card-meta-text { display: flex; flex-direction: column; gap: 1px; }
+    .card-author-name { font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--text-2); }
+    .card-date { font-family: var(--sans); font-size: 10px; color: var(--text-3); }
+    .card-read-link {
+      font-family: var(--sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; color: var(--gold-dim); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 4px; transition: color 0.2s, gap 0.2s;
+    }
+    .blog-card:hover .card-read-link { color: var(--gold); gap: 8px; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--bg-2);
+      border-top: 1px solid rgba(200,168,75,0.1);
+      padding: 64px 40px 0;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+      gap: 48px;
+      max-width: 1200px;
+      margin: 0 auto 48px;
+    }
+    .footer-brand-logo-main {
+      font-family: var(--serif); font-style: italic; font-size: 26px;
+      font-weight: 600; color: var(--gold); line-height: 1; margin-bottom: 2px;
+    }
+    .footer-brand-logo-sub {
+      font-family: var(--sans); font-size: 10px; letter-spacing: 0.18em;
+      color: var(--text-3); text-transform: uppercase; margin-bottom: 16px;
+    }
+    .footer-tagline {
+      font-family: var(--serif); font-style: italic; font-size: 14px;
+      color: var(--text-2); line-height: 1.6; margin-bottom: 20px;
+    }
+    .footer-socials { display: flex; gap: 12px; }
+    .footer-social {
+      width: 34px; height: 34px; border: 1px solid rgba(200,168,75,0.25);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s, background 0.2s; text-decoration: none;
+    }
+    .footer-social:hover { border-color: var(--gold); background: rgba(200,168,75,0.08); }
+    .footer-social svg { width: 14px; height: 14px; fill: var(--gold); }
+    .footer-col-title {
+      font-family: var(--sans); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.2em; color: var(--text-2); text-transform: uppercase; margin-bottom: 20px;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer-links a { font-family: var(--sans); font-size: 13px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-connect-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .footer-connect-item svg { width: 14px; height: 14px; stroke: var(--gold-dim); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px; }
+    .footer-connect-text { font-family: var(--sans); font-size: 13px; color: var(--text-3); line-height: 1.5; }
+    .footer-connect-text a { color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+    .footer-connect-text a:hover { color: var(--gold); }
+    .footer-bar {
+      max-width: 1200px; margin: 0 auto;
+      border-top: 1px solid rgba(200,168,75,0.08);
+      padding: 20px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-copy { font-family: var(--sans); font-size: 12px; color: var(--text-3); }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a { font-family: var(--sans); font-size: 12px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+    .footer-legal a:hover { color: var(--gold); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .more-articles-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .article-container { padding: 0 20px 60px; }
+      .more-articles-section { padding: 0 20px 60px; }
+      .more-articles-grid { grid-template-columns: 1fr; }
+      .article-cover-band { height: 220px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      footer { padding: 48px 20px 0; }
+      .footer-bar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="nav" id="main-nav">
+    <a href="/home.html" class="nav-logo">
+      <span class="nav-logo-main">TFR</span>
+      <span class="nav-logo-sub">The Foundation Room</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/home.html#experience">Experience</a></li>
+      <li><a href="/home.html#explore">Courses</a></li>
+      <li><a href="/home.html#community">Community</a></li>
+      <li><a href="/blog.html" class="active">Journal</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/login" class="btn-ghost">Sign In</a>
+      <a href="/login#panel-register" class="btn-gold">Start Learning</a>
+    </div>
+  </nav>
+
+  <!-- ARTICLE WRAPPER -->
+  <div class="article-wrap" id="article-wrap">
+
+    <!-- LOADER -->
+    <div class="page-loader" id="page-loader">
+      <div class="loader-ring"></div>
+      <span class="loader-text">Loading article</span>
+    </div>
+
+    <!-- ARTICLE CONTENT (hidden until loaded) -->
+    <div id="article-content" style="display:none;">
+
+      <!-- COVER BAND -->
+      <div class="article-cover-band" id="cover-band">
+        <div class="cover-band-bg" id="cover-band-bg"></div>
+        <svg class="cover-band-ornament" width="280" height="280" viewBox="0 0 280 280" fill="none">
+          <circle cx="140" cy="140" r="130" stroke="#C8A84B" stroke-width="1"/>
+          <circle cx="140" cy="140" r="90" stroke="#C8A84B" stroke-width="0.6"/>
+          <circle cx="140" cy="140" r="50" stroke="#C8A84B" stroke-width="0.4"/>
+          <circle cx="140" cy="140" r="20" stroke="#C8A84B" stroke-width="0.3"/>
+          <line x1="10" y1="140" x2="270" y2="140" stroke="#C8A84B" stroke-width="0.4"/>
+          <line x1="140" y1="10" x2="140" y2="270" stroke="#C8A84B" stroke-width="0.4"/>
+          <line x1="47" y1="47" x2="233" y2="233" stroke="#C8A84B" stroke-width="0.3"/>
+          <line x1="233" y1="47" x2="47" y2="233" stroke="#C8A84B" stroke-width="0.3"/>
+        </svg>
+        <div class="cover-band-fade"></div>
+      </div>
+
+      <!-- ARTICLE CONTAINER -->
+      <div class="article-container">
+        <!-- Back link -->
+        <a href="/blog.html" class="back-link" id="back-link">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 3L5 8l5 5"/>
+          </svg>
+          Back to Journal
+        </a>
+
+        <!-- Header -->
+        <header class="article-header" id="article-header">
+          <div class="article-meta-top" id="article-meta-top">
+            <span class="category-badge badge-default" id="category-badge">Article</span>
+            <span class="read-time" id="read-time">— min read</span>
+          </div>
+          <h1 class="article-title" id="article-title">Loading…</h1>
+          <div class="author-row" id="author-row">
+            <div class="author-avatar-lg" id="author-avatar">TFR</div>
+            <div class="author-details">
+              <span class="author-name" id="author-name"></span>
+              <span class="author-date-views" id="author-date-views"></span>
+            </div>
+          </div>
+          <div class="article-divider"></div>
+        </header>
+
+        <!-- Body -->
+        <article class="article-body" id="article-body"></article>
+
+        <!-- End ornament -->
+        <div class="article-end-divider">
+          <svg class="article-end-ornament" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#C8A84B" stroke-width="1"/>
+            <circle cx="12" cy="12" r="5" stroke="#C8A84B" stroke-width="0.6"/>
+            <circle cx="12" cy="12" r="1.5" fill="#C8A84B"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- MORE ARTICLES -->
+      <div class="more-articles-section" id="more-section" style="display:none;">
+        <p class="more-articles-label">Continue Reading</p>
+        <h2 class="more-articles-heading">More from the Journal</h2>
+        <div class="more-articles-grid" id="more-grid"></div>
+      </div>
+
+    </div><!-- /article-content -->
+
+    <!-- ERROR STATE -->
+    <div id="error-state" style="display:none;" class="article-container">
+      <a href="/blog.html" class="back-link" style="margin-top: 40px;">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
+        Back to Journal
+      </a>
+      <div class="error-state">
+        <h2 class="error-title">Article not found</h2>
+        <p class="error-sub">This article may have moved or been removed.</p>
+        <a href="/blog.html" class="btn-ghost">Browse all articles</a>
+      </div>
+    </div>
+
+  </div><!-- /article-wrap -->
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-logo-main">TFR</div>
+        <div class="footer-brand-logo-sub">The Foundation Room</div>
+        <p class="footer-tagline">Training is a Science.<br>Performing is an Art.</p>
+        <div class="footer-socials">
+          <a href="https://instagram.com/thisistfr" class="footer-social" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="https://facebook.com/thefoundationroom" class="footer-social" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <p class="footer-col-title">Courses</p>
+        <ul class="footer-links">
+          <li><a href="/login">Sitar with Niladri Kumar</a></li>
+          <li><a href="/login">Djembe &amp; Percussions — Taufiq Qureshi</a></li>
+          <li><a href="/login">Hindustani Vocals — Sveta Kilpady</a></li>
+          <li><a href="/login">Kathak — Guruma Sangeeta Sinha</a></li>
+          <li><a href="/login">Film Songs — Milind Singh</a></li>
+          <li><a href="/login">Acting — Makarand Deshpande</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Platform</p>
+        <ul class="footer-links">
+          <li><a href="/home.html">Experience TFR</a></li>
+          <li><a href="/login">TFR Play</a></li>
+          <li><a href="/blog.html">Journal</a></li>
+          <li><a href="/home.html#courses">Instructors</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Connect</p>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
+          <span class="footer-connect-text"><a href="tel:+919920615500">+91 99206 15500</a></span>
+        </div>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span class="footer-connect-text"><a href="mailto:join@thefoundationroom.in">join@thefoundationroom.in</a></span>
+        </div>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="footer-connect-text">403 Windermere, North Avenue,<br>Santacruz West, Mumbai 400054</span>
+        </div>
+        <div class="footer-connect-item">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+          <span class="footer-connect-text">@thisistfr on Instagram</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved.</p>
+      <div class="footer-legal">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/refund-policy">Refund Policy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ─── HELPERS ───
+    function getSlug() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('slug') || '';
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function estimateReadTime(body) {
+      const text = body ? body.replace(/<[^>]*>/g, '') : '';
+      const words = text.trim().split(/\s+/).length;
+      return Math.max(3, Math.ceil(words / 200));
+    }
+
+    function formatViews(n) {
+      if (!n) return '0 views';
+      if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k views';
+      return n + ' views';
+    }
+
+    const coverGradients = {
+      'Music Theory':      'linear-gradient(135deg, #1a0f00 0%, #3D2A00 100%)',
+      'Artist Spotlight':  'linear-gradient(135deg, #1a0008 0%, #2D0015 100%)',
+      'Practice Tips':     'linear-gradient(135deg, #001a0a 0%, #002D15 100%)',
+      'Culture & Heritage':'linear-gradient(135deg, #0a0f1a 0%, #121C2D 100%)',
+      'TFR News':          'linear-gradient(135deg, #1a1200 0%, #2D1F00 100%)',
+    };
+    const defaultGradient = 'linear-gradient(135deg, #1a1410 0%, #2a1f18 100%)';
+
+    function getCoverGradient(cat) { return coverGradients[cat] || defaultGradient; }
+
+    function getCategoryClass(cat) {
+      const map = {
+        'Music Theory': 'badge-music-theory',
+        'Artist Spotlight': 'badge-artist-spotlight',
+        'Practice Tips': 'badge-practice-tips',
+        'Culture & Heritage': 'badge-culture',
+        'TFR News': 'badge-tfr-news',
+      };
+      return map[cat] || 'badge-default';
+    }
+
+    // ─── RENDER POST ───
+    function renderPost(post) {
+      document.title = `${post.title} — The Foundation Room`;
+
+      const readTime = estimateReadTime(post.body);
+
+      // Cover band
+      document.getElementById('cover-band-bg').style.background = getCoverGradient(post.category);
+
+      // Category badge
+      const badge = document.getElementById('category-badge');
+      badge.textContent = post.category || 'Article';
+      badge.className = 'category-badge ' + getCategoryClass(post.category);
+
+      // Read time
+      document.getElementById('read-time').textContent = `${readTime} min read`;
+
+      // Title
+      document.getElementById('article-title').textContent = post.title;
+
+      // Author
+      document.getElementById('author-avatar').textContent = post.author_initials || 'TFR';
+      document.getElementById('author-name').textContent = post.author_name || 'TFR Team';
+
+      const dateViews = document.getElementById('author-date-views');
+      dateViews.innerHTML = `
+        ${formatDate(post.published_at)}
+        <span class="sep"></span>
+        ${formatViews(post.views)}
+      `;
+
+      // Body
+      const bodyEl = document.getElementById('article-body');
+      bodyEl.innerHTML = post.body || `<p>${post.excerpt || ''}</p>`;
+
+      // Show content
+      document.getElementById('page-loader').style.display = 'none';
+      document.getElementById('article-content').style.display = 'block';
+
+      // Animate header
+      if (!prefersReducedMotion) {
+        gsap.set(['#back-link', '#article-meta-top', '#article-title', '#author-row'], { opacity: 0, y: 20 });
+        gsap.timeline({ defaults: { ease: 'power3.out' } })
+          .to('#back-link',        { opacity: 1, y: 0, duration: 0.5 }, 0.1)
+          .to('#article-meta-top', { opacity: 1, y: 0, duration: 0.6 }, 0.25)
+          .to('#article-title',    { opacity: 1, y: 0, duration: 0.75 }, 0.4)
+          .to('#author-row',       { opacity: 1, y: 0, duration: 0.6 }, 0.6);
+
+        // Body elements scroll-reveal
+        const bodyChildren = Array.from(bodyEl.children);
+        bodyChildren.forEach((el, i) => {
+          gsap.fromTo(el,
+            { opacity: 0, y: 24 },
+            {
+              opacity: 1, y: 0,
+              duration: 0.6,
+              ease: 'power3.out',
+              delay: i * 0.03,
+              scrollTrigger: {
+                trigger: el,
+                start: 'top 88%',
+                once: true,
+              }
+            }
+          );
+        });
+      }
+    }
+
+    // ─── RENDER MORE ARTICLES ───
+    function buildCoverSVG() {
+      return `<svg class="card-cover-svg" viewBox="0 0 70 70" fill="none">
+        <circle cx="35" cy="35" r="30" stroke="#C8A84B" stroke-width="0.8"/>
+        <circle cx="35" cy="35" r="18" stroke="#C8A84B" stroke-width="0.5"/>
+        <line x1="5" y1="35" x2="65" y2="35" stroke="#C8A84B" stroke-width="0.5"/>
+        <line x1="35" y1="5" x2="35" y2="65" stroke="#C8A84B" stroke-width="0.5"/>
+      </svg>`;
+    }
+
+    function renderMoreArticles(posts, currentSlug) {
+      const related = posts.filter(p => p.slug !== currentSlug).slice(0, 3);
+      if (related.length === 0) return;
+
+      const grid = document.getElementById('more-grid');
+      grid.innerHTML = related.map(post => {
+        const gradient = getCoverGradient(post.category);
+        const catClass = getCategoryClass(post.category);
+        const date = formatDate(post.published_at);
+        const readTime = Math.max(3, Math.floor((post.views || 0) / 400) + 4);
+        return `
+          <a class="blog-card" href="/blog-post.html?slug=${encodeURIComponent(post.slug)}">
+            <div class="card-cover">
+              <div class="card-cover-inner" style="background:${gradient};">
+                ${buildCoverSVG()}
+              </div>
+            </div>
+            <div class="card-body">
+              <span class="card-cat-badge ${catClass}">${post.category || 'Article'}</span>
+              <h3 class="card-title">${post.title}</h3>
+              <p class="card-excerpt">${post.excerpt || ''}</p>
+              <div class="card-footer">
+                <div class="card-meta">
+                  <div class="card-avatar">${post.author_initials || 'TFR'}</div>
+                  <div class="card-meta-text">
+                    <span class="card-author-name">${post.author_name || 'TFR Team'}</span>
+                    <span class="card-date">${date} &middot; ${readTime} min</span>
+                  </div>
+                </div>
+                <span class="card-read-link">Read &rarr;</span>
+              </div>
+            </div>
+          </a>`;
+      }).join('');
+
+      document.getElementById('more-section').style.display = 'block';
+
+      if (!prefersReducedMotion) {
+        gsap.fromTo('.more-articles-grid .blog-card',
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1, y: 0,
+            duration: 0.55,
+            ease: 'power3.out',
+            stagger: 0.1,
+            scrollTrigger: {
+              trigger: '.more-articles-grid',
+              start: 'top 88%',
+              once: true,
+            }
+          }
+        );
+      }
+    }
+
+    // ─── DEMO POSTS (fallback) ───
+    const demoPosts = [
+      { id: 1, title: 'The Geometry of Raag: How Structure Creates Feeling', slug: 'geometry-of-raag', excerpt: 'Every raag is a mathematical universe — a set of ascending and descending notes that conspire to produce a specific emotional state.', category: 'Music Theory', author_name: 'Niladri Kumar', author_initials: 'NK', published_at: '2026-03-15T00:00:00Z', views: 3200,
+        body: `<p>There is a moment in every great raag performance when structure disappears. The notes, the rules, the prescribed order of ascent and descent — all of it vanishes, and what remains is pure feeling. This paradox sits at the heart of Indian classical music.</p>
+        <h2>The Architecture of Emotion</h2>
+        <p>A raag is not simply a scale. Western music has scales — the Dorian mode, the pentatonic, the blues scale — but a raag is something more complex and more intentional. Each raag is a universe with its own laws of physics. It specifies not just which notes to use, but how to approach them, how to leave them, which notes carry weight, and what time of day or season the raag belongs to.</p>
+        <blockquote>A raag is a living organism. It breathes, it has a personality, it belongs to a specific hour of the day. When you play it at the wrong time, it feels wrong in your body.</blockquote>
+        <h3>Aaroh and Avaroh</h3>
+        <p>Every raag has an aaroh — the ascending scale — and an avaroh, the descending scale. These are rarely identical. In Raag Bhairav, for instance, the descent is not simply the ascent reversed. This asymmetry is not a mistake; it is the personality of the raag itself, the way it leans, the way it breathes.</p>
+        <p>Students often make the error of treating aaroh and avaroh as mere scales to be memorized. But they are better understood as sentences in a language — and like any language, their meaning changes based on context, emphasis, and the silence between the words.</p>
+        <h2>The Vadi and Samvadi</h2>
+        <p>Within each raag, certain notes carry more weight than others. The vadi is the most important note — the note the raag keeps returning to, the tonic of its emotional universe. The samvadi is the second most important, typically a fifth or fourth away from the vadi.</p>
+        <p>Understanding the vadi and samvadi transforms how you listen. When you hear Niladri Kumar play, you can feel how the bow returns again and again to the vadi like a river finding its course. Everything in between is exploration; the vadi is home.</p>
+        <h3>Time and Rasa</h3>
+        <p>The system of raag time — certain raags belong to the morning, others to midnight, still others to the monsoon season — is not arbitrary superstition. It is observation. The physical acoustics of a space change throughout the day. The emotional state of a listener changes. The great masters designed these correspondences over centuries of careful attention.</p>
+        <p>Bhairav belongs to the early morning, when the air is cool and the mind is not yet cluttered with the day. Its flattened second and sixth create a poignant, searching quality that matches the pre-dawn mood perfectly. Play it at noon and something is slightly off — not wrong exactly, but out of phase with the world around it.</p>
+        <h2>Structure as Liberation</h2>
+        <p>Western students often ask: doesn't all this structure constrain the musician? The answer is no — and understanding why is central to understanding Indian classical music. Structure, at a certain level of mastery, becomes the condition for freedom. The constraints of a raag are like the banks of a river: they do not limit the water, they give it direction and power.</p>
+        <p>When Niladri Kumar improvises within a raag, he is not choosing from infinite options. He is navigating a specific emotional terrain that has been mapped over centuries. The map does not restrict him — it allows him to go deeper than he could without it.</p>` },
+      { id: 2, title: 'A Life in Rhythm: The Taufiq Qureshi Story', slug: 'taufiq-qureshi-story', excerpt: 'Born into a dynasty of music, Taufiq Qureshi forged his own path by bridging continents and genres.', category: 'Artist Spotlight', author_name: 'TFR Editorial', author_initials: 'TE', published_at: '2026-03-02T00:00:00Z', views: 2900, body: '<p>Coming soon.</p>' },
+      { id: 3, title: 'The First 30 Minutes: A Morning Practice Protocol', slug: 'morning-practice-protocol', excerpt: 'How you begin your practice session determines everything that follows.', category: 'Practice Tips', author_name: 'Sveta Kilpady', author_initials: 'SK', published_at: '2026-02-18T00:00:00Z', views: 5100, body: '<p>Coming soon.</p>' },
+      { id: 4, title: 'Kathak and the Grammar of Gesture', slug: 'kathak-grammar-of-gesture', excerpt: 'In Kathak, every hand position, every glance, every footfall is a word in a vast vocabulary.', category: 'Culture & Heritage', author_name: 'Guruma Sangeeta Sinha', author_initials: 'GS', published_at: '2026-02-05T00:00:00Z', views: 2400, body: '<p>Coming soon.</p>' },
+      { id: 5, title: 'What Bollywood Owes to the Raga', slug: 'bollywood-owes-to-raga', excerpt: 'The film songs that defined generations were built on classical foundations most listeners never noticed.', category: 'Music Theory', author_name: 'Milind Singh', author_initials: 'MS', published_at: '2026-01-22T00:00:00Z', views: 4700, body: '<p>Coming soon.</p>' },
+      { id: 6, title: 'TFR Launches Live Studio Sessions', slug: 'tfr-live-studio-sessions', excerpt: 'Starting this April, Foundation Room students can join Makarand Deshpande for live, unscripted creative sessions.', category: 'TFR News', author_name: 'TFR Team', author_initials: 'TF', published_at: '2026-01-10T00:00:00Z', views: 1800, body: '<p>Coming soon.</p>' },
+    ];
+
+    // ─── MAIN FETCH ───
+    async function init() {
+      const slug = getSlug();
+      if (!slug) {
+        showError();
+        return;
+      }
+
+      let post = null;
+      let allPosts = [];
+
+      try {
+        // Fetch the individual post
+        const res = await fetch(`/api/public/blog/${encodeURIComponent(slug)}`);
+        if (!res.ok) throw new Error('Not found');
+        post = await res.json();
+
+        // Fetch all posts for "more articles"
+        try {
+          const listRes = await fetch('/api/public/blog?limit=12');
+          if (listRes.ok) {
+            const listData = await listRes.json();
+            allPosts = Array.isArray(listData) ? listData : (listData.posts || []);
+          }
+        } catch (_) { allPosts = demoPosts; }
+
+      } catch (err) {
+        // Try fallback demo data
+        post = demoPosts.find(p => p.slug === slug) || null;
+        allPosts = demoPosts;
+      }
+
+      if (!post) {
+        showError();
+        return;
+      }
+
+      renderPost(post);
+      renderMoreArticles(allPosts, slug);
+    }
+
+    function showError() {
+      document.getElementById('page-loader').style.display = 'none';
+      document.getElementById('error-state').style.display = 'block';
+    }
+
+    init();
+  </script>
+</body>
+</html>

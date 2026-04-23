@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sheet Music — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    /* Sheet music grid */
+    .sheet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+
+    .sheet-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.10);
+      border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .sheet-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: rgba(200,168,75,0.25); }
+
+    /* Dark PDF preview area */
+    .sheet-preview {
+      height: 160px; background: var(--bg-2);
+      display:flex; align-items:center; justify-content:center;
+      position:relative; overflow:hidden;
+    }
+    .sheet-preview-icon { font-size: 48px; opacity: 0.15; }
+    .sheet-page-badge {
+      position:absolute; top:10px; right:10px;
+      background:rgba(200,168,75,0.15); color:var(--gold);
+      border: 1px solid rgba(200,168,75,0.25);
+      font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px;
+    }
+    .sheet-body { padding: 14px 16px 16px; background: var(--bg-card); }
+
+    /* Gold composer name in Cormorant serif */
+    .sheet-composer {
+      font-family: var(--serif); font-style: italic;
+      font-size: 13px; font-weight: 600;
+      color: var(--gold); margin-bottom: 10px;
+    }
+
+    /* Sheet title */
+    .sheet-title {
+      font-family: var(--serif); font-style: italic;
+      font-size: 15px; font-weight: 600;
+      color: var(--text); margin-bottom: 3px; line-height: 1.3;
+    }
+
+    /* Difficulty badges */
+    .diff-badge { display: inline-flex; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
+    .diff-advanced { background: rgba(200,168,75,0.15); color: var(--gold-bright); border: 1px solid rgba(200,168,75,0.28); }
+    .diff-intermediate { background: rgba(200,168,75,0.08); color: var(--text-2); border: 1px solid rgba(200,168,75,0.18); }
+    .diff-beginner { background: rgba(45,90,39,0.15); color: #6fcf6f; border: 1px solid rgba(45,90,39,0.25); }
+
+    /* Period badge */
+    .period-badge { display: inline-flex; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; background: rgba(200,168,75,0.10); color: var(--gold); border: 1px solid rgba(200,168,75,0.20); }
+
+    /* Instrument badge */
+    .instrument-badge { display: inline-flex; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; background: var(--bg-elevated); color: var(--text-2); border: 1px solid rgba(200,168,75,0.10); }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 2px dashed rgba(200,168,75,0.25);
+      border-radius: var(--radius-lg); padding: 40px 20px; text-align:center;
+      cursor:pointer; transition: border-color 0.18s, background 0.18s;
+      background: rgba(200,168,75,0.03);
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--gold);
+      background: rgba(200,168,75,0.08);
+    }
+
+    /* Upload panel */
+    .upload-panel-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: var(--radius-lg); padding: 22px; margin-bottom: 24px;
+    }
+
+    /* Topbar search */
+    .topbar-search {
+      position: relative; display: flex; align-items: center;
+    }
+    .topbar-search svg { position: absolute; left: 10px; color: var(--text-3); pointer-events: none; }
+    .topbar-search input {
+      background: var(--bg-2) !important;
+      border: 1.5px solid rgba(200,168,75,0.15) !important;
+      color: var(--text) !important;
+      padding: 7px 14px 7px 34px;
+      border-radius: var(--r-md);
+      font-family: var(--sans); font-size: 13px;
+      width: 220px; outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .topbar-search input:focus {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px rgba(200,168,75,0.12) !important;
+    }
+
+    /* Buttons */
+    .btn-primary { background: var(--gold); color: #0F0D0B; border: 1.5px solid var(--gold); font-weight: 700; }
+    .btn-primary:hover { background: var(--gold-bright); border-color: var(--gold-bright); }
+    .btn-ghost { background: transparent; color: var(--text-2); border: 1.5px solid rgba(200,168,75,0.15); }
+    .btn-ghost:hover { border-color: rgba(200,168,75,0.35); color: var(--text); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .empty-state { color: var(--text-2); grid-column: 1/-1; text-align: center; padding: 60px 20px; }
+    .empty-state h3 { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--text); margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; color: var(--text-3); }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">Sheet Music Library</div>
+      <div class="topbar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search by title or composer…" id="search-input">
+      </div>
+      <div class="topbar-actions">
+        <a href="/student-notifications.html" class="icon-btn" title="Notifications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></a>
+        <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar" title="Profile">?</a>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="page-header" style="margin-bottom:20px;">
+        <div class="page-title">Sheet Music</div>
+        <p class="page-subtitle">Scores, parts, and study materials from The Foundation Room collection.</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar" style="margin-bottom:20px;">
+        <select class="form-select" id="instrument-filter" style="width:auto; padding:7px 12px; font-size:13px;" onchange="loadSheetMusic()">
+          <option value="">All Instruments</option>
+          <option>Sitar</option>
+          <option>Tabla</option>
+          <option>Djembe</option>
+          <option>Hindustani Vocals</option>
+          <option>Kathak</option>
+          <option>Bansuri</option>
+          <option>Sarod</option>
+          <option>Harmonium</option>
+        </select>
+        <select class="form-select" id="period-filter" style="width:auto; padding:7px 12px; font-size:13px;" onchange="loadSheetMusic()">
+          <option value="">All Periods</option>
+          <option>Classical</option>
+          <option>Contemporary</option>
+          <option>Traditional</option>
+          <option>Fusion</option>
+        </select>
+        <select class="form-select" id="difficulty-filter" style="width:auto; padding:7px 12px; font-size:13px;" onchange="loadSheetMusic()">
+          <option value="">All Levels</option>
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+        </select>
+        <button id="upload-btn" class="btn btn-primary" style="display:none; margin-left:auto;" onclick="document.getElementById('upload-panel').style.display='block'">+ Upload Score</button>
+      </div>
+
+      <!-- Upload Panel (instructor only) -->
+      <div id="upload-panel" style="display:none;" class="upload-panel-card mb-24">
+        <div style="font-family:var(--serif);font-style:italic;font-size:18px;font-weight:600;color:var(--text);margin-bottom:16px;">Upload Sheet Music</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Title</label>
+            <input class="form-input" id="up-title" placeholder="Score title">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Composer</label>
+            <input class="form-input" id="up-composer" placeholder="Composer name">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Period</label>
+            <select class="form-select" id="up-period">
+              <option value="">Select…</option>
+              <option>Baroque</option><option>Classical</option><option>Romantic</option><option>Modern</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Difficulty</label>
+            <select class="form-select" id="up-difficulty">
+              <option value="">Select…</option>
+              <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+            </select>
+          </div>
+        </div>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+          <div style="font-size:32px; margin-bottom:8px; opacity:0.35;">📄</div>
+          <div style="font-size:14px; font-weight:600; color:var(--text-2);">Click or drag PDF here</div>
+          <div style="font-size:12px; color:var(--text-3); margin-top:4px;">PDF files up to 50MB</div>
+          <input type="file" id="file-input" accept=".pdf" style="display:none;" onchange="handleFileSelect(this)">
+        </div>
+        <div id="selected-file" style="font-size:13px; color:var(--gold); margin-top:8px; display:none;"></div>
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="btn btn-primary" onclick="uploadSheetMusic()">Upload to Archive</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('upload-panel').style.display='none'">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="sheet-grid" id="sheet-grid">
+        <div class="card skeleton" style="height:260px;"></div>
+        <div class="card skeleton" style="height:260px;"></div>
+        <div class="card skeleton" style="height:260px;"></div>
+        <div class="card skeleton" style="height:260px;"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['student']);</script>
+<script src="/assets/js/student-sidebar.js"></script>
+<script>
+  let selectedFile = null;
+  let isInstructor = false;
+
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/index.html';
+  }
+
+  document.addEventListener('userLoaded', (e) => {
+    const user = e.detail;
+    document.getElementById('topbar-avatar').textContent = user.avatar_initials || '?';
+    if (user.role === 'instructor') {
+      isInstructor = true;
+      const uploadBtn = document.getElementById('upload-btn');
+      if (uploadBtn) uploadBtn.style.display = 'inline-flex';
+    }
+    loadSheetMusic();
+  });
+
+  async function loadSheetMusic() {
+    const grid = document.getElementById('sheet-grid');
+    grid.innerHTML = Array(4).fill(0).map(() => '<div class="card skeleton" style="height:260px;"></div>').join('');
+    try {
+      const params = new URLSearchParams();
+      const inst = document.getElementById('instrument-filter').value;
+      const period = document.getElementById('period-filter').value;
+      const diff = document.getElementById('difficulty-filter').value;
+      const search = document.getElementById('search-input').value;
+      if (inst) params.set('instrument', inst);
+      if (period) params.set('period', period);
+      if (diff) params.set('difficulty', diff);
+      if (search) params.set('search', search);
+      const data = await api.get('/api/sheet-music?' + params.toString());
+      renderSheetMusic(data.items || []);
+    } catch (e) {
+      grid.innerHTML = `<div class="empty-state"><p>${e.message}</p></div>`;
+    }
+  }
+
+  /* Period → cover colors: dark rich tones */
+  const periodColors = {
+    Baroque: '#1A0F06',
+    Classical: '#06140A',
+    Romantic: '#160608',
+    Modern: '#060A14'
+  };
+
+  function diffClass(d) {
+    if (d === 'Advanced') return 'diff-advanced';
+    if (d === 'Beginner') return 'diff-beginner';
+    return 'diff-intermediate';
+  }
+
+  function renderSheetMusic(items) {
+    const grid = document.getElementById('sheet-grid');
+    if (!items.length) {
+      grid.innerHTML = '<div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">🎼</div><h3>No scores found</h3><p>Adjust your filters or check back later.</p></div>';
+      return;
+    }
+    grid.innerHTML = items.map(s => `
+      <div class="sheet-card card">
+        <div class="sheet-preview" style="background:${periodColors[s.period] || '#0F0D0B'};">
+          <div style="text-align:center; color:rgba(200,168,75,0.30);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          ${s.page_count ? `<div class="sheet-page-badge">${s.page_count} pages</div>` : ''}
+        </div>
+        <div class="sheet-body">
+          <div class="sheet-title">${s.title}</div>
+          <div class="sheet-composer">${s.composer || 'Unknown composer'}</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">
+            ${s.period ? `<span class="period-badge">${s.period}</span>` : ''}
+            ${s.difficulty ? `<span class="diff-badge ${diffClass(s.difficulty)}">${s.difficulty}</span>` : ''}
+            ${s.instrument ? `<span class="instrument-badge">${s.instrument}</span>` : ''}
+          </div>
+          <div style="display:flex; gap:8px;">
+            ${s.file_path ? `<a href="${s.file_path}" target="_blank" class="btn btn-primary btn-sm" style="flex:1; justify-content:center;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download
+            </a>` : '<button class="btn btn-ghost btn-sm" disabled style="flex:1;">No file</button>'}
+            ${isInstructor ? `<button class="btn btn-ghost btn-sm" style="color:#e07070;" onclick="deleteSheet(${s.id})">Delete</button>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function handleFileSelect(input) {
+    selectedFile = input.files[0];
+    if (selectedFile) {
+      document.getElementById('selected-file').style.display = 'block';
+      document.getElementById('selected-file').textContent = `Selected: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(0)} KB)`;
+    }
+  }
+
+  async function uploadSheetMusic() {
+    const title = document.getElementById('up-title').value;
+    if (!title) { toast('Title is required', 'error'); return; }
+
+    const fd = new FormData();
+    fd.append('title', title);
+    fd.append('composer', document.getElementById('up-composer').value);
+    fd.append('period', document.getElementById('up-period').value);
+    fd.append('difficulty', document.getElementById('up-difficulty').value);
+    if (selectedFile) fd.append('file', selectedFile);
+
+    try {
+      await api.upload('/api/sheet-music', fd);
+      document.getElementById('upload-panel').style.display = 'none';
+      toast('Score uploaded successfully!');
+      loadSheetMusic();
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  }
+
+  async function deleteSheet(id) {
+    if (!confirm('Delete this sheet music?')) return;
+    try {
+      await api.del(`/api/sheet-music/${id}`);
+      toast('Deleted');
+      loadSheetMusic();
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  }
+
+  document.getElementById('search-input').addEventListener('input', () => {
+    clearTimeout(window._searchTimer);
+    window._searchTimer = setTimeout(loadSheetMusic, 400);
+  });
+
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files[0]) {
+      selectedFile = files[0];
+      document.getElementById('selected-file').style.display = 'block';
+      document.getElementById('selected-file').textContent = `Selected: ${selectedFile.name}`;
+    }
+  });
+</script>
+<!-- GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+gsap.from('.page-header, .stat-card, .card, .list-item, .section-block', {
+  y: 24, opacity: 0, duration: 0.65, stagger: 0.07, ease: 'power3.out', delay: 0.1
+});
+gsap.utils.toArray('.card, .list-item, tr').forEach(el => {
+  gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 90%' },
+    y: 14, opacity: 0, duration: 0.45, ease: 'power2.out' });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,2368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Manager — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <style>
+    :root {
+      --bg: #080706;
+      --bg-2: #0F0D0B;
+      --bg-card: #161412;
+      --bg-elevated: #1E1B17;
+      --gold: #C8A84B;
+      --gold-bright: #E8C96E;
+      --gold-dim: #7A6530;
+      --text: #F0E6D3;
+      --text-2: #B8A898;
+      --text-3: #6B5E50;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Shell layout ── */
+    .shell {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      height: 100vh;
+      background: var(--bg);
+      border-right: 1px solid rgba(200,168,75,0.08);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .sidebar-brand {
+      padding: 28px 20px 24px;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+    }
+    .brand-title {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .sidebar-nav {
+      padding: 16px 10px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-3);
+      text-decoration: none;
+      transition: all 0.16s ease;
+      margin-bottom: 2px;
+      border-left: 2px solid transparent;
+    }
+    .nav-item:hover {
+      color: var(--text-2);
+      background: rgba(200,168,75,0.05);
+    }
+    .nav-item.active {
+      color: var(--gold);
+      background: rgba(200,168,75,0.08);
+      border-left-color: var(--gold);
+    }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid rgba(200,168,75,0.08);
+    }
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .sidebar-user:hover { background: rgba(200,168,75,0.06); }
+    .sidebar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(200,168,75,0.15);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sidebar-user-info { flex: 1; min-width: 0; }
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-role { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+    /* ── Main wrap ── */
+    .main-wrap {
+      flex: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: rgba(8,7,6,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+      z-index: 90;
+    }
+    .topbar-title {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      font-style: italic;
+    }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(200,168,75,0.06);
+      border: 1px solid rgba(200,168,75,0.1);
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { color: var(--gold); background: rgba(200,168,75,0.1); }
+    .topbar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(200,168,75,0.15);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Main content ── */
+    .main-content {
+      flex: 1;
+      overflow: hidden;
+      padding: 20px 24px;
+    }
+
+    /* ── Two-panel layout ── */
+    .cm-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 16px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    /* ── Course list panel ── */
+    .course-list-panel {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 14px;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      flex-shrink: 0;
+    }
+    .panel-search-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .panel-search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 8px;
+      padding: 7px 12px;
+      transition: border-color 0.18s;
+    }
+    .panel-search:focus-within {
+      border-color: rgba(200,168,75,0.3);
+    }
+    .panel-search input {
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      font-family: var(--sans);
+      color: var(--text);
+      width: 100%;
+    }
+    .panel-search input::placeholder { color: var(--text-3); }
+    .panel-search svg { color: var(--text-3); flex-shrink: 0; }
+    .course-list-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .course-list-scroll::-webkit-scrollbar { width: 4px; }
+    .course-list-scroll::-webkit-scrollbar-track { background: transparent; }
+    .course-list-scroll::-webkit-scrollbar-thumb { background: rgba(200,168,75,0.15); border-radius: 2px; }
+
+    /* ── Course list card ── */
+    .course-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-bottom: 3px;
+      border: 1px solid transparent;
+    }
+    .course-list-item:hover {
+      background: rgba(200,168,75,0.05);
+      border-color: rgba(200,168,75,0.08);
+    }
+    .course-list-item.selected {
+      background: rgba(200,168,75,0.08);
+      border-color: rgba(200,168,75,0.2);
+    }
+    .course-swatch {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .course-list-info { flex: 1; min-width: 0; }
+    .course-list-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .course-list-meta {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-3);
+    }
+    .empty-state svg { margin: 0 auto 12px; display: block; }
+    .empty-state p { font-size: 13px; }
+
+    /* ── Editor panel ── */
+    .editor-panel {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      min-height: 0;
+    }
+    .editor-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-3);
+      gap: 12px;
+    }
+    .editor-placeholder svg { color: rgba(200,168,75,0.12); }
+    .editor-placeholder p { font-size: 14px; }
+
+    .editor-inner {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    .editor-topbar {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .editor-course-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ── Editor tab bar ── */
+    .editor-tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      flex-shrink: 0;
+      background: var(--bg-2);
+    }
+    .editor-tab {
+      padding: 11px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--sans);
+      color: var(--text-3);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .editor-tab:hover { color: var(--text-2); }
+    .editor-tab.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+      background: var(--bg-card);
+      font-weight: 600;
+    }
+
+    .editor-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .editor-body::-webkit-scrollbar { width: 4px; }
+    .editor-body::-webkit-scrollbar-track { background: transparent; }
+    .editor-body::-webkit-scrollbar-thumb { background: rgba(200,168,75,0.15); border-radius: 2px; }
+    .editor-tab-panel { display: none; }
+    .editor-tab-panel.active { display: block; }
+
+    /* ── Form elements ── */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 7px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-family: var(--sans);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+      appearance: none;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text-3); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,168,75,0.1);
+    }
+    .form-select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B5E50' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+    .form-select option { background: var(--bg-elevated); color: var(--text); }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--sans);
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s ease;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--gold); color: #0a0806; }
+    .btn-primary:hover { background: var(--gold-bright); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(200,168,75,0.3);
+      color: var(--gold);
+    }
+    .btn-outline:hover { background: rgba(200,168,75,0.08); }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(240,230,211,0.12);
+      color: var(--text-2);
+    }
+    .btn-ghost:hover { background: rgba(240,230,211,0.05); }
+    .btn-danger-ghost {
+      background: transparent;
+      border: 1px solid rgba(220,70,70,0.25);
+      color: #e08080;
+    }
+    .btn-danger-ghost:hover { background: rgba(220,70,70,0.08); }
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+    /* ── Color swatch picker ── */
+    .swatch-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .swatch-preset {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .swatch-preset:hover { transform: scale(1.12); }
+    .swatch-preset.selected {
+      border-color: var(--gold);
+      transform: scale(1.1);
+      box-shadow: 0 0 0 2px rgba(200,168,75,0.3);
+    }
+    .swatch-input-wrap input[type="color"] {
+      width: 36px;
+      height: 28px;
+      border-radius: 7px;
+      border: 2px solid rgba(200,168,75,0.2);
+      cursor: pointer;
+      padding: 0 2px;
+      background: none;
+    }
+
+    /* ── Practice Room row (per chapter) ── */
+    .chapter-practice {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin: 6px 0 4px 38px;
+      padding: 8px 12px;
+      background: rgba(200,168,75,0.03);
+      border: 1px dashed rgba(200,168,75,0.18);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .chapter-practice .pr-label {
+      color: var(--gold, #C8A84B); font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; font-size: 10px;
+    }
+    .chapter-practice .pr-status {
+      color: var(--text-2, #b8ad9e); flex: 1; min-width: 120px;
+    }
+    .chapter-practice .pr-status.has { color: var(--gold, #C8A84B); }
+    .chapter-practice .pr-status a { color: inherit; text-decoration: underline; }
+    .chapter-practice button {
+      background: var(--bg-3, #1a1916);
+      color: var(--text, #F0E6D3);
+      border: 1px solid rgba(200,168,75,0.2);
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-family: inherit;
+      font-size: 11px; letter-spacing: .05em;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .chapter-practice button:hover { background: rgba(200,168,75,0.12); border-color: var(--gold, #C8A84B); color: var(--gold, #C8A84B); }
+    .chapter-practice button.danger:hover { background: rgba(200,80,80,0.12); border-color: #c88; color: #fbb; }
+    .chapter-practice button:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Chapter/Lesson accordion ── */
+    .chapter-wrap { margin-bottom: 8px; }
+    .chapter-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.08);
+      border-radius: 9px;
+      padding: 9px 12px;
+      transition: border-color 0.15s;
+    }
+    .chapter-header:hover { border-color: rgba(200,168,75,0.18); }
+    .chapter-drag { color: var(--text-3); cursor: grab; flex-shrink: 0; }
+    .chapter-toggle-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      transition: transform 0.15s, color 0.15s;
+      padding: 0;
+    }
+    .chapter-toggle-btn:hover { color: var(--gold); }
+    .chapter-toggle-btn.open { transform: rotate(90deg); color: var(--gold); }
+    .chapter-title-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      font-family: var(--sans);
+      min-width: 0;
+    }
+    .chapter-title-input:focus {
+      background: rgba(200,168,75,0.06);
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+    .chapter-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .icon-action {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-3);
+      transition: all 0.14s;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .icon-action:hover { background: rgba(200,168,75,0.08); color: var(--gold); }
+    .icon-action.danger:hover { background: rgba(220,70,70,0.1); color: #e08080; }
+
+    .chapter-lessons { padding: 6px 0 4px 26px; display: none; }
+    .chapter-lessons.open { display: block; }
+
+    .lesson-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      transition: background 0.13s;
+      margin-bottom: 2px;
+    }
+    .lesson-row:hover { background: rgba(200,168,75,0.05); }
+    .lesson-type-icon { font-size: 14px; flex-shrink: 0; }
+    .lesson-title-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: var(--text-2);
+      font-family: var(--sans);
+      min-width: 0;
+    }
+    .lesson-title-input:focus {
+      background: rgba(200,168,75,0.06);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--text);
+    }
+    .lesson-duration {
+      width: 56px;
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: 5px;
+      padding: 3px 6px;
+      font-size: 12px;
+      font-family: var(--sans);
+      color: var(--text-2);
+      background: var(--bg-2);
+      text-align: center;
+      outline: none;
+    }
+    .lesson-duration:focus { border-color: var(--gold); }
+    .lesson-type-select {
+      width: 88px;
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: 5px;
+      padding: 3px 6px;
+      font-size: 11px;
+      font-family: var(--sans);
+      color: var(--text-2);
+      background: var(--bg-2);
+      outline: none;
+      cursor: pointer;
+    }
+    .lesson-type-select:focus { border-color: var(--gold); }
+    .lesson-type-select option { background: var(--bg-elevated); }
+
+    /* ── Lesson materials editor ── */
+    .lesson-mat-toggle {
+      background: none;
+      border: 1px solid rgba(200,168,75,0.15);
+      color: var(--text-3);
+      font-size: 11px;
+      font-family: var(--sans);
+      padding: 3px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+    .lesson-mat-toggle:hover { color: var(--gold); border-color: var(--gold-dim); }
+    .lesson-mat-toggle.open { color: var(--gold); border-color: var(--gold); }
+    .lesson-mat-panel {
+      margin: 4px 0 10px 36px;
+      padding: 10px 12px;
+      border-left: 2px solid rgba(200,168,75,0.15);
+      background: rgba(200,168,75,0.03);
+      border-radius: 0 6px 6px 0;
+    }
+    .lesson-mat-panel[hidden] { display: none !important; }
+    .mat-add-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .mat-add-btn {
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.15);
+      color: var(--text-2);
+      font-size: 11px;
+      font-family: var(--sans);
+      padding: 4px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .mat-add-btn:hover { color: var(--gold); border-color: var(--gold-dim); }
+    .mat-item {
+      display: grid;
+      grid-template-columns: 52px 1fr 2fr 76px auto;
+      gap: 6px;
+      align-items: center;
+      padding: 5px 0;
+      border-top: 1px solid rgba(200,168,75,0.06);
+    }
+    .mat-item:first-of-type { border-top: none; }
+    .mat-type-pill {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 3px 0;
+      border-radius: 4px;
+      color: var(--bg);
+    }
+    .mat-type-pill.type-video { background: #C8A84B; }
+    .mat-type-pill.type-pdf   { background: #B76A5F; }
+    .mat-type-pill.type-image { background: #6A8F6E; }
+    .mat-type-pill.type-url   { background: #5E7DB3; color: #F0E6D3; }
+    .mat-input {
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.12);
+      color: var(--text-2);
+      border-radius: 4px;
+      padding: 4px 7px;
+      font-size: 11px;
+      font-family: var(--sans);
+      outline: none;
+      min-width: 0;
+    }
+    .mat-input:focus { border-color: var(--gold); color: var(--text); }
+    .mat-del {
+      background: none; border: 1px solid rgba(200,46,38,0.25); color: #B76A5F;
+      padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px;
+    }
+    .mat-del:hover { color: #E88A7A; border-color: #B76A5F; }
+    .mat-timestamps {
+      grid-column: 1 / -1;
+      margin: 4px 0 0 58px;
+      padding: 6px 8px 8px;
+      background: rgba(0,0,0,0.25);
+      border-radius: 5px;
+    }
+    .mat-ts-head {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-3); margin-bottom: 5px;
+    }
+    .mat-ts-head button {
+      background: none; border: 1px solid rgba(200,168,75,0.2); color: var(--gold-dim);
+      font-size: 10px; padding: 2px 6px; border-radius: 3px; cursor: pointer;
+      font-family: var(--sans); letter-spacing: 0.05em;
+    }
+    .mat-ts-head button:hover { color: var(--gold); border-color: var(--gold); }
+    .mat-ts-row {
+      display: grid; grid-template-columns: 70px 1fr auto; gap: 5px; align-items: center;
+      padding: 2px 0;
+    }
+    .mat-ts-time {
+      width: 70px; text-align: center;
+      background: var(--bg-2); border: 1px solid rgba(200,168,75,0.1);
+      color: var(--text-2); font-size: 10px; padding: 3px; border-radius: 3px;
+      outline: none; font-family: monospace;
+    }
+    .mat-ts-time:focus { border-color: var(--gold); color: var(--text); }
+    .mat-ts-label-input {
+      background: var(--bg-2); border: 1px solid rgba(200,168,75,0.1);
+      color: var(--text-2); font-size: 11px; padding: 3px 6px; border-radius: 3px;
+      outline: none;
+    }
+    .mat-ts-label-input:focus { border-color: var(--gold); color: var(--text); }
+
+    .add-lesson-row { padding: 4px 0 4px 10px; }
+    .add-lesson-btn {
+      font-size: 12px;
+      color: var(--gold-dim);
+      font-weight: 600;
+      font-family: var(--sans);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      transition: all 0.15s;
+    }
+    .add-lesson-btn:hover { background: rgba(200,168,75,0.08); color: var(--gold); }
+
+    .add-chapter-row { margin-top: 12px; }
+
+    /* ── Assignment cards ── */
+    .assignment-card {
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      transition: border-color 0.18s;
+    }
+    .assignment-card:hover { border-color: rgba(200,168,75,0.22); }
+    .assignment-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .assignment-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .assignment-desc {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.55;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      margin-top: 3px;
+    }
+    .assignment-meta {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 9px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .badge-gold {
+      background: rgba(200,168,75,0.12);
+      color: var(--gold);
+      border: 1px solid rgba(200,168,75,0.2);
+    }
+    .badge-gray {
+      background: rgba(240,230,211,0.06);
+      color: var(--text-2);
+      border: 1px solid rgba(240,230,211,0.1);
+    }
+    .badge-green {
+      background: rgba(80,160,80,0.12);
+      color: #88c888;
+      border: 1px solid rgba(80,160,80,0.2);
+    }
+    .badge-crimson {
+      background: rgba(200,70,70,0.12);
+      color: #e08080;
+      border: 1px solid rgba(200,70,70,0.2);
+    }
+
+    /* ── Assignment drawer ── */
+    .drawer-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8,7,6,0.55);
+      z-index: 50;
+      display: none;
+      backdrop-filter: blur(2px);
+    }
+    .drawer-overlay.open { display: block; }
+    .assignment-drawer {
+      position: absolute;
+      top: 0;
+      right: -100%;
+      width: 460px;
+      height: 100%;
+      background: var(--bg-elevated);
+      border-left: 1px solid rgba(200,168,75,0.12);
+      box-shadow: -8px 0 32px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      z-index: 60;
+      transition: right 0.24s ease;
+      overflow: hidden;
+    }
+    .assignment-drawer.open { right: 0; }
+    .drawer-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .drawer-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .drawer-body::-webkit-scrollbar { width: 4px; }
+    .drawer-body::-webkit-scrollbar-thumb { background: rgba(200,168,75,0.15); border-radius: 2px; }
+    .drawer-foot {
+      padding: 14px 20px;
+      border-top: 1px solid rgba(200,168,75,0.08);
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* ── Radio / check groups ── */
+    .radio-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-2);
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .radio-item input[type="radio"] { accent-color: var(--gold); cursor: pointer; }
+    .check-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--text-2);
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .check-item input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    /* ── Toggle switch ── */
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .toggle-label { font-size: 13px; font-weight: 500; color: var(--text-2); }
+    .toggle { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 99px;
+      background: rgba(200,168,75,0.1);
+      border: 1.5px solid rgba(200,168,75,0.2);
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .toggle input:checked + .toggle-track { background: var(--gold); border-color: var(--gold); }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--bg-2);
+      top: 50%;
+      left: 2px;
+      transform: translateY(-50%);
+      transition: left 0.18s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .toggle input:checked + .toggle-track::after { left: 20px; background: #0a0806; }
+
+    /* ── Confirm Modal ── */
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8,7,6,0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 400;
+      animation: fadeIn 0.14s ease;
+      backdrop-filter: blur(4px);
+    }
+    .confirm-modal {
+      background: var(--bg-elevated);
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: 14px;
+      padding: 28px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      animation: scaleIn 0.18s ease;
+    }
+    .confirm-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .confirm-body {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.55;
+      margin-bottom: 22px;
+    }
+
+    /* ── Toasts ── */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--bg-elevated);
+      border: 1px solid rgba(200,168,75,0.2);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--text);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      max-width: 360px;
+    }
+    .toast.error { border-color: rgba(220,70,70,0.3); color: #f08080; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(200,168,75,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Sidebar (role-aware — rendered by sidebar-loader.js) ── -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- ── Main ── -->
+  <div class="main-wrap">
+    <header class="topbar" id="topbar">
+      <div class="topbar-title">Course Manager</div>
+      <div class="topbar-actions">
+        <button class="icon-btn" title="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+        <div class="topbar-avatar" id="topbar-avatar">EV</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="cm-layout">
+
+        <!-- ── Left: Course List ── -->
+        <div class="course-list-panel" id="course-list-panel">
+          <div class="panel-head">
+            <div class="panel-search-row">
+              <div class="panel-search">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="course-search" placeholder="Search courses…" oninput="filterCourses(this.value)">
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="newCourse()">+ New</button>
+            </div>
+          </div>
+          <div class="course-list-scroll" id="course-list">
+            <div style="padding:20px;text-align:center;">
+              <div class="spinner" style="margin:0 auto;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Right: Editor ── -->
+        <div class="editor-panel" id="editor-panel">
+          <div class="editor-placeholder" id="editor-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <p>Select a course or create a new one</p>
+          </div>
+
+          <div class="editor-inner" id="editor-inner" style="display:none;">
+            <div class="editor-topbar">
+              <div class="editor-course-title" id="editor-course-title">New Course</div>
+              <button class="btn btn-danger-ghost btn-sm" onclick="confirmDeleteCourse()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                Delete Course
+              </button>
+            </div>
+
+            <!-- Editor Tab Bar -->
+            <div class="editor-tab-bar">
+              <button class="editor-tab active" onclick="switchEditorTab('overview', this)">Overview</button>
+              <button class="editor-tab" onclick="switchEditorTab('chapters', this)">Chapters &amp; Lessons</button>
+              <button class="editor-tab" onclick="switchEditorTab('assignments', this)">Assignments</button>
+            </div>
+
+            <div class="editor-body">
+              <!-- ── Overview Tab ── -->
+              <div class="editor-tab-panel active" id="etab-overview">
+                <div class="grid-2">
+                  <div class="form-group" style="grid-column: 1/-1;">
+                    <label class="form-label">Course Title</label>
+                    <input class="form-input" id="ov-title" type="text" placeholder="e.g. Sitar — The Complete Foundation">
+                  </div>
+                  <div class="form-group" style="grid-column: 1/-1;">
+                    <label class="form-label">Subtitle</label>
+                    <input class="form-input" id="ov-subtitle" type="text" placeholder="A short tagline for this course">
+                  </div>
+                  <div class="form-group" style="grid-column: 1/-1;">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="ov-description" rows="4" placeholder="Describe what students will learn…"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Level</label>
+                    <select class="form-select" id="ov-level">
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Advanced">Advanced</option>
+                      <option value="Masterclass">Masterclass</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="ov-category">
+                      <option value="Sitar">Sitar</option>
+                      <option value="Percussion">Percussion</option>
+                      <option value="Vocals">Hindustani Vocals</option>
+                      <option value="Dance">Kathak / Dance</option>
+                      <option value="Film Songs">Film Songs</option>
+                      <option value="Acting">Acting / Writers' Room</option>
+                      <option value="Music Theory">Music Theory</option>
+                      <option value="Raga Study">Raga Study</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Instrument</label>
+                    <select class="form-select" id="ov-instrument">
+                      <option>Sitar</option>
+                      <option>Tabla</option>
+                      <option>Djembe</option>
+                      <option>Hindustani Vocals</option>
+                      <option>Kathak</option>
+                      <option>Bansuri</option>
+                      <option>Sarod</option>
+                      <option>Santoor</option>
+                      <option>Harmonium</option>
+                      <option>Film Songs</option>
+                      <option>Acting</option>
+                      <option>All Instruments</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="ov-status">
+                      <option value="active">Active</option>
+                      <option value="draft">Draft</option>
+                      <option value="archived">Archived</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="grid-column: 1/-1;">
+                    <label class="form-label">Cover Color</label>
+                    <div class="swatch-row">
+                      <div class="swatch-preset" style="background:#2D4F1E;" data-color="#2D4F1E" onclick="selectSwatch(this)"></div>
+                      <div class="swatch-preset" style="background:#8B2E26;" data-color="#8B2E26" onclick="selectSwatch(this)"></div>
+                      <div class="swatch-preset" style="background:#4A3728;" data-color="#4A3728" onclick="selectSwatch(this)"></div>
+                      <div class="swatch-preset" style="background:#1A3050;" data-color="#1A3050" onclick="selectSwatch(this)"></div>
+                      <div class="swatch-preset" style="background:#5C4033;" data-color="#5C4033" onclick="selectSwatch(this)"></div>
+                      <div class="swatch-preset" style="background:#1F3A2A;" data-color="#1F3A2A" onclick="selectSwatch(this)"></div>
+                      <div class="swatch-preset" style="background:#C8A84B;" data-color="#C8A84B" onclick="selectSwatch(this)"></div>
+                      <div class="swatch-input-wrap">
+                        <input type="color" id="ov-cover-color" value="#2D4F1E" oninput="syncColorInput(this)">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Duration (weeks)</label>
+                    <input class="form-input" id="ov-duration" type="number" min="1" placeholder="12">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Bundle Price (₹) <span style="color:var(--text-3);font-weight:400;">full course</span></label>
+                    <input class="form-input" id="ov-bundle-price" type="number" min="0" step="1" placeholder="4999">
+                    <p style="font-size:11px;color:var(--text-3);margin-top:4px;">Charged for full-bundle purchases. Per-chapter prices are set in the Chapters tab.</p>
+                  </div>
+                  <div class="form-group" style="grid-column: 1/-1;">
+                    <label class="form-label">Cover Image URL <span style="color:var(--text-3);font-weight:400;">(leave empty for level default)</span></label>
+                    <input class="form-input" id="ov-cover-image" type="url" placeholder="https://…" oninput="updateCoverPreview()">
+                    <div id="ov-cover-preview" style="margin-top:8px;width:100%;max-width:360px;aspect-ratio:16/9;border-radius:6px;background:#161412 center/cover no-repeat;border:1px solid rgba(200,168,75,0.08);"></div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(200,168,75,0.08);">
+                  <button class="btn btn-primary" id="save-course-btn" onclick="saveCourse()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Save Course
+                  </button>
+                </div>
+              </div>
+
+              <!-- ── Chapters & Lessons Tab ── -->
+              <div class="editor-tab-panel" id="etab-chapters">
+                <div id="chapters-container">
+                  <div style="text-align:center;padding:30px;color:var(--text-3);">
+                    <p style="font-size:13px;">Save the course first to manage chapters.</p>
+                  </div>
+                </div>
+                <div class="add-chapter-row">
+                  <button class="btn btn-outline btn-sm" onclick="addChapter()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add Chapter
+                  </button>
+                </div>
+              </div>
+
+              <!-- ── Assignments Tab ── -->
+              <div class="editor-tab-panel" id="etab-assignments">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                  <div style="font-size:13px;color:var(--text-3);" id="assign-count-label">Loading…</div>
+                  <button class="btn btn-primary btn-sm" onclick="openAssignmentDrawer(null)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Assignment
+                  </button>
+                </div>
+                <div id="assignments-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assignment Drawer -->
+          <div class="drawer-overlay" id="drawer-overlay" onclick="closeAssignmentDrawer()"></div>
+          <div class="assignment-drawer" id="assignment-drawer">
+            <div class="drawer-head">
+              <div class="drawer-title" id="drawer-title">New Assignment</div>
+              <button class="icon-action" onclick="closeAssignmentDrawer()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="drawer-body">
+              <input type="hidden" id="assign-id">
+              <div class="form-group">
+                <label class="form-label">Assignment Title</label>
+                <input class="form-input" id="assign-title" type="text" placeholder="e.g. Weekly Practice Recording">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-textarea" id="assign-desc" rows="3" placeholder="Brief description of this assignment…"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Instructions</label>
+                <textarea class="form-textarea" id="assign-instructions" rows="4" placeholder="Detailed instructions for students… Supports **markdown** hints."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Submission Type</label>
+                <div class="radio-group">
+                  <label class="radio-item"><input type="radio" name="sub-type" value="file" checked> File Upload</label>
+                  <label class="radio-item"><input type="radio" name="sub-type" value="text"> Text Response</label>
+                  <label class="radio-item"><input type="radio" name="sub-type" value="recording"> Audio Recording</label>
+                </div>
+              </div>
+              <div class="form-group" id="file-types-group">
+                <label class="form-label">Allowed File Types</label>
+                <div class="check-grid">
+                  <label class="check-item"><input type="checkbox" class="ft-check" value="pdf" checked> PDF</label>
+                  <label class="check-item"><input type="checkbox" class="ft-check" value="mp3" checked> MP3</label>
+                  <label class="check-item"><input type="checkbox" class="ft-check" value="wav" checked> WAV</label>
+                  <label class="check-item"><input type="checkbox" class="ft-check" value="mp4"> MP4</label>
+                  <label class="check-item"><input type="checkbox" class="ft-check" value="docx"> DOCX</label>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Max File Size (MB)</label>
+                  <input class="form-input" id="assign-max-size" type="number" value="10" min="1" max="500">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Max Score</label>
+                  <input class="form-input" id="assign-max-score" type="number" value="100" min="1">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Due Date Type</label>
+                <div class="radio-group" style="margin-bottom:10px;">
+                  <label class="radio-item"><input type="radio" name="due-type" value="relative" checked onchange="toggleDueType('relative')"> Relative (days after enrollment)</label>
+                  <label class="radio-item"><input type="radio" name="due-type" value="fixed" onchange="toggleDueType('fixed')"> Fixed Date</label>
+                </div>
+                <div id="due-relative-wrap">
+                  <input class="form-input" id="assign-due-days" type="number" min="1" placeholder="e.g. 7">
+                  <div style="font-size:11px;color:var(--text-3);margin-top:4px;">Days after student enrolls</div>
+                </div>
+                <div id="due-fixed-wrap" style="display:none;">
+                  <input class="form-input" id="assign-due-date" type="date">
+                </div>
+              </div>
+              <div class="toggle-wrap">
+                <label class="toggle">
+                  <input type="checkbox" id="assign-required" checked>
+                  <div class="toggle-track"></div>
+                </label>
+                <span class="toggle-label">Required for course completion</span>
+              </div>
+              <div class="toggle-wrap">
+                <label class="toggle">
+                  <input type="checkbox" id="assign-visible" checked>
+                  <div class="toggle-track"></div>
+                </label>
+                <span class="toggle-label">Visible to students</span>
+              </div>
+            </div>
+            <div class="drawer-foot">
+              <button class="btn btn-primary" style="flex:1;" id="assign-save-btn" onclick="saveAssignment()">Save Assignment</button>
+              <button class="btn btn-ghost" onclick="closeAssignmentDrawer()">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Delete Course Confirm Modal -->
+<div class="confirm-overlay" id="confirm-overlay" style="display:none;">
+  <div class="confirm-modal">
+    <div class="confirm-title">Delete Course?</div>
+    <div class="confirm-body">This will permanently delete this course and all its chapters and lessons. This action cannot be undone.</div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn" style="flex:1;background:rgba(200,70,70,0.85);color:#fff;" onclick="deleteCourse()">Yes, Delete</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('confirm-overlay').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Assignment Confirm -->
+<div class="confirm-overlay" id="assign-confirm-overlay" style="display:none;">
+  <div class="confirm-modal">
+    <div class="confirm-title">Delete Assignment?</div>
+    <div class="confirm-body">This will permanently remove the assignment. Student submissions linked to it will remain in the system.</div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn" style="flex:1;background:rgba(200,70,70,0.85);color:#fff;" id="assign-confirm-btn">Yes, Delete</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('assign-confirm-overlay').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['instructor','admin']);</script>
+<script src="/assets/js/sidebar-loader.js"></script>
+<script>
+  // ── GSAP init ──
+  gsap.registerPlugin(ScrollTrigger);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Staggered entrance
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.from('#sidebar', { x: -28, opacity: 0, duration: 0.55 })
+      .from('#topbar', { y: -20, opacity: 0, duration: 0.4 }, '-=0.25')
+      .from('#course-list-panel', { x: -20, opacity: 0, duration: 0.5 }, '-=0.2')
+      .from('#editor-panel', { x: 20, opacity: 0, duration: 0.5 }, '-=0.45');
+
+    // Input focus glow
+    document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(el => {
+      el.addEventListener('focus', () => {
+        gsap.to(el, { boxShadow: '0 0 0 3px rgba(200,168,75,0.12)', duration: 0.2 });
+      });
+      el.addEventListener('blur', () => {
+        gsap.to(el, { boxShadow: '0 0 0 0px rgba(200,168,75,0)', duration: 0.2 });
+      });
+    });
+
+    loadCourses();
+  });
+
+  // ── State ──
+  let allCourses = [];
+  let selectedCourseId = null;
+  let isNewCourse = false;
+
+  // ── Toast ──
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast${type === 'error' ? ' error' : ''}`;
+    t.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${type === 'error' ? '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' : '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'}
+    </svg><span>${msg}</span>`;
+    tc.appendChild(t);
+    gsap.from(t, { y: 12, opacity: 0, duration: 0.25, ease: 'power2.out' });
+    setTimeout(() => {
+      gsap.to(t, { y: 8, opacity: 0, duration: 0.2, ease: 'power2.in', onComplete: () => t.remove() });
+    }, 4000);
+  }
+
+  // ── Logout ──
+  function handleLogout() {
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/index.html';
+  }
+
+  // ── Status badge ──
+  function statusBadge(status) {
+    const map = {
+      active: 'background:rgba(80,160,80,0.12);color:#88c888;border:1px solid rgba(80,160,80,0.2);',
+      draft: 'background:rgba(200,168,75,0.12);color:var(--gold);border:1px solid rgba(200,168,75,0.2);',
+      archived: 'background:rgba(240,230,211,0.06);color:var(--text-3);border:1px solid rgba(240,230,211,0.1);'
+    };
+    return `<span style="font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;${map[status] || map.archived}">${status}</span>`;
+  }
+
+  // ── Type icon ──
+  function typeIcon(type) {
+    return { video: '🎬', reading: '📖', exercise: '🎵', quiz: '❓' }[type] || '📄';
+  }
+
+  // ── Render course list ──
+  function renderCourseList(courses) {
+    const el = document.getElementById('course-list');
+    if (!courses.length) {
+      el.innerHTML = `<div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><p>No courses found. Create one!</p></div>`;
+      return;
+    }
+    el.innerHTML = courses.map(c => `
+      <div class="course-list-item ${c.id === selectedCourseId ? 'selected' : ''}" onclick="selectCourse(${c.id})" id="clist-${c.id}">
+        <div class="course-swatch" style="background:${c.cover_color || '#2D4F1E'};"></div>
+        <div class="course-list-info">
+          <div class="course-list-title">${escHtml(c.title)}</div>
+          <div class="course-list-meta">
+            <span>${c.lesson_count || 0} lessons</span>
+            <span>·</span>
+            ${statusBadge(c.status || 'active')}
+          </div>
+        </div>
+      </div>
+    `).join('');
+    // Animate items in
+    gsap.from(el.querySelectorAll('.course-list-item'), {
+      opacity: 0, x: -10, stagger: 0.05, duration: 0.4, ease: 'power2.out'
+    });
+  }
+
+  // ── Filter courses ──
+  function filterCourses(q) {
+    const filtered = allCourses.filter(c => c.title.toLowerCase().includes(q.toLowerCase()));
+    renderCourseList(filtered);
+  }
+
+  // ── Load courses ──
+  async function loadCourses() {
+    try {
+      const data = await api.get('/api/courses?status=all');
+      allCourses = data.courses || [];
+      renderCourseList(allCourses);
+      // Allow deep-linking to a specific course via /course-manager.html#<id>
+      const wanted = parseInt(window.location.hash.replace('#', ''));
+      if (wanted && allCourses.some(c => c.id === wanted)) {
+        selectCourse(wanted);
+      }
+    } catch (e) {
+      toast('Failed to load courses', 'error');
+    }
+  }
+
+  // ── Select course ──
+  async function selectCourse(id) {
+    selectedCourseId = id;
+    isNewCourse = false;
+    document.querySelectorAll('.course-list-item').forEach(el => el.classList.remove('selected'));
+    const listEl = document.getElementById('clist-' + id);
+    if (listEl) listEl.classList.add('selected');
+
+    try {
+      const data = await api.get('/api/courses/' + id);
+      const c = data.course || data;
+      populateOverview(c);
+      showEditor(c.title || 'Course');
+      loadChapters(id);
+      loadAssignments(id);
+    } catch (e) {
+      toast('Failed to load course', 'error');
+    }
+  }
+
+  // ── New course ──
+  function newCourse() {
+    selectedCourseId = null;
+    isNewCourse = true;
+    document.querySelectorAll('.course-list-item').forEach(el => el.classList.remove('selected'));
+    populateOverview({});
+    showEditor('New Course');
+    document.getElementById('chapters-container').innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-3);"><p style="font-size:13px;">Save the course first to manage chapters.</p></div>`;
+    document.getElementById('assignments-list').innerHTML = '';
+    document.getElementById('assign-count-label').textContent = 'Save the course first.';
+    switchEditorTab('overview', document.querySelector('.editor-tab'));
+  }
+
+  // ── Populate overview form ──
+  function populateOverview(c) {
+    document.getElementById('ov-title').value = c.title || '';
+    document.getElementById('ov-subtitle').value = c.subtitle || '';
+    document.getElementById('ov-description').value = c.description || '';
+    document.getElementById('ov-level').value = c.level || 'Foundation';
+    document.getElementById('ov-category').value = c.category || 'Classical';
+    document.getElementById('ov-instrument').value = c.instrument || 'Sitar';
+    document.getElementById('ov-status').value = c.status || 'active';
+    document.getElementById('ov-duration').value = c.duration_weeks || '';
+    const bp = Number(c.bundle_price_paise) || 0;
+    document.getElementById('ov-bundle-price').value = bp > 0 ? Math.round(bp / 100) : '';
+    const color = c.cover_color || '#2D4F1E';
+    document.getElementById('ov-cover-color').value = color;
+    document.querySelectorAll('.swatch-preset').forEach(s => {
+      s.classList.toggle('selected', s.dataset.color === color);
+    });
+    const img = document.getElementById('ov-cover-image');
+    if (img) {
+      img.value = c.cover_image_url || '';
+      updateCoverPreview();
+    }
+  }
+
+  function updateCoverPreview() {
+    const url = document.getElementById('ov-cover-image')?.value;
+    const el = document.getElementById('ov-cover-preview');
+    if (!el) return;
+    el.style.backgroundImage = url ? `url("${url}")` : '';
+    el.style.background = url ? `url("${url}") center/cover no-repeat` : document.getElementById('ov-cover-color').value;
+  }
+
+  // ── Show editor ──
+  function showEditor(title) {
+    document.getElementById('editor-placeholder').style.display = 'none';
+    const inner = document.getElementById('editor-inner');
+    inner.style.display = 'flex';
+    document.getElementById('editor-course-title').textContent = title;
+    gsap.from(inner, { opacity: 0, duration: 0.3, ease: 'power2.out' });
+  }
+
+  // ── Switch editor tab with GSAP ──
+  function switchEditorTab(name, btn) {
+    document.querySelectorAll('.editor-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.editor-tab-panel').forEach(p => p.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const panel = document.getElementById('etab-' + name);
+    panel.classList.add('active');
+    gsap.from(panel, { opacity: 0, y: 10, duration: 0.3, ease: 'power2.out' });
+  }
+
+  // ── Swatch picker ──
+  function selectSwatch(el) {
+    document.querySelectorAll('.swatch-preset').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('ov-cover-color').value = el.dataset.color;
+  }
+  function syncColorInput(inp) {
+    document.querySelectorAll('.swatch-preset').forEach(s => s.classList.remove('selected'));
+  }
+
+  // ── Save course ──
+  async function saveCourse() {
+    const btn = document.getElementById('save-course-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const payload = {
+      title: document.getElementById('ov-title').value,
+      subtitle: document.getElementById('ov-subtitle').value,
+      description: document.getElementById('ov-description').value,
+      level: document.getElementById('ov-level').value,
+      category: document.getElementById('ov-category').value,
+      instrument: document.getElementById('ov-instrument').value,
+      status: document.getElementById('ov-status').value,
+      cover_color: document.getElementById('ov-cover-color').value,
+      cover_image_url: (document.getElementById('ov-cover-image')?.value || '').trim() || null,
+      duration_weeks: parseInt(document.getElementById('ov-duration').value) || null,
+      bundle_price_paise: (() => {
+        const v = parseFloat(document.getElementById('ov-bundle-price').value);
+        return isFinite(v) && v >= 0 ? Math.round(v * 100) : 0;
+      })()
+    };
+    if (!payload.title) { toast('Course title is required', 'error'); btn.disabled = false; btn.textContent = 'Save Course'; return; }
+    try {
+      let result;
+      if (isNewCourse) {
+        result = await api.post('/api/courses', payload);
+        const course = result.course || result;
+        selectedCourseId = course.id;
+        isNewCourse = false;
+        await loadCourses();
+        toast('Course created successfully!');
+        loadChapters(selectedCourseId);
+        loadAssignments(selectedCourseId);
+      } else {
+        await api.put('/api/courses/' + selectedCourseId, payload);
+        await loadCourses();
+        toast('Course saved!');
+      }
+      document.getElementById('editor-course-title').textContent = payload.title;
+    } catch (e) {
+      toast(e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Course`;
+    }
+  }
+
+  // ── Delete course ──
+  function confirmDeleteCourse() {
+    if (!selectedCourseId) return;
+    document.getElementById('confirm-overlay').style.display = 'flex';
+  }
+  async function deleteCourse() {
+    document.getElementById('confirm-overlay').style.display = 'none';
+    try {
+      await api.del('/api/courses/' + selectedCourseId);
+      selectedCourseId = null;
+      document.getElementById('editor-inner').style.display = 'none';
+      document.getElementById('editor-placeholder').style.display = 'flex';
+      await loadCourses();
+      toast('Course deleted.');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  // ────────── Chapters ──────────
+  let chaptersData = [];
+
+  async function loadChapters(courseId) {
+    if (!courseId) return;
+    try {
+      const data = await api.get('/api/chapters?course_id=' + courseId);
+      chaptersData = data.chapters || [];
+      renderChapters();
+    } catch (e) {
+      toast('Failed to load chapters', 'error');
+    }
+  }
+
+  function renderChapters() {
+    const container = document.getElementById('chapters-container');
+    if (!chaptersData.length) {
+      container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-3);font-size:13px;">No chapters yet. Add your first chapter below.</div>`;
+      return;
+    }
+    container.innerHTML = chaptersData.map((ch) => `
+      <div class="chapter-wrap" id="chap-${ch.id}">
+        <div class="chapter-header">
+          <span class="chapter-drag" title="Drag to reorder">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+          </span>
+          <button class="chapter-toggle-btn open" onclick="toggleChapter(${ch.id}, this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <input class="chapter-title-input" value="${escHtml(ch.title)}" id="ch-title-${ch.id}"
+            onblur="updateChapter(${ch.id})" onkeydown="if(event.key==='Enter')this.blur()">
+          <div class="chapter-actions">
+            <button class="icon-action" title="Add lesson" onclick="addLesson(${ch.id}, ${selectedCourseId})">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button class="icon-action danger" title="Delete chapter" onclick="confirmDeleteChapter(${ch.id})">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="chapter-practice" id="cp-${ch.id}">
+          <span class="pr-label">💰 Individual Price (₹)</span>
+          <input type="number" min="0" step="1" style="width:100px;padding:4px 8px;border:1px solid rgba(200,168,75,0.2);background:#161412;color:#f0e9db;border-radius:4px;font-size:12px;"
+            id="ch-price-${ch.id}"
+            value="${ch.price_individual_paise ? Math.round(ch.price_individual_paise/100) : ''}"
+            placeholder="0"
+            onblur="updateChapterPrice(${ch.id})"
+            onkeydown="if(event.key==='Enter')this.blur()">
+          <span style="font-size:11px;color:var(--text-3)">Charged for à-la-carte chapter purchase</span>
+        </div>
+        <div class="chapter-practice" id="cp-${ch.id}">
+          <span class="pr-label">🎯 Practice Room</span>
+          <span class="pr-status ${ch.practice_video_url ? 'has' : ''}" id="pr-status-${ch.id}">
+            ${ch.practice_video_url
+              ? `✓ Uploaded${ch.practice_video_duration_seconds ? ' (' + Math.floor(ch.practice_video_duration_seconds/60) + 'm ' + (ch.practice_video_duration_seconds%60) + 's)' : ''} · <a href="/practice/${ch.id}" target="_blank">preview →</a>`
+              : 'No video uploaded yet'}
+          </span>
+          <button onclick="uploadPracticeVideo(${ch.id})">${ch.practice_video_url ? 'Replace video' : 'Upload video'}</button>
+          ${ch.practice_video_url ? `<button class="danger" onclick="clearPracticeVideo(${ch.id})">Clear</button>` : ''}
+        </div>
+        <div class="chapter-lessons open" id="cl-${ch.id}">
+          ${(ch.lessons || []).map(l => renderLessonRow(l)).join('')}
+          <div class="add-lesson-row">
+            <button class="add-lesson-btn" onclick="addLesson(${ch.id}, ${selectedCourseId})">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Lesson
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    // Animate chapters in
+    gsap.from(container.querySelectorAll('.chapter-wrap'), {
+      opacity: 0, y: 12, stagger: 0.07, duration: 0.4, ease: 'power2.out'
+    });
+  }
+
+  function renderLessonRow(l) {
+    return `
+      <div class="lesson-row" id="les-${l.id}">
+        <span class="lesson-type-icon">${typeIcon(l.type)}</span>
+        <input class="lesson-title-input" value="${escHtml(l.title)}" id="les-title-${l.id}"
+          onblur="updateLesson(${l.id}, ${l.chapter_id})" onkeydown="if(event.key==='Enter')this.blur()">
+        <select class="lesson-type-select" id="les-type-${l.id}" onchange="updateLesson(${l.id}, ${l.chapter_id})">
+          <option value="video" ${l.type==='video'?'selected':''}>Video</option>
+          <option value="reading" ${l.type==='reading'?'selected':''}>Reading</option>
+          <option value="exercise" ${l.type==='exercise'?'selected':''}>Exercise</option>
+          <option value="quiz" ${l.type==='quiz'?'selected':''}>Quiz</option>
+        </select>
+        <input class="lesson-duration" type="number" min="1" placeholder="min" id="les-dur-${l.id}"
+          value="${l.duration_minutes || ''}" onblur="updateLesson(${l.id}, ${l.chapter_id})">
+        <button class="lesson-mat-toggle" id="les-mat-btn-${l.id}" onclick="toggleMaterials(${l.id})">Materials</button>
+        <button class="icon-action danger" onclick="confirmDeleteLesson(${l.id}, ${l.chapter_id})">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+      <div class="lesson-mat-panel" id="les-mat-panel-${l.id}" hidden>
+        <div class="mat-add-row">
+          <button class="mat-add-btn" onclick="addMaterial(${l.id}, 'video')">+ Video</button>
+          <button class="mat-add-btn" onclick="addMaterial(${l.id}, 'url')">+ URL</button>
+          <button class="mat-add-btn" onclick="addMaterial(${l.id}, 'image')">+ Image</button>
+          <button class="mat-add-btn" onclick="addMaterial(${l.id}, 'pdf')">+ PDF</button>
+        </div>
+        <div class="mat-list" id="les-mat-list-${l.id}">
+          <div style="font-size:11px;color:var(--text-3);">Loading…</div>
+        </div>
+      </div>`;
+  }
+
+  function escHtml(str) {
+    return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function toggleChapter(id, btn) {
+    const lessons = document.getElementById('cl-' + id);
+    lessons.classList.toggle('open');
+    btn.classList.toggle('open');
+  }
+
+  async function addChapter() {
+    if (!selectedCourseId) { toast('Save the course first.', 'error'); return; }
+    try {
+      const data = await api.post('/api/chapters', {
+        course_id: selectedCourseId,
+        title: 'New Chapter',
+        order_index: chaptersData.length,
+        description: ''
+      });
+      chaptersData.push({ ...data, lessons: [] });
+      renderChapters();
+      const inp = document.getElementById('ch-title-' + data.id);
+      if (inp) { inp.select(); inp.focus(); }
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  async function updateChapter(id) {
+    const inp = document.getElementById('ch-title-' + id);
+    if (!inp) return;
+    const ch = chaptersData.find(c => c.id === id);
+    if (!ch || ch.title === inp.value) return;
+    ch.title = inp.value;
+    try {
+      await api.put('/api/chapters/' + id, { title: inp.value, order_index: ch.order_index, description: ch.description || '' });
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function updateChapterPrice(id) {
+    const inp = document.getElementById('ch-price-' + id);
+    if (!inp) return;
+    const ch = chaptersData.find(c => c.id === id);
+    if (!ch) return;
+    const rupees = parseFloat(inp.value);
+    const nextPaise = isFinite(rupees) && rupees >= 0 ? Math.round(rupees * 100) : 0;
+    if ((ch.price_individual_paise || 0) === nextPaise) return;
+    try {
+      await api.put('/api/chapters/' + id, {
+        title: ch.title,
+        order_index: ch.order_index,
+        description: ch.description || '',
+        price_individual_paise: nextPaise
+      });
+      ch.price_individual_paise = nextPaise;
+      toast('Chapter price saved');
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function confirmDeleteChapter(id) {
+    if (!confirm('Delete this chapter and all its lessons?')) return;
+    try {
+      await api.del('/api/chapters/' + id);
+      chaptersData = chaptersData.filter(c => c.id !== id);
+      renderChapters();
+      toast('Chapter deleted.');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  // ── Practice Room per chapter ────────────────────────────────────────────
+  async function uploadPracticeVideo(chapterId) {
+    const picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = 'video/*';
+    picker.style.display = 'none';
+    document.body.appendChild(picker);
+    const pickedFile = await new Promise((resolve) => {
+      let resolved = false;
+      picker.addEventListener('change', () => { resolved = true; resolve(picker.files && picker.files[0] ? picker.files[0] : null); }, { once: true });
+      picker.addEventListener('cancel', () => { if (!resolved) resolve(null); }, { once: true });
+      window.addEventListener('focus', () => { setTimeout(() => { if (!resolved) resolve(null); }, 300); }, { once: true });
+      picker.click();
+    });
+    picker.remove();
+    if (!pickedFile) return;
+
+    const fd = new FormData();
+    fd.append('file', pickedFile);
+    fd.append('practice_video_title', pickedFile.name.replace(/\.[^.]+$/, ''));
+    try {
+      const seconds = await _readVideoDuration(pickedFile);
+      if (seconds > 0) fd.append('practice_video_duration_seconds', String(Math.round(seconds)));
+    } catch (_) {}
+
+    toast(`Uploading practice video: ${pickedFile.name}…`, 'success');
+    try {
+      const res = await fetch('/api/chapters/' + chapterId + '/practice', {
+        method: 'PUT',
+        headers: { Authorization: 'Bearer ' + localStorage.getItem('archive_token') },
+        body: fd,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Upload failed');
+      }
+      const data = await res.json();
+      // Update local state
+      const ch = chaptersData.find(c => c.id === chapterId);
+      if (ch && data.chapter) {
+        ch.practice_video_url = data.chapter.practice_video_url;
+        ch.practice_video_duration_seconds = data.chapter.practice_video_duration_seconds;
+        ch.practice_video_title = data.chapter.practice_video_title;
+      }
+      renderChapters();
+      toast('Practice video uploaded.', 'success');
+    } catch (e) {
+      toast(e.message || 'Upload failed', 'error');
+    }
+  }
+
+  async function clearPracticeVideo(chapterId) {
+    if (!confirm('Remove the Practice Room video from this chapter?')) return;
+    try {
+      const res = await fetch('/api/chapters/' + chapterId + '/practice', {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + localStorage.getItem('archive_token') },
+      });
+      if (!res.ok) throw new Error('Clear failed');
+      const ch = chaptersData.find(c => c.id === chapterId);
+      if (ch) {
+        ch.practice_video_url = null;
+        ch.practice_video_duration_seconds = null;
+        ch.practice_video_title = null;
+      }
+      renderChapters();
+      toast('Practice video cleared.');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  async function addLesson(chapterId, courseId) {
+    try {
+      const ch = chaptersData.find(c => c.id === chapterId);
+      const data = await api.post('/api/lessons', {
+        chapter_id: chapterId,
+        course_id: courseId,
+        title: 'New Lesson',
+        type: 'video',
+        duration_minutes: null,
+        order_index: (ch?.lessons?.length || 0)
+      });
+      // Backend returns { lesson: {...} }; tolerate an unwrapped response too.
+      const lesson = data.lesson || data;
+      if (ch) {
+        ch.lessons = ch.lessons || [];
+        ch.lessons.push(lesson);
+      }
+      renderChapters();
+      const inp = document.getElementById('les-title-' + lesson.id);
+      if (inp) { inp.select(); inp.focus(); }
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  async function updateLesson(id, chapterId) {
+    const titleInp = document.getElementById('les-title-' + id);
+    const typeInp = document.getElementById('les-type-' + id);
+    const durInp = document.getElementById('les-dur-' + id);
+    if (!titleInp) return;
+    try {
+      await api.put('/api/lessons/' + id, {
+        title: titleInp.value,
+        type: typeInp?.value || 'video',
+        duration_minutes: parseInt(durInp?.value) || null,
+        order_index: 0
+      });
+      const iconEl = titleInp.closest('.lesson-row')?.querySelector('.lesson-type-icon');
+      if (iconEl) iconEl.textContent = typeIcon(typeInp?.value || 'video');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  async function confirmDeleteLesson(id, chapterId) {
+    if (!confirm('Delete this lesson?')) return;
+    try {
+      await api.del('/api/lessons/' + id);
+      const ch = chaptersData.find(c => c.id === chapterId);
+      if (ch) ch.lessons = ch.lessons.filter(l => l.id !== id);
+      renderChapters();
+      toast('Lesson deleted.');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  // ────────── Lesson materials + timestamps ──────────
+  const _materialsCache = {};
+
+  async function toggleMaterials(lessonId) {
+    const panel = document.getElementById('les-mat-panel-' + lessonId);
+    const btn = document.getElementById('les-mat-btn-' + lessonId);
+    if (!panel) return;
+    const willOpen = panel.hidden;
+    panel.hidden = !willOpen;
+    btn.classList.toggle('open', willOpen);
+    if (willOpen) await loadMaterials(lessonId);
+  }
+
+  async function loadMaterials(lessonId) {
+    try {
+      const data = await api.get('/api/materials?lesson_id=' + lessonId);
+      _materialsCache[lessonId] = data.materials || [];
+      renderMaterials(lessonId);
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  function renderMaterials(lessonId) {
+    const list = document.getElementById('les-mat-list-' + lessonId);
+    if (!list) return;
+    const mats = _materialsCache[lessonId] || [];
+    if (!mats.length) {
+      list.innerHTML = `<div style="font-size:11px;color:var(--text-3);padding:4px 0;">No materials yet — use the buttons above to add one.</div>`;
+      return;
+    }
+    list.innerHTML = mats.map(m => `
+      <div class="mat-item" id="mat-${m.id}">
+        <div class="mat-type-pill type-${m.type}">${m.type}</div>
+        <input class="mat-input" placeholder="Title" value="${escHtml(m.title || '')}" onblur="updateMaterial(${m.id}, 'title', this.value)">
+        <input class="mat-input" placeholder="${m.type === 'video' ? 'Video URL (YouTube embed or MP4)' : m.type === 'pdf' ? 'PDF URL' : m.type === 'image' ? 'Image URL' : 'External URL'}" value="${escHtml(m.url || '')}" onblur="updateMaterial(${m.id}, 'url', this.value)">
+        ${m.type === 'video' ? `<input class="mat-input" type="number" min="0" placeholder="dur (s)" value="${m.duration_seconds || ''}" onblur="updateMaterial(${m.id}, 'duration_seconds', parseInt(this.value)||null)">` : `<span></span>`}
+        <button class="mat-del" onclick="deleteMaterial(${lessonId}, ${m.id})">Delete</button>
+        ${m.type === 'video' ? renderTimestampsEditor(lessonId, m) : ''}
+      </div>
+    `).join('');
+  }
+
+  function fmtTime(s) {
+    s = Math.max(0, parseInt(s) || 0);
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
+  }
+
+  function renderTimestampsEditor(lessonId, material) {
+    const ts = material.timestamps || [];
+    return `
+      <div class="mat-timestamps">
+        <div class="mat-ts-head">
+          <span>Timestamps (${ts.length})</span>
+          <div style="display:flex;gap:6px;">
+            <button onclick="autoTimestamps(${lessonId}, ${material.id})">Auto 1-min</button>
+            <button onclick="addTimestamp(${lessonId}, ${material.id})">+ Manual</button>
+          </div>
+        </div>
+        <div id="ts-list-${material.id}">
+          ${ts.map(t => `
+            <div class="mat-ts-row">
+              <input class="mat-ts-time" value="${fmtTime(t.time_seconds)}" onblur="updateTimestampTime(${lessonId}, ${material.id}, ${t.id}, this.value)">
+              <input class="mat-ts-label-input" value="${escHtml(t.label || '')}" onblur="updateTimestampLabel(${lessonId}, ${material.id}, ${t.id}, this.value)">
+              <button class="mat-del" onclick="deleteTimestamp(${lessonId}, ${material.id}, ${t.id})">×</button>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  async function addMaterial(lessonId, type) {
+    // URL type always creates a blank row for pasting. Other types open a file
+    // picker first; cancelling the picker falls back to the blank-row flow.
+    if (type === 'url') {
+      try {
+        await api.post('/api/materials', { lesson_id: lessonId, type, title: '', url: '' });
+        await loadMaterials(lessonId);
+      } catch (e) { toast(e.message, 'error'); }
+      return;
+    }
+
+    const accept = type === 'video' ? 'video/*' : type === 'image' ? 'image/*' : type === 'pdf' ? 'application/pdf,.pdf' : '';
+    const picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = accept;
+    picker.style.display = 'none';
+    document.body.appendChild(picker);
+
+    const pickedFile = await new Promise((resolve) => {
+      let resolved = false;
+      picker.addEventListener('change', () => {
+        resolved = true;
+        resolve(picker.files && picker.files[0] ? picker.files[0] : null);
+      }, { once: true });
+      // If the user cancels, most browsers fire 'cancel' (newer) or just nothing.
+      picker.addEventListener('cancel', () => { if (!resolved) resolve(null); }, { once: true });
+      window.addEventListener('focus', () => { setTimeout(() => { if (!resolved) resolve(null); }, 300); }, { once: true });
+      picker.click();
+    });
+    picker.remove();
+
+    if (!pickedFile) {
+      // User cancelled: create blank row with URL input as fallback.
+      try {
+        await api.post('/api/materials', { lesson_id: lessonId, type, title: '', url: '' });
+        await loadMaterials(lessonId);
+      } catch (e) { toast(e.message, 'error'); }
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('lesson_id', lessonId);
+    fd.append('type', type);
+    fd.append('title', pickedFile.name.replace(/\.[^.]+$/, ''));
+    fd.append('file', pickedFile);
+
+    // For videos, read the file's real duration locally and send it with the
+    // upload so the course-landing page can show the true length (e.g. "18s")
+    // instead of whatever the instructor typed into duration_minutes.
+    if (type === 'video') {
+      try {
+        const seconds = await _readVideoDuration(pickedFile);
+        if (seconds > 0) fd.append('duration_seconds', String(Math.round(seconds)));
+      } catch (_) { /* fallthrough — backend stores null */ }
+    }
+
+    toast(`Uploading ${pickedFile.name}…`, 'success');
+    try {
+      await api.upload('/api/materials', fd);
+      await loadMaterials(lessonId);
+      toast(`${pickedFile.name} uploaded`, 'success');
+    } catch (e) { toast(e.message || 'Upload failed', 'error'); }
+  }
+
+  function _readVideoDuration(file) {
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(file);
+      const v = document.createElement('video');
+      v.preload = 'metadata';
+      v.muted = true;
+      v.src = url;
+      const cleanup = () => { try { URL.revokeObjectURL(url); } catch {} };
+      v.onloadedmetadata = () => { cleanup(); resolve(v.duration || 0); };
+      v.onerror = () => { cleanup(); resolve(0); };
+      // safety timeout — some browsers may stall on unusual codecs
+      setTimeout(() => { cleanup(); resolve(0); }, 10000);
+    });
+  }
+
+  async function updateMaterial(materialId, field, value) {
+    try {
+      await api.put('/api/materials/' + materialId, { [field]: value });
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function deleteMaterial(lessonId, materialId) {
+    if (!confirm('Delete this material?')) return;
+    try {
+      await api.del('/api/materials/' + materialId);
+      await loadMaterials(lessonId);
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function autoTimestamps(lessonId, materialId) {
+    const mats = _materialsCache[lessonId] || [];
+    const m = mats.find(x => x.id === materialId);
+    if (!m?.duration_seconds) {
+      const val = prompt('Set video duration (in seconds) to auto-generate 1-min markers:');
+      const dur = parseInt(val);
+      if (!dur) return;
+      try {
+        await api.post(`/api/materials/${materialId}/timestamps/auto`, { duration_seconds: dur });
+        await loadMaterials(lessonId);
+        toast('Auto-generated 1-min timestamps');
+      } catch (e) { toast(e.message, 'error'); }
+      return;
+    }
+    if (!confirm('This will replace existing timestamps with 1-min markers. Continue?')) return;
+    try {
+      await api.post(`/api/materials/${materialId}/timestamps/auto`, {});
+      await loadMaterials(lessonId);
+      toast('Auto-generated 1-min timestamps');
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function addTimestamp(lessonId, materialId) {
+    const val = prompt('Timestamp (mm:ss, e.g. 02:30):', '00:30');
+    if (!val) return;
+    const [mm, ss] = val.split(':').map(Number);
+    if (isNaN(mm) || isNaN(ss)) { toast('Bad format', 'error'); return; }
+    const secs = mm * 60 + ss;
+    const label = prompt('Label (optional):', `Minute ${mm}`) || '';
+    try {
+      await api.post(`/api/materials/${materialId}/timestamps`, { time_seconds: secs, label });
+      await loadMaterials(lessonId);
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function updateTimestampTime(lessonId, materialId, tsId, val) {
+    const [mm, ss] = (val || '').split(':').map(Number);
+    if (isNaN(mm) || isNaN(ss)) return;
+    try {
+      await api.put(`/api/materials/${materialId}/timestamps/${tsId}`, { time_seconds: mm * 60 + ss });
+    } catch (e) { toast(e.message, 'error'); }
+  }
+  async function updateTimestampLabel(lessonId, materialId, tsId, val) {
+    try {
+      await api.put(`/api/materials/${materialId}/timestamps/${tsId}`, { label: val });
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function deleteTimestamp(lessonId, materialId, tsId) {
+    try {
+      await api.del(`/api/materials/${materialId}/timestamps/${tsId}`);
+      await loadMaterials(lessonId);
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  // ────────── Assignments ──────────
+  let assignmentsData = [];
+  let editingAssignmentId = null;
+
+  async function loadAssignments(courseId) {
+    if (!courseId) return;
+    try {
+      const data = await api.get('/api/assignments?course_id=' + courseId);
+      assignmentsData = data.assignments || [];
+      renderAssignments();
+    } catch (e) {
+      document.getElementById('assign-count-label').textContent = 'Failed to load.';
+    }
+  }
+
+  function renderAssignments() {
+    const list = document.getElementById('assignments-list');
+    const label = document.getElementById('assign-count-label');
+    label.textContent = assignmentsData.length + ' assignment' + (assignmentsData.length !== 1 ? 's' : '');
+    if (!assignmentsData.length) {
+      list.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No assignments yet.</div>`;
+      return;
+    }
+    const subIcons = { file: '📎', text: '✏️', recording: '🎙️' };
+    list.innerHTML = assignmentsData.map(a => `
+      <div class="assignment-card">
+        <div class="assignment-card-header">
+          <div>
+            <div class="assignment-title">${escHtml(a.title)}</div>
+            <div class="assignment-desc">${escHtml(a.description || 'No description')}</div>
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0;">
+            <button class="icon-action" onclick="openAssignmentDrawer(${a.id})" title="Edit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="icon-action danger" onclick="confirmDeleteAssignment(${a.id})" title="Delete">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="assignment-meta">
+          <span class="badge badge-gold">${subIcons[a.submission_type] || '📎'} ${a.submission_type || 'file'}</span>
+          <span class="badge badge-gray">Max: ${a.max_score || 100}</span>
+          <span class="badge ${a.due_type === 'relative' ? 'badge-green' : 'badge-crimson'}">
+            ${a.due_type === 'relative' ? (a.due_days || '?') + ' days after enroll' : (a.due_date || 'Fixed')}
+          </span>
+          ${a.is_required ? '<span class="badge badge-crimson">Required</span>' : ''}
+        </div>
+      </div>
+    `).join('');
+    // Animate assignment cards
+    gsap.from(list.querySelectorAll('.assignment-card'), {
+      opacity: 0, y: 12, stagger: 0.07, duration: 0.4, ease: 'power2.out'
+    });
+  }
+
+  function openAssignmentDrawer(id) {
+    editingAssignmentId = id;
+    const overlay = document.getElementById('drawer-overlay');
+    const drawer = document.getElementById('assignment-drawer');
+    document.getElementById('drawer-title').textContent = id ? 'Edit Assignment' : 'New Assignment';
+
+    if (id) {
+      const a = assignmentsData.find(x => x.id === id);
+      if (a) {
+        document.getElementById('assign-id').value = a.id;
+        document.getElementById('assign-title').value = a.title || '';
+        document.getElementById('assign-desc').value = a.description || '';
+        document.getElementById('assign-instructions').value = a.instructions || '';
+        document.querySelector(`input[name="sub-type"][value="${a.submission_type || 'file'}"]`).checked = true;
+        document.getElementById('assign-max-size').value = a.max_file_size_mb || 10;
+        document.getElementById('assign-max-score').value = a.max_score || 100;
+        const dueType = a.due_type || 'relative';
+        document.querySelector(`input[name="due-type"][value="${dueType}"]`).checked = true;
+        toggleDueType(dueType);
+        document.getElementById('assign-due-days').value = a.due_days || '';
+        document.getElementById('assign-due-date').value = a.due_date || '';
+        document.getElementById('assign-required').checked = !!a.is_required;
+        document.getElementById('assign-visible').checked = a.visible !== 0;
+        const fts = JSON.parse(a.allowed_file_types || '[]');
+        document.querySelectorAll('.ft-check').forEach(cb => { cb.checked = fts.includes(cb.value); });
+      }
+    } else {
+      document.getElementById('assign-id').value = '';
+      document.getElementById('assign-title').value = '';
+      document.getElementById('assign-desc').value = '';
+      document.getElementById('assign-instructions').value = '';
+      document.querySelector('input[name="sub-type"][value="file"]').checked = true;
+      document.getElementById('assign-max-size').value = 10;
+      document.getElementById('assign-max-score').value = 100;
+      document.querySelector('input[name="due-type"][value="relative"]').checked = true;
+      toggleDueType('relative');
+      document.getElementById('assign-due-days').value = '';
+      document.getElementById('assign-due-date').value = '';
+      document.getElementById('assign-required').checked = true;
+      document.getElementById('assign-visible').checked = true;
+      document.querySelectorAll('.ft-check').forEach(cb => { cb.checked = ['pdf','mp3','wav'].includes(cb.value); });
+    }
+
+    overlay.classList.add('open');
+    drawer.classList.add('open');
+  }
+
+  function closeAssignmentDrawer() {
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.getElementById('assignment-drawer').classList.remove('open');
+    editingAssignmentId = null;
+  }
+
+  function toggleDueType(type) {
+    document.getElementById('due-relative-wrap').style.display = type === 'relative' ? 'block' : 'none';
+    document.getElementById('due-fixed-wrap').style.display = type === 'fixed' ? 'block' : 'none';
+  }
+
+  async function saveAssignment() {
+    const btn = document.getElementById('assign-save-btn');
+    const title = document.getElementById('assign-title').value.trim();
+    if (!title) { toast('Title is required', 'error'); return; }
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    const subType = document.querySelector('input[name="sub-type"]:checked')?.value || 'file';
+    const dueType = document.querySelector('input[name="due-type"]:checked')?.value || 'relative';
+    const fts = Array.from(document.querySelectorAll('.ft-check:checked')).map(cb => cb.value);
+
+    const payload = {
+      course_id: selectedCourseId,
+      title,
+      description: document.getElementById('assign-desc').value,
+      instructions: document.getElementById('assign-instructions').value,
+      submission_type: subType,
+      allowed_file_types: fts,
+      max_file_size_mb: parseInt(document.getElementById('assign-max-size').value) || 10,
+      max_score: parseInt(document.getElementById('assign-max-score').value) || 100,
+      due_type: dueType,
+      due_days: parseInt(document.getElementById('assign-due-days').value) || null,
+      due_date: document.getElementById('assign-due-date').value || null,
+      is_required: document.getElementById('assign-required').checked,
+      visible: document.getElementById('assign-visible').checked
+    };
+
+    try {
+      if (editingAssignmentId) {
+        await api.put('/api/assignments/' + editingAssignmentId, payload);
+        toast('Assignment updated!');
+      } else {
+        await api.post('/api/assignments', payload);
+        toast('Assignment created!');
+      }
+      closeAssignmentDrawer();
+      loadAssignments(selectedCourseId);
+    } catch (e) {
+      toast(e.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save Assignment';
+    }
+  }
+
+  function confirmDeleteAssignment(id) {
+    const overlay = document.getElementById('assign-confirm-overlay');
+    overlay.style.display = 'flex';
+    document.getElementById('assign-confirm-btn').onclick = async function () {
+      overlay.style.display = 'none';
+      try {
+        await api.del('/api/assignments/' + id);
+        assignmentsData = assignmentsData.filter(a => a.id !== id);
+        renderAssignments();
+        toast('Assignment deleted.');
+      } catch (e) {
+        toast(e.message, 'error');
+      }
+    };
+  }
+</script>
+</body>
+</html>

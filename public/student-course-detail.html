@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/enroll-modal.css">
+  <style>
+    :root {
+      --bg:          #080706;
+      --bg-2:        #0F0D0B;
+      --bg-card:     #161412;
+      --bg-elevated: #1E1B17;
+      --bg-hover:    #252119;
+      --gold:        #C8A84B;
+      --gold-bright: #E8C96E;
+      --gold-dim:    #7A6530;
+      --gold-glow:   rgba(200,168,75,0.12);
+      --text:        #F0E6D3;
+      --text-2:      #B8A898;
+      --text-3:      #6B5E50;
+      --ruby:        #8B2E26;
+      --emerald:     #2D5A27;
+      --serif:       'Cormorant Garamond', Georgia, serif;
+      --sans:        'DM Sans', sans-serif;
+      --sidebar-w:   240px;
+      --topbar-h:    60px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ── Shell ── */
+    .shell {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      z-index: 100;
+      border-right: 1px solid rgba(200,168,75,0.06);
+    }
+
+    .sidebar-brand {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid rgba(200,168,75,0.06);
+    }
+
+    .brand-name {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1.2;
+    }
+
+    .brand-tagline {
+      font-size: 10px;
+      color: var(--text-3);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 10px;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      color: var(--text-3);
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 2px;
+      cursor: pointer;
+    }
+
+    .nav-item:hover { background: var(--bg-elevated); color: var(--text-2); }
+
+    .nav-item.active {
+      background: var(--gold-glow);
+      color: var(--gold);
+      border: 1px solid rgba(200,168,75,0.15);
+    }
+
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      padding: 14px 10px 18px;
+      border-top: 1px solid rgba(200,168,75,0.06);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .sidebar-user:hover { background: var(--bg-elevated); }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold-glow);
+      border: 1px solid rgba(200,168,75,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .user-name { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .user-role { font-size: 10px; color: var(--text-3); margin-top: 1px; text-transform: capitalize; }
+
+    /* ── Main wrap ── */
+    .main-wrap {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--bg-2);
+      border-bottom: 1px solid rgba(200,168,75,0.06);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .topbar-brand {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--gold);
+      flex: 1;
+    }
+
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+
+    .topbar-icon-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-3);
+      transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+    }
+
+    .topbar-icon-btn:hover { background: var(--bg-elevated); color: var(--text-2); }
+
+    .topbar-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--gold-glow);
+      border: 1px solid rgba(200,168,75,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600;
+      color: var(--gold);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ── Main Content ── */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    /* ── Course Hero ── */
+    .course-hero {
+      position: relative;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+    }
+
+    .hero-initials {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 200px;
+      font-weight: 600;
+      color: var(--gold);
+      opacity: 0.04;
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(8,7,6,0.85) 0%, rgba(8,7,6,0.4) 50%, rgba(8,7,6,0.15) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 32px;
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .hero-breadcrumb {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-3);
+      margin-bottom: 14px;
+    }
+
+    .hero-breadcrumb a { color: var(--text-3); transition: color 0.15s; }
+    .hero-breadcrumb a:hover { color: var(--gold); }
+
+    .hero-taught-by {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .hero-instructor {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 52px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .hero-course-title {
+      font-family: var(--sans);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 18px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .hero-meta-item {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-meta-dot {
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: var(--gold);
+      margin: 0 10px;
+    }
+
+    .hero-level-badge {
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 500;
+      border: 1px solid rgba(200,168,75,0.5);
+      color: var(--gold);
+      padding: 2px 8px;
+      border-radius: 100px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .btn-enroll {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold);
+      color: #080706;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s;
+    }
+
+    .btn-enroll:hover { background: var(--gold-bright); }
+    .btn-enroll:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-continue {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(45,90,39,0.3);
+      color: #6fcf6f;
+      border: 1px solid rgba(45,90,39,0.5);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-continue:hover { background: rgba(45,90,39,0.5); }
+
+    /* Progress ring */
+    .progress-ring-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-ring-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-ring-svg circle {
+      transition: stroke-dashoffset 0.6s ease;
+      transform-origin: 50% 50%;
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring-label {
+      position: absolute;
+      text-align: center;
+    }
+
+    .progress-ring-label .ring-pct {
+      display: block;
+      font-family: var(--sans);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .progress-ring-label .ring-sub {
+      display: block;
+      font-family: var(--sans);
+      font-size: 9px;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
+    /* ── Body Area ── */
+    .body-area {
+      padding: 40px 32px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 28px;
+      align-items: start;
+      max-width: 1200px;
+    }
+
+    /* ── Curriculum ── */
+    .curriculum-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .curriculum-title {
+      font-family: var(--serif);
+      font-size: 28px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .lesson-count-badge {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-3);
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      padding: 2px 10px;
+      border-radius: 100px;
+    }
+
+    /* ── Chapter Accordion ── */
+    .chapter-item {
+      margin-bottom: 4px;
+      border: 1px solid rgba(200,168,75,0.06);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .chapter-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    .chapter-header:hover { background: var(--bg-elevated); }
+    .chapter-header.open { background: var(--bg-elevated); }
+
+    .chapter-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .chapter-number {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--gold-glow);
+      border: 1px solid rgba(200,168,75,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .chapter-title-text {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .chapter-lesson-count {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
+    .chapter-chevron {
+      color: var(--text-3);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .chapter-header.open .chapter-chevron { transform: rotate(180deg); }
+
+    .chapter-body {
+      display: none;
+      background: var(--bg);
+      border-top: 1px solid rgba(200,168,75,0.06);
+    }
+
+    .chapter-body.open { display: block; }
+
+    /* ── Lesson Row ── */
+    .lesson-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 20px;
+      border-bottom: 1px solid rgba(200,168,75,0.04);
+      transition: background 0.15s;
+    }
+
+    .lesson-row:last-child { border-bottom: none; }
+    .lesson-row:hover { background: var(--bg-card); }
+    .lesson-row.completed { opacity: 0.65; }
+    .lesson-row.locked { opacity: 0.45; cursor: default; }
+
+    .lesson-type-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .type-video    { background: rgba(200,168,75,0.12); color: var(--gold); }
+    .type-reading  { background: rgba(45,90,39,0.15);   color: #6fcf6f; }
+    .type-exercise { background: rgba(139,46,38,0.15);  color: #e07070; }
+    .type-quiz     { background: rgba(80,80,160,0.15);  color: #9090d0; }
+
+    .lesson-title {
+      flex: 1;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .lesson-row.completed .lesson-title { color: var(--text-3); }
+    .lesson-row.locked    .lesson-title { color: var(--text-3); }
+
+    .lesson-duration {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-3);
+      flex-shrink: 0;
+    }
+
+    .lesson-check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(200,168,75,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .lesson-check.done {
+      background: var(--emerald);
+      border-color: var(--emerald);
+    }
+
+    .lesson-lock {
+      color: var(--text-3);
+      flex-shrink: 0;
+    }
+
+    /* ── Inline lesson materials viewer ── */
+    .lesson-viewer {
+      display: none;
+      padding: 16px 20px 24px;
+      background: var(--bg);
+      border-bottom: 1px solid rgba(200,168,75,0.04);
+    }
+    .lesson-viewer.open { display: block; }
+    .viewer-empty {
+      font-size: 13px; color: var(--text-3);
+      padding: 14px 16px; border: 1px dashed rgba(200,168,75,0.1);
+      border-radius: 6px; text-align: center;
+    }
+    .mat-block {
+      margin-bottom: 20px;
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.08);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .mat-block-head {
+      padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(200,168,75,0.06);
+      background: linear-gradient(to right, rgba(200,168,75,0.04), transparent);
+    }
+    .mat-block-title {
+      font-family: var(--sans);
+      font-size: 13px; font-weight: 600;
+      color: var(--text);
+    }
+    .mat-type-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 3px;
+    }
+    .mat-type-tag.type-video { background: rgba(200,168,75,0.15); color: var(--gold); }
+    .mat-type-tag.type-pdf   { background: rgba(183,106,95,0.15); color: #e07070; }
+    .mat-type-tag.type-image { background: rgba(106,143,110,0.15); color: #6fcf6f; }
+    .mat-type-tag.type-url   { background: rgba(94,125,179,0.15); color: #9090d0; }
+
+    .mat-video-frame {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: #000;
+    }
+    .mat-video-frame iframe,
+    .mat-video-frame video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    .mat-ts-bar {
+      padding: 10px 14px;
+      background: var(--bg-2);
+      border-top: 1px solid rgba(200,168,75,0.04);
+    }
+    .mat-ts-head {
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-3); margin-bottom: 8px;
+    }
+    .mat-ts-chips {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .mat-ts-chip {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-2);
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.12);
+      padding: 4px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .mat-ts-chip:hover { color: var(--gold); border-color: var(--gold); }
+    .mat-ts-chip .ts-time {
+      font-family: monospace;
+      color: var(--gold-dim);
+      font-size: 10px;
+    }
+    .mat-ts-chip:hover .ts-time { color: var(--gold); }
+
+    .mat-img {
+      display: block;
+      width: 100%;
+      max-height: 520px;
+      object-fit: contain;
+      background: #000;
+    }
+    .mat-pdf {
+      width: 100%;
+      height: 640px;
+      border: none;
+    }
+    .mat-url-cta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px;
+      gap: 16px;
+    }
+    .mat-url-cta a {
+      background: var(--gold);
+      color: var(--bg);
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-weight: 600; font-size: 13px;
+      transition: background 0.15s;
+    }
+    .mat-url-cta a:hover { background: var(--gold-bright); }
+
+    /* ── Right Sidebar Card ── */
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-top: 2px solid var(--gold);
+      border-radius: 4px;
+      padding: 24px;
+      position: sticky;
+      top: calc(var(--topbar-h) + 20px);
+    }
+
+    .price-display {
+      margin-bottom: 20px;
+    }
+
+    .price-label {
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .price-amount {
+      font-family: var(--serif);
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .price-free {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 28px;
+      color: var(--gold);
+    }
+
+    .btn-enroll-card {
+      display: block;
+      width: 100%;
+      background: var(--gold);
+      color: #080706;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 13px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      text-align: center;
+      transition: background 0.15s;
+      margin-bottom: 20px;
+    }
+
+    .btn-enroll-card:hover { background: var(--gold-bright); }
+    .btn-enroll-card:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-continue-card {
+      display: block;
+      width: 100%;
+      background: rgba(45,90,39,0.2);
+      color: #6fcf6f;
+      border: 1px solid rgba(45,90,39,0.4);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.15s;
+      margin-bottom: 20px;
+    }
+
+    .btn-continue-card:hover { background: rgba(45,90,39,0.35); }
+
+    .card-divider {
+      height: 1px;
+      background: rgba(200,168,75,0.08);
+      margin: 20px 0;
+    }
+
+    .included-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .included-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text-2);
+    }
+
+    .included-check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--gold-glow);
+      border: 1px solid rgba(200,168,75,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Instructor Mini Bio ── */
+    .instructor-bio-section { margin-top: 4px; }
+
+    .instructor-bio-heading {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .instructor-bio-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .instructor-initials-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--gold-glow);
+      border: 2px solid rgba(200,168,75,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 18px;
+      font-style: italic;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .instructor-bio-name {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .instructor-bio-instrument {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
+    .instructor-bio-text {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.65;
+    }
+
+    /* ── Related Sheet Music ── */
+    .related-section {
+      padding: 0 32px 48px;
+    }
+
+    .related-heading {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .sheets-scroll {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(200,168,75,0.2) transparent;
+    }
+
+    .sheet-card {
+      flex-shrink: 0;
+      width: 180px;
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: 4px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sheet-icon {
+      width: 36px; height: 36px;
+      background: var(--gold-glow);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+
+    .sheet-title {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .sheet-composer {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    .sheet-period-badge {
+      display: inline-block;
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 500;
+      border: 1px solid rgba(200,168,75,0.2);
+      color: var(--gold);
+      padding: 2px 6px;
+      border-radius: 100px;
+    }
+
+    .sheet-download-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      cursor: pointer;
+      margin-top: 4px;
+      transition: color 0.15s;
+    }
+
+    .sheet-download-btn:hover { color: var(--gold-bright); }
+
+    /* ── Skeleton ── */
+    .skeleton-hero {
+      height: 400px;
+      background: linear-gradient(160deg, var(--bg-card) 0%, var(--bg-elevated) 50%, var(--bg-card) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+    }
+
+    .skeleton-line {
+      height: 14px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+      margin-bottom: 10px;
+    }
+
+    .skeleton-block {
+      height: 60px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+      margin-bottom: 8px;
+    }
+
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      display: flex; flex-direction: column; gap: 10px;
+      z-index: 1000;
+    }
+
+    .toast {
+      background: var(--bg-elevated);
+      border: 1px solid rgba(200,168,75,0.15);
+      border-left: 3px solid var(--gold);
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text);
+      min-width: 240px;
+      animation: toastIn 0.2s ease;
+    }
+
+    .toast.error { border-left-color: var(--ruby); }
+
+    @keyframes toastIn {
+      from { transform: translateY(12px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1100px) {
+      .body-area { grid-template-columns: 1fr; }
+      .info-card { position: static; }
+    }
+
+    @media (max-width: 768px) {
+      .hero-instructor { font-size: 36px; }
+      .body-area { padding: 24px 16px; }
+      .related-section { padding: 0 16px 32px; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- ── Main Wrap ── -->
+  <div class="main-wrap">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-brand">The Foundation Room</div>
+      <div class="topbar-actions">
+        <button class="topbar-icon-btn" onclick="history.back()" title="Back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar" title="Profile">?</a>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+
+      <!-- Loading skeleton -->
+      <div id="page-skeleton">
+        <div class="skeleton-hero"></div>
+        <div style="padding: 40px 32px;">
+          <div class="skeleton-line" style="width: 60%; height: 20px;"></div>
+          <div class="skeleton-line" style="width: 40%; height: 14px;"></div>
+          <div style="height: 20px;"></div>
+          <div class="skeleton-block"></div>
+          <div class="skeleton-block"></div>
+          <div class="skeleton-block"></div>
+        </div>
+      </div>
+
+      <!-- Real content (hidden until loaded) -->
+      <div id="page-content" style="display:none;">
+
+        <!-- Hero -->
+        <div class="course-hero" id="course-hero">
+          <div class="hero-bg" id="hero-bg"></div>
+          <div class="hero-initials" id="hero-initials"></div>
+          <div class="hero-overlay"></div>
+          <div class="hero-content">
+            <div class="hero-breadcrumb">
+              <a href="/student-course-catalog.html">Library</a>
+              <span id="hero-breadcrumb-cat"></span>
+            </div>
+            <div class="hero-taught-by">Taught By</div>
+            <div class="hero-instructor" id="hero-instructor">—</div>
+            <div class="hero-course-title" id="hero-course-title">—</div>
+            <div class="hero-meta-row" id="hero-meta-row">
+              <!-- filled by JS -->
+            </div>
+            <div class="hero-actions" id="hero-actions">
+              <!-- filled by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Body: curriculum + sidebar -->
+        <div class="body-area">
+
+          <!-- Left: Curriculum -->
+          <div>
+            <div class="curriculum-header">
+              <h2 class="curriculum-title">Course Curriculum</h2>
+              <span class="lesson-count-badge" id="curriculum-count">—</span>
+            </div>
+            <div id="chapters-list">
+              <div class="skeleton-block"></div>
+              <div class="skeleton-block"></div>
+              <div class="skeleton-block"></div>
+            </div>
+          </div>
+
+          <!-- Right: Info card -->
+          <div>
+            <div class="info-card" id="info-card">
+
+              <!-- Price -->
+              <div class="price-display" id="price-display">
+                <div class="price-label">Course Access</div>
+                <div class="price-free">Free to enroll</div>
+              </div>
+
+              <!-- Enroll / Continue button -->
+              <div id="card-cta-wrap">
+                <!-- filled by JS -->
+              </div>
+
+              <div class="card-divider"></div>
+
+              <!-- What's included -->
+              <ul class="included-list">
+                <li class="included-item">
+                  <div class="included-check">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C8A84B" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  Live interactive sessions
+                </li>
+                <li class="included-item">
+                  <div class="included-check">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C8A84B" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  Recorded class archives
+                </li>
+                <li class="included-item">
+                  <div class="included-check">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C8A84B" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  Practice module access
+                </li>
+                <li class="included-item">
+                  <div class="included-check">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C8A84B" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  Community forum
+                </li>
+                <li class="included-item">
+                  <div class="included-check">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C8A84B" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  Certificate of completion
+                </li>
+              </ul>
+
+              <div class="card-divider"></div>
+
+              <!-- Instructor mini bio -->
+              <div class="instructor-bio-section">
+                <div class="instructor-bio-heading">About the Instructor</div>
+                <div class="instructor-bio-row">
+                  <div class="instructor-initials-avatar" id="card-instructor-avatar">?</div>
+                  <div>
+                    <div class="instructor-bio-name" id="card-instructor-name">—</div>
+                    <div class="instructor-bio-instrument" id="card-instructor-instrument">—</div>
+                  </div>
+                </div>
+                <p class="instructor-bio-text" id="card-instructor-bio">—</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Related Sheet Music -->
+        <div class="related-section" id="related-section" style="display:none;">
+          <div class="related-heading">Related Sheet Music</div>
+          <div class="sheets-scroll" id="sheets-scroll"></div>
+        </div>
+
+      </div><!-- /page-content -->
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/assets/js/api.js"></script>
+<script>
+  // Deferred-auth: unauthenticated visitors are sent to the public course
+  // landing (/courses/:slug) so they can still browse before signing in.
+  // We try to preserve the course id in the URL by reading ?id= first.
+  (function redirectIfAnonymous() {
+    if (localStorage.getItem('archive_token')) return;
+    const id = new URLSearchParams(location.search).get('id');
+    if (id) window.location.replace('/courses/' + id);
+    else    window.location.replace('/courses.html');
+  })();
+</script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['student']);</script>
+<script src="/assets/js/student-sidebar.js"></script>
+<script>
+  /* ── State ── */
+  let courseId          = null;
+  let currentCourse     = null;
+  let isEnrolled        = false;
+  let enrollmentProgress = 0;
+  let currentUser       = null;
+
+  /* ── Category gradients ── */
+  const categoryGradients = {
+    'Sitar':      'linear-gradient(160deg, #1A0D00 0%, #3D2400 60%, #1A0D00 100%)',
+    'Percussion': 'linear-gradient(160deg, #001A08 0%, #003314 60%, #001A08 100%)',
+    'Vocals':     'linear-gradient(160deg, #1A0014 0%, #330028 60%, #1A0014 100%)',
+    'Dance':      'linear-gradient(160deg, #001A1A 0%, #003333 60%, #001A1A 100%)',
+    'Kathak':     'linear-gradient(160deg, #001A1A 0%, #003333 60%, #001A1A 100%)',
+    'Film Songs': 'linear-gradient(160deg, #1A1000 0%, #332000 60%, #1A1000 100%)',
+    'Acting':     'linear-gradient(160deg, #0A0A1A 0%, #141433 60%, #0A0A1A 100%)',
+  };
+
+  function getCategoryGradient(cat) {
+    return categoryGradients[cat] || 'linear-gradient(160deg, #0F0D0B 0%, #1E1B17 100%)';
+  }
+
+  /* ── Toast ── */
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t  = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  /* ── Logout ── */
+  function handleLogout() {
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/index.html';
+  }
+
+  /* ── User loaded ── */
+  document.addEventListener('userLoaded', async (e) => {
+    const user = e.detail;
+    currentUser = user;
+
+    document.getElementById('sb-avatar').textContent     = user.avatar_initials || '?';
+    document.getElementById('sb-name').textContent       = user.first_name + ' ' + user.last_name;
+    document.getElementById('sb-role').textContent       = user.role;
+    document.getElementById('topbar-avatar').textContent = user.avatar_initials || '?';
+    document.getElementById('nav-dash').href = user.role === 'instructor' ? '/instructor-dashboard.html' : '/student-dashboard.html';
+
+    courseId = new URLSearchParams(window.location.search).get('id');
+    if (!courseId) { window.location.href = '/student-course-catalog.html'; return; }
+
+    loadCourse();
+  });
+
+  /* ── Load course ── */
+  async function loadCourse() {
+    try {
+      const [courseData, chaptersData, enrollData] = await Promise.all([
+        api.get(`/api/courses/${courseId}`),
+        api.get(`/api/courses/${courseId}/chapters`),
+        api.get('/api/enrollments/me').catch(() => ({ enrollments: [] }))
+      ]);
+
+      const course      = courseData.course;
+      currentCourse     = course;
+      const chapters    = chaptersData.chapters || [];
+      const enrollments = enrollData.enrollments || [];
+      const enrollment  = enrollments.find(e => e.course_id == courseId);
+      isEnrolled        = !!enrollment;
+      enrollmentProgress = enrollment ? (enrollment.progress_pct || 0) : 0;
+
+      renderCourse(course, chapters);
+    } catch (err) {
+      document.getElementById('page-skeleton').innerHTML = `
+        <div style="padding:48px 32px; font-family:'DM Sans',sans-serif; font-size:14px; color:#6B5E50;">
+          ${err.message}
+        </div>`;
+    }
+  }
+
+  /* ── Render course ── */
+  function renderCourse(course, chapters) {
+    document.getElementById('page-skeleton').style.display = 'none';
+    document.getElementById('page-content').style.display  = 'block';
+
+    document.title = course.title + ' — The Foundation Room';
+
+    const category   = course.category || '';
+    const gradient   = getCategoryGradient(category);
+    const instructor = course.instructor_name || 'TFR Faculty';
+    const initial    = instructor.charAt(0).toUpperCase();
+
+    /* Hero */
+    document.getElementById('hero-bg').style.background = gradient;
+    document.getElementById('hero-initials').textContent = initial;
+    if (category) {
+      document.getElementById('hero-breadcrumb-cat').innerHTML = ` <span style="color:#6B5E50; margin:0 6px;">/</span> ${category}`;
+    }
+    document.getElementById('hero-instructor').textContent   = instructor;
+    document.getElementById('hero-course-title').textContent = course.title;
+
+    /* Meta row */
+    const totalLessons = chapters.reduce((s, ch) => s + (ch.lessons?.length || 0), 0);
+    const duration     = course.duration_weeks ? `${course.duration_weeks} weeks` : null;
+    const level        = course.level || 'All Levels';
+
+    const metaItems = [
+      `<span class="hero-level-badge">${level}</span>`,
+      duration        ? `<span class="hero-meta-dot"></span><span class="hero-meta-item">${duration}</span>` : '',
+      totalLessons    ? `<span class="hero-meta-dot"></span><span class="hero-meta-item">${totalLessons} lessons</span>` : '',
+    ].join('');
+    document.getElementById('hero-meta-row').innerHTML = metaItems;
+
+    /* Hero CTA */
+    const heroActions = document.getElementById('hero-actions');
+    if (currentUser?.role === 'instructor') {
+      heroActions.innerHTML = '';
+    } else if (isEnrolled) {
+      heroActions.innerHTML = `
+        <div class="progress-ring-container">
+          <div class="progress-ring-wrap">
+            <svg width="72" height="72" class="progress-ring-svg">
+              <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(200,168,75,0.15)" stroke-width="6"/>
+              <circle id="ring-fill" cx="36" cy="36" r="28" fill="none" stroke="#C8A84B" stroke-width="6"
+                stroke-dasharray="175.9" stroke-dashoffset="175.9" stroke-linecap="round"/>
+            </svg>
+            <div class="progress-ring-label">
+              <span class="ring-pct" id="ring-pct">${enrollmentProgress}%</span>
+              <span class="ring-sub">done</span>
+            </div>
+          </div>
+          <a href="/student-course-detail.html?id=${courseId}" class="btn-continue">Continue Learning →</a>
+        </div>`;
+      // animate ring
+      setTimeout(() => {
+        const offset = 175.9 - (enrollmentProgress / 100) * 175.9;
+        const fill = document.getElementById('ring-fill');
+        if (fill) fill.style.strokeDashoffset = offset;
+      }, 100);
+    } else {
+      const isPaid   = course.is_paid && course.price_paise > 0;
+      const priceStr = isPaid ? `₹${(course.price_paise / 100).toLocaleString('en-IN')}` : '';
+      const heroLabel = isPaid ? `Enroll for ${priceStr}` : 'Enroll in This Course';
+      heroActions.innerHTML = `
+        <button class="btn-enroll" id="hero-enroll-btn" onclick="enrollCourse()">
+          ${heroLabel}
+        </button>`;
+    }
+
+    /* Info card CTA */
+    const cardCta = document.getElementById('card-cta-wrap');
+    if (currentUser?.role === 'instructor') {
+      cardCta.innerHTML = '';
+    } else if (isEnrolled) {
+      cardCta.innerHTML = `<button class="btn-continue-card" onclick="window.location.href='/student-course-detail.html?id=${courseId}'">Continue Learning →</button>`;
+    } else {
+      const isPaid = course.is_paid && course.price_paise > 0;
+      const label  = isPaid ? `Buy Now · ₹${(course.price_paise / 100).toLocaleString('en-IN')}` : 'Enroll Now';
+      cardCta.innerHTML = `<button class="btn-enroll-card" id="card-enroll-btn" onclick="enrollCourse()">${label}</button>`;
+    }
+
+    /* Price */
+    if (course.is_paid && course.price_paise > 0) {
+      document.getElementById('price-display').innerHTML = `
+        <div class="price-label">Course Price</div>
+        <div class="price-amount">₹${(course.price_paise / 100).toLocaleString('en-IN')}</div>`;
+    } else if (course.price && course.price > 0) {
+      document.getElementById('price-display').innerHTML = `
+        <div class="price-label">Course Price</div>
+        <div class="price-amount">₹${course.price.toLocaleString('en-IN')}</div>`;
+    }
+
+    /* Instructor bio card */
+    const instInitials = instructor.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+    document.getElementById('card-instructor-avatar').textContent    = instInitials;
+    document.getElementById('card-instructor-name').textContent      = instructor;
+    document.getElementById('card-instructor-instrument').textContent = course.instrument || category || '';
+    document.getElementById('card-instructor-bio').textContent       = course.instructor_bio || 'One of India\'s foremost performing artists, bringing decades of mastery to every session.';
+
+    /* Curriculum */
+    document.getElementById('curriculum-count').textContent = `${chapters.length} chapters · ${totalLessons} lessons`;
+    renderChapters(chapters);
+
+    /* Related sheet music */
+    loadRelatedSheetMusic(courseId);
+  }
+
+  /* ── Render chapters ── */
+  function renderChapters(chapters) {
+    const list = document.getElementById('chapters-list');
+
+    if (!chapters.length) {
+      list.innerHTML = `<div style="padding:24px; font-family:'DM Sans',sans-serif; font-size:13px; color:#6B5E50; background:#161412; border:1px solid rgba(200,168,75,0.06);">No content available yet.</div>`;
+      return;
+    }
+
+    list.innerHTML = chapters.map((ch, idx) => `
+      <div class="chapter-item">
+        <div class="chapter-header" onclick="toggleChapter(this)">
+          <div class="chapter-header-left">
+            <div class="chapter-number">${ch.order_index || idx + 1}</div>
+            <div>
+              <div class="chapter-title-text">${ch.title}</div>
+              <div class="chapter-lesson-count">${(ch.lessons || []).length} lessons</div>
+            </div>
+          </div>
+          <svg class="chapter-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="chapter-body">
+          ${renderLessons(ch.lessons || [])}
+        </div>
+      </div>`).join('');
+
+    // Auto-open first chapter
+    const firstHeader = list.querySelector('.chapter-header');
+    if (firstHeader) toggleChapter(firstHeader);
+  }
+
+  function renderLessons(lessons) {
+    if (!lessons.length) {
+      return `<div style="padding:12px 20px; font-family:'DM Sans',sans-serif; font-size:13px; color:#6B5E50;">No lessons in this chapter yet.</div>`;
+    }
+
+    return lessons.map(l => {
+      const completed = l.completed;
+      const locked    = !isEnrolled && !completed;
+      const rowClass  = completed ? 'lesson-row completed' : locked ? 'lesson-row locked' : 'lesson-row';
+      const typeIcons = {
+        video:    `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+        reading:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+        exercise: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+        quiz:     `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+      };
+
+      const typeIcon = typeIcons[l.type] || typeIcons.video;
+      const typeClass = `lesson-type-icon type-${l.type || 'video'}`;
+      const duration  = l.duration_minutes ? `${l.duration_minutes} min` : '';
+
+      const rightEl = locked
+        ? `<div class="lesson-lock"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>`
+        : `<div class="lesson-check ${completed ? 'done' : ''}" id="check-${l.id}" onclick="event.stopPropagation(); completeLesson(${l.id})">
+            ${completed ? '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+          </div>`;
+
+      const clickAttr = locked ? '' : `onclick="toggleLessonViewer(${l.id})" style="cursor:pointer;"`;
+      return `
+        <div class="${rowClass}" ${clickAttr}>
+          <div class="${typeClass}">${typeIcon}</div>
+          <div class="lesson-title">${l.title}</div>
+          <div class="lesson-duration">${duration}</div>
+          ${rightEl}
+        </div>
+        <div class="lesson-viewer" id="viewer-${l.id}"></div>`;
+    }).join('');
+  }
+
+  /* ── Lesson materials viewer ── */
+  const _lessonCache = {};
+
+  async function toggleLessonViewer(lessonId) {
+    const viewer = document.getElementById('viewer-' + lessonId);
+    if (!viewer) return;
+    const willOpen = !viewer.classList.contains('open');
+    if (willOpen) {
+      viewer.classList.add('open');
+      if (!_lessonCache[lessonId]) {
+        viewer.innerHTML = `<div class="viewer-empty">Loading lesson…</div>`;
+        try {
+          const data = await api.get('/api/lessons/' + lessonId);
+          _lessonCache[lessonId] = data.lesson;
+        } catch (err) {
+          viewer.innerHTML = `<div class="viewer-empty">Could not load materials.</div>`;
+          return;
+        }
+      }
+      renderLessonViewer(lessonId);
+    } else {
+      // Stop any playing media when collapsing
+      viewer.querySelectorAll('iframe, video').forEach(el => {
+        const src = el.src;
+        el.src = '';
+        el.src = src;
+      });
+      viewer.classList.remove('open');
+    }
+  }
+
+  function renderLessonViewer(lessonId) {
+    const viewer = document.getElementById('viewer-' + lessonId);
+    if (!viewer) return;
+    const lesson = _lessonCache[lessonId];
+    const materials = (lesson && lesson.materials) || [];
+    if (!materials.length) {
+      viewer.innerHTML = `<div class="viewer-empty">No materials have been added to this lesson yet.</div>`;
+      return;
+    }
+    viewer.innerHTML = materials.map(m => renderMaterialBlock(m)).join('');
+  }
+
+  function renderMaterialBlock(m) {
+    const title = m.title || `(untitled ${m.type})`;
+    const head = `
+      <div class="mat-block-head">
+        <div class="mat-block-title">${escapeHtml(title)}</div>
+        <span class="mat-type-tag type-${m.type}">${m.type}</span>
+      </div>`;
+    let body = '';
+    if (m.type === 'video' && m.url) {
+      const isYT = /youtube\.com|youtu\.be/i.test(m.url);
+      const embed = isYT ? toYouTubeEmbed(m.url) : m.url;
+      const player = isYT
+        ? `<iframe id="vid-${m.id}" src="${embed}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+        : `<video id="vid-${m.id}" src="${m.url}" controls preload="metadata"></video>`;
+      body = `<div class="mat-video-frame">${player}</div>`;
+      const ts = m.timestamps || [];
+      if (ts.length) {
+        body += `
+          <div class="mat-ts-bar">
+            <div class="mat-ts-head">Chapters · ${ts.length}</div>
+            <div class="mat-ts-chips">
+              ${ts.map(t => `<button class="mat-ts-chip" onclick="seekVideo(${m.id}, ${t.time_seconds}, ${isYT ? 1 : 0})"><span class="ts-time">${fmtViewerTime(t.time_seconds)}</span><span>${escapeHtml(t.label || '')}</span></button>`).join('')}
+            </div>
+          </div>`;
+      }
+    } else if (m.type === 'image' && m.url) {
+      body = `<img class="mat-img" src="${m.url}" alt="${escapeHtml(title)}">`;
+    } else if (m.type === 'pdf' && m.url) {
+      body = `<iframe class="mat-pdf" src="${m.url}" title="${escapeHtml(title)}"></iframe>`;
+    } else if (m.type === 'url' && m.url) {
+      body = `
+        <div class="mat-url-cta">
+          <div style="font-size:12px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(m.url)}</div>
+          <a href="${m.url}" target="_blank" rel="noopener">Open link →</a>
+        </div>`;
+    } else {
+      body = `<div style="padding:16px;font-size:12px;color:var(--text-3);">No content URL set.</div>`;
+    }
+    return `<div class="mat-block">${head}${body}</div>`;
+  }
+
+  function fmtViewerTime(s) {
+    s = Math.max(0, parseInt(s) || 0);
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
+  }
+
+  function toYouTubeEmbed(url) {
+    // Accept watch URLs, short URLs, or already-embed URLs
+    const ytId = (() => {
+      const m1 = url.match(/youtu\.be\/([\w-]+)/);
+      if (m1) return m1[1];
+      const m2 = url.match(/[?&]v=([\w-]+)/);
+      if (m2) return m2[1];
+      const m3 = url.match(/youtube\.com\/embed\/([\w-]+)/);
+      if (m3) return m3[1];
+      return null;
+    })();
+    if (!ytId) return url;
+    return `https://www.youtube.com/embed/${ytId}?enablejsapi=1`;
+  }
+
+  function seekVideo(materialId, seconds, isYouTube) {
+    const iframe = document.getElementById('vid-' + materialId);
+    if (!iframe) return;
+    if (isYouTube) {
+      const src = new URL(iframe.src);
+      src.searchParams.set('start', seconds);
+      src.searchParams.set('autoplay', '1');
+      iframe.src = src.toString();
+    } else {
+      iframe.currentTime = seconds;
+      iframe.play && iframe.play();
+    }
+  }
+
+  function escapeHtml(s) {
+    return (s || '').toString()
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Toggle chapter ── */
+  function toggleChapter(header) {
+    header.classList.toggle('open');
+    header.nextElementSibling.classList.toggle('open');
+  }
+
+  /* ── Complete lesson ── */
+  async function completeLesson(lessonId) {
+    if (!isEnrolled) { toast('Enroll in the course first', 'error'); return; }
+    const el = document.getElementById(`check-${lessonId}`);
+    if (el && el.classList.contains('done')) return;
+    try {
+      const data = await api.post(`/api/lessons/${lessonId}/complete`, {});
+      if (el) {
+        el.classList.add('done');
+        el.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+      }
+      enrollmentProgress = data.progress_pct || enrollmentProgress;
+      const pctEl  = document.getElementById('ring-pct');
+      const fillEl = document.getElementById('ring-fill');
+      if (pctEl)  pctEl.textContent = enrollmentProgress + '%';
+      if (fillEl) fillEl.style.strokeDashoffset = 175.9 - (enrollmentProgress / 100) * 175.9;
+      toast(`Progress: ${enrollmentProgress}%`);
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  }
+
+  /* ── Enroll ── */
+  function enrollCourse() {
+    // Paid-only model: always open the buy modal. It handles both bundle and
+    // per-chapter purchase flows + coupons, and reloads the page on success.
+    if (typeof window.openEnrollModal === 'function') {
+      return window.openEnrollModal(courseId);
+    }
+    toast('Payment module failed to load. Please refresh.', 'error');
+  }
+
+  /* ── Related Sheet Music ── */
+  async function loadRelatedSheetMusic(courseId) {
+    try {
+      const data   = await api.get(`/api/sheet-music?course_id=${courseId}`);
+      const sheets = (data.items || []).slice(0, 8);
+      if (!sheets.length) return;
+
+      const section = document.getElementById('related-section');
+      const scroll  = document.getElementById('sheets-scroll');
+      section.style.display = 'block';
+
+      scroll.innerHTML = sheets.map(s => `
+        <div class="sheet-card">
+          <div class="sheet-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div class="sheet-title">${s.title || 'Untitled'}</div>
+          <div class="sheet-composer">${s.composer || ''}</div>
+          ${s.period ? `<span class="sheet-period-badge">${s.period}</span>` : ''}
+          <div class="sheet-download-btn" onclick="downloadSheet(${s.id})">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+          </div>
+        </div>`).join('');
+    } catch (_) {
+      // Silently hide section on error
+    }
+  }
+
+  function downloadSheet(id) {
+    window.open(`/api/sheet-music/${id}/download`, '_blank');
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="/assets/js/enroll-modal.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+  // Entrance
+  gsap.from('.page-header, .stat-card, .card, .content-section', {
+    y: 24, opacity: 0, duration: 0.65, stagger: 0.07, ease: 'power3.out', delay: 0.1
+  });
+  // Scroll triggers
+  gsap.utils.toArray('.card, tr, .list-item').forEach(el => {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 90%' },
+      y: 14, opacity: 0, duration: 0.45, ease: 'power2.out' });
+  });
+  // Hero entrance
+  gsap.from('.course-hero', { opacity: 0, duration: 0.8, ease: 'power2.out' });
+  gsap.from('.hero-content > *', { y: 30, opacity: 0, duration: 0.7, stagger: 0.10, ease: 'power3.out', delay: 0.3 });
+  // Chapter items on scroll
+  gsap.utils.toArray('.chapter-item').forEach(el => {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 90%' },
+      y: 14, opacity: 0, duration: 0.45, ease: 'power2.out' });
+  });
+  // Lesson rows on scroll
+  gsap.utils.toArray('.lesson-row').forEach(el => {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 95%' },
+      x: -10, opacity: 0, duration: 0.35, ease: 'power2.out' });
+  });
+</script>
+</body>
+</html>

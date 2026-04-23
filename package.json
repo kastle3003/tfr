@@ -1,0 +1,24 @@
+{
+  "name": "archive-lms",
+  "version": "1.0.0",
+  "description": "The Archive Music School LMS",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.622.0",
+    "@aws-sdk/s3-request-presigner": "^3.622.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "node-sqlite3-wasm": "^0.8.19",
+    "nodemailer": "^8.0.5",
+    "razorpay": "^2.9.6",
+    "uuid": "^9.0.1"
+  }
+}

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Coupons — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080706; --bg-2: #0F0D0B; --bg-card: #161412; --bg-elevated: #1E1B17; --bg-hover: #252119;
+      --gold: #C8A84B; --gold-bright: #E8C96E; --gold-dim: #7A6530; --gold-glow: rgba(200,168,75,0.12);
+      --text: #F0E6D3; --text-2: #B8A898; --text-3: #6B5E50; --ruby: #8B2E26;
+      --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'DM Sans', sans-serif;
+      --sidebar-w: 240px; --topbar-h: 60px; --radius: 6px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--sans); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .shell { display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--bg-card); display: flex; flex-direction: column; height: 100vh; position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid rgba(200,168,75,0.06); }
+    .main-wrap { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+    .topbar { height: var(--topbar-h); background: var(--bg-card); border-bottom: 1px solid rgba(200,168,75,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 10; }
+    .topbar-title { font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--gold); }
+    .main-content { padding: 32px; flex: 1; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+    .page-title { font-family: var(--serif); font-size: 32px; font-weight: 600; color: var(--gold); }
+    .page-subtitle { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+    .btn { padding: 9px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all .15s; cursor: pointer; }
+    .btn-primary { background: var(--gold); color: var(--bg); }
+    .btn-primary:hover { background: var(--gold-bright); }
+    .btn-outline { background: transparent; color: var(--text-2); border: 1px solid rgba(200,168,75,0.25); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-danger { background: transparent; color: var(--ruby); border: 1px solid rgba(139,46,38,.4); }
+    .btn-danger:hover { background: rgba(139,46,38,.1); }
+    .btn.sm { padding: 5px 10px; font-size: 12px; }
+
+    .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.08); border-radius: var(--radius); padding: 18px; }
+    .stat-card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); }
+    .stat-card-value { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--gold); margin: 6px 0 2px; }
+    .stat-card-sub { font-size: 12px; color: var(--text-3); }
+
+    .table-card { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.08); border-radius: var(--radius); overflow: hidden; }
+    .table-card-header { padding: 16px 20px; border-bottom: 1px solid rgba(200,168,75,0.08); display: flex; justify-content: space-between; align-items: center; }
+    .table-card-title { font-family: var(--serif); font-size: 18px; color: var(--text); }
+    .table-wrap { overflow-x: auto; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table thead th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid rgba(200,168,75,0.10); }
+    .table tbody tr { background: var(--bg-card); border-bottom: 1px solid rgba(200,168,75,0.06); transition: all .12s; }
+    .table tbody tr:last-child { border-bottom: none; }
+    .table tbody tr:hover { background: var(--bg-2); }
+    .table tbody td { padding: 14px 16px; font-size: 13px; color: var(--text-2); vertical-align: middle; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; letter-spacing: .04em; }
+    .badge.active { background: rgba(125,200,125,0.12); color: #7dc87d; }
+    .badge.inactive { background: rgba(120,120,120,0.15); color: var(--text-3); }
+    .badge.expired { background: rgba(231,138,138,0.12); color: #e78a8a; }
+    .code-cell { font-family: monospace; color: var(--gold); font-weight: 600; letter-spacing: .04em; }
+    .actions-cell { display: flex; gap: 6px; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.78); z-index: 999; display: none; align-items: center; justify-content: center; padding: 24px; }
+    .modal-overlay.open { display: flex; }
+    .modal { width: 100%; max-width: 500px; background: var(--bg-card); border: 1px solid rgba(200,168,75,0.2); border-radius: 8px; padding: 26px; }
+    .modal-title { font-family: var(--serif); font-size: 22px; color: var(--gold); margin-bottom: 4px; }
+    .modal-subtitle { font-size: 12px; color: var(--text-3); margin-bottom: 18px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    .form-input, .form-select { width: 100%; background: var(--bg-2); border: 1px solid rgba(200,168,75,0.15); color: var(--text); padding: 9px 11px; border-radius: 4px; font-family: inherit; font-size: 13px; }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--gold); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(200,168,75,0.08); }
+
+    /* Toast */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+    .toast { background: var(--bg-elevated); border: 1px solid rgba(200,168,75,0.15); border-left: 3px solid var(--gold); border-radius: 6px; padding: 12px 16px; font-size: 13px; color: var(--text); min-width: 240px; }
+    .toast.error { border-left-color: var(--ruby); }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">Coupons</div>
+    </header>
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Coupons</h1>
+          <p class="page-subtitle">Create and manage discount codes for bundles and chapter purchases.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Coupon
+        </button>
+      </div>
+
+      <div class="stat-cards" id="stat-cards">
+        <div class="stat-card">
+          <div class="stat-card-label">Active Coupons</div>
+          <div class="stat-card-value" id="stat-active">—</div>
+          <div class="stat-card-sub">Currently usable</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Total Redemptions</div>
+          <div class="stat-card-value" id="stat-redemptions">—</div>
+          <div class="stat-card-sub">All coupons</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Total Discounted</div>
+          <div class="stat-card-value" id="stat-discounted">—</div>
+          <div class="stat-card-sub">Sum across redemptions</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-card-title">All Coupons</div>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Applies To</th>
+                <th>Course</th>
+                <th>Usage</th>
+                <th>Expires</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="coupons-tbody">
+              <tr><td colspan="8" style="text-align:center; color:var(--text-3); padding:40px;">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div class="modal-overlay" id="coupon-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">New Coupon</div>
+    <div class="modal-subtitle" id="modal-subtitle">Create a discount code for bundles or individual chapters.</div>
+
+    <div class="form-group">
+      <label class="form-label">Code</label>
+      <input class="form-input" id="f-code" placeholder="WELCOME10" maxlength="32" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description <span style="color:var(--text-3);font-weight:400;">(internal only)</span></label>
+      <input class="form-input" id="f-description" placeholder="Welcome discount for new students">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Discount Type</label>
+        <select class="form-select" id="f-discount-type">
+          <option value="pct">Percentage (%)</option>
+          <option value="flat">Flat (₹)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Value</label>
+        <input class="form-input" id="f-discount-value" type="number" min="0" step="1" placeholder="10">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Applies To</label>
+        <select class="form-select" id="f-applies-to">
+          <option value="both">Both (bundle & chapters)</option>
+          <option value="bundle">Bundle only</option>
+          <option value="individual">Individual chapters only</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Course <span style="color:var(--text-3);font-weight:400;">(optional scope)</span></label>
+        <select class="form-select" id="f-course-id">
+          <option value="">All courses</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Max Redemptions <span style="color:var(--text-3);font-weight:400;">(blank = unlimited)</span></label>
+        <input class="form-input" id="f-max-redemptions" type="number" min="0" step="1" placeholder="100">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expires At <span style="color:var(--text-3);font-weight:400;">(blank = never)</span></label>
+        <input class="form-input" id="f-expires-at" type="datetime-local">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeCouponModal()">Cancel</button>
+      <button class="btn btn-primary" id="save-btn" onclick="saveCoupon()">Create Coupon</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/assets/js/api.js?v=2"></script>
+<script src="/assets/js/auth-guard.js?v=2"></script>
+<script>requireRole(['admin']);</script>
+<script src="/assets/js/admin-sidebar.js?v=2"></script>
+<script>
+  let couponsData = [];
+  let editingId = null;
+
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast${type === 'error' ? ' error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  const fmtINR = (paise) => '₹' + (Number(paise) / 100).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  const fmtDate = (s) => s ? new Date(s).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  const fmtDateTime = (s) => s ? new Date(s).toLocaleString('en-IN') : '—';
+  const esc = (s) => String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function statusBadge(c) {
+    if (!c.active) return '<span class="badge inactive">Inactive</span>';
+    if (c.expires_at && new Date(c.expires_at) < new Date()) return '<span class="badge expired">Expired</span>';
+    if (c.max_redemptions != null && c.redemptions_used >= c.max_redemptions) return '<span class="badge expired">Exhausted</span>';
+    return '<span class="badge active">Active</span>';
+  }
+
+  function discountStr(c) {
+    return c.discount_type === 'pct' ? `${c.discount_value}%` : `₹${c.discount_value}`;
+  }
+
+  async function loadCourses() {
+    try {
+      const r = await api.get('/api/courses?status=all');
+      const courses = r.courses || r || [];
+      const sel = document.getElementById('f-course-id');
+      sel.innerHTML = '<option value="">All courses</option>' +
+        courses.map(c => `<option value="${c.id}">${esc(c.title)}</option>`).join('');
+    } catch (_) {}
+  }
+
+  async function loadCoupons() {
+    try {
+      const r = await api.get('/api/coupons/admin');
+      couponsData = r.coupons || [];
+      renderTable();
+      renderStats();
+    } catch (e) {
+      document.getElementById('coupons-tbody').innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--ruby);padding:40px;">Failed to load: ${esc(e.message)}</td></tr>`;
+    }
+  }
+
+  function renderStats() {
+    const active = couponsData.filter(c => c.active && (!c.expires_at || new Date(c.expires_at) >= new Date())).length;
+    const totalRedemptions = couponsData.reduce((a, c) => a + (c.redemptions_used || 0), 0);
+    document.getElementById('stat-active').textContent = active;
+    document.getElementById('stat-redemptions').textContent = totalRedemptions;
+    // Total discounted requires loading redemption details — fetch aggregate lazily
+    document.getElementById('stat-discounted').textContent = '—';
+    (async () => {
+      try {
+        let sum = 0;
+        for (const c of couponsData) {
+          if (!c.redemptions_used) continue;
+          const r = await api.get(`/api/coupons/admin/${c.id}/redemptions`);
+          (r.redemptions || []).forEach(x => { sum += x.amount_discounted_paise || 0; });
+        }
+        document.getElementById('stat-discounted').textContent = fmtINR(sum);
+      } catch (_) {}
+    })();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('coupons-tbody');
+    if (!couponsData.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:40px;">No coupons yet. Click "New Coupon" to create one.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = couponsData.map(c => `
+      <tr>
+        <td class="code-cell">${esc(c.code)}</td>
+        <td>${discountStr(c)}</td>
+        <td style="text-transform:capitalize;">${esc(c.applies_to)}</td>
+        <td>${esc(c.course_title || 'All')}</td>
+        <td>${c.redemptions_used}${c.max_redemptions != null ? ' / ' + c.max_redemptions : ''}</td>
+        <td>${fmtDate(c.expires_at)}</td>
+        <td>${statusBadge(c)}</td>
+        <td class="actions-cell">
+          <button class="btn btn-outline sm" onclick="toggleActive(${c.id}, ${c.active ? 0 : 1})">${c.active ? 'Deactivate' : 'Activate'}</button>
+          <button class="btn btn-outline sm" onclick="viewRedemptions(${c.id})">Redemptions</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  function openCreateModal() {
+    editingId = null;
+    document.getElementById('modal-title').textContent = 'New Coupon';
+    document.getElementById('modal-subtitle').textContent = 'Create a discount code for bundles or individual chapters.';
+    document.getElementById('save-btn').textContent = 'Create Coupon';
+    document.getElementById('f-code').value = '';
+    document.getElementById('f-description').value = '';
+    document.getElementById('f-discount-type').value = 'pct';
+    document.getElementById('f-discount-value').value = '';
+    document.getElementById('f-applies-to').value = 'both';
+    document.getElementById('f-course-id').value = '';
+    document.getElementById('f-max-redemptions').value = '';
+    document.getElementById('f-expires-at').value = '';
+    document.getElementById('f-code').disabled = false;
+    document.getElementById('coupon-modal').classList.add('open');
+    setTimeout(() => document.getElementById('f-code').focus(), 30);
+  }
+
+  function closeCouponModal() {
+    document.getElementById('coupon-modal').classList.remove('open');
+  }
+
+  async function saveCoupon() {
+    const btn = document.getElementById('save-btn');
+    const body = {
+      code: document.getElementById('f-code').value.trim(),
+      description: document.getElementById('f-description').value.trim(),
+      discount_type: document.getElementById('f-discount-type').value,
+      discount_value: parseFloat(document.getElementById('f-discount-value').value),
+      applies_to: document.getElementById('f-applies-to').value,
+      course_id: document.getElementById('f-course-id').value ? parseInt(document.getElementById('f-course-id').value) : null,
+      max_redemptions: document.getElementById('f-max-redemptions').value ? parseInt(document.getElementById('f-max-redemptions').value) : null,
+      expires_at: document.getElementById('f-expires-at').value || null,
+    };
+    if (!body.code) return toast('Code is required', 'error');
+    if (!isFinite(body.discount_value) || body.discount_value < 0) return toast('Valid discount value required', 'error');
+
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      await api.post('/api/coupons/admin', body);
+      toast('Coupon created');
+      closeCouponModal();
+      await loadCoupons();
+    } catch (e) {
+      toast(e.message || 'Failed to save', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = editingId ? 'Save Changes' : 'Create Coupon';
+    }
+  }
+
+  async function toggleActive(id, newActive) {
+    try {
+      await api.put('/api/coupons/admin/' + id, { active: newActive });
+      toast(newActive ? 'Activated' : 'Deactivated');
+      loadCoupons();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function viewRedemptions(id) {
+    try {
+      const r = await api.get(`/api/coupons/admin/${id}/redemptions`);
+      const rows = r.redemptions || [];
+      if (!rows.length) return toast('No redemptions yet');
+      const summary = rows.map(x => `${x.first_name || ''} ${x.last_name || ''} (${x.email}) — ${fmtINR(x.amount_discounted_paise)} — ${fmtDateTime(x.created_at)}`).join('\n');
+      alert(`Redemptions (${rows.length}):\n\n${summary}`);
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  document.getElementById('coupon-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'coupon-modal') closeCouponModal();
+  });
+
+  loadCourses();
+  loadCoupons();
+</script>
+</body>
+</html>

@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:         #080706;
+      --ink-soft:    #0f0e0c;
+      --ink-mid:     #1a1916;
+      --gold:        #C8A84B;
+      --gold-bright: #E2C26A;
+      --gold-dim:    #8C7033;
+      --gold-bg:     rgba(200,168,75,.08);
+      --cream:       #F0E6D3;
+      --cream-dim:   #b8ad9e;
+      --ghost:       rgba(240,230,211,.06);
+      --ghost-mid:   rgba(240,230,211,.12);
+      --ghost-hi:    rgba(240,230,211,.18);
+      --border:      rgba(200,168,75,.15);
+      --border-hi:   rgba(200,168,75,.35);
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+      --radius:       4px;
+      --max:          1280px;
+    }
+
+    html { scroll-behavior: smooth; overflow-x: clip; }
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 64px;
+      display: flex; align-items: center;
+      padding: 0 40px;
+      background: rgba(8,7,6,.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--gold); letter-spacing: .04em; }
+    .nav-logo span { font-size: 10px; font-family: var(--font-body); font-weight: 400; color: var(--cream-dim); display: block; letter-spacing: .2em; text-transform: uppercase; margin-top: -4px; }
+    .nav-spacer { flex: 1; }
+    .nav-btn {
+      padding: 9px 24px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: none;
+      transition: all .2s;
+    }
+    .nav-ghost { background: transparent; border: 1px solid var(--border-hi); color: var(--cream); margin-right: 12px; }
+    .nav-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .nav-gold { background: var(--gold); color: var(--ink); }
+    .nav-gold:hover { background: var(--gold-bright); }
+    .nav-back { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--cream-dim); margin-right: 24px; transition: color .2s; }
+    .nav-back:hover { color: var(--gold); }
+    .nav-back svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ─── HERO BAND ─── */
+    #hero {
+      margin-top: 64px;
+      min-height: 520px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-left {
+      padding: 72px 60px 72px 80px;
+      display: flex; flex-direction: column; justify-content: center;
+      position: relative; z-index: 2;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      opacity: .55;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, var(--ink) 40%, transparent 100%);
+    }
+    .hero-eyebrow {
+      font-family: var(--font-body); font-size: 11px; font-weight: 500;
+      letter-spacing: .25em; text-transform: uppercase; color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: var(--font-display); font-size: clamp(38px, 5vw, 64px);
+      font-weight: 600; line-height: 1.08; color: var(--cream);
+      margin-bottom: 16px;
+    }
+    .hero-subtitle {
+      font-family: var(--font-display); font-size: 22px; font-style: italic;
+      color: var(--cream-dim); margin-bottom: 32px; font-weight: 300;
+    }
+    .hero-meta {
+      display: flex; gap: 28px; flex-wrap: wrap;
+    }
+    .hero-stat { display: flex; flex-direction: column; gap: 4px; }
+    .hero-stat-val { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--gold); line-height: 1; }
+    .hero-stat-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--cream-dim); }
+
+    /* sticky enroll card */
+    .enroll-panel {
+      background: var(--ink-mid);
+      border-left: 1px solid var(--border);
+      padding: 48px 36px;
+      display: flex; flex-direction: column; align-items: center;
+      position: sticky; top: 64px; align-self: start;
+      max-height: calc(100vh - 64px);
+      overflow-y: auto;
+      z-index: 2;
+    }
+    .enroll-price {
+      font-family: var(--font-display); font-size: 42px; font-weight: 600;
+      color: var(--gold); margin-bottom: 6px; text-align: center;
+    }
+    .enroll-price-note { font-size: 12px; color: var(--cream-dim); text-align: center; margin-bottom: 28px; letter-spacing: .06em; }
+    .btn-enroll-big {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--gold);
+      color: var(--ink);
+      font-size: 14px; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      border: none; border-radius: var(--radius);
+      cursor: pointer; transition: all .25s;
+      text-align: center; display: block;
+    }
+    .btn-enroll-big:hover { background: var(--gold-bright); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,168,75,.25); }
+    .btn-enroll-big:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .enroll-divider { width: 100%; border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+    .enroll-perks { list-style: none; width: 100%; }
+    .enroll-perks li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: var(--cream-dim); margin-bottom: 12px; line-height: 1.4;
+    }
+    .enroll-perks li svg { width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 2.5; flex-shrink: 0; margin-top: 2px; }
+    .enroll-note { font-size: 11px; color: var(--cream-dim); text-align: center; margin-top: 16px; letter-spacing: .04em; }
+    .enroll-success {
+      display: none;
+      flex-direction: column; align-items: center; gap: 12px;
+      padding: 20px; background: rgba(200,168,75,.1);
+      border: 1px solid var(--border-hi); border-radius: var(--radius);
+      text-align: center; margin-bottom: 20px; width: 100%;
+    }
+    .enroll-success svg { width: 32px; height: 32px; stroke: var(--gold); fill: none; stroke-width: 2; }
+    .enroll-success p { font-size: 13px; color: var(--cream-dim); }
+    .enroll-success strong { color: var(--gold); font-size: 15px; }
+
+    /* ─── LAYOUT ─── */
+    .page-wrap {
+      max-width: var(--max); margin: 0 auto;
+      display: grid;
+      /* minmax(0, 1fr) prevents the main column from expanding past its
+         fair share when a child (e.g. .curriculum-section) has width:100vw.
+         Without it, grid's default min-content sizing lets big children
+         stretch every sibling section beyond the intended column width. */
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 0;
+      align-items: start;
+    }
+    .page-main { padding: 80px 60px 80px 80px; min-width: 0; }
+    .page-side { position: sticky; top: 64px; padding: 0 36px 80px; }
+
+    /* ─── SECTIONS ─── */
+    .section { margin-bottom: 72px; }
+    .section-label {
+      font-size: 11px; font-weight: 500; letter-spacing: .25em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 16px;
+    }
+    .section-heading {
+      font-family: var(--font-display); font-size: 38px; font-weight: 600;
+      line-height: 1.15; margin-bottom: 24px; color: var(--cream);
+    }
+    .section-heading em { font-style: italic; color: var(--gold); }
+    .section-body { color: var(--cream-dim); font-size: 15px; line-height: 1.8; }
+    .section-body p + p { margin-top: 16px; }
+    .section-sep { border: none; border-top: 1px solid var(--border); margin-bottom: 72px; }
+
+    /* outcomes grid */
+    .outcomes-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin-top: 32px;
+    }
+    .outcome-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 16px; background: var(--ghost); border: 1px solid var(--border);
+      border-radius: var(--radius); font-size: 13px; color: var(--cream-dim); line-height: 1.4;
+    }
+    .outcome-item svg { width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 2.5; flex-shrink: 0; margin-top: 1px; }
+
+    /* ─── CURRICULUM ─── */
+    /* Full-bleed: anchor the section's left edge to viewport x=0 regardless
+       of how far right .page-main's content column is pushed by the 380px
+       sticky pricing sidebar. The min() picks whichever of the two values
+       is more negative, giving the correct margin at every viewport width:
+         • 900px ≤ vw ≤ 1280px  →  content_left = 80px, so margin -80px wins
+         • vw > 1280px          →  content_left grows as page-wrap centers,
+                                    so calc(-50vw + 560px) wins
+       (50vw − 560 equals 80 at vw=1280 and 400 at vw=1920 — the exact
+       horizontal distance from content column to viewport left.) */
+    .curriculum-section {
+      width: 100vw;
+      margin-left: min(-80px, calc(-50vw + 560px));
+      /* Wider horizontal inset so the foundation tabs, lesson list and video
+         don't hug the viewport edges on desktop. */
+      padding: 0 80px;
+      box-sizing: border-box;
+    }
+    @media (max-width: 1200px) {
+      .curriculum-section { padding: 0 56px; }
+    }
+    .curriculum-section .section-heading { margin-top: 6px; }
+    .curriculum-section .foundation-tabs { padding-top: 4px; }
+    @media (max-width: 900px) {
+      /* Mobile: no sidebar, normal single-column flow */
+      .curriculum-section {
+        width: 100%;
+        margin-left: 0;
+        padding: 0 24px;
+      }
+    }
+    .curriculum-summary {
+      display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;
+    }
+    .curr-stat { font-size: 13px; color: var(--cream-dim); }
+    .curr-stat strong { color: var(--cream); font-weight: 500; }
+
+    /* Course-wide progress: one large instrument icon that fills gold from
+       the bottom as completion increases. Total = video lessons in the
+       whole course (including previews). Fill = completed / total. */
+    .course-progress {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-left: 4px;
+    }
+    .course-progress svg {
+      width: 34px; height: 34px;
+      color: var(--gold);
+      display: block;
+    }
+    .course-progress-count {
+      font-size: 12px; color: var(--cream-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .foundation-tabs {
+      display: flex; gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .foundation-tab {
+      background: none; border: 0;
+      padding: 12px 20px;
+      color: var(--cream-dim);
+      font-family: inherit;
+      font-size: 13px; font-weight: 500; letter-spacing: .02em;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s;
+      white-space: nowrap;
+    }
+    .foundation-tab:hover { color: var(--cream); }
+    .foundation-tab.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+
+    .foundation-body {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) 2.6fr;
+      gap: 32px;
+    }
+    @media (max-width: 860px) { .foundation-body { grid-template-columns: 1fr; gap: 18px; } }
+
+    .foundation-lessons {
+      background: var(--ghost);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+    }
+    .lesson-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
+    .lesson-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px;
+      font-size: 13px; color: var(--cream-dim);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background .15s, color .15s;
+      user-select: none;
+    }
+    .lesson-item:hover { background: var(--ghost-mid); color: var(--cream); }
+    .lesson-item.selected {
+      background: rgba(200,168,75,.1);
+      color: var(--cream);
+    }
+    .lesson-item.locked { opacity: .75; }
+    .lesson-item .l-num { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--gold-dim); min-width: 18px; }
+    .lesson-item .l-icon { width: 18px; height: 18px; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .lesson-item .l-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: currentColor; }
+    .lesson-item.locked .l-icon { color: var(--cream-dim); }
+    .lesson-item.locked .l-icon svg { fill: none; stroke-width: 2; }
+    .lesson-item.selected .l-icon { color: var(--gold-bright, #E8C96E); }
+    .lesson-item .l-name { flex: 1; }
+    .lesson-item .l-dur { font-size: 11px; color: var(--cream-dim); font-variant-numeric: tabular-nums; }
+
+    .foundation-player {
+      background: var(--ghost);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+    .video-expand-btn {
+      position: absolute;
+      top: 10px; right: 10px; z-index: 4;
+      width: 34px; height: 34px;
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.2);
+      color: var(--cream);
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, border-color .15s;
+    }
+    .video-expand-btn:hover { background: rgba(200,168,75,.35); border-color: var(--gold); }
+    .video-expand-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ─── Theater / Full-viewport mode ─── */
+    .curriculum-section.theater {
+      position: fixed; inset: 0; z-index: 1000;
+      background: var(--bg, #0b0a08);
+      padding: 24px 32px;
+      margin: 0;
+      overflow-y: auto;
+      display: flex; flex-direction: column;
+    }
+    .curriculum-section.theater .section-label,
+    .curriculum-section.theater .section-heading,
+    .curriculum-section.theater .curriculum-summary { display: none; }
+    .curriculum-section.theater .foundation-tabs { margin-bottom: 16px; flex-shrink: 0; }
+    .curriculum-section.theater .foundation-body {
+      grid-template-columns: 320px 1fr;
+      flex: 1;
+      min-height: 0;
+    }
+    .curriculum-section.theater .foundation-lessons { overflow-y: auto; max-height: 100%; }
+    .curriculum-section.theater .foundation-player { height: 100%; }
+    .curriculum-section.theater .video-slot { aspect-ratio: auto; flex: 1; }
+    body.curriculum-theater-on { overflow: hidden; }
+    @media (max-width: 860px) {
+      .curriculum-section.theater .foundation-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    }
+    .video-slot {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      overflow: hidden;
+    }
+    .video-slot video, .video-slot iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%; display: block; border: 0;
+    }
+    .video-slot video { background: #000; }
+    .video-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+    .video-play-btn {
+      pointer-events: auto;
+      width: 68px; height: 68px; border-radius: 50%;
+      background: rgba(200,168,75,.95); color: #0F0D0B;
+      border: 0; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .15s, background .15s;
+    }
+    .video-play-btn:hover { transform: scale(1.06); background: var(--gold-bright, #E8C96E); }
+    .video-play-btn svg { width: 28px; height: 28px; fill: currentColor; }
+    .video-slot.playing .video-overlay { opacity: 0; }
+    .video-slot.playing:hover .video-overlay { opacity: 1; }
+
+    .video-progress-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: rgba(255,255,255,.12);
+      pointer-events: none;
+    }
+    .video-progress-fill {
+      height: 100%; background: var(--gold);
+      width: 0%;
+    }
+
+    .video-title-row {
+      padding: 12px 16px;
+      font-size: 13px; color: var(--cream);
+      border-top: 1px solid var(--border);
+      background: var(--ghost-mid);
+      min-height: 42px;
+    }
+
+    /* Practice Room CTA below the player — LOCKED for now.
+       Fills the player box width; shows "Coming soon" on hover/tap.
+       (Backend + /practice/:id page + course-manager editor are all wired and
+       ready; flip this back to an <a href> when you want to unlock.) */
+    .practice-room-btn {
+      position: relative;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin: 14px 16px 18px;
+      padding: 14px 18px;
+      background: var(--gold);
+      color: var(--ink, #0F0D0B);
+      border: 0;
+      border-radius: 3px;
+      font-family: inherit;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      cursor: not-allowed;
+      opacity: .78;
+      transition: opacity .2s, background .2s, box-shadow .2s;
+    }
+    .practice-room-btn:hover { opacity: 1; background: var(--gold-bright, #E8C96E); box-shadow: 0 6px 20px rgba(200,168,75,.25); }
+    .practice-room-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+    .practice-room-btn::after {
+      content: "Coming soon";
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #141312;
+      color: var(--cream);
+      padding: 6px 12px;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: .02em; text-transform: none;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s;
+    }
+    .practice-room-btn::before {
+      content: "";
+      position: absolute;
+      bottom: calc(100% + 3px);
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #141312;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .practice-room-btn:hover::after,
+    .practice-room-btn:hover::before,
+    .practice-room-btn.tapped::after,
+    .practice-room-btn.tapped::before { opacity: 1; }
+
+    .video-locked {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--cream-dim); padding: 24px; text-align: center;
+      background: #0a0907;
+    }
+    .video-locked svg { width: 36px; height: 36px; color: var(--gold-dim); margin-bottom: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .video-locked h3 { font-family: var(--font-display); font-size: 20px; color: var(--cream); margin: 0 0 6px; }
+    .video-locked p { font-size: 13px; margin: 0 0 14px; max-width: 340px; }
+    .video-locked .cta-row { display: flex; gap: 10px; }
+    .video-locked a {
+      background: var(--gold); color: #0F0D0B;
+      padding: 9px 18px; border-radius: 3px; font-weight: 600;
+      text-decoration: none; font-size: 12px; letter-spacing: .05em;
+      transition: background .15s;
+    }
+    .video-locked a.outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 8px 17px; }
+    .video-locked a:hover { background: var(--gold-bright, #E8C96E); color: #0F0D0B; }
+    .video-locked a.outline:hover { background: var(--gold); color: #0F0D0B; }
+
+    /* ─── INSTRUCTOR ─── */
+    .instructor-card-pub {
+      display: flex; gap: 28px; align-items: flex-start;
+      padding: 36px; background: var(--ghost); border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .instructor-avatar-big {
+      width: 96px; height: 96px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 32px; font-weight: 600;
+      color: var(--gold); flex-shrink: 0;
+      border: 2px solid var(--border-hi);
+    }
+    .instructor-info-name { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--cream); margin-bottom: 4px; }
+    .instructor-info-subject { font-size: 12px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+    .instructor-info-bio { font-size: 14px; color: var(--cream-dim); line-height: 1.8; }
+
+    /* ─── TESTIMONIALS ─── */
+    .testi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+    .testi-card {
+      padding: 28px; background: var(--ghost); border: 1px solid var(--border);
+      border-radius: var(--radius); position: relative;
+    }
+    .testi-mark { font-family: var(--font-display); font-size: 60px; color: var(--gold-dim); line-height: .8; margin-bottom: 12px; display: block; }
+    .testi-text { font-size: 14px; color: var(--cream-dim); line-height: 1.7; margin-bottom: 16px; font-style: italic; }
+    .testi-author { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--cream); }
+    .testi-origin { font-size: 11px; color: var(--cream-dim); margin-top: 2px; }
+    .stars { display: flex; gap: 3px; margin-bottom: 12px; }
+    .star { width: 10px; height: 10px; background: var(--gold); clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
+
+    /* ─── BOTTOM ENROLL CTA ─── */
+    .bottom-cta {
+      background: linear-gradient(135deg, var(--ink-mid) 0%, #141210 100%);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 52px 60px;
+      display: flex; align-items: center; justify-content: space-between; gap: 40px;
+      margin: 0 80px 80px;
+    }
+    .bottom-cta-text h2 { font-family: var(--font-display); font-size: 38px; font-weight: 600; color: var(--cream); margin-bottom: 8px; }
+    .bottom-cta-text h2 em { font-style: italic; color: var(--gold); }
+    .bottom-cta-text p { font-size: 15px; color: var(--cream-dim); }
+    .bottom-cta-action { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .btn-enroll-bottom {
+      padding: 18px 48px; background: var(--gold); color: var(--ink);
+      font-size: 14px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      transition: all .25s; white-space: nowrap;
+    }
+    .btn-enroll-bottom:hover { background: var(--gold-bright); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(200,168,75,.3); }
+    .bottom-cta-note { font-size: 11px; color: var(--cream-dim); text-align: center; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 80px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--gold); }
+    .footer-copy { font-size: 12px; color: var(--cream-dim); }
+
+    /* ─── LOADING SKELETON ─── */
+    .loading-wrap {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 60vh; flex-direction: column; gap: 20px;
+    }
+    .loading-spinner {
+      width: 40px; height: 40px; border: 2px solid var(--border);
+      border-top-color: var(--gold); border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-family: var(--font-display); font-size: 20px; color: var(--cream-dim); }
+
+    /* ─── ERROR STATE ─── */
+    .error-wrap {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 60vh; flex-direction: column; gap: 16px; padding: 40px;
+    }
+    .error-code { font-family: var(--font-display); font-size: 80px; color: var(--border); line-height: 1; }
+    .error-msg { font-family: var(--font-display); font-size: 24px; color: var(--cream-dim); }
+    .error-link { margin-top: 12px; padding: 12px 28px; border: 1px solid var(--border-hi); border-radius: var(--radius); font-size: 13px; color: var(--cream-dim); transition: all .2s; }
+    .error-link:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ─── RESPONSIVE ─── */
+    /* Tablet / small laptop: drop the pricing sidebar into flow */
+    @media (max-width: 900px) {
+      #hero { grid-template-columns: 1fr; }
+      .enroll-panel {
+        position: relative; top: 0; max-height: none; overflow: visible;
+        border-left: none; border-top: 1px solid var(--border);
+        padding: 36px 24px;
+      }
+      .page-wrap { grid-template-columns: 1fr; }
+      .page-main { padding: 48px 24px; }
+      .page-side { position: relative; top: 0; padding: 0 24px 48px; }
+      .hero-left { padding: 48px 24px; }
+      .hero-meta { gap: 20px; }
+      .outcomes-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .bottom-cta { flex-direction: column; margin: 0 24px 48px; padding: 36px 28px; align-items: flex-start; }
+      footer { padding: 32px 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
+      nav { padding: 0 20px; }
+    }
+
+    /* Phone: tighten typography + collapse wide rows */
+    @media (max-width: 640px) {
+      nav { padding: 0 14px; }
+      .nav-logo span { display: none; } /* drop "The Foundation Room" subtitle */
+      .hero-title { font-size: clamp(30px, 9vw, 44px); }
+      .hero-subtitle { font-size: 17px; margin-bottom: 24px; }
+      .hero-left { padding: 32px 18px; }
+      .enroll-panel { padding: 28px 18px; }
+      .enroll-price { font-size: 34px; }
+      .hero-stat-val { font-size: 22px; }
+      .hero-meta { gap: 14px 20px; }
+
+      .page-main { padding: 32px 18px; }
+      .section-heading { font-size: clamp(26px, 7vw, 36px); }
+      .curriculum-section { padding: 0 18px; }
+
+      .curriculum-summary { gap: 14px; font-size: 12px; }
+      .course-progress { margin-left: 0; }
+      .course-progress svg { width: 28px; height: 28px; }
+      .foundation-tab { padding: 10px 14px; font-size: 12px; }
+      .foundation-lessons { padding: 6px; }
+      .lesson-item { padding: 9px 10px; gap: 10px; font-size: 12px; }
+      .video-title-row { font-size: 12px; padding: 10px 12px; }
+
+      .instructor-card-pub { flex-direction: column; padding: 22px; gap: 18px; }
+      .instructor-avatar-big { align-self: flex-start; }
+
+      .testi-card { padding: 20px; }
+
+      .bottom-cta { padding: 28px 20px; }
+      .bottom-cta h2 { font-size: clamp(22px, 6vw, 30px); }
+
+      /* Theater mode on phone: stack tabs → lessons → video, cap lesson list height */
+      .curriculum-section.theater { padding: 18px; }
+      .curriculum-section.theater .foundation-lessons { max-height: 30vh; }
+    }
+
+    /* Very small phones: drop the side nav button text entirely */
+    @media (max-width: 380px) {
+      .nav-back { margin-right: 10px; }
+      .nav-btn { padding: 8px 12px; font-size: 11px; letter-spacing: .08em; }
+      .hero-stat { min-width: 60px; }
+    }
+
+    /* ─── REVEAL ANIM ─── */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
+  <link rel="stylesheet" href="/assets/css/enroll-modal.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-back">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    TFR
+  </a>
+  <a href="/" class="nav-logo">TFR <span>The Foundation Room</span></a>
+  <div class="nav-spacer"></div>
+  <a href="/login" class="nav-btn nav-ghost">Sign In</a>
+  <a href="/login#panel-register" class="nav-btn nav-gold">Join Now</a>
+</nav>
+
+<!-- CONTENT (rendered by JS) -->
+<div id="app">
+  <div class="loading-wrap">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading course…</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="/assets/js/enroll-modal.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+// ─── Get course slug or id from URL ─────────────────────────────────────────
+// Supports both SEO URLs (/courses/sitar-the-complete-foundation)
+// and legacy query strings (?id=1) for backward compatibility
+let courseId = null;
+const pathParts = window.location.pathname.split('/');
+const slugFromPath = pathParts[pathParts.length - 1]; // last segment
+if (slugFromPath && slugFromPath !== 'course-landing.html' && slugFromPath !== '') {
+  courseId = slugFromPath; // slug (string) or numeric id
+} else {
+  const params = new URLSearchParams(window.location.search);
+  courseId = params.get('id');
+}
+
+if (!courseId) {
+  showError('No course specified.');
+}
+
+// ─── Auth helpers ────────────────────────────────────────────────────────────
+function getToken() { return localStorage.getItem('archive_token'); }
+function isLoggedIn() { return !!getToken(); }
+async function checkEnrolled(id) {
+  try {
+    const r = await fetch('/api/enrollments', { headers: { Authorization: 'Bearer ' + getToken() } });
+    if (!r.ok) return false;
+    const d = await r.json();
+    return (d.enrollments || []).some(e => e.course_id == id);
+  } catch { return false; }
+}
+
+// Enroll/Buy modal logic lives in /assets/js/enroll-modal.js (loaded via <script>).
+// It exposes window.openEnrollModal(courseId) and window.handleEnroll as an alias.
+
+// ─── Error screen ────────────────────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById('app').innerHTML = `
+    <div class="error-wrap">
+      <div class="error-code">404</div>
+      <p class="error-msg">${msg}</p>
+      <a href="/" class="error-link">← Back to Home</a>
+    </div>`;
+}
+
+// ─── Format duration ─────────────────────────────────────────────────────────
+function fmtDur(min) {
+  if (!min) return '';
+  if (min < 60) return min + 'm';
+  const h = Math.floor(min / 60), m = min % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+
+// ─── Lesson type icons ───────────────────────────────────────────────────────
+function lessonIcon(type) {
+  if (type === 'video') return `<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+  if (type === 'reading') return `<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`;
+  return `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+}
+
+// ─── Outline dots per-category ───────────────────────────────────────────────
+const OUTCOMES = {
+  Sitar: ['Correct baithak posture and mizrab technique','Meend (glide) across all seven swaras','Alaap and gat in Raga Yaman','Daily riyaz structure to build muscle memory','Performance-ready composition in Teentaal'],
+  Percussion: ['Core djembe sounds: bass, tone, slap','Alternating hand independence','Teentaal & Dadra on hand percussion','Polyrhythmic layering techniques','Create your own groove compositions'],
+  Vocals: ['Sur (pitch) stability and intonation training','Raga grammar and time-cycle application','Khayal composition in Raag Yaman & Bhairav','Recording feedback protocol','Monthly live mehfil participation'],
+  Dance: ['Foundational tatkar (footwork) sequences','Classical hastas and mudras','Thumri abhinaya (expressive dance)','Full Teentaal composition','Understanding the nine rasas in performance'],
+  'Film Songs': ['Mic technique and studio breath control','Stylistic interpretation of Bollywood songs','Voice texture and nuance for recording','Pre-session warm-up routines','Inside knowledge of playback sessions'],
+  Acting: ['Finding your authentic storytelling voice','Improvisational scene construction','Transforming personal experience into drama','Workshop exercises for creative unblocking','Live performance feedback from Makarand']
+};
+
+const TESTIMONIALS = {
+  Sitar: [
+    { text: 'I still cannot believe I\'m learning from THE Niladri Kumar. Every session feels like a private concert that becomes a lesson.', author: 'Debaditya R.', origin: 'Kolkata · Sitar Student' },
+    { text: 'The structured riyaz approach completely transformed my practice. I went from aimless playing to real musicianship.', author: 'Priyanka M.', origin: 'Bengaluru · Sitar Student' }
+  ],
+  Percussion: [
+    { text: 'Taufiq bhai doesn\'t just teach rhythm. He makes you feel it in your body. The most meditative course I\'ve ever taken.', author: 'Rohit S.', origin: 'Hyderabad · Percussion Student' },
+    { text: 'I had no music background at all. After 8 weeks I was playing polyrhythms and feeling genuinely musical.', author: 'Aishwarya N.', origin: 'Chennai · Percussion Student' }
+  ],
+  Vocals: [
+    { text: 'Sveta ji\'s feedback on my recordings is surgical — precise, kind, and exactly what I needed to hear.', author: 'Megha T.', origin: 'Pune · Vocals Student' },
+    { text: 'The Kirana gharana approach to sur is unlike anything you find in casual music classes. This is the real thing.', author: 'Arjun K.', origin: 'Mumbai · Vocals Student' }
+  ],
+  Dance: [
+    { text: 'Training under Guruma ji is a privilege that simply wasn\'t available outside of Mumbai before TFR. Extraordinary.', author: 'Sunita P.', origin: 'Delhi · Kathak Student' },
+    { text: 'The rasa framework changed how I see dance entirely. Technique and emotion finally feel inseparable.', author: 'Lavanya C.', origin: 'Jaipur · Kathak Student' }
+  ],
+  'Film Songs': [
+    { text: 'Milind sir gives you the real studio insider knowledge. The mic technique module alone was worth the entire course.', author: 'Siddharth V.', origin: 'Mumbai · Film Songs Student' },
+    { text: 'I always wanted to be a playback singer. This course showed me the path — practical, honest, and inspiring.', author: 'Sneha K.', origin: 'Nagpur · Film Songs Student' }
+  ],
+  Acting: [
+    { text: 'Makarand\'s Writer\'s Room is like a psychological excavation. Terrifying and liberating at the same time.', author: 'Vikram A.', origin: 'Kolkata · Writer\'s Room' },
+    { text: 'I came as a theatre amateur and left with two one-act plays and the confidence to stage them.', author: 'Divya S.', origin: 'Ahmedabad · Writer\'s Room' }
+  ]
+};
+
+// ─── Render Page ─────────────────────────────────────────────────────────────
+async function renderPage(data) {
+  const { course, chapters } = data;
+  const totalLessons = chapters.reduce((a, c) => a + c.lessons.length, 0);
+  // Prefer actual uploaded video durations over typed duration_minutes.
+  // Inline equivalent of _lessonSeconds (defined later in the file).
+  const _lsecs = (l) => {
+    const v = (l.materials || []).find(m => m && m.type === 'video' && m.duration_seconds);
+    if (v) return Number(v.duration_seconds);
+    if (l.duration_seconds) return Number(l.duration_seconds);
+    if (l.duration_minutes) return Number(l.duration_minutes) * 60;
+    return 0;
+  };
+  const totalSeconds = chapters.reduce((a, c) => a + c.lessons.reduce((b, l) => b + _lsecs(l), 0), 0);
+  const _fmtS = (sec) => {
+    sec = Math.max(0, Math.round(sec));
+    if (sec === 0) return '—';
+    if (sec < 60) return sec + 's';
+    if (sec < 3600) {
+      const m = Math.floor(sec / 60), s = sec % 60;
+      return s ? `${m}m ${s}s` : `${m}m`;
+    }
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+    return m ? `${h}h ${m}m` : `${h}h`;
+  };
+
+  document.title = `${course.title} — The Foundation Room`;
+
+  const cat = course.category;
+  const outcomes = OUTCOMES[cat] || OUTCOMES['Sitar'];
+  const testimonials = TESTIMONIALS[cat] || TESTIMONIALS['Sitar'];
+
+  let enrolled = false;
+  if (isLoggedIn()) {
+    enrolled = await checkEnrolled(course.id);
+  }
+
+  const enrollBtnLabel = enrolled ? 'Go to Course →' : 'Enroll Now';
+  const enrollBtnAction = enrolled
+    ? `window.location.href='/student-dashboard.html'`
+    : `openEnrollModal(${course.id})`;
+
+  const enrollSuccessHTML = enrolled ? `
+    <div class="enroll-success" style="display:flex">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <strong>You're enrolled!</strong>
+      <p>Continue learning from your dashboard.</p>
+    </div>` : `
+    <div class="enroll-success">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <strong>You're enrolled!</strong>
+      <p>Head to your dashboard to begin.</p>
+    </div>`;
+
+  const html = `
+    <!-- HERO -->
+    <div id="hero">
+      <div class="hero-bg" style="background:${course.cover_color || '#1a0d00'}">
+        ${course.cover_image_url ? `<img src="${course.cover_image_url}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">` : ''}
+      </div>
+      <div class="hero-left">
+        <p class="hero-eyebrow">${course.category} · ${course.level || 'All Levels'}</p>
+        <h1 class="hero-title">${course.title}</h1>
+        <p class="hero-subtitle">${course.subtitle || ''}</p>
+        <div class="hero-meta">
+          <div class="hero-stat">
+            <span class="hero-stat-val">${course.duration_weeks || '—'}</span>
+            <span class="hero-stat-label">Weeks</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-val">${totalLessons}</span>
+            <span class="hero-stat-label">Lessons</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-val">${chapters.length}</span>
+            <span class="hero-stat-label">Chapters</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-val" data-no-countup="1">${_fmtS(totalSeconds)}</span>
+            <span class="hero-stat-label">Content</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STICKY ENROLL PANEL (inside hero grid) -->
+      <div class="enroll-panel">
+        ${enrollSuccessHTML}
+        <div class="enroll-price">${course.bundle_price_paise > 0 ? '₹' + (course.bundle_price_paise / 100).toLocaleString('en-IN') : (course.price_paise > 0 ? '₹' + (course.price_paise / 100).toLocaleString('en-IN') : '—')}</div>
+        <p class="enroll-price-note">Full bundle · or pay per chapter</p>
+        <button class="btn-enroll-big enroll-trigger" onclick="${enrollBtnAction}">${enrollBtnLabel}</button>
+        <hr class="enroll-divider">
+        <ul class="enroll-perks">
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${course.lesson_count || totalLessons} structured lessons</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live masterclasses with the instructor</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Sheet music &amp; notation downloads</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Recording upload &amp; feedback</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Certificate of completion</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access to all content</li>
+        </ul>
+        <p class="enroll-note">By enrolling you agree to our<br>Terms &amp; Privacy Policy</p>
+      </div>
+    </div>
+
+    <!-- MAIN BODY -->
+    <div class="page-wrap">
+      <main class="page-main">
+
+        <!-- ABOUT -->
+        <div class="section reveal">
+          <p class="section-label">About This Course</p>
+          <h2 class="section-heading">What you will <em>experience</em></h2>
+          <div class="section-body">
+            ${(course.description || `An immersive ${course.instrument || course.category || ''} course taught by ${course.instructor_name || 'our expert faculty'}.`)
+              .split('. ').reduce((acc, s, i) => {
+                if (i === 0 || i % 3 !== 0) return acc + (acc ? '. ' : '') + s;
+                return acc + '.</p><p>' + s;
+              }, '<p>') + '.</p>'}
+          </div>
+        </div>
+
+        <!-- WHAT YOU'LL LEARN -->
+        <div class="section reveal">
+          <p class="section-label">Outcomes</p>
+          <h2 class="section-heading">What you will <em>learn</em></h2>
+          <div class="outcomes-grid">
+            ${outcomes.map(o => `
+              <div class="outcome-item">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                ${o}
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <hr class="section-sep">
+
+        <!-- CURRICULUM -->
+        <div class="section reveal curriculum-section">
+          <p class="section-label">Curriculum</p>
+          <div class="foundation-tabs" id="foundation-tabs" role="tablist">
+            ${chapters.map((ch, i) => `
+              <button class="foundation-tab${i === 0 ? ' active' : ''}" data-ch="${ch.id}" onclick="selectFoundation('${ch.id}')" role="tab">${ch.title}</button>
+            `).join('')}
+          </div>
+          <h2 class="section-heading">Course <em>structure</em></h2>
+          <div class="curriculum-summary">
+            <span class="curr-stat"><strong id="stat-lessons-num">${(chapters[0]?.lessons || []).length}</strong> <span id="stat-lessons-label">${(chapters[0]?.lessons || []).length === 1 ? 'lesson' : 'lessons'}</span></span>
+            <span class="curr-stat"><strong id="stat-runtime-num">—</strong> total runtime</span>
+            <span class="course-progress" id="course-progress" data-instrument="${(course.instrument || '').toLowerCase()}"></span>
+          </div>
+          <div class="foundation-body">
+            <div class="foundation-lessons">
+              <ol class="lesson-list" id="foundation-lesson-list"></ol>
+            </div>
+            <div class="foundation-player">
+              <button class="video-expand-btn" id="video-expand-btn" onclick="toggleCurriculumTheater()" aria-label="Expand" title="Expand to full-size">
+                <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              </button>
+              <div class="video-slot" id="video-slot"></div>
+              <div class="video-title-row" id="video-title">Select a lesson to preview</div>
+              <button class="practice-room-btn" id="practice-room-btn" type="button" onclick="_practiceRoomTap(this)" aria-label="Practice Room (coming soon)">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                Practice Room
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-sep">
+
+        <!-- INSTRUCTOR -->
+        <div class="section reveal">
+          <p class="section-label">Your Instructor</p>
+          <h2 class="section-heading">Meet <em>${(course.instructor_name || 'your instructor').split(' ')[0]}</em></h2>
+          <div class="instructor-card-pub">
+            <div class="instructor-avatar-big" style="background: ${course.cover_color || '#1a0d00'}">
+              ${course.instructor_initials || '??'}
+            </div>
+            <div>
+              <p class="instructor-info-name">${course.instructor_name}</p>
+              <p class="instructor-info-subject">${course.instrument || course.category}</p>
+              <p class="instructor-info-bio">${course.instructor_bio || 'An extraordinary artist and dedicated teacher.'}</p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-sep">
+
+        <!-- TESTIMONIALS -->
+        <div class="section reveal">
+          <p class="section-label">Student Stories</p>
+          <h2 class="section-heading">What our students <em>say</em></h2>
+          <div class="testi-grid">
+            ${testimonials.map(t => `
+              <div class="testi-card">
+                <span class="testi-mark">&ldquo;</span>
+                <div class="stars">${'<div class="star"></div>'.repeat(5)}</div>
+                <p class="testi-text">${t.text}</p>
+                <p class="testi-author">${t.author}</p>
+                <p class="testi-origin">${t.origin}</p>
+              </div>`).join('')}
+          </div>
+        </div>
+
+      </main>
+
+      <!-- SIDE: additional enroll prompt on desktop (hidden, handled by hero panel) -->
+      <aside class="page-side"></aside>
+    </div>
+
+    <!-- BOTTOM CTA -->
+    <div class="bottom-cta reveal">
+      <div class="bottom-cta-text">
+        <h2>Ready to begin your <em>journey</em>?</h2>
+        <p>Join ${(course.instructor_name || 'our instructor').split(' ')[0]}'s course and transform your relationship with ${course.instrument || 'music'} — for good.</p>
+      </div>
+      <div class="bottom-cta-action">
+        <button class="btn-enroll-bottom enroll-trigger" onclick="${enrollBtnAction}">${enrollBtnLabel}</button>
+        <span class="bottom-cta-note">${course.bundle_price_paise > 0 ? 'From ₹' + (course.bundle_price_paise / 100).toLocaleString('en-IN') + ' · Lifetime access' : 'Enrolment open'}</span>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <span class="footer-logo">TFR</span>
+      <span class="footer-copy">© 2026 The Foundation Room. All rights reserved.</span>
+      <a href="/" style="font-size:13px;color:var(--cream-dim)">← Back to Home</a>
+    </footer>
+  `;
+
+  document.getElementById('app').innerHTML = html;
+
+  // ─── GSAP Animations after render ───
+  // Hero title words stagger
+  const heroTitle = document.querySelector('.hero-title');
+  if (heroTitle) {
+    const words = heroTitle.innerHTML.split(' ');
+    heroTitle.innerHTML = words.map(w => `<span style="display:inline-block; will-change:transform;">${w}</span>`).join(' ');
+    gsap.from(heroTitle.querySelectorAll('span'), {
+      opacity: 0, y: 30, duration: 0.55, stagger: 0.07, ease: 'power3.out', delay: 0.2
+    });
+  }
+
+  // Hero eyebrow, subtitle
+  gsap.from('.hero-eyebrow', { opacity: 0, y: 16, duration: 0.45, ease: 'power3.out', delay: 0.1 });
+  gsap.from('.hero-subtitle', { opacity: 0, y: 16, duration: 0.45, ease: 'power3.out', delay: 0.5 });
+
+  // Hero stats count-up. Only animate simple "<number><unit>" patterns.
+  // Complex strings like "1h 34m" carry two numbers, which the naive regex
+  // used to mash into "134h m" — mark those with data-no-countup to skip.
+  document.querySelectorAll('.hero-stat-val').forEach(el => {
+    if (el.dataset.noCountup) return;
+    const text = el.textContent.trim();
+    const match = text.match(/^(₹?)([\d,]+(?:\.\d+)?)([^\d]*)$/);
+    if (!match) return; // e.g. "1h 34m" or "—" — leave static
+    const prefix = match[1] || '';
+    const raw = parseFloat(match[2].replace(/,/g, ''));
+    const suffix = match[3] || '';
+    if (isNaN(raw) || raw <= 0) return;
+    const obj = { v: 0 };
+    gsap.to(obj, {
+      v: raw, duration: 1.6, ease: 'power2.out', delay: 0.6,
+      onUpdate: () => { el.textContent = prefix + Math.round(obj.v) + suffix; }
+    });
+  });
+
+  // Enroll button pulse
+  const enrollBtns = document.querySelectorAll('.btn-enroll-big, .btn-enroll-bottom');
+  enrollBtns.forEach(btn => {
+    gsap.to(btn, {
+      scale: 1.03, duration: 0.6, ease: 'power2.inOut',
+      yoyo: true, repeat: -1, repeatDelay: 2.4
+    });
+  });
+
+  // Curriculum chapters stagger from left on scroll
+  gsap.utils.toArray('.chapter').forEach((ch, i) => {
+    gsap.from(ch, {
+      scrollTrigger: { trigger: ch, start: 'top 85%', once: true },
+      x: -30, opacity: 0, duration: 0.5, delay: i * 0.04, ease: 'power3.out'
+    });
+  });
+
+  // Section reveals
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: .1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+(async () => {
+  if (!courseId) return;
+  try {
+    const r = await fetch(`/api/public/courses/${courseId}`);
+    if (!r.ok) throw new Error('Not found');
+    const data = await r.json();
+    await renderPage(data);
+
+    // Auto-enroll if redirected back after login
+    const pendingCourse = sessionStorage.getItem('tfr_enroll_after_login');
+    if (pendingCourse && isLoggedIn() && pendingCourse == courseId) {
+      sessionStorage.removeItem('tfr_enroll_after_login');
+      await handleEnroll(courseId);
+    }
+  } catch (e) {
+    showError('Course not found or unavailable.');
+  }
+})();
+
+// ─── CURRICULUM: FOUNDATION TABS + INLINE PLAYER ─────────────────────────────
+// Replaces the old accordion + modal popup. Lessons render on the left, the
+// selected lesson's video plays in the embedded player on the right. Video
+// controls are custom (play/pause + visual-only progress bar) — no seeker,
+// no keyboard seeking, no right-click menu.
+let _landingData = null;
+const _origRenderForFoundations = renderPage;
+renderPage = async function patched(data) {
+  _landingData = data;
+  const out = await _origRenderForFoundations.call(this, data);
+  // Initialize first foundation after DOM is rendered
+  if ((data.chapters || []).length) {
+    selectFoundation(data.chapters[0].id, /*autoLoadVideo*/ true);
+  }
+  return out;
+};
+
+function _playIconSvg() {
+  return '<svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+}
+function _lockIconSvg() {
+  return '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
+}
+
+function selectFoundation(chId, autoLoadVideo) {
+  document.querySelectorAll('.foundation-tab').forEach(b =>
+    b.classList.toggle('active', String(b.dataset.ch) === String(chId))
+  );
+  renderLessonList(chId);
+  updateFoundationStats(chId);
+  // Practice Room button is currently locked — no href update.
+  if (autoLoadVideo) {
+    const first = _findFirstPlayable(chId);
+    if (first) {
+      _loadLessonIntoPlayer(first, /*autoplay*/ false);
+      _markSelectedLesson(chId, first.id);
+    } else {
+      _showLockedPlayer('No free preview in this foundation');
+    }
+  }
+}
+
+function _findFirstPlayable(chId) {
+  const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
+  if (!ch) return null;
+  return (ch.lessons || []).find(l =>
+    l.is_preview && (l.materials || []).some(m => m.type === 'video' && m.url)
+  ) || null;
+}
+
+function renderLessonList(chId) {
+  const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
+  const list = document.getElementById('foundation-lesson-list');
+  if (!list) return;
+  if (!ch || !(ch.lessons || []).length) {
+    list.innerHTML = '<li class="lesson-item locked" style="cursor:default;"><span class="l-name" style="color:var(--cream-dim);">No lessons in this foundation yet.</span></li>';
+    return;
+  }
+  list.innerHTML = (ch.lessons || []).map((l, i) => {
+    const video = (l.materials || []).find(m => m.type === 'video' && m.url);
+    const playable = l.is_preview && video;
+    const click = playable
+      ? `onclick="selectLesson('${ch.id}', ${l.id})"`
+      : `onclick="_showLockedPlayer(this.dataset.title)"`;
+    return `<li class="lesson-item${playable ? '' : ' locked'}" data-lesson="${l.id}" data-title="${(l.title || '').replace(/"/g,'&quot;')}" ${click}>
+      <span class="l-num">${i + 1}</span>
+      <span class="l-icon">${playable ? _playIconSvg() : _lockIconSvg()}</span>
+      <span class="l-name">${l.title || ''}</span>
+      <span class="l-dur">${_lessonDisplayDuration(l)}</span>
+    </li>`;
+  }).join('');
+}
+
+function _markSelectedLesson(chId, lessonId) {
+  document.querySelectorAll('#foundation-lesson-list .lesson-item').forEach(li =>
+    li.classList.toggle('selected', String(li.dataset.lesson) === String(lessonId))
+  );
+}
+
+function selectLesson(chId, lessonId) {
+  const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
+  const lesson = ch && (ch.lessons || []).find(l => l.id === lessonId);
+  if (!lesson) return;
+  _markSelectedLesson(chId, lessonId);
+  _loadLessonIntoPlayer(lesson, /*autoplay*/ true);
+}
+
+function _loadLessonIntoPlayer(lesson, autoplay) {
+  const slot = document.getElementById('video-slot');
+  const titleEl = document.getElementById('video-title');
+  const vid = (lesson.materials || []).find(m => m.type === 'video' && m.url);
+  if (!vid) { _showLockedPlayer(lesson.title); return; }
+
+  const url = vid.url;
+  const isIframeHost = /youtube\.com|youtu\.be|vimeo\.com/i.test(url);
+  slot.classList.remove('playing');
+
+  if (isIframeHost) {
+    const embed = _toEmbed(url);
+    const sep = embed.includes('?') ? '&' : '?';
+    slot.innerHTML = `<iframe src="${embed}${autoplay ? sep + 'autoplay=1' : ''}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+  } else {
+    // HTML5 video with custom no-seeker controls
+    slot.innerHTML = `
+      <video preload="auto" playsinline oncontextmenu="return false;" src="${url}"></video>
+      <div class="video-overlay">
+        <button class="video-play-btn" aria-label="Play" type="button">${_playIconSvg()}</button>
+      </div>
+      <div class="video-progress-bar"><div class="video-progress-fill" id="video-progress-fill"></div></div>
+    `;
+    const v = slot.querySelector('video');
+    const btn = slot.querySelector('.video-play-btn');
+    const fill = slot.querySelector('.video-progress-fill');
+    const toggle = () => { if (v.paused) v.play().catch(()=>{}); else v.pause(); };
+    btn.addEventListener('click', toggle);
+    v.addEventListener('click', toggle);
+    v.addEventListener('play', () => slot.classList.add('playing'));
+    v.addEventListener('pause', () => slot.classList.remove('playing'));
+    v.addEventListener('ended', () => slot.classList.remove('playing'));
+    // Visual-only progress
+    v.addEventListener('timeupdate', () => {
+      if (v.duration) fill.style.width = ((v.currentTime / v.duration) * 100) + '%';
+    });
+    // Anti-scrub: if any code tries to seek, snap back. (UI exposes no seek path,
+    // but this blocks keyboard shortcuts and programmatic seeks.)
+    let _lastT = 0;
+    v.addEventListener('timeupdate', () => { _lastT = v.currentTime; });
+    v.addEventListener('seeking', () => {
+      if (Math.abs(v.currentTime - _lastT) > 1.25) {
+        v.currentTime = _lastT;
+      }
+    });
+    if (autoplay) v.play().catch(() => {});
+  }
+  titleEl.textContent = lesson.title || '';
+}
+
+function _showLockedPlayer(title) {
+  const slot = document.getElementById('video-slot');
+  const titleEl = document.getElementById('video-title');
+  slot.classList.remove('playing');
+  slot.innerHTML = `
+    <div class="video-locked">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      <h3>${title || 'This lesson is locked'}</h3>
+      <p>Sign in or join now to access all lessons in this course.</p>
+      <div class="cta-row">
+        <a class="outline" href="/index.html">Sign In</a>
+        <a href="#" onclick="const b=document.querySelector('.enroll-trigger'); if(b){b.click(); return false;}">Join Now</a>
+      </div>
+    </div>
+  `;
+  titleEl.textContent = '';
+}
+
+function _toEmbed(url) {
+  const id = (url.match(/youtu\.be\/([\w-]+)/) || [])[1]
+          || (url.match(/[?&]v=([\w-]+)/) || [])[1]
+          || (url.match(/youtube\.com\/embed\/([\w-]+)/) || [])[1];
+  return id ? `https://www.youtube.com/embed/${id}` : url;
+}
+
+// ─── DYNAMIC STATS + COURSE PROGRESS INDICATOR ──────────────────────────────
+// Per-lesson duration in seconds. Prefers the uploaded video file's actual
+// duration (recorded at upload time on lesson_materials.duration_seconds)
+// over instructor-entered duration_minutes on the lesson row.
+function _lessonSeconds(l) {
+  if (l && l.materials && l.materials.length) {
+    const v = l.materials.find(m => m && m.type === 'video' && m.duration_seconds);
+    if (v && v.duration_seconds) return Number(v.duration_seconds);
+  }
+  if (l && l.duration_seconds) return Number(l.duration_seconds);
+  if (l && l.duration_minutes) return Number(l.duration_minutes) * 60;
+  return 0;
+}
+function _fmtSeconds(sec) {
+  sec = Math.max(0, Math.round(Number(sec) || 0));
+  if (sec === 0) return '0s';
+  if (sec < 60) return sec + 's';
+  if (sec < 3600) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return s ? `${m}m ${s}s` : `${m}m`;
+  }
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+function _lessonDisplayDuration(l) {
+  const s = _lessonSeconds(l);
+  return s ? _fmtSeconds(s) : '';
+}
+
+function updateFoundationStats(chId) {
+  const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
+  const lessons = ch ? (ch.lessons || []) : [];
+  const count = lessons.length;
+  const secs = lessons.reduce((a, l) => a + _lessonSeconds(l), 0);
+  const numEl = document.getElementById('stat-lessons-num');
+  const runEl = document.getElementById('stat-runtime-num');
+  const labelEl = document.getElementById('stat-lessons-label');
+  if (numEl) numEl.textContent = count;
+  if (runEl) runEl.textContent = _fmtSeconds(secs);
+  if (labelEl) labelEl.textContent = count === 1 ? 'lesson' : 'lessons';
+}
+
+function _instrumentIconInner(instrument) {
+  const inst = (instrument || '').toLowerCase();
+  if (inst.includes('djembe') || inst.includes('percussion') || inst.includes('drum')) {
+    // Goblet drum
+    return '<ellipse cx="12" cy="5.5" rx="6" ry="1.8"/><path d="M6 5.5 L8 13 L10 19 L14 19 L16 13 L18 5.5 Z"/>';
+  }
+  if (inst.includes('vocal') || inst.includes('voice') || inst.includes('singing')) {
+    // Microphone
+    return '<rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10 A7 7 0 0 0 19 10 L17 10 A5 5 0 0 1 7 10 Z"/><rect x="11" y="17" width="2" height="4" rx="0.4"/><rect x="7.5" y="20" width="9" height="1.8" rx="0.4"/>';
+  }
+  if (inst.includes('sitar') || inst.includes('tanpura') || inst.includes('veena')) {
+    // Long-neck lute: round body + angled neck
+    return '<circle cx="6.5" cy="18" r="4"/><path d="M9 15.5 L19.5 4.5 L21 6 L10.5 17 Z"/>';
+  }
+  if (inst.includes('kathak') || inst.includes('dance')) {
+    // Dancer silhouette simplified
+    return '<circle cx="12" cy="5" r="2.2"/><path d="M12 7 L12 14 L9 22 L11 22 L12 16 L13 22 L15 22 L12 14 Z"/>';
+  }
+  if (inst.includes('film') || inst.includes('song')) {
+    // Musical note with flag
+    return '<path d="M9 17 V3 L19 1.5 V13 L17 13.5 V4 L11 5 V17 Z"/><ellipse cx="6.5" cy="17.5" rx="3" ry="2.2"/><ellipse cx="15.5" cy="13.5" rx="3" ry="2.2"/>';
+  }
+  // Default: eighth note
+  return '<path d="M9 17 V3 L19 1.5 V13 L17 13.5 V4 L11 5 V17 Z"/><ellipse cx="6.5" cy="17.5" rx="3" ry="2.2"/><ellipse cx="15.5" cy="13.5" rx="3" ry="2.2"/>';
+}
+
+function renderCourseProgress(total, completed, instrument) {
+  const host = document.getElementById('course-progress');
+  if (!host) return;
+  if (!total) { host.innerHTML = ''; return; }
+  const pct = Math.max(0, Math.min(1, completed / total));
+  const fillH = (24 * pct).toFixed(3);
+  const fillY = (24 - 24 * pct).toFixed(3);
+  const inner = _instrumentIconInner(instrument);
+  const maskId = 'prog-mask-' + Math.random().toString(36).slice(2, 8);
+  host.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-label="Course progress: ${completed} of ${total} lessons complete">
+      <defs>
+        <mask id="${maskId}">
+          <rect width="24" height="24" fill="black"/>
+          <rect x="0" y="${fillY}" width="24" height="${fillH}" fill="white"/>
+        </mask>
+      </defs>
+      <g opacity="0.28" fill="currentColor">${inner}</g>
+      <g mask="url(#${maskId})" fill="currentColor">${inner}</g>
+    </svg>
+    <span class="course-progress-count">${completed} / ${total}</span>
+  `;
+}
+
+function _countVideoLessons(data) {
+  return (data.chapters || []).reduce((a, ch) =>
+    a + (ch.lessons || []).filter(l => (l.type || '').toLowerCase() === 'video').length, 0);
+}
+
+async function loadUserProgress() {
+  if (!_landingData || !_landingData.course) return;
+  const total = _countVideoLessons(_landingData);
+  const instrument = _landingData.course.instrument || '';
+
+  // Default render: 0 completed
+  renderCourseProgress(total, 0, instrument);
+
+  const token = localStorage.getItem('archive_token');
+  if (!token) return; // anonymous — leave as all-empty
+  try {
+    const data = await api.get('/api/courses/' + _landingData.course.id + '/chapters');
+    const completed = (data.chapters || []).reduce((a, ch) =>
+      a + (ch.lessons || []).filter(l => (l.type || '').toLowerCase() === 'video' && l.completed).length, 0);
+    renderCourseProgress(total, completed, instrument);
+  } catch (_) { /* not enrolled / auth fail — stay at 0 */ }
+}
+
+// Kick off progress load after renderPage has run (renderPage sets _landingData)
+const _origRenderForProgress = renderPage;
+renderPage = async function wrappedForProgress(data) {
+  const out = await _origRenderForProgress.call(this, data);
+  loadUserProgress();
+  return out;
+};
+
+function toggleCurriculumTheater() {
+  const section = document.querySelector('.curriculum-section');
+  if (!section) return;
+  const on = section.classList.toggle('theater');
+  document.body.classList.toggle('curriculum-theater-on', on);
+  const btn = document.getElementById('video-expand-btn');
+  if (btn) {
+    btn.setAttribute('aria-label', on ? 'Shrink' : 'Expand');
+    btn.setAttribute('title', on ? 'Exit full-size (Esc)' : 'Expand to full-size');
+    btn.innerHTML = on
+      ? '<svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>'
+      : '<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const section = document.querySelector('.curriculum-section');
+  if (section && section.classList.contains('theater')) toggleCurriculumTheater();
+});
+
+// Locked Practice Room CTA: on tap/click reveal the "coming soon" bubble for ~2s.
+function _practiceRoomTap(btn) {
+  btn.classList.add('tapped');
+  setTimeout(() => btn.classList.remove('tapped'), 1800);
+}
+
+</script>
+</body>
+</html>

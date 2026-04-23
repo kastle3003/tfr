@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Automation — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    .email-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
+
+    /* Template list */
+    .template-list {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .template-item {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      cursor: pointer; transition: background 0.14s;
+    }
+    .template-item:last-child { border-bottom: none; }
+    .template-item:hover { background: var(--bg-elevated); }
+    .template-item.active {
+      background: rgba(200,168,75,0.07);
+      border-left: 3px solid var(--gold);
+      padding-left: 15px;
+    }
+    .template-name { font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 2px; }
+    .template-subject { font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .template-updated { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+
+    /* Editor panel */
+    .editor-panel {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow);
+    }
+    .editor-title {
+      font-family: var(--serif); font-style: italic;
+      font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 20px;
+    }
+    .code-editor {
+      font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.6;
+      width: 100%; min-height: 320px; padding: 14px;
+      background: #0A0907; color: #d4c9b0;
+      border: 1px solid rgba(200,168,75,0.15) !important;
+      border-radius: var(--radius); resize: vertical; outline: none;
+    }
+    .code-editor:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(200,168,75,0.10) !important; }
+
+    .var-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .var-chip {
+      padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600;
+      background: rgba(200,168,75,0.08); color: var(--gold);
+      cursor: pointer; border: 1px solid rgba(200,168,75,0.20);
+      font-family: 'Courier New', monospace; transition: background 0.14s;
+    }
+    .var-chip:hover { background: rgba(200,168,75,0.18); }
+
+    /* Preview frame — simulate email bg (light content area) */
+    .preview-frame {
+      width: 100%; height: 360px;
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: var(--radius);
+      background: #f5f0e8; /* simulate email client's white bg */
+    }
+
+    .tab-bar { display: flex; gap: 4px; margin-bottom: 14px; }
+    .tab-btn-sm {
+      padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      background: transparent; border: 1.5px solid rgba(200,168,75,0.20);
+      color: var(--text-2); cursor: pointer; transition: all 0.14s;
+    }
+    .tab-btn-sm.active { background: var(--gold); border-color: var(--gold); color: #0F0D0B; }
+
+    .status-badge { display: inline-flex; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; }
+    .status-sent { background: rgba(45,90,39,0.15); color: #6fcf6f; }
+    .status-failed { background: rgba(139,46,38,0.15); color: #e07070; }
+
+    /* Rule items */
+    .rule-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(200,168,75,0.08);
+      background: var(--bg-card);
+    }
+    .rule-item:last-child { border-bottom: none; }
+    .rule-emoji { font-size: 18px; flex-shrink: 0; }
+    .rule-label { flex: 1; font-size: 13px; font-weight: 600; color: var(--text); }
+    .rule-sub { font-size: 11px; color: var(--text-3); }
+
+    .toggle { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 99px;
+      background: var(--bg-elevated); border: 1.5px solid rgba(200,168,75,0.15);
+      cursor: pointer; transition: background 0.18s;
+    }
+    .toggle input:checked + .toggle-track { background: var(--gold); border-color: var(--gold); }
+    .toggle-track::after {
+      content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%;
+      background: var(--text); top: 50%; left: 2px;
+      transform: translateY(-50%); transition: left 0.18s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .toggle input:checked + .toggle-track::after { left: 20px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 300; animation: fadeIn 0.14s ease;
+    }
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.18);
+      border-radius: var(--radius-lg); padding: 28px;
+      width: 100%; max-width: 420px;
+      box-shadow: var(--shadow-lg); animation: scaleIn 0.16s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* Table dark rows */
+    .table { width: 100%; border-collapse: collapse; }
+    .table th { background: var(--bg-2); color: var(--text-3); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 16px; border-bottom: 1px solid rgba(200,168,75,0.10); }
+    .table td { padding: 10px 16px; border-bottom: 1px solid rgba(200,168,75,0.06); color: var(--text-2); font-size: 13px; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:nth-child(even) td { background: rgba(200,168,75,0.025); }
+    .table tr:hover td { background: var(--bg-elevated); }
+
+    /* Buttons */
+    .btn-primary { background: var(--gold); color: #0F0D0B; border: 1.5px solid var(--gold); font-weight: 700; }
+    .btn-primary:hover { background: var(--gold-bright); border-color: var(--gold-bright); }
+    .btn-outline { background: transparent; color: var(--gold); border: 1.5px solid rgba(200,168,75,0.35); font-weight: 600; }
+    .btn-outline:hover { background: rgba(200,168,75,0.08); border-color: var(--gold); }
+    .btn-ghost { background: transparent; color: var(--text-2); border: 1.5px solid rgba(200,168,75,0.15); }
+    .btn-ghost:hover { border-color: rgba(200,168,75,0.35); color: var(--text); }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <!-- ── Sidebar (role-aware — rendered by sidebar-loader.js) ── -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">Email Automation</div>
+      <div class="topbar-actions">
+        <div class="topbar-avatar" id="topbar-avatar">—</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="page-header" style="margin-bottom:24px;">
+        <h1 class="page-title">Email Automation</h1>
+        <p class="page-subtitle">Edit email templates, review send history, and configure automation rules.</p>
+      </div>
+
+      <div class="email-layout">
+        <!-- Template List -->
+        <div>
+          <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:10px;">Templates</div>
+          <div class="template-list" id="template-list">
+            <div style="padding:20px; text-align:center; color:var(--text-3);">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Editor Panel -->
+        <div>
+          <div class="editor-panel" id="editor-panel">
+            <div style="text-align:center; padding:60px; color:var(--text-3); font-style:italic;">Select a template to edit.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Automation Rules -->
+      <div style="margin-top:28px;">
+        <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:10px;">Automation Rules</div>
+        <div class="card section-block" style="padding:0; overflow:hidden; background:var(--bg-card); border:1px solid rgba(200,168,75,0.12);">
+          <div class="rule-item">
+            <div class="rule-emoji">&#127891;</div>
+            <div>
+              <div class="rule-label">Send welcome email on registration</div>
+              <div class="rule-sub">Template: <em>welcome</em> · Triggered when new user registers</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div></label>
+          </div>
+          <div class="rule-item">
+            <div class="rule-emoji">&#128218;</div>
+            <div>
+              <div class="rule-label">Send enrollment confirmation on course join</div>
+              <div class="rule-sub">Template: <em>enrollment_confirmation</em> · Triggered when student enrolls</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div></label>
+          </div>
+          <div class="rule-item">
+            <div class="rule-emoji">&#9989;</div>
+            <div>
+              <div class="rule-label">Notify student when assignment is graded</div>
+              <div class="rule-sub">Template: <em>assignment_graded</em> · Triggered when grade is submitted</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div></label>
+          </div>
+          <div class="rule-item">
+            <div class="rule-emoji">&#9200;</div>
+            <div>
+              <div class="rule-label">Remind students 24h before masterclass</div>
+              <div class="rule-sub">Template: <em>masterclass_reminder</em> · Scheduled 24h before session</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div></label>
+          </div>
+          <div class="rule-item">
+            <div class="rule-emoji">&#127942;</div>
+            <div>
+              <div class="rule-label">Send certificate email on course completion</div>
+              <div class="rule-sub">Template: <em>enrollment_confirmation</em> · Triggered when progress = 100%</div>
+            </div>
+            <label class="toggle"><input type="checkbox"><div class="toggle-track"></div></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Logs -->
+      <div style="margin-top:28px;">
+        <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:10px;">Email Logs</div>
+        <div class="card section-block" style="padding:0; overflow:hidden; background:var(--bg-card); border:1px solid rgba(200,168,75,0.12);">
+          <div class="table-wrap" style="border-radius:0;">
+            <table class="table" id="logs-table">
+              <thead>
+                <tr>
+                  <th>To</th>
+                  <th>Subject</th>
+                  <th>Template</th>
+                  <th>Status</th>
+                  <th>Sent At</th>
+                </tr>
+              </thead>
+              <tbody id="logs-tbody">
+                <tr><td colspan="5" style="text-align:center; color:var(--text-3); padding:24px;">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Send Test Modal -->
+<div class="modal-overlay" id="test-modal" style="display:none;">
+  <div class="modal-box">
+    <div style="font-family:var(--serif);font-style:italic;font-size:19px;font-weight:600;color:var(--text);margin-bottom:16px;">Send Test Email</div>
+    <div class="form-group">
+      <label class="form-label">Recipient Email</label>
+      <input class="form-input" id="test-email" type="email" placeholder="you@example.com">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-primary" style="flex:1;" id="test-send-btn" onclick="sendTestEmail()">Send Test</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('test-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['admin']);</script>
+<script src="/assets/js/sidebar-loader.js"></script>
+<script>
+  let currentUser = null;
+  let currentTemplate = null;
+  let showPreview = false;
+
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast${type === 'error' ? ' error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/index.html';
+  }
+
+  function formatDate(str) {
+    if (!str) return '—';
+    return new Date(str).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  document.addEventListener('userLoaded', (e) => {
+    currentUser = e.detail;
+    if (!['instructor', 'admin'].includes(currentUser.role)) {
+      window.location.href = '/student-dashboard.html';
+      return;
+    }
+    document.getElementById('sb-avatar').textContent = currentUser.avatar_initials || (currentUser.first_name[0] + currentUser.last_name[0]);
+    document.getElementById('sb-name').textContent = currentUser.first_name + ' ' + currentUser.last_name;
+    document.getElementById('topbar-avatar').textContent = currentUser.avatar_initials || (currentUser.first_name[0] + currentUser.last_name[0]);
+    loadTemplates();
+    loadLogs();
+  });
+
+  async function loadTemplates() {
+    try {
+      const data = await api.get('/api/email/templates');
+      renderTemplateList(data.templates || []);
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  function renderTemplateList(templates) {
+    const el = document.getElementById('template-list');
+    if (!templates.length) {
+      el.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-3);">No templates.</div>';
+      return;
+    }
+    el.innerHTML = templates.map(t => `
+      <div class="template-item${currentTemplate && currentTemplate.name === t.name ? ' active' : ''}" onclick="selectTemplate('${t.name}')">
+        <div class="template-name">${t.name}</div>
+        <div class="template-subject" title="${t.subject}">${t.subject}</div>
+        <div class="template-updated">${t.updated_at ? 'Updated ' + formatDate(t.updated_at) : ''}</div>
+      </div>
+    `).join('');
+  }
+
+  async function selectTemplate(name) {
+    try {
+      const data = await api.get(`/api/email/templates/${name}`);
+      currentTemplate = data.template;
+      showPreview = false;
+      renderEditor(currentTemplate);
+
+      document.querySelectorAll('.template-item').forEach(el => {
+        el.classList.toggle('active', el.querySelector('.template-name')?.textContent === name);
+      });
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  function renderEditor(template) {
+    let variables = [];
+    try { variables = JSON.parse(template.variables || '[]'); } catch (e) { variables = []; }
+
+    document.getElementById('editor-panel').innerHTML = `
+      <div class="editor-title">${template.name}</div>
+
+      <div class="form-group">
+        <label class="form-label">Subject Line</label>
+        <input class="form-input" id="tpl-subject" type="text" value="${(template.subject || '').replace(/"/g, '&quot;')}">
+      </div>
+
+      ${variables.length > 0 ? `
+      <div class="form-group">
+        <label class="form-label" style="margin-bottom:8px;">Available Variables <span style="font-weight:400; color:var(--text-3);">(click to insert)</span></label>
+        <div class="var-chips">
+          ${variables.map(v => `<span class="var-chip" onclick="insertVar('{{${v}}}')">{{${v}}}</span>`).join('')}
+        </div>
+      </div>` : ''}
+
+      <div class="form-group">
+        <label class="form-label" style="margin-bottom:8px;">HTML Body</label>
+        <div class="tab-bar">
+          <button class="tab-btn-sm${!showPreview ? ' active' : ''}" onclick="switchEditorTab('code', this)">Code</button>
+          <button class="tab-btn-sm${showPreview ? ' active' : ''}" onclick="switchEditorTab('preview', this)">Preview</button>
+        </div>
+        <div id="code-area" style="display:${showPreview ? 'none' : 'block'};">
+          <textarea class="code-editor" id="tpl-body" spellcheck="false">${escHtml(template.html_body || '')}</textarea>
+        </div>
+        <div id="preview-area" style="display:${showPreview ? 'block' : 'none'};">
+          <iframe class="preview-frame" id="preview-frame" srcdoc="${escHtml(template.html_body || '')}"></iframe>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button class="btn btn-primary" onclick="saveTemplate()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Template
+        </button>
+        <button class="btn btn-outline" onclick="document.getElementById('test-modal').style.display='flex'; setTimeout(()=>document.getElementById('test-email').focus(),50);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Send Test
+        </button>
+      </div>
+    `;
+  }
+
+  function switchEditorTab(tab, btn) {
+    showPreview = tab === 'preview';
+    document.querySelectorAll('.tab-btn-sm').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if (showPreview) {
+      const html = document.getElementById('tpl-body')?.value || '';
+      const frame = document.getElementById('preview-frame');
+      if (frame) frame.srcdoc = html;
+    }
+
+    const codeArea = document.getElementById('code-area');
+    const previewArea = document.getElementById('preview-area');
+    if (codeArea) codeArea.style.display = showPreview ? 'none' : 'block';
+    if (previewArea) previewArea.style.display = showPreview ? 'block' : 'none';
+  }
+
+  function insertVar(varStr) {
+    const textarea = document.getElementById('tpl-body');
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    textarea.value = textarea.value.slice(0, start) + varStr + textarea.value.slice(end);
+    textarea.selectionStart = textarea.selectionEnd = start + varStr.length;
+    textarea.focus();
+  }
+
+  async function saveTemplate() {
+    if (!currentTemplate) return;
+    try {
+      const subject = document.getElementById('tpl-subject').value;
+      const html_body = document.getElementById('tpl-body').value;
+      const data = await api.put(`/api/email/templates/${currentTemplate.name}`, { subject, html_body });
+      toast('Template saved!', 'success');
+      currentTemplate = data.template;
+      loadTemplates();
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  async function sendTestEmail() {
+    const btn = document.getElementById('test-send-btn');
+    const email = document.getElementById('test-email').value.trim();
+    if (!email) { toast('Please enter a recipient email', 'error'); return; }
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      await api.post('/api/email/send', {
+        template_name: currentTemplate?.name,
+        to_email: email,
+        variables: {}
+      });
+      document.getElementById('test-modal').style.display = 'none';
+      toast('Test email sent (simulated)!', 'success');
+      loadLogs();
+    } catch (e) {
+      toast(e.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Send Test';
+    }
+  }
+
+  document.getElementById('test-modal').addEventListener('click', function(e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+
+  async function loadLogs() {
+    try {
+      const data = await api.get('/api/email/logs');
+      renderLogs(data.logs || []);
+    } catch (e) {
+      document.getElementById('logs-tbody').innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:20px;">Could not load logs.</td></tr>`;
+    }
+  }
+
+  function renderLogs(logs) {
+    const tbody = document.getElementById('logs-tbody');
+    if (!logs.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:24px;font-style:italic;">No emails sent yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = logs.slice(0, 50).map(log => `
+      <tr>
+        <td style="font-size:12px;">${log.to_email}</td>
+        <td style="font-size:12px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${log.subject}</td>
+        <td><code style="font-size:11px;background:rgba(200,168,75,0.08);color:var(--gold);padding:2px 5px;border-radius:3px;">${log.template_name || '—'}</code></td>
+        <td><span class="status-badge ${log.status === 'sent' ? 'status-sent' : 'status-failed'}">${log.status}</span></td>
+        <td style="font-size:12px;color:var(--text-3);">${formatDate(log.sent_at)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function escHtml(s) {
+    return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+</script>
+<!-- GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+gsap.from('.page-header, .stat-card, .card, .list-item, .section-block', {
+  y: 24, opacity: 0, duration: 0.65, stagger: 0.07, ease: 'power3.out', delay: 0.1
+});
+gsap.utils.toArray('.card, .list-item, tr').forEach(el => {
+  gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 90%' },
+    y: 14, opacity: 0, duration: 0.45, ease: 'power2.out' });
+});
+</script>
+</body>
+</html>
