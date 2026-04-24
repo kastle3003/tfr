@@ -1,4 +1,4 @@
-const { Database } = require('node-sqlite3-wasm');
+const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs');
@@ -11,65 +11,15 @@ const dataDir = process.env.DB_PATH
   : path.join(__dirname, '../data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
-// node-sqlite3-wasm uses an empty sibling directory `<db>.lock` as a cross-process
-// lock. A crash or hard kill (e.g. Windows SAC terminating the process) leaves the
-// dir behind and every subsequent open fails with "database is locked". We're a
-// single-process server, so clearing an empty stale lock dir on startup is safe.
 const dbPath = process.env.DB_PATH || path.join(dataDir, 'archive.db');
-const lockPath = dbPath + '.lock';
-try {
-  if (fs.existsSync(lockPath) && fs.statSync(lockPath).isDirectory()) {
-    fs.rmdirSync(lockPath);
-  }
-} catch (_) { /* non-empty or in use — let the open call surface the real error */ }
 
-const db = new Database(dbPath.replace(/\\/g, '/'));
+const db = new Database(dbPath);
 
-const cleanupLock = () => {
-  try { db.close(); } catch (_) {}
-  try {
-    if (fs.existsSync(lockPath) && fs.statSync(lockPath).isDirectory()) {
-      fs.rmdirSync(lockPath);
-    }
-  } catch (_) {}
-};
-process.once('exit', cleanupLock);
-process.once('SIGINT', () => { cleanupLock(); process.exit(0); });
-process.once('SIGTERM', () => { cleanupLock(); process.exit(0); });
+process.once('exit', () => { try { db.close(); } catch (_) {} });
+process.once('SIGINT', () => { try { db.close(); } catch (_) {} process.exit(0); });
+process.once('SIGTERM', () => { try { db.close(); } catch (_) {} process.exit(0); });
 
-db.exec('PRAGMA foreign_keys = ON');
-
-// Shim: node-sqlite3-wasm doesn't expose db.transaction(); wrap in manual BEGIN/COMMIT
-db.transaction = (fn) => (...args) => {
-  db.exec('BEGIN');
-  try {
-    const result = fn(...args);
-    db.exec('COMMIT');
-    return result;
-  } catch (e) {
-    db.exec('ROLLBACK');
-    throw e;
-  }
-};
-
-// Shim: better-sqlite3 allows stmt.run(a, b, c) spread args; node-sqlite3-wasm only takes
-// stmt.run([a, b, c]). Wrap db.prepare() so callers don't need to change.
-// Note: iterate() is intentionally NOT wrapped — it's called internally by all() with an
-// options second arg, and wrapping it causes that arg to be mistaken for a bind value.
-const _origPrepare = db.prepare.bind(db);
-const _wrapFn = (orig) => (...args) => {
-  // 0 args → no binding; 1 arg → pass as-is; 2+ args → array of binding values
-  if (args.length === 0) return orig();
-  if (args.length === 1) return orig(args[0]);
-  return orig(args);
-};
-const _wrapStmt = (stmt) => {
-  stmt.run = _wrapFn(stmt.run.bind(stmt));
-  stmt.get = _wrapFn(stmt.get.bind(stmt));
-  stmt.all = _wrapFn(stmt.all.bind(stmt));
-  return stmt;
-};
-db.prepare = (sql) => _wrapStmt(_origPrepare(sql));
+db.pragma('foreign_keys = ON');
 
 // Create tables
 db.exec(`
@@ -634,31 +584,6 @@ try {
   `).run();
 } catch (_) {}
 
-// Demo video seed: attach a sample MP4 to every lesson that has no materials.
-// Uses open-source Blender Foundation films from Google's test CDN.
-// Replace these URLs with real lesson content via the instructor upload panel.
-try {
-  const demoUrls = [
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
-  ];
-  const emptyLessons = db.prepare(`
-    SELECT l.id, l.title FROM lessons l
-    WHERE NOT EXISTS (SELECT 1 FROM lesson_materials m WHERE m.lesson_id = l.id)
-    ORDER BY l.id ASC LIMIT 30
-  `).all();
-  const insDemo = db.prepare(`
-    INSERT INTO lesson_materials (lesson_id, type, title, url, duration_seconds, order_index)
-    VALUES (?, 'video', ?, ?, NULL, 0)
-  `);
-  emptyLessons.forEach((row, i) => {
-    insDemo.run(row.id, row.title || 'Lesson Video', demoUrls[i % demoUrls.length]);
-  });
-} catch (_) {}
 
 // Flag the first lesson of every chapter as a free preview — idempotent, re-runs
 // on every boot. "First" = lowest order_index with id as tiebreaker (matches
@@ -1154,6 +1079,34 @@ if (userCount.count === 0) {
 
   console.log('✅ The Foundation Room database seeded successfully.');
 }
+
+// Demo video seed: attach a sample MP4 to every lesson that has no materials.
+// Runs after the full seed block so all lessons exist. Idempotent on re-runs.
+// Uses open-source Blender Foundation films from Google's test CDN.
+// Replace these URLs with real lesson content via the instructor upload panel.
+try {
+  const demoUrls = [
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+  ];
+  const emptyLessons = db.prepare(`
+    SELECT l.id, l.title FROM lessons l
+    WHERE NOT EXISTS (SELECT 1 FROM lesson_materials m WHERE m.lesson_id = l.id)
+    ORDER BY l.id ASC
+  `).all();
+  const insDemo = db.prepare(`
+    INSERT INTO lesson_materials (lesson_id, type, title, url, duration_seconds, order_index)
+    VALUES (?, 'video', ?, ?, NULL, 0)
+  `);
+  emptyLessons.forEach((row, i) => {
+    insDemo.run(row.id, row.title || 'Lesson Video', demoUrls[i % demoUrls.length]);
+  });
+  if (emptyLessons.length > 0) console.log('[seed] Added demo videos to', emptyLessons.length, 'lessons');
+} catch (_) {}
 
 // ── Ensure additional instructor account exists (idempotent on every startup) ──
 {

@@ -4,6 +4,7 @@ const multer = require('multer');
 const db = require('../db');
 const requireRole = require('../middleware/role');
 const { persistUpload } = require('../lib/storage');
+const access = require('../lib/access');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
@@ -92,6 +93,67 @@ router.get('/:id/chapters', (req, res) => {
     }));
 
     res.json({ chapters: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/courses/:id/full-materials — auth required
+// Returns all lesson materials for chapters accessible to the requesting user.
+// Access mirrors _chapterAccessible on the frontend:
+//   bundle purchase → all chapters; individual purchase → bought chapters;
+//   enrolled with no purchases (admin-enrolled) → all chapters.
+router.get('/:id/full-materials', (req, res) => {
+  try {
+    const courseId = Number(req.params.id);
+    if (!courseId) return res.status(400).json({ error: 'Invalid course id' });
+    const userId = req.user.id;
+
+    const hasBundlePurchase = access.ownsBundle(userId, courseId);
+    const enrollment = db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?').get(userId, courseId);
+    const isEnrolled = !!enrollment;
+
+    const indPurchases = db.prepare(`
+      SELECT p.foundation_id AS chapter_id
+      FROM purchases p
+      WHERE p.user_id = ? AND p.course_id = ? AND p.status = 'completed' AND p.type = 'individual'
+    `).all(userId, courseId);
+    const purchasedChIds = new Set(indPurchases.map(p => p.chapter_id));
+
+    const chapters = db.prepare('SELECT id FROM chapters WHERE course_id = ? ORDER BY order_index').all(courseId);
+    const hasFullAccess = hasBundlePurchase || (isEnrolled && purchasedChIds.size === 0 && !hasBundlePurchase);
+    const accessibleChIds = new Set(
+      chapters.filter(ch => hasFullAccess || purchasedChIds.has(ch.id)).map(ch => ch.id)
+    );
+
+    if (!accessibleChIds.size) return res.json({ lesson_materials: {} });
+
+    const lessons = db.prepare('SELECT id, chapter_id FROM lessons WHERE course_id = ? ORDER BY order_index').all(courseId);
+    const accessibleLessonIds = lessons.filter(l => accessibleChIds.has(l.chapter_id)).map(l => l.id);
+
+    if (!accessibleLessonIds.length) return res.json({ lesson_materials: {} });
+
+    const ph = accessibleLessonIds.map(() => '?').join(',');
+    const materials = db.prepare(
+      `SELECT * FROM lesson_materials WHERE lesson_id IN (${ph}) ORDER BY order_index, id`
+    ).all(...accessibleLessonIds);
+
+    const timestamps = db.prepare(`
+      SELECT t.* FROM video_timestamps t
+      JOIN lesson_materials m ON t.material_id = m.id
+      WHERE m.lesson_id IN (${ph})
+      ORDER BY t.material_id, t.time_seconds
+    `).all(...accessibleLessonIds);
+
+    const tsByMat = {};
+    timestamps.forEach(t => { (tsByMat[t.material_id] = tsByMat[t.material_id] || []).push(t); });
+
+    const matByLesson = {};
+    materials.forEach(m => {
+      (matByLesson[m.lesson_id] = matByLesson[m.lesson_id] || []).push({ ...m, timestamps: tsByMat[m.id] || [] });
+    });
+
+    res.json({ lesson_materials: matByLesson });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

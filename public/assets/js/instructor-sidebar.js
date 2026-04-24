@@ -18,6 +18,7 @@
     archive:       '<polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>',
     catalog:       '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
     profile:       '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    export:        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
   };
 
   const ITEMS = [
@@ -27,20 +28,22 @@
     { href: '/gradebook.html',            label: 'Gradebook',       icon: I.gradebook },
     { href: '/quiz-builder.html',         label: 'Quiz Builder',    icon: I.quiz },
     { href: '/student-live-classes.html',         label: 'Live Classes',    icon: I.live },
-    { href: '/studio.html',               label: 'Studio',          icon: I.studio },
+    { href: '/studio.html',               label: 'Studio',          icon: I.studio,     locked: true },
     { section: 'Content' },
-    { href: '/student-sheet-music.html',          label: 'Sheet Music',     icon: I.studio },
-    { href: '/student-resources.html',     label: 'Resources',       icon: I.resources },
-    { href: '/student-archive.html',       label: 'The Archive',     icon: I.archive },
+    { href: '/student-sheet-music.html',  label: 'Sheet Music',     icon: I.studio,     locked: true },
+    { href: '/student-resources.html',    label: 'Resources',       icon: I.resources,  locked: true },
+    { href: '/student-archive.html',      label: 'The Archive',     icon: I.archive,    locked: true },
     { href: '/student-course-catalog.html',       label: 'Browse Catalog',  icon: I.catalog },
     { section: 'Engagement' },
-    { href: '/student-announcements.html',        label: 'Announcements',   icon: I.announce },
+    { href: '/admin-announcements.html',  label: 'Announcements',   icon: I.announce },
     { href: '/student-messaging.html',            label: 'Messages',        icon: I.messages },
     { href: '/email-automation.html',     label: 'Email Automation',icon: I.email },
     { href: '/student-notifications.html',        label: 'Notifications',   icon: I.notifications },
     { section: 'Insights' },
     { href: '/analytics-instructor.html', label: 'Analytics',       icon: I.analytics },
-    { href: '/student-calendar.html',             label: 'Calendar',         icon: I.calendar },
+    { href: '/student-calendar.html',     label: 'Calendar',        icon: I.calendar },
+    { section: 'Export' },
+    { href: '/reports.html',              label: 'Reports & Exports', icon: I.export },
     { section: 'Account' },
     { href: '/student-profile.html',      label: 'Profile',         icon: I.profile },
   ];
@@ -67,6 +70,32 @@
         pointer-events: none;
       }
       .sidebar-nav .nav-section:first-child { padding-top: 6px; }
+      .sidebar-nav .nav-locked {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.5);
+        text-decoration: none;
+      }
+      .sidebar-nav .nav-soon {
+        margin-left: auto;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: rgba(200,168,75,0.8);
+        background: rgba(200,168,75,0.1);
+        border: 1px solid rgba(200,168,75,0.25);
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -91,6 +120,7 @@
 
     const nav = ITEMS.map(it => {
       if (it.section) return `<div class="nav-section">${it.section}</div>`;
+      if (it.locked) return `<span class="nav-item nav-locked">${SVG_TPL(it.icon)}${it.label}<span class="nav-soon">Soon</span></span>`;
       const active = path === it.href ? ' active' : '';
       return `<a href="${it.href}" class="nav-item${active}">${SVG_TPL(it.icon)}${it.label}</a>`;
     }).join('');

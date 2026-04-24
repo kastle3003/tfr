@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Foundation Room — Sign In</title>
+  <title>The Foundation Room — Log In</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -621,7 +621,7 @@
       <!-- LOGIN PANEL -->
       <div id="panel-login" class="panel active">
         <p class="panel-eyebrow">Welcome Back</p>
-        <h1 class="panel-title">Sign In</h1>
+        <h1 class="panel-title">Log In</h1>
         <p class="panel-sub">Access your Foundation Room account</p>
         <div id="login-error" class="error-msg"></div>
         <form id="form-login" novalidate>
@@ -641,7 +641,7 @@
           <div class="forgot-row">
             <a class="link-gold" style="font-size:12px; font-family: var(--sans);" onclick="showPanel('panel-forgot')">Forgot password?</a>
           </div>
-          <button type="submit" class="btn-primary" id="btn-login">Sign In</button>
+          <button type="submit" class="btn-primary" id="btn-login">Log In</button>
         </form>
         <div class="divider-or">or</div>
         <button class="btn-secondary" onclick="showPanel('panel-register')">Create an Account</button>
@@ -699,7 +699,7 @@
           <button type="submit" class="btn-primary" id="btn-register">Create Account</button>
         </form>
         <div class="switch-link">
-          Already have an account? <a onclick="showPanel('panel-login')">Sign in</a>
+          Already have an account? <a onclick="showPanel('panel-login')">Log in</a>
         </div>
       </div>
 
@@ -730,7 +730,7 @@
           Didn't receive it? <a id="resend-link" onclick="resendOTP()">Resend code</a>
         </div>
         <div class="switch-link" style="margin-top: 8px;">
-          <a onclick="showPanel('panel-login')">&larr; Back to sign in</a>
+          <a onclick="showPanel('panel-login')">&larr; Back to log in</a>
         </div>
       </div>
 
@@ -749,7 +749,7 @@
           <button type="submit" class="btn-primary" id="btn-forgot">Send Reset Link</button>
         </form>
         <div class="switch-link">
-          <a onclick="showPanel('panel-login')">&larr; Back to sign in</a>
+          <a onclick="showPanel('panel-login')">&larr; Back to log in</a>
         </div>
       </div>
 
@@ -774,7 +774,7 @@
           <button type="submit" class="btn-primary" id="btn-reset">Update Password</button>
         </form>
         <div class="switch-link">
-          <a onclick="showPanel('panel-login')">&larr; Back to sign in</a>
+          <a onclick="showPanel('panel-login')">&larr; Back to log in</a>
         </div>
       </div>
 
@@ -787,7 +787,7 @@
           <p class="panel-eyebrow" style="justify-content:center; display:flex;">Email Sent</p>
           <h2 class="panel-title" style="text-align:center; margin-bottom: 12px;">Check your inbox</h2>
           <p class="panel-sub" style="text-align:center; max-width: 320px; margin: 0 auto 32px;">We've sent password reset instructions to your email address.</p>
-          <button class="btn-primary" style="max-width: 280px; margin: 0 auto;" onclick="showPanel('panel-login')">Return to Sign In</button>
+          <button class="btn-primary" style="max-width: 280px; margin: 0 auto;" onclick="showPanel('panel-login')">Return to Log In</button>
         </div>
       </div>
 
@@ -850,6 +850,12 @@
       const el = document.getElementById(id);
       if (el) el.classList.add('active');
     }
+
+    // Open the correct panel based on URL hash (e.g. /login#panel-register)
+    (function() {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && document.getElementById(hash)) showPanel(hash);
+    })();
 
     // ─── ROLE SELECTOR ───
     function setRole(role) {

@@ -7,12 +7,62 @@
   const fmtINR = (paise) => '₹' + (Number(paise) / 100).toLocaleString('en-IN', { maximumFractionDigits: 2 });
   const escapeHTML = (s) => String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+  // Standalone toast — works on pages with or without a global toast()
+  function emToast(msg, type) {
+    if (typeof window.toast === 'function') { window.toast(msg, type); return; }
+    let tc = document.getElementById('em-toast-container');
+    if (!tc) {
+      tc = document.createElement('div');
+      tc.id = 'em-toast-container';
+      tc.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:8px;';
+      document.body.appendChild(tc);
+    }
+    const t = document.createElement('div');
+    const colors = { error: '#e05252', warn: '#d4af37', success: '#5cb85c' };
+    t.style.cssText = `background:${colors[type] || colors.success};color:#fff;padding:12px 18px;border-radius:6px;font-size:13px;font-family:inherit;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,.5);`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  // Check if student profile is complete enough to make a purchase
+  async function checkProfileComplete() {
+    const cached = JSON.parse(localStorage.getItem('archive_user') || '{}');
+    const basicMissing = [];
+    if (!cached.first_name) basicMissing.push('First Name');
+    if (!cached.last_name) basicMissing.push('Last Name');
+    if (basicMissing.length) return { ok: false, missing: basicMissing };
+
+    try {
+      const r = await fetch('/api/profile', { headers: { Authorization: 'Bearer ' + getToken() } });
+      if (!r.ok) return { ok: true }; // don't block if profile check fails
+      const d = await r.json();
+      const u = d.user || {};
+      const missing = [];
+      if (!u.phone) missing.push('Phone Number');
+      if (!u.instrument) missing.push('Primary Instrument');
+      return { ok: missing.length === 0, missing };
+    } catch {
+      return { ok: true };
+    }
+  }
+
   async function openEnrollModal(courseId) {
     if (!getToken()) {
       sessionStorage.setItem('tfr_enroll_after_login', courseId);
-      window.location.href = '/login#panel-register';
+      window.location.href = '/signin.html#panel-register';
       return;
     }
+
+    // Require complete profile before purchase
+    const profileCheck = await checkProfileComplete();
+    if (!profileCheck.ok) {
+      const fields = profileCheck.missing.join(' & ');
+      emToast(`Please complete your profile before purchasing — ${fields} required.`, 'warn');
+      setTimeout(() => window.location.href = '/student-profile.html', 1800);
+      return;
+    }
+
     let overlay = document.getElementById('em-overlay');
     if (!overlay) {
       overlay = document.createElement('div');
@@ -23,7 +73,11 @@
       document.body.appendChild(overlay);
     }
     overlay.classList.add('open');
-    document.getElementById('em-modal').innerHTML = '<p style="padding:24px;text-align:center;color:#a09889">Loading pricing…</p>';
+    document.getElementById('em-modal').innerHTML = `
+      <div style="padding:40px 24px;text-align:center;">
+        <div class="em-spinner"></div>
+        <p style="margin-top:14px;color:#a09889;font-size:13px;">Loading pricing…</p>
+      </div>`;
 
     try {
       const r = await fetch(`/api/pricing/course/${courseId}`, {
@@ -31,14 +85,19 @@
       });
       if (r.status === 401) {
         sessionStorage.setItem('tfr_enroll_after_login', courseId);
-        window.location.href = '/login#panel-register';
+        window.location.href = '/signin.html#panel-register';
         return;
       }
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'Failed to load pricing');
       renderEnrollModal(data);
     } catch (err) {
-      document.getElementById('em-modal').innerHTML = `<p style="color:#e78a8a">Failed to load pricing: ${escapeHTML(err.message)}</p>`;
+      document.getElementById('em-modal').innerHTML = `
+        <button class="em-close" onclick="closeEnrollModal()">×</button>
+        <div style="padding:24px;text-align:center;">
+          <p style="color:#e78a8a;margin-bottom:16px;">Failed to load pricing: ${escapeHTML(err.message)}</p>
+          <button class="em-btn em-btn-ghost" onclick="closeEnrollModal()">Close</button>
+        </div>`;
     }
   }
 
@@ -56,11 +115,16 @@
     if (data.owns_bundle) {
       modal.innerHTML = `
         <button class="em-close" onclick="closeEnrollModal()">×</button>
-        <h2 class="em-title">You own this course</h2>
-        <p class="em-subtitle">Head to your dashboard to continue learning.</p>
+        <div style="text-align:center;padding:8px 0 4px;">
+          <div style="width:52px;height:52px;border-radius:50%;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 class="em-title">You own this course</h2>
+          <p class="em-subtitle">Head to your dashboard to continue learning.</p>
+        </div>
         <div class="em-primary-row">
           <button class="em-btn em-btn-ghost" onclick="closeEnrollModal()">Close</button>
-          <button class="em-btn" onclick="window.location.href='/student-dashboard.html'">Go to Dashboard →</button>
+          <button class="em-btn" onclick="window.location.href='/student-courses.html'">Go to My Courses →</button>
         </div>`;
       return;
     }
@@ -71,10 +135,10 @@
     modal.innerHTML = `
       <button class="em-close" onclick="closeEnrollModal()">×</button>
       <h2 class="em-title">${escapeHTML(data.title)}</h2>
-      <p class="em-subtitle">Choose how you'd like to learn. Buy any chapter or the full bundle.</p>
+      <p class="em-subtitle">Choose how you'd like to learn — full bundle or chapter by chapter.</p>
       <div class="em-tabs">
         ${hasBundle ? `<button class="em-tab active" data-tab="bundle" onclick="emSwitchTab('bundle')">Full Bundle</button>` : ''}
-        ${hasChapters ? `<button class="em-tab${hasBundle ? '' : ' active'}" data-tab="chapters" onclick="emSwitchTab('chapters')">Chapter by Chapter</button>` : ''}
+        ${hasChapters ? `<button class="em-tab${hasBundle ? '' : ' active'}" data-tab="chapters" onclick="emSwitchTab('chapters')">By Chapter</button>` : ''}
       </div>
       <div class="em-pane active" data-pane="bundle">${renderBundlePane(data)}</div>
       <div class="em-pane" data-pane="chapters">${renderChaptersPane(data)}</div>
@@ -84,6 +148,10 @@
           <button class="em-btn em-btn-ghost" onclick="applyCoupon()">Apply</button>
         </div>
         <div id="em-coupon-msg" class="em-coupon-msg"></div>
+      </div>
+      <div class="em-security">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Secured by Razorpay &nbsp;·&nbsp; 256-bit SSL encryption &nbsp;·&nbsp; Cancel anytime
       </div>`;
 
     if (!hasBundle && hasChapters) {
@@ -94,12 +162,12 @@
   }
 
   function renderBundlePane(data) {
-    if (data.bundle_price_paise <= 0) return '<p style="color:#a09889">Bundle pricing not set.</p>';
+    if (data.bundle_price_paise <= 0) return '<p style="color:#a09889;padding:16px 0;">Bundle pricing not configured.</p>';
     const header = `
-      <div class="em-row">
+      <div class="em-row em-row-featured">
         <div class="em-row-main">
-          <span class="em-row-title">Complete bundle</span>
-          <span class="em-row-note">All chapters · lifetime access · sequential unlock</span>
+          <span class="em-row-title">Complete Bundle</span>
+          <span class="em-row-note">All ${data.chapters.length} chapters · lifetime access · sequential unlock</span>
         </div>
         <span class="em-row-price">${fmtINR(data.bundle_price_paise)}</span>
       </div>`;
@@ -108,8 +176,8 @@
     if (data.upgrade_available) {
       upgradeHTML = `
         <div class="em-upgrade">
-          <div class="em-upgrade-title">Upgrade to full bundle</div>
-          <p class="em-upgrade-note">You've already paid for ${data.paid_chapters_count} chapter${data.paid_chapters_count === 1 ? '' : 's'}. Pro-rated upgrade price shown below.</p>
+          <div class="em-upgrade-title">Upgrade to Full Bundle</div>
+          <p class="em-upgrade-note">You've already paid for ${data.paid_chapters_count} chapter${data.paid_chapters_count === 1 ? '' : 's'}. Pay only the remaining difference.</p>
           <div class="em-summary-row"><span>Upgrade price</span><span>${fmtINR(data.upgrade_to_bundle_paise)}</span></div>
           <div class="em-primary-row">
             <button class="em-btn" onclick="startPurchase('upgrade')">Upgrade — ${fmtINR(data.upgrade_to_bundle_paise)}</button>
@@ -124,7 +192,10 @@
       </div>
       <div class="em-primary-row">
         <button class="em-btn em-btn-ghost" onclick="closeEnrollModal()">Cancel</button>
-        <button class="em-btn" id="em-buy-bundle" onclick="startPurchase('bundle')">Buy Bundle — ${fmtINR(data.bundle_price_paise)}</button>
+        <button class="em-btn" id="em-buy-bundle" onclick="startPurchase('bundle')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Pay ${fmtINR(data.bundle_price_paise)}
+        </button>
       </div>${upgradeHTML}`;
   }
 
@@ -135,7 +206,7 @@
         return `<div class="em-row owned">
           <div class="em-row-main">
             <span class="em-row-title">${letter}. ${escapeHTML(c.title)}</span>
-            <span class="em-row-note">Owned</span>
+            <span class="em-row-note em-owned-label">✓ Owned</span>
           </div>
           <span class="em-row-price">—</span>
         </div>`;
@@ -146,11 +217,11 @@
             <span class="em-row-note">${c.price_paise > 0 ? 'Available to purchase' : 'Included'}</span>
           </div>
           <span class="em-row-price">${c.price_paise > 0 ? fmtINR(c.price_paise) : '—'}</span>
-          ${c.price_paise > 0 ? `<button class="em-btn" onclick="startPurchase('individual', ${c.id})">Buy</button>` : ''}
+          ${c.price_paise > 0 ? `<button class="em-btn" style="padding:6px 14px;font-size:11px;" onclick="startPurchase('individual', ${c.id})">Buy</button>` : ''}
         </div>`;
     });
     return rows.join('') +
-      `<p style="font-size:12px;color:#a09889;margin-top:10px">Chapters sum: ${fmtINR(data.chapters_sum_paise)} · Bundle: ${data.bundle_price_paise > 0 ? fmtINR(data.bundle_price_paise) : '—'}</p>`;
+      `<p style="font-size:11px;color:#a09889;margin-top:12px;padding-top:10px;border-top:1px solid rgba(212,175,55,.1);">Chapters sum: ${fmtINR(data.chapters_sum_paise)}${data.bundle_price_paise > 0 ? ` · Bundle: ${fmtINR(data.bundle_price_paise)} (save ${Math.round((1 - data.bundle_price_paise/data.chapters_sum_paise)*100)}%)` : ''}</p>`;
   }
 
   function emSwitchTab(tab) {
@@ -188,7 +259,7 @@
       if (!r.ok) { msg.className = 'em-coupon-msg err'; msg.textContent = d.error || 'Invalid coupon'; modal._coupon = null; return; }
       modal._coupon = { code, discount_paise: d.discount_paise, final_paise: d.final_paise, apply_type: applyType };
       msg.className = 'em-coupon-msg ok';
-      msg.textContent = `Coupon applied: −${fmtINR(d.discount_paise)}`;
+      msg.textContent = `Coupon applied! You save ${fmtINR(d.discount_paise)}`;
     } catch (err) {
       msg.className = 'em-coupon-msg err';
       msg.textContent = 'Network error validating coupon';
@@ -206,7 +277,17 @@
     }
 
     const buttons = modal.querySelectorAll('.em-btn');
-    buttons.forEach(b => b.disabled = true);
+    buttons.forEach(b => { b.disabled = true; });
+
+    // Show loading state on the clicked button
+    const activeBtn = modal.querySelector('.em-btn:not(.em-btn-ghost)');
+    const origText = activeBtn ? activeBtn.innerHTML : '';
+    if (activeBtn) activeBtn.innerHTML = '<span class="em-btn-spinner"></span> Processing…';
+
+    const restoreButtons = () => {
+      buttons.forEach(b => { b.disabled = false; });
+      if (activeBtn) activeBtn.innerHTML = origText;
+    };
 
     try {
       const r = await fetch('/api/purchases', {
@@ -216,8 +297,8 @@
       });
       const d = await r.json();
       if (!r.ok) {
-        alert(d.error || 'Purchase failed');
-        buttons.forEach(b => b.disabled = false);
+        emToast(d.error || 'Purchase failed', 'error');
+        restoreButtons();
         return;
       }
 
@@ -226,7 +307,7 @@
         return;
       }
 
-      // Mock-mode fallback (dev, when RAZORPAY_KEY_ID is not set server-side)
+      // Mock-mode fallback (when RAZORPAY_KEY_ID is not configured)
       if (String(d.order_id || '').startsWith('order_mock_')) {
         const verify = await fetch('/api/purchases/verify', {
           method: 'POST',
@@ -234,13 +315,13 @@
           body: JSON.stringify({ razorpay_order_id: d.order_id })
         });
         if (verify.ok) onPurchaseSuccess();
-        else alert('Mock verify failed');
+        else { emToast('Payment verification failed', 'error'); restoreButtons(); }
         return;
       }
 
       if (typeof Razorpay === 'undefined') {
-        alert('Razorpay Checkout did not load. Check your network / ad blocker.');
-        buttons.forEach(b => b.disabled = false);
+        emToast('Payment gateway did not load. Check your network connection.', 'error');
+        restoreButtons();
         return;
       }
 
@@ -264,24 +345,26 @@
             });
             const vd = await verify.json();
             if (verify.ok) onPurchaseSuccess();
-            else alert(vd.error || 'Payment verification failed');
+            else { emToast(vd.error || 'Payment verification failed', 'error'); restoreButtons(); }
           } catch (err) {
-            alert('Verification error: ' + err.message);
+            emToast('Verification error: ' + err.message, 'error');
+            restoreButtons();
           }
         },
-        modal: { ondismiss: () => { buttons.forEach(b => b.disabled = false); } },
+        modal: { ondismiss: restoreButtons },
         theme: { color: '#d4af37' }
       });
       rzp.open();
     } catch (err) {
-      alert('Network error: ' + err.message);
-      buttons.forEach(b => b.disabled = false);
+      emToast('Network error: ' + err.message, 'error');
+      restoreButtons();
     }
   }
 
   function onPurchaseSuccess() {
     closeEnrollModal();
-    setTimeout(() => window.location.reload(), 600);
+    emToast('Payment successful! Enrolling you now…', 'success');
+    setTimeout(() => window.location.reload(), 1200);
   }
 
   // Expose on window so inline onclicks in the modal HTML can call them.

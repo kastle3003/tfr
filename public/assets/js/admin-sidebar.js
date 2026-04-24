@@ -18,6 +18,7 @@
     profile:       '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
     instructor:    '<circle cx="12" cy="8" r="4"/><path d="M12 14c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z"/>',
     student:       '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>',
+    export:        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
   };
 
   const CMS_SUBITEMS = [
@@ -42,6 +43,8 @@
     { href: '/admin-notifications.html',   label: 'Notifications',  icon: I.notifications },
     { section: 'Insights' },
     { href: '/admin-panel.html#dashboard', label: 'Analytics',      icon: I.analytics },
+    { section: 'Export' },
+    { href: '/reports.html',               label: 'Reports & Exports', icon: I.export },
     { section: 'Account' },
     { href: '/admin-profile.html',         label: 'Profile',        icon: I.profile },
   ];

@@ -32,13 +32,13 @@
     { href: '/student-course-catalog.html', label: 'Browse Catalog', icon: I.catalog },
     { section: 'Practice & Progress' },
     { href: '/student-practice-log.html', label: 'Practice Log', icon: I.practice },
-    { href: '/studio.html',               label: 'Studio',       icon: I.studio },
+    { href: '/studio.html',               label: 'Studio',       icon: I.studio,   locked: true },
     { href: '/analytics-student.html',    label: 'Analytics',    icon: I.analytics },
     { href: '/student-calendar.html',     label: 'Calendar',     icon: I.calendar },
     { section: 'Library' },
-    { href: '/student-sheet-music.html', label: 'Sheet Music', icon: I.sheet },
-    { href: '/student-resources.html', label: 'Resources', icon: I.resources },
-    { href: '/student-archive.html', label: 'The Archive', icon: I.archive },
+    { href: '/student-sheet-music.html', label: 'Sheet Music', icon: I.sheet,     locked: true },
+    { href: '/student-resources.html',   label: 'Resources',   icon: I.resources, locked: true },
+    { href: '/student-archive.html',     label: 'The Archive', icon: I.archive,   locked: true },
     { section: 'Community' },
     { href: '/student-announcements.html', label: 'Announcements', icon: I.announcements },
     { href: '/student-notifications.html', label: 'Notifications', icon: I.notifications },
@@ -68,6 +68,32 @@
         pointer-events: none;
       }
       .sidebar-nav .nav-section:first-child { padding-top: 6px; }
+      .sidebar-nav .nav-locked {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.5);
+        text-decoration: none;
+      }
+      .sidebar-nav .nav-soon {
+        margin-left: auto;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: rgba(200,168,75,0.8);
+        background: rgba(200,168,75,0.1);
+        border: 1px solid rgba(200,168,75,0.25);
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -92,6 +118,7 @@
 
     const nav = ITEMS.map(it => {
       if (it.section) return `<div class="nav-section">${it.section}</div>`;
+      if (it.locked) return `<span class="nav-item nav-locked">${SVG_TPL(it.icon)}${it.label}<span class="nav-soon">Soon</span></span>`;
       const active = path === it.href ? ' active' : '';
       return `<a href="${it.href}" class="nav-item${active}">${SVG_TPL(it.icon)}${it.label}</a>`;
     }).join('');

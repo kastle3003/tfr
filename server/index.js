@@ -15,7 +15,23 @@ if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 const certDir = path.join(__dirname, '../data/certificates');
 if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
 
-app.use(cors());
+// CORS — reads ALLOWED_ORIGINS (comma-separated) from env.
+// Falls back to FRONTEND_URL, then to permissive open mode for local dev.
+const _rawOrigins = (process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || '').trim();
+const _allowedOrigins = _rawOrigins
+  ? _rawOrigins.split(',').map(o => o.trim()).filter(Boolean)
+  : [];
+
+app.use(cors({
+  origin: _allowedOrigins.length === 0
+    ? true  // dev: allow all
+    : (origin, cb) => {
+        // Allow server-to-server requests (no Origin header) and listed origins
+        if (!origin || _allowedOrigins.includes(origin)) return cb(null, true);
+        cb(new Error(`CORS: origin ${origin} not allowed`));
+      },
+  credentials: true,
+}));
 
 // ── Razorpay webhook — MUST be mounted BEFORE the global JSON body parser so
 //    the raw body is intact for HMAC verification. No-auth by design (Razorpay
@@ -116,6 +132,9 @@ app.use('/api/announcements', require('./middleware/auth'), require('./routes/an
 app.use('/api/resources', require('./middleware/auth'), require('./routes/resources.routes'));
 app.use('/api/email', require('./middleware/auth'), require('./routes/email.routes'));
 app.use('/api/roles', require('./middleware/auth'), require('./routes/roles.routes'));
+
+// Export / Reports (instructor + admin)
+app.use('/api/export', require('./middleware/auth'), require('./routes/export.routes'));
 
 // CMS & Blog
 app.use('/api/cms', require('./middleware/auth'), require('./routes/cms.routes'));

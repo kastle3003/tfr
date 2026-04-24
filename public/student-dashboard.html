@@ -155,14 +155,14 @@
           <div class="stat-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
-          <div class="stat-number" id="stat-hours">12h</div>
-          <div class="stat-label">Practice Hrs This Week</div>
+          <div class="stat-number" id="stat-hours">—</div>
+          <div class="stat-label">Practice This Week</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           </div>
-          <div class="stat-number" style="color:var(--gold);" id="stat-streak">14</div>
+          <div class="stat-number" style="color:var(--gold);" id="stat-streak">—</div>
           <div class="stat-label">Day Streak 🔥</div>
         </div>
         <div class="stat-card">
@@ -170,7 +170,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
           <div class="stat-number" id="stat-avg">—%</div>
-          <div class="stat-label">Average Grade</div>
+          <div class="stat-label">Avg. Progress</div>
         </div>
       </div>
 
@@ -182,7 +182,7 @@
           <!-- Currently Practicing -->
           <div class="section-header mb-16">
             <div class="section-title">Currently Practicing</div>
-            <a href="/student-course-catalog.html" class="link-gold">View All →</a>
+            <a href="/student-courses.html" class="link-gold">View All →</a>
           </div>
           <div id="enrollments-grid" style="margin-bottom:28px;">
             <div class="skeleton" style="height:110px; margin-bottom:14px;"></div>
@@ -192,7 +192,7 @@
           <!-- Upcoming Live Classes -->
           <div class="section-header mb-16">
             <div class="section-title">Live Classes</div>
-            <a href="/student-archive.html" class="link-gold">View All →</a>
+            <a href="/student-live-classes.html" class="link-gold">View All →</a>
           </div>
           <div id="masterclasses-list">
             <div class="skeleton" style="height:72px; margin-bottom:10px;"></div>
@@ -210,9 +210,10 @@
             <div class="quote-attribution" id="quote-attribution">— The Foundation Room</div>
           </div>
 
-          <!-- Recent Activity (sheet music table) -->
+          <!-- Recent Practice -->
           <div class="section-header mb-16">
-            <div class="section-title">Recent Activity</div>
+            <div class="section-title">Recent Practice</div>
+            <a href="/student-practice-log.html" class="link-gold">Log Session →</a>
           </div>
           <div id="sheet-music-table">
             <div class="skeleton" style="height:200px;"></div>
@@ -367,6 +368,9 @@
   });
 
   async function loadDashboard() {
+    // Load practice stats (streak + weekly hours) — runs in parallel with other loads
+    loadPracticeStats();
+
     // Load enrollments
     try {
       const data = await api.get('/api/enrollments/me');
@@ -378,7 +382,6 @@
         : 0;
       countUp(document.getElementById('stat-courses'), count);
       countUp(document.getElementById('stat-avg'), avg, '%');
-      // Animate progress bars after DOM settles
       setTimeout(animateProgressBars, 200);
     } catch (e) {
       document.getElementById('enrollments-grid').innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">📚</div><h3>No courses yet</h3><p>Browse the catalog to enroll in your first course.</p><a href="/student-course-catalog.html" class="btn btn-primary" style="margin-top:14px; display:inline-flex;">Browse Catalog</a></div></div>';
@@ -392,12 +395,12 @@
       document.getElementById('masterclasses-list').innerHTML = '<div class="card card-sm"><p style="font-size:13px; color:var(--text-3); text-align:center; padding:12px;">Could not load live classes.</p></div>';
     }
 
-    // Load sheet music / recent activity
+    // Load recent practice sessions
     try {
-      const data = await api.get('/api/sheet-music');
-      renderSheetMusic((data.items || []).slice(0, 5));
+      const data = await api.get('/api/practice-log');
+      renderRecentPractice((data.sessions || []).slice(0, 5));
     } catch (e) {
-      document.getElementById('sheet-music-table').innerHTML = '';
+      document.getElementById('sheet-music-table').innerHTML = '<div class="card card-sm"><p style="font-size:13px; color:var(--text-3); text-align:center; padding:12px;">No practice logged yet. <a href="/student-practice-log.html" style="color:var(--gold);">Start logging →</a></p></div>';
     }
 
     // Load quote
@@ -408,8 +411,45 @@
         document.getElementById('quote-attribution').textContent = `— ${data.quote.attribution}`;
       }
     } catch (e) {}
-    // Animate quote widget
     setTimeout(animateQuote, 300);
+  }
+
+  async function loadPracticeStats() {
+    try {
+      const data = await api.get('/api/practice-log/stats');
+      const streak = data.current_streak || 0;
+      const weekMins = data.this_week_minutes || 0;
+
+      // Streak stat card
+      const streakEl = document.getElementById('stat-streak');
+      if (streakEl) countUp(streakEl, streak);
+
+      // Welcome banner streak
+      const streakBanner = document.getElementById('streak-count');
+      if (streakBanner) streakBanner.textContent = streak + (streak === 1 ? ' day' : ' days');
+
+      // Weekly practice time
+      const hoursEl = document.getElementById('stat-hours');
+      if (hoursEl) {
+        const h = Math.floor(weekMins / 60), m = weekMins % 60;
+        hoursEl.textContent = h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : (m > 0 ? `${m}m` : '0m');
+      }
+
+      // Welcome sub-text
+      const sub = document.getElementById('welcome-sub');
+      if (sub) {
+        if (streak >= 30) sub.textContent = `Incredible — ${streak}-day streak! You're unstoppable.`;
+        else if (streak >= 7) sub.textContent = `${streak}-day streak! 🔥 You're on fire.`;
+        else if (streak > 0) sub.textContent = `${streak}-day streak — keep the momentum going!`;
+        else if (weekMins > 0) sub.textContent = `${weekMins} minutes practiced this week. Keep going!`;
+        else sub.textContent = 'Log a practice session today to start your streak!';
+      }
+    } catch (_) {
+      const streakEl = document.getElementById('stat-streak');
+      if (streakEl) streakEl.textContent = '0';
+      const hoursEl = document.getElementById('stat-hours');
+      if (hoursEl) hoursEl.textContent = '0m';
+    }
   }
 
   function renderEnrollments(enrollments) {
@@ -491,39 +531,38 @@
     }
   }
 
-  function renderSheetMusic(items) {
+  function renderRecentPractice(sessions) {
     const container = document.getElementById('sheet-music-table');
-    if (!items.length) {
-      container.innerHTML = '<div class="card card-sm"><p style="font-size:13px; color:var(--text-3); text-align:center; padding:12px;">No recent activity.</p></div>';
+    if (!sessions.length) {
+      container.innerHTML = `<div class="card card-sm"><p style="font-size:13px; color:var(--text-3); text-align:center; padding:12px;">No practice logged yet. <a href="/student-practice-log.html" style="color:var(--gold);">Start logging →</a></p></div>`;
       return;
     }
-    const fmtBadge = (fmt) => {
-      if (!fmt || fmt.toLowerCase() === 'pdf') return '<span class="badge badge-pdf">PDF</span>';
-      if (fmt.toLowerCase().includes('mp3') || fmt.toLowerCase().includes('audio')) return '<span class="badge badge-mp3">MP3</span>';
-      return '<span class="badge badge-muted">IMG</span>';
+    const fmtDur = (m) => {
+      const h = Math.floor(m / 60), r = m % 60;
+      return h > 0 ? (r > 0 ? `${h}h ${r}m` : `${h}h`) : `${m}m`;
+    };
+    const qualityDots = (n) => {
+      if (!n) return '<span style="color:var(--text-3)">—</span>';
+      return `<span style="color:var(--gold);letter-spacing:1px;">${'●'.repeat(n)}${'○'.repeat(5 - n)}</span>`;
     };
     container.innerHTML = `
       <div class="table-wrap">
         <table class="table">
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Format</th>
               <th>Date</th>
-              <th></th>
+              <th>Duration</th>
+              <th>Piece / Focus</th>
+              <th>Quality</th>
             </tr>
           </thead>
           <tbody>
-            ${items.map(s => `
+            ${sessions.map(s => `
               <tr>
-                <td style="font-weight:600; color:var(--text);">${s.title}</td>
-                <td>${fmtBadge(s.format)}</td>
-                <td style="color:var(--text-3); font-size:12px;">${s.created_at ? formatDate(s.created_at) : '—'}</td>
-                <td>
-                  <button class="btn btn-ghost btn-sm" style="color:var(--gold);">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  </button>
-                </td>
+                <td style="color:var(--text-3); font-size:12px;">${formatDate(s.date)}</td>
+                <td style="font-weight:600; color:var(--gold);">${fmtDur(s.duration_minutes)}</td>
+                <td style="color:var(--text-2); font-size:13px; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${s.piece || s.course_title || s.focus_area || '—'}</td>
+                <td>${qualityDots(s.quality_rating)}</td>
               </tr>
             `).join('')}
           </tbody>

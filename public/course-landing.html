@@ -680,8 +680,8 @@
     <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;">
   </a>
   <div class="nav-spacer"></div>
-  <a href="/login" class="nav-btn nav-ghost">Sign In</a>
-  <a href="/login#panel-register" class="nav-btn nav-gold">Join Now</a>
+  <a href="/login" class="nav-btn nav-ghost">Log In</a>
+  <a href="/login#panel-register" class="nav-btn nav-gold">Sign Up</a>
 </nav>
 
 <!-- Auth-aware nav (swaps Sign In/Join Now for an avatar pill when signed in) -->
@@ -1176,7 +1176,23 @@ const _origRenderForFoundations = renderPage;
 renderPage = async function patched(data) {
   _landingData = data;
   const out = await _origRenderForFoundations.call(this, data);
-  // Initialize first foundation after DOM is rendered
+  // After original renderPage: _isEnrolled, _hasBundlePurchase, _purchasedChapterIds are set.
+  // Fetch full video materials for accessible chapters so they can be played.
+  if (isLoggedIn() && (_isEnrolled || _hasBundlePurchase || _purchasedChapterIds.size > 0)) {
+    try {
+      const mr = await fetch(`/api/courses/${data.course.id}/full-materials`, {
+        headers: { Authorization: 'Bearer ' + getToken() }
+      });
+      if (mr.ok) {
+        const { lesson_materials } = await mr.json();
+        (_landingData.chapters || []).forEach(ch => {
+          (ch.lessons || []).forEach(l => {
+            if (lesson_materials[l.id]) l.materials = lesson_materials[l.id];
+          });
+        });
+      }
+    } catch (_) {}
+  }
   if ((data.chapters || []).length) {
     selectFoundation(data.chapters[0].id, /*autoLoadVideo*/ true);
   }
@@ -1382,7 +1398,7 @@ function _showLockedPlayer(title) {
       <p>${msg}</p>
       <div class="cta-row">
         ${!loggedIn
-          ? '<a class="outline" href="/signin.html">Sign In</a>'
+          ? '<a class="outline" href="/login">Log In</a>'
           : !enrolled
             ? `<a href="#" onclick="openEnrollModal(${_landingData && _landingData.course ? _landingData.course.id : 0}); return false;">Unlock Now</a>`
             : ''}
