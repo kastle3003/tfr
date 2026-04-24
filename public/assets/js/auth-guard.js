@@ -19,14 +19,14 @@
   function logout() {
     localStorage.removeItem('archive_token');
     localStorage.removeItem('archive_user');
-    window.location.replace('/index.html');
+    window.location.replace('/signin.html');
   }
 
   async function ensureAuth() {
     const token = localStorage.getItem('archive_token');
     if (!token) {
       console.warn('[auth-guard] no archive_token in localStorage → sign-in');
-      window.location.replace('/index.html');
+      window.location.replace('/signin.html');
       return null;
     }
     try {

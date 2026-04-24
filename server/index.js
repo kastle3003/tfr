@@ -27,13 +27,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // ── Root & named routes (declared BEFORE express.static) ──
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/home.html'));
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.sendFile(path.join(__dirname, '../public/signin.html'));
 });
 app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.sendFile(path.join(__dirname, '../public/signin.html'));
 });
 
 // ── SEO-friendly course URLs: /courses/:slug ──
@@ -133,7 +133,7 @@ app.get('*', (req, res) => {
   if (require('fs').existsSync(file)) {
     res.sendFile(file);
   } else {
-    res.sendFile(path.join(__dirname, '../public/home.html'));
+    res.sendFile(path.join(__dirname, '../public/index.html'));
   }
 });
 

@@ -1263,7 +1263,7 @@ function toast(msg, type='success') {
   t.textContent=msg; tc.appendChild(t);
   setTimeout(()=>t.remove(),3500);
 }
-function handleLogout() { localStorage.removeItem('archive_token'); localStorage.removeItem('archive_user'); window.location.href='/index.html'; }
+function handleLogout() { localStorage.removeItem('archive_token'); localStorage.removeItem('archive_user'); window.location.href='/signin.html'; }
 </script>
 </body>
 </html>

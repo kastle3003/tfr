@@ -99,7 +99,7 @@
       </div>
       <nav class="sidebar-nav">${nav}</nav>
       <div class="sidebar-footer">
-        <div class="sidebar-user" onclick="(window.logout||function(){localStorage.clear();location.href='/index.html';})()">
+        <div class="sidebar-user" onclick="(window.logout||function(){localStorage.clear();location.href='/signin.html';})()">
           <div class="sidebar-avatar" id="sb-avatar">${initials}</div>
           <div class="sidebar-user-info">
             <div class="user-name" id="sb-name">${name}</div>

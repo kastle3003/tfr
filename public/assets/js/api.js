@@ -12,7 +12,7 @@ const api = {
       console.warn('[api] 401 on', res.url, '→ clearing token & redirecting to sign-in');
       localStorage.removeItem('archive_token');
       localStorage.removeItem('archive_user');
-      window.location.href = '/index.html';
+      window.location.href = '/signin.html';
       return;
     }
     const data = await res.json().catch(() => ({}));
