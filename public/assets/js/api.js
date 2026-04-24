@@ -25,4 +25,5 @@ const api = {
   del: (path) => fetch(API_BASE + path, { method: 'DELETE', headers: api._headers() }).then(api._handle),
   upload: (path, formData) => fetch(API_BASE + path, { method: 'POST', headers: { ...(api._token() ? { Authorization: `Bearer ${api._token()}` } : {}) }, body: formData }).then(api._handle),
 };
+api.delete = api.del;
 window.api = api;
