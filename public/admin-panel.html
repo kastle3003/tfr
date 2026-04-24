@@ -628,7 +628,6 @@
       width: 100%;
       max-width: 520px;
       box-shadow: 0 24px 64px rgba(0,0,0,0.6);
-      animation: scaleIn 0.18s ease;
       max-height: 90vh;
       overflow-y: auto;
     }
@@ -1766,7 +1765,7 @@
   gsap.registerPlugin(ScrollTrigger);
 
   document.addEventListener('DOMContentLoaded', () => {
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out', clearProps: 'opacity,transform' } });
     tl.from('#sidebar', { x: -30, opacity: 0, duration: 0.6 })
       .from('#topbar', { y: -20, opacity: 0, duration: 0.45 }, '-=0.3')
       .from('#page-header', { y: 20, opacity: 0, duration: 0.5 }, '-=0.25')
@@ -1803,7 +1802,10 @@
     btn.classList.add('active');
     const panel = document.getElementById('tab-' + name);
     panel.classList.add('active');
-    gsap.from(panel, { opacity: 0, y: 10, duration: 0.3, ease: 'power2.out' });
+    gsap.fromTo(panel,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto', clearProps: 'opacity,transform' }
+    );
 
     if (name === 'users') loadUsers();
     if (name === 'courses') loadCourses();
@@ -1836,10 +1838,24 @@
   }
 
   // ═══════════ Modal helpers ═══════════
-  function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+  function closeModal(id) {
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.style.display = 'none';
+    const inner = overlay.querySelector('.modal');
+    if (inner) gsap.set(inner, { clearProps: 'opacity,transform,scale' });
+  }
   function openModal(id) {
-    document.getElementById(id).style.display = 'flex';
-    gsap.from(document.querySelector('#' + id + ' .modal'), { scale: 0.95, opacity: 0, duration: 0.2 });
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    const inner = overlay.querySelector('.modal');
+    if (!inner) return;
+    gsap.killTweensOf(inner);
+    gsap.fromTo(inner,
+      { scale: 0.95, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.2, overwrite: 'auto', clearProps: 'opacity,transform,scale' }
+    );
   }
   // Close modal on backdrop click
   document.querySelectorAll('.modal-overlay').forEach(el => {
