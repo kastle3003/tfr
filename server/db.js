@@ -3,14 +3,19 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs');
 
-const dataDir = path.join(__dirname, '../data');
+// DB_PATH env var lets Render (and other hosts) point the database at a
+// persistent disk mount (e.g. /var/data/archive.db). Without it the DB lands
+// in the local ./data folder which is ephemeral on Render — wiped on each deploy.
+const dataDir = process.env.DB_PATH
+  ? path.dirname(process.env.DB_PATH)
+  : path.join(__dirname, '../data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
 // node-sqlite3-wasm uses an empty sibling directory `<db>.lock` as a cross-process
 // lock. A crash or hard kill (e.g. Windows SAC terminating the process) leaves the
 // dir behind and every subsequent open fails with "database is locked". We're a
 // single-process server, so clearing an empty stale lock dir on startup is safe.
-const dbPath = path.join(dataDir, 'archive.db');
+const dbPath = process.env.DB_PATH || path.join(dataDir, 'archive.db');
 const lockPath = dbPath + '.lock';
 try {
   if (fs.existsSync(lockPath) && fs.statSync(lockPath).isDirectory()) {

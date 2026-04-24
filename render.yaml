@@ -1,0 +1,71 @@
+services:
+  - type: web
+    name: tfr
+    runtime: node
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    plan: free
+
+    # Persistent disk — keeps the SQLite DB and uploads across deploys/restarts.
+    # Free tier: 1 GB. Upgrade the plan if you need more.
+    disk:
+      name: tfr-data
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      # ── Paths (point at the persistent disk) ──────────────────────────
+      - key: DB_PATH
+        value: /var/data/archive.db
+
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+
+      # ── Auth ──────────────────────────────────────────────────────────
+      # Render can auto-generate a secure random secret.
+      - key: JWT_SECRET
+        generateValue: true
+
+      # ── Public URL — replace with your actual Render URL ──────────────
+      # Used in password-reset email links. Without this, links point at localhost.
+      - key: FRONTEND_URL
+        value: https://tfr.onrender.com   # CHANGE THIS to your real URL
+
+      # ── Email (ZeptoMail / Zoho) — set these in the Render dashboard ──
+      # Leave blank here; fill them in via Environment > Add Environment Variable.
+      - key: ZEPTO_TOKEN
+        sync: false          # secret — Render won't expose it in logs
+
+      - key: ZEPTO_SENDER
+        sync: false          # the "From" email address you verified
+
+      # Optionally override ZeptoMail defaults:
+      # - key: ZEPTO_HOST
+      #   value: smtp.zeptomail.in
+      # - key: ZEPTO_PORT
+      #   value: "587"
+      # - key: ZEPTO_FROM_NAME
+      #   value: The Foundation Room
+
+      # ── Razorpay (test keys only) ──────────────────────────────────────
+      - key: RAZORPAY_KEY_ID
+        sync: false
+
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+
+      # Optional webhook HMAC secret from Razorpay dashboard
+      # - key: RAZORPAY_WEBHOOK_SECRET
+      #   sync: false
+
+      # ── Wasabi object storage (optional — leave disabled for local uploads) ──
+      # - key: WASABI_ENABLED
+      #   value: "true"
+      # - key: WASABI_BUCKET
+      #   sync: false
+      # - key: WASABI_ACCESS_KEY
+      #   sync: false
+      # - key: WASABI_SECRET_KEY
+      #   sync: false
+      # - key: WASABI_REGION
+      #   value: ap-southeast-1
