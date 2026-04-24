@@ -154,15 +154,16 @@ router.post('/reset-password', (req, res) => {
   try {
     const { reset_token, password } = req.body;
     if (!reset_token || !password) return res.status(400).json({ error: 'Reset token and new password are required' });
+    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
 
     const user = db.prepare('SELECT * FROM users WHERE reset_token = ?').get(reset_token);
-    if (!user) return res.status(400).json({ error: 'Invalid reset token' });
-    if (new Date(user.reset_expires_at) < new Date()) return res.status(400).json({ error: 'Reset token has expired' });
+    if (!user) return res.status(400).json({ error: 'Invalid or expired reset link. Please request a new one.' });
+    if (new Date(user.reset_expires_at) < new Date()) return res.status(400).json({ error: 'This reset link has expired. Please request a new one.' });
 
     const password_hash = bcrypt.hashSync(password, 10);
     db.prepare('UPDATE users SET password_hash = ?, reset_token = NULL, reset_expires_at = NULL WHERE id = ?').run(password_hash, user.id);
 
-    res.json({ message: 'Password reset successfully' });
+    res.json({ message: 'Password updated successfully', role: user.role });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

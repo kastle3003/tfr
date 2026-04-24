@@ -69,7 +69,12 @@ async function send({ to, subject, html, text, replyTo, template_name }) {
       subject,
       html,
       text: text || stripHtml(html || ''),
-      replyTo: replyTo || undefined
+      replyTo: replyTo || SENDER,
+      headers: {
+        'X-Mailer': 'The Foundation Room',
+        'X-Priority': '3',
+        'List-Unsubscribe': `<mailto:${SENDER}?subject=unsubscribe>`,
+      }
     });
     logRow({ to, subject, template_name, status: 'sent' });
     return { ok: true, delivered: true, messageId: info.messageId, accepted: info.accepted, rejected: info.rejected };
@@ -126,33 +131,70 @@ function status() {
 
 // ── Fallback templates — used when the admin hasn't customised the DB row ──
 function wrap(kicker, inner) {
-  return `<!DOCTYPE html><html><body style="font-family:Georgia,serif;background:#F4EBD0;margin:0;padding:0;">
-<div style="max-width:600px;margin:40px auto;background:#FAF7EE;border:1px solid #D1A14E;border-radius:8px;overflow:hidden;">
-  <div style="background:#2D4F1E;padding:28px 32px;">
-    <h1 style="font-family:Georgia,serif;font-style:italic;color:#F4EBD0;margin:0;font-size:26px;">The Foundation Room</h1>
-    <p style="color:rgba(244,235,208,0.7);margin:4px 0 0;font-size:12px;letter-spacing:2px;text-transform:uppercase;">${kicker}</p>
-  </div>
-  <div style="padding:32px;color:#4A3C28;line-height:1.7;">${inner}</div>
-  <div style="padding:12px 32px 24px;color:#7A6A52;font-size:11px;border-top:1px solid #D1A14E;">The Foundation Room · Est. 1952</div>
-</div></body></html>`;
+  return `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>${kicker} — The Foundation Room</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F4EBD0;font-family:Georgia,serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F4EBD0;">
+  <tr><td align="center" style="padding:32px 16px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;background-color:#FAF7EE;border-radius:8px;overflow:hidden;border:1px solid #D1A14E;">
+      <!-- HEADER -->
+      <tr>
+        <td style="background-color:#1A1208;padding:24px 32px;">
+          <p style="margin:0;font-family:Georgia,serif;font-style:italic;font-size:22px;color:#C8A84B;letter-spacing:0.01em;">The Foundation Room</p>
+          <p style="margin:4px 0 0;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(200,168,75,0.5);">${kicker}</p>
+        </td>
+      </tr>
+      <!-- BODY -->
+      <tr>
+        <td style="padding:32px;color:#4A3C28;line-height:1.75;font-size:15px;">
+          ${inner}
+        </td>
+      </tr>
+      <!-- FOOTER -->
+      <tr>
+        <td style="padding:16px 32px 20px;border-top:1px solid #D1A14E;color:#9A8A72;font-size:11px;font-family:Arial,sans-serif;line-height:1.5;">
+          <p style="margin:0 0 4px;">The Foundation Room &nbsp;|&nbsp; Mumbai, India</p>
+          <p style="margin:0;color:#b8a088;">This is a transactional email related to your account. If you did not request this, you can safely ignore it.</p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
 }
 
 const FALLBACK_TEMPLATES = {
   otp_verification: {
-    subject: 'Your verification code: {{otp}}',
-    html_body: wrap('Verify your email', `
-      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;">Welcome, {{first_name}}.</h2>
-      <p>Use the code below to verify your account. It expires in 10 minutes.</p>
-      <div style="font-size:34px;letter-spacing:8px;font-weight:700;background:#F4EBD0;border:1px dashed #D1A14E;padding:18px 24px;text-align:center;border-radius:6px;margin:18px 0;color:#2D4F1E;">{{otp}}</div>
-      <p style="color:#7A6A52;font-size:12px;">If you didn't request this, you can safely ignore this email.</p>`),
+    subject: 'TFR: {{otp}} is your verification code',
+    html_body: wrap('Email Verification', `
+      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;margin:0 0 12px;">Hello, {{first_name}}.</h2>
+      <p style="margin:0 0 20px;">Use the code below to verify your account. This code is valid for <strong>10 minutes</strong> and can only be used once.</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr><td align="center" style="padding:8px 0 24px;">
+          <div style="display:inline-block;font-size:36px;letter-spacing:10px;font-weight:700;background:#F4EBD0;border:1px solid #D1A14E;padding:16px 28px;border-radius:6px;color:#1A1208;font-family:Georgia,serif;">{{otp}}</div>
+        </td></tr>
+      </table>
+      <p style="color:#7A6A52;font-size:13px;border-top:1px solid #e8d8b8;padding-top:16px;margin:0;">If you did not create an account with The Foundation Room, you can safely ignore this email.</p>`),
   },
   password_reset: {
-    subject: 'Reset your password',
-    html_body: wrap('Reset password', `
-      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;">Password reset requested</h2>
-      <p>Hello {{first_name}}, click the button below to choose a new password. This link expires in one hour.</p>
-      <a href="{{reset_url}}" style="display:inline-block;background:#8B2E26;color:#F4EBD0;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;margin:12px 0;">Reset password →</a>
-      <p style="color:#7A6A52;font-size:12px;">If you didn't request a reset, you can safely ignore this email — your password will stay the same.</p>`),
+    subject: 'TFR: Reset your password',
+    html_body: wrap('Password Reset', `
+      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;margin:0 0 12px;">Hello, {{first_name}}.</h2>
+      <p style="margin:0 0 8px;">We received a request to reset the password for your Foundation Room account.</p>
+      <p style="margin:0 0 24px;">Click the button below to choose a new password. This link expires in <strong>1 hour</strong>.</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr><td style="border-radius:4px;background-color:#8B2E26;">
+          <a href="{{reset_url}}" style="display:inline-block;background-color:#8B2E26;color:#FAF7EE;text-decoration:none;padding:13px 30px;border-radius:4px;font-family:Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:0.04em;">Reset my password</a>
+        </td></tr>
+      </table>
+      <p style="margin:20px 0 0;font-size:13px;color:#9A8A72;">If you did not request a password reset, no action is needed — your password will remain unchanged.</p>
+      <p style="margin:12px 0 0;font-size:12px;color:#b8a088;word-break:break-all;">If the button above does not work, copy and paste this link into your browser:<br><a href="{{reset_url}}" style="color:#8B2E26;">{{reset_url}}</a></p>`),
   },
   payment_success: {
     subject: 'Payment received — ₹{{amount_rupees}}',
