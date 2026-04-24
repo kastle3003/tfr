@@ -1247,11 +1247,7 @@
     const user = e.detail;
     currentUser = user;
 
-    document.getElementById('sb-avatar').textContent     = user.avatar_initials || '?';
-    document.getElementById('sb-name').textContent       = user.first_name + ' ' + user.last_name;
-    document.getElementById('sb-role').textContent       = user.role;
     document.getElementById('topbar-avatar').textContent = user.avatar_initials || '?';
-    document.getElementById('nav-dash').href = user.role === 'instructor' ? '/instructor-dashboard.html' : '/student-dashboard.html';
 
     courseId = new URLSearchParams(window.location.search).get('id');
     if (!courseId) { window.location.href = '/student-course-catalog.html'; return; }
@@ -1336,7 +1332,7 @@
               <span class="ring-sub">done</span>
             </div>
           </div>
-          <a href="/student-course-detail.html?id=${courseId}" class="btn-continue">Continue Learning →</a>
+          <a href="#chapters-list" class="btn-continue">Continue Learning →</a>
         </div>`;
       // animate ring
       setTimeout(() => {

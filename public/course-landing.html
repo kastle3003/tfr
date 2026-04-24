@@ -72,27 +72,59 @@
     /* ─── HERO BAND ─── */
     #hero {
       margin-top: 64px;
-      min-height: 520px;
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 0;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
       position: relative;
       overflow: hidden;
     }
     .hero-left {
-      padding: 72px 60px 72px 80px;
-      display: flex; flex-direction: column; justify-content: center;
+      padding: 80px 80px 48px;
+      max-width: var(--max);
+      width: 100%;
+      align-self: center;
+      display: flex; flex-direction: column;
       position: relative; z-index: 2;
     }
     .hero-bg {
       position: absolute; inset: 0; z-index: 0;
-      opacity: .55;
+      opacity: .6;
     }
     .hero-bg::after {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(90deg, var(--ink) 40%, transparent 100%);
+      background: linear-gradient(to top, var(--ink) 0%, rgba(8,7,6,.7) 40%, rgba(8,7,6,.3) 100%);
     }
+
+    /* ─── ENROLL BAR (replaces sticky sidebar) ─── */
+    .enroll-bar {
+      position: relative; z-index: 2;
+      background: rgba(10,9,7,.88);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      padding: 20px 80px;
+      display: flex; align-items: center; gap: 28px;
+      flex-wrap: wrap;
+    }
+    .enroll-bar-price {
+      font-family: var(--font-display); font-size: 38px; font-weight: 600;
+      color: var(--gold); line-height: 1; white-space: nowrap;
+    }
+    .enroll-bar-price-note { font-size: 11px; color: var(--cream-dim); letter-spacing: .05em; }
+    .enroll-bar-perks {
+      flex: 1; display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+    }
+    .enroll-bar-perk {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--cream-dim);
+    }
+    .enroll-bar-perk svg { width: 12px; height: 12px; stroke: var(--gold); fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .enroll-bar-enrolled {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--gold); flex: 1;
+    }
+    .enroll-bar-enrolled svg { width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 2; }
     .hero-eyebrow {
       font-family: var(--font-body); font-size: 11px; font-weight: 500;
       letter-spacing: .25em; text-transform: uppercase; color: var(--gold);
@@ -165,17 +197,8 @@
     /* ─── LAYOUT ─── */
     .page-wrap {
       max-width: var(--max); margin: 0 auto;
-      display: grid;
-      /* minmax(0, 1fr) prevents the main column from expanding past its
-         fair share when a child (e.g. .curriculum-section) has width:100vw.
-         Without it, grid's default min-content sizing lets big children
-         stretch every sibling section beyond the intended column width. */
-      grid-template-columns: minmax(0, 1fr) 380px;
-      gap: 0;
-      align-items: start;
     }
-    .page-main { padding: 80px 60px 80px 80px; min-width: 0; }
-    .page-side { position: sticky; top: 64px; padding: 0 36px 80px; }
+    .page-main { padding: 72px 80px 80px; }
 
     /* ─── SECTIONS ─── */
     .section { margin-bottom: 72px; }
@@ -205,36 +228,12 @@
     .outcome-item svg { width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 2.5; flex-shrink: 0; margin-top: 1px; }
 
     /* ─── CURRICULUM ─── */
-    /* Full-bleed: anchor the section's left edge to viewport x=0 regardless
-       of how far right .page-main's content column is pushed by the 380px
-       sticky pricing sidebar. The min() picks whichever of the two values
-       is more negative, giving the correct margin at every viewport width:
-         • 900px ≤ vw ≤ 1280px  →  content_left = 80px, so margin -80px wins
-         • vw > 1280px          →  content_left grows as page-wrap centers,
-                                    so calc(-50vw + 560px) wins
-       (50vw − 560 equals 80 at vw=1280 and 400 at vw=1920 — the exact
-       horizontal distance from content column to viewport left.) */
     .curriculum-section {
-      width: 100vw;
-      margin-left: min(-80px, calc(-50vw + 560px));
-      /* Wider horizontal inset so the foundation tabs, lesson list and video
-         don't hug the viewport edges on desktop. */
-      padding: 0 80px;
-      box-sizing: border-box;
-    }
-    @media (max-width: 1200px) {
-      .curriculum-section { padding: 0 56px; }
+      width: 100%;
+      padding: 0;
     }
     .curriculum-section .section-heading { margin-top: 6px; }
     .curriculum-section .foundation-tabs { padding-top: 4px; }
-    @media (max-width: 900px) {
-      /* Mobile: no sidebar, normal single-column flow */
-      .curriculum-section {
-        width: 100%;
-        margin-left: 0;
-        padding: 0 24px;
-      }
-    }
     .curriculum-summary {
       display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;
     }
@@ -528,7 +527,9 @@
       border-radius: 8px;
       padding: 52px 60px;
       display: flex; align-items: center; justify-content: space-between; gap: 40px;
-      margin: 0 80px 80px;
+      max-width: var(--max); margin: 0 auto 80px;
+      box-sizing: border-box;
+      padding-left: 80px; padding-right: 80px;
     }
     .bottom-cta-text h2 { font-family: var(--font-display); font-size: 38px; font-weight: 600; color: var(--cream); margin-bottom: 8px; }
     .bottom-cta-text h2 em { font-style: italic; color: var(--gold); }
@@ -577,18 +578,11 @@
     .error-link:hover { border-color: var(--gold); color: var(--gold); }
 
     /* ─── RESPONSIVE ─── */
-    /* Tablet / small laptop: drop the pricing sidebar into flow */
     @media (max-width: 900px) {
-      #hero { grid-template-columns: 1fr; }
-      .enroll-panel {
-        position: relative; top: 0; max-height: none; overflow: visible;
-        border-left: none; border-top: 1px solid var(--border);
-        padding: 36px 24px;
-      }
-      .page-wrap { grid-template-columns: 1fr; }
       .page-main { padding: 48px 24px; }
-      .page-side { position: relative; top: 0; padding: 0 24px 48px; }
-      .hero-left { padding: 48px 24px; }
+      .hero-left { padding: 48px 24px 36px; }
+      .enroll-bar { padding: 16px 24px; gap: 16px; }
+      .enroll-bar-perks { gap: 10px; }
       .hero-meta { gap: 20px; }
       .outcomes-grid { grid-template-columns: 1fr; }
       .testi-grid { grid-template-columns: 1fr; }
@@ -597,22 +591,18 @@
       nav { padding: 0 20px; }
     }
 
-    /* Phone: tighten typography + collapse wide rows */
+    /* Phone */
     @media (max-width: 640px) {
       nav { padding: 0 14px; }
-      .nav-logo span { display: none; } /* drop "The Foundation Room" subtitle */
       .hero-title { font-size: clamp(30px, 9vw, 44px); }
       .hero-subtitle { font-size: 17px; margin-bottom: 24px; }
-      .hero-left { padding: 32px 18px; }
-      .enroll-panel { padding: 28px 18px; }
-      .enroll-price { font-size: 34px; }
+      .hero-left { padding: 32px 18px 28px; }
+      .enroll-bar { padding: 14px 18px; flex-direction: column; align-items: flex-start; gap: 12px; }
+      .enroll-bar-perks { display: none; }
       .hero-stat-val { font-size: 22px; }
       .hero-meta { gap: 14px 20px; }
-
       .page-main { padding: 32px 18px; }
       .section-heading { font-size: clamp(26px, 7vw, 36px); }
-      .curriculum-section { padding: 0 18px; }
-
       .curriculum-summary { gap: 14px; font-size: 12px; }
       .course-progress { margin-left: 0; }
       .course-progress svg { width: 28px; height: 28px; }
@@ -620,16 +610,11 @@
       .foundation-lessons { padding: 6px; }
       .lesson-item { padding: 9px 10px; gap: 10px; font-size: 12px; }
       .video-title-row { font-size: 12px; padding: 10px 12px; }
-
       .instructor-card-pub { flex-direction: column; padding: 22px; gap: 18px; }
       .instructor-avatar-big { align-self: flex-start; }
-
       .testi-card { padding: 20px; }
-
       .bottom-cta { padding: 28px 20px; }
       .bottom-cta h2 { font-size: clamp(22px, 6vw, 30px); }
-
-      /* Theater mode on phone: stack tabs → lessons → video, cap lesson list height */
       .curriculum-section.theater { padding: 18px; }
       .curriculum-section.theater .foundation-lessons { max-height: 30vh; }
     }
@@ -838,8 +823,12 @@ async function renderPage(data) {
       <p>Head to your dashboard to begin.</p>
     </div>`;
 
+  const priceStr = course.bundle_price_paise > 0
+    ? '₹' + (course.bundle_price_paise / 100).toLocaleString('en-IN')
+    : (course.price_paise > 0 ? '₹' + (course.price_paise / 100).toLocaleString('en-IN') : 'Free');
+
   const html = `
-    <!-- HERO -->
+    <!-- HERO (full width) -->
     <div id="hero">
       <div class="hero-bg" style="background:${course.cover_color || '#1a0d00'}">
         ${course.cover_image_url ? `<img src="${course.cover_image_url}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">` : ''}
@@ -868,26 +857,29 @@ async function renderPage(data) {
         </div>
       </div>
 
-      <!-- STICKY ENROLL PANEL (inside hero grid) -->
-      <div class="enroll-panel">
-        ${enrollSuccessHTML}
-        <div class="enroll-price">${course.bundle_price_paise > 0 ? '₹' + (course.bundle_price_paise / 100).toLocaleString('en-IN') : (course.price_paise > 0 ? '₹' + (course.price_paise / 100).toLocaleString('en-IN') : '—')}</div>
-        <p class="enroll-price-note">Full bundle · or pay per chapter</p>
-        <button class="btn-enroll-big enroll-trigger" onclick="${enrollBtnAction}">${enrollBtnLabel}</button>
-        <hr class="enroll-divider">
-        <ul class="enroll-perks">
-          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${course.lesson_count || totalLessons} structured lessons</li>
-          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live masterclasses with the instructor</li>
-          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Sheet music &amp; notation downloads</li>
-          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Recording upload &amp; feedback</li>
-          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Certificate of completion</li>
-          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access to all content</li>
-        </ul>
-        <p class="enroll-note">By enrolling you agree to our<br>Terms &amp; Privacy Policy</p>
+      <!-- ENROLL BAR (full-width strip at bottom of hero) -->
+      <div class="enroll-bar">
+        ${enrolled ? `
+          <div class="enroll-bar-enrolled">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            You're enrolled — continue from your dashboard
+          </div>` : `
+          <div>
+            <div class="enroll-bar-price">${priceStr}</div>
+            <div class="enroll-bar-price-note">Full bundle · or pay per chapter</div>
+          </div>
+          <div class="enroll-bar-perks">
+            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${course.lesson_count || totalLessons} lessons</span>
+            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live masterclasses</span>
+            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Sheet music &amp; downloads</span>
+            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Certificate of completion</span>
+            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</span>
+          </div>`}
+        <button class="btn-enroll-big enroll-trigger" style="width:auto;padding:14px 36px;flex-shrink:0;" onclick="${enrollBtnAction}">${enrollBtnLabel}</button>
       </div>
     </div>
 
-    <!-- MAIN BODY -->
+    <!-- MAIN BODY (full width, single column) -->
     <div class="page-wrap">
       <main class="page-main">
 
@@ -924,7 +916,7 @@ async function renderPage(data) {
           <p class="section-label">Curriculum</p>
           <div class="foundation-tabs" id="foundation-tabs" role="tablist">
             ${chapters.map((ch, i) => `
-              <button class="foundation-tab${i === 0 ? ' active' : ''}" data-ch="${ch.id}" onclick="selectFoundation('${ch.id}')" role="tab">${ch.title}</button>
+              <button class="foundation-tab${i === 0 ? ' active' : ''}" data-ch="${ch.id}" onclick="selectFoundation('${ch.id}', true)" role="tab">${ch.title}</button>
             `).join('')}
           </div>
           <h2 class="section-heading">Course <em>structure</em></h2>
@@ -988,9 +980,6 @@ async function renderPage(data) {
         </div>
 
       </main>
-
-      <!-- SIDE: additional enroll prompt on desktop (hidden, handled by hero panel) -->
-      <aside class="page-side"></aside>
     </div>
 
     <!-- BOTTOM CTA -->
@@ -1151,16 +1140,20 @@ function renderLessonList(chId) {
     list.innerHTML = '<li class="lesson-item locked" style="cursor:default;"><span class="l-name" style="color:var(--cream-dim);">No lessons in this foundation yet.</span></li>';
     return;
   }
+  // One free preview per chapter: only the FIRST lesson marked is_preview is playable
+  let previewUsed = false;
   list.innerHTML = (ch.lessons || []).map((l, i) => {
     const video = (l.materials || []).find(m => m.type === 'video' && m.url);
-    const playable = l.is_preview && video;
+    const isFirstPreview = l.is_preview && video && !previewUsed;
+    if (isFirstPreview) previewUsed = true;
+    const playable = isFirstPreview;
     const click = playable
       ? `onclick="selectLesson('${ch.id}', ${l.id})"`
       : `onclick="_showLockedPlayer(this.dataset.title)"`;
     return `<li class="lesson-item${playable ? '' : ' locked'}" data-lesson="${l.id}" data-title="${(l.title || '').replace(/"/g,'&quot;')}" ${click}>
       <span class="l-num">${i + 1}</span>
       <span class="l-icon">${playable ? _playIconSvg() : _lockIconSvg()}</span>
-      <span class="l-name">${l.title || ''}</span>
+      <span class="l-name">${l.title || ''}${playable ? ' <span style="font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-left:4px;">Free preview</span>' : ''}</span>
       <span class="l-dur">${_lessonDisplayDuration(l)}</span>
     </li>`;
   }).join('');
@@ -1234,14 +1227,15 @@ function _showLockedPlayer(title) {
   const slot = document.getElementById('video-slot');
   const titleEl = document.getElementById('video-title');
   slot.classList.remove('playing');
+  const loggedIn = isLoggedIn();
   slot.innerHTML = `
     <div class="video-locked">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
       <h3>${title || 'This lesson is locked'}</h3>
-      <p>Sign in or join now to access all lessons in this course.</p>
+      <p>${loggedIn ? 'Enroll to unlock all lessons in this foundation.' : 'Sign in or enroll to access all lessons in this course.'}</p>
       <div class="cta-row">
-        <a class="outline" href="/index.html">Sign In</a>
-        <a href="#" onclick="const b=document.querySelector('.enroll-trigger'); if(b){b.click(); return false;}">Join Now</a>
+        ${loggedIn ? '' : '<a class="outline" href="/index.html">Sign In</a>'}
+        <a href="#" onclick="const b=document.querySelector('.enroll-trigger'); if(b){b.click(); return false;}">Enroll Now</a>
       </div>
     </div>
   `;
