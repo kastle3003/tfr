@@ -634,6 +634,32 @@ try {
   `).run();
 } catch (_) {}
 
+// Demo video seed: attach a sample MP4 to every lesson that has no materials.
+// Uses open-source Blender Foundation films from Google's test CDN.
+// Replace these URLs with real lesson content via the instructor upload panel.
+try {
+  const demoUrls = [
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+  ];
+  const emptyLessons = db.prepare(`
+    SELECT l.id, l.title FROM lessons l
+    WHERE NOT EXISTS (SELECT 1 FROM lesson_materials m WHERE m.lesson_id = l.id)
+    ORDER BY l.id ASC LIMIT 30
+  `).all();
+  const insDemo = db.prepare(`
+    INSERT INTO lesson_materials (lesson_id, type, title, url, duration_seconds, order_index)
+    VALUES (?, 'video', ?, ?, NULL, 0)
+  `);
+  emptyLessons.forEach((row, i) => {
+    insDemo.run(row.id, row.title || 'Lesson Video', demoUrls[i % demoUrls.length]);
+  });
+} catch (_) {}
+
 // Flag the first lesson of every chapter as a free preview — idempotent, re-runs
 // on every boot. "First" = lowest order_index with id as tiebreaker (matches
 // access.js foundationLessons ordering). We only set the flag; we never clear

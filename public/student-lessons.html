@@ -237,8 +237,8 @@
           </div>
           ${lockBanner}
           ${(ch.lessons || []).map(l => `
-            <div class="lesson-row section-block" style="${unlocked ? '' : 'pointer-events:none;'}">
-              <div class="lesson-check ${l.completed ? 'done' : ''}" id="check-${l.id}" ${unlocked ? `onclick="toggleLesson(${l.id}, ${courseId}, this)"` : ''}>
+            <div class="lesson-row section-block" style="${unlocked ? 'cursor:pointer;' : 'pointer-events:none;'}" ${unlocked ? `onclick="openLessonPlayer(${l.id})"` : ''}>
+              <div class="lesson-check ${l.completed ? 'done' : ''}" id="check-${l.id}" ${unlocked ? `onclick="event.stopPropagation(); toggleLesson(${l.id}, ${courseId}, this)"` : ''}>
                 ${l.completed ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
               </div>
               <div class="lesson-type-icon type-${l.type}">
@@ -247,18 +247,102 @@
               <div style="flex:1; min-width:0;">
                 <div style="font-size:13px; font-weight:${l.completed ? '400' : '600'}; color:${l.completed ? 'var(--text-3)' : 'var(--text)'}; ${l.completed ? 'text-decoration:line-through;' : ''}">${l.title}</div>
                 <div style="font-size:11px; color:var(--text-3); margin-top:1px;">${l.duration_minutes ? l.duration_minutes + ' min' : ''}</div>
-                <button type="button" disabled title="Coming soon"
-                  style="margin-top:6px; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border:1px solid rgba(200,168,75,0.35); border-radius:4px; background:rgba(200,168,75,0.08); color:var(--gold); cursor:not-allowed; font-weight:600;">
-                  🎯 Practice Room — Coming Soon
-                </button>
               </div>
-              <span class="badge ${l.type === 'video' ? 'badge-crimson' : l.type === 'reading' ? 'badge-green' : 'badge-gold'}" style="font-size:11px;">${l.type}</span>
+              ${unlocked
+                ? `<span style="flex-shrink:0; font-size:11px; padding:3px 10px; border-radius:4px; background:rgba(200,168,75,0.12); color:var(--gold); font-weight:600; letter-spacing:.04em;">▶ Play</span>`
+                : `<span class="badge ${l.type === 'video' ? 'badge-crimson' : l.type === 'reading' ? 'badge-green' : 'badge-gold'}" style="font-size:11px;">${l.type}</span>`}
             </div>
+            <div id="lv-${l.id}" style="display:none; background:var(--bg-2); border-top:1px solid rgba(200,168,75,0.08);"></div>
           `).join('')}
         </div>`;
       }).join('');
     } catch (err) {
       document.getElementById(`chapters-loading-${courseId}`).innerHTML = `<p style="font-size:13px; color:var(--gold); padding:16px 20px;">${err.message}</p>`;
+    }
+  }
+
+  /* ── Inline lesson video player ── */
+  const _lpCache = {};
+
+  async function openLessonPlayer(lessonId) {
+    const panel = document.getElementById('lv-' + lessonId);
+    if (!panel) return;
+    if (panel.style.display === 'block') {
+      panel.querySelectorAll('video,iframe').forEach(el => { const s = el.src; el.src = ''; el.src = s; });
+      panel.style.display = 'none';
+      return;
+    }
+    panel.style.display = 'block';
+    if (_lpCache[lessonId]) { renderLessonPlayer(lessonId); return; }
+    panel.innerHTML = '<div style="padding:20px; text-align:center; font-size:13px; color:var(--text-3);">Loading…</div>';
+    try {
+      const data = await api.get('/api/lessons/' + lessonId);
+      _lpCache[lessonId] = data.lesson;
+      renderLessonPlayer(lessonId);
+    } catch (e) {
+      panel.innerHTML = '<div style="padding:16px; font-size:12px; color:var(--text-3); text-align:center;">Could not load lesson content.</div>';
+    }
+  }
+
+  function renderLessonPlayer(lessonId) {
+    const panel = document.getElementById('lv-' + lessonId);
+    const lesson = _lpCache[lessonId];
+    const mats = (lesson && lesson.materials) || [];
+    if (!mats.length) {
+      panel.innerHTML = '<div style="padding:20px; font-size:13px; color:var(--text-3); text-align:center; font-style:italic;">No content added to this lesson yet.</div>';
+      return;
+    }
+    panel.innerHTML = mats.map(m => {
+      if (m.type === 'video' && m.url) {
+        const isYT = /youtube\.com|youtu\.be/i.test(m.url);
+        let player;
+        if (isYT) {
+          const ytId = extractYtId(m.url);
+          player = `<iframe src="https://www.youtube.com/embed/${ytId}" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+        } else {
+          player = `<video src="${m.url}" controls preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;background:#000;"></video>`;
+        }
+        const ts = m.timestamps || [];
+        const tsBar = ts.length ? `
+          <div style="padding:10px 16px; background:#0a0806; border-top:1px solid rgba(200,168,75,0.08);">
+            <div style="font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-3); margin-bottom:6px;">Chapters</div>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              ${ts.map(t => {
+                const m2 = Math.floor(t.time_seconds/60), s2 = String(t.time_seconds%60).padStart(2,'0');
+                return `<span style="font-size:11px; padding:3px 10px; border-radius:12px; background:var(--bg-card); border:1px solid rgba(200,168,75,0.12); color:var(--text-2); cursor:pointer;" onclick="seekPlayer('${m.id}',${t.time_seconds},${isYT?1:0})"><span style="font-family:monospace; color:var(--gold-dim); font-size:10px;">${m2}:${s2}</span> ${t.label||''}</span>`;
+              }).join('')}
+            </div>
+          </div>` : '';
+        return `<div>
+          <div style="position:relative; aspect-ratio:16/9; background:#000;" id="vwrap-${m.id}">${player}</div>
+          ${tsBar}
+        </div>`;
+      }
+      if (m.type === 'pdf' && m.url) return `<iframe src="${m.url}" style="width:100%; height:520px; border:none;"></iframe>`;
+      if (m.type === 'url' && m.url) return `<div style="padding:16px;"><a href="${m.url}" target="_blank" rel="noopener" style="color:var(--gold); font-size:13px;">Open resource →</a></div>`;
+      return '';
+    }).join('');
+  }
+
+  function extractYtId(url) {
+    const m1 = url.match(/youtu\.be\/([\w-]+)/);
+    if (m1) return m1[1];
+    const m2 = url.match(/[?&]v=([\w-]+)/);
+    if (m2) return m2[1];
+    const m3 = url.match(/youtube\.com\/embed\/([\w-]+)/);
+    if (m3) return m3[1];
+    return '';
+  }
+
+  function seekPlayer(matId, seconds, isYT) {
+    const wrap = document.getElementById('vwrap-' + matId);
+    if (!wrap) return;
+    if (isYT) {
+      const iframe = wrap.querySelector('iframe');
+      if (iframe) { const u = new URL(iframe.src); u.searchParams.set('start', seconds); u.searchParams.set('autoplay','1'); iframe.src = u.toString(); }
+    } else {
+      const vid = wrap.querySelector('video');
+      if (vid) { vid.currentTime = seconds; vid.play(); }
     }
   }
 

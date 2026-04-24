@@ -1189,14 +1189,16 @@
 
 <script src="/assets/js/api.js"></script>
 <script>
-  // Deferred-auth: unauthenticated visitors are sent to the public course
-  // landing (/courses/:slug) so they can still browse before signing in.
-  // We try to preserve the course id in the URL by reading ?id= first.
-  (function redirectIfAnonymous() {
-    if (localStorage.getItem('archive_token')) return;
-    const id = new URLSearchParams(location.search).get('id');
-    if (id) window.location.replace('/courses/' + id);
-    else    window.location.replace('/courses.html');
+  // This page is superseded by student-lessons.html which handles both
+  // curriculum display and inline video playback. Redirect all traffic there.
+  (function redirect() {
+    if (!localStorage.getItem('archive_token')) {
+      const id = new URLSearchParams(location.search).get('id');
+      if (id) window.location.replace('/courses/' + id);
+      else    window.location.replace('/courses.html');
+    } else {
+      window.location.replace('/student-lessons.html');
+    }
   })();
 </script>
 <script src="/assets/js/auth-guard.js"></script>
