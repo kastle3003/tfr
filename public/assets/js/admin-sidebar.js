@@ -54,6 +54,10 @@
     const style = document.createElement('style');
     style.id = 'role-sidebar-styles';
     style.textContent = `
+      .sidebar-brand {
+        background: rgba(200, 168, 75, 0.07);
+        border-bottom: 1px solid rgba(200,168,75,0.13) !important;
+      }
       .sidebar-nav .nav-section {
         font-size: 10px;
         font-weight: 700;

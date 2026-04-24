@@ -157,11 +157,12 @@
           <div class="stat-label">Average Score</div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div class="stat-icon gold">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
           </div>
-          <div class="stat-number" id="stat-avg-progress">—h</div>
-          <div class="stat-label">Avg. Practice Time</div>
+          <div class="stat-number" id="stat-revenue">—</div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-badge" id="stat-revenue-badge" style="display:none;">This month</div>
         </div>
       </div>
 
@@ -418,6 +419,23 @@
       renderSubmissions(subs);
     } catch (e) {
       document.getElementById('submissions-list').innerHTML = '<div class="card card-sm"><p style="font-size:13px; color:var(--text-3);">No pending submissions.</p></div>';
+    }
+
+    // Load revenue (scoped to this instructor's courses by the server)
+    try {
+      const data = await api.get('/api/payments/admin');
+      const summary = data.summary || {};
+      const total = summary.total_paise || 0;
+      const month = summary.this_month_paise || 0;
+      const revEl = document.getElementById('stat-revenue');
+      if (revEl) revEl.textContent = total > 0 ? '₹' + Math.round(total / 100).toLocaleString('en-IN') : '₹0';
+      if (month > 0) {
+        const badge = document.getElementById('stat-revenue-badge');
+        if (badge) { badge.textContent = '₹' + Math.round(month / 100).toLocaleString('en-IN') + ' this mo.'; badge.style.display = 'flex'; }
+      }
+    } catch (_) {
+      const revEl = document.getElementById('stat-revenue');
+      if (revEl) revEl.textContent = '₹0';
     }
   }
 

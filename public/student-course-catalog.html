@@ -865,7 +865,7 @@
       const ctaClass   = isEnrolled ? 'cta-btn continue' : 'cta-btn';
 
       return `
-        <div class="course-card" onclick="window.location.href='/student-course-detail.html?id=${c.id}'">
+        <div class="course-card" onclick="window.location.href='/courses/${c.id}#foundation-tabs'">
           <div class="card-bg" style="background:${gradient};"></div>
           ${c.cover_image_url ? `<img class="card-cover-img" src="${c.cover_image_url}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;">` : ''}
           <div class="card-initials">${initial}</div>
@@ -898,7 +898,7 @@
   function handleCta(event, courseId, isEnrolled, isPaid) {
     event.stopPropagation();
     if (isEnrolled) {
-      window.location.href = `/student-course-detail.html?id=${courseId}`;
+      window.location.href = `/courses/${courseId}#foundation-tabs`;
     } else if (isPaid) {
       window.location.href = `/student-checkout.html?course_id=${courseId}`;
     } else {

@@ -155,28 +155,14 @@ function canAccessLecture(user, lessonId) {
   return { allowed: true, reason: 'owned' };
 }
 
-// ── Foundation purchase eligibility (A → E sequence) ───────────────────────
-// Returns { allowed, reason? }.
+// ── Foundation purchase eligibility ────────────────────────────────────────
+// Any foundation can be purchased in any order — no sequential gate.
 function canPurchaseFoundation(userId, foundationId) {
   const f = getFoundation(foundationId);
   if (!f) return { allowed: false, reason: 'foundation_not_found' };
-
-  // If already owned (bundle or individual), reject with a friendly reason
   if (ownsBundle(userId, f.course_id)) return { allowed: false, reason: 'already_owned_via_bundle' };
   if (ownsFoundation(userId, foundationId)) return { allowed: false, reason: 'already_owned' };
-
-  const siblings = courseFoundations(f.course_id);
-  const idx = siblings.findIndex(x => x.id === foundationId);
-  if (idx < 0) return { allowed: false, reason: 'sequence_lookup_failed' };
-
-  // The very first foundation is always purchasable.
-  if (idx === 0) return { allowed: true, reason: 'first_foundation' };
-
-  const prev = siblings[idx - 1];
-  if (!ownsFoundation(userId, prev.id) && !ownsBundle(userId, f.course_id)) {
-    return { allowed: false, reason: 'previous_foundation_not_purchased', blocked_by: prev.id };
-  }
-  return { allowed: true, reason: 'sequence_ok' };
+  return { allowed: true, reason: 'open_purchase' };
 }
 
 // ── Misc helpers used by the summary endpoints ─────────────────────────────

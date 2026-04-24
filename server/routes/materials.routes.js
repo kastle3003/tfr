@@ -153,6 +153,12 @@ router.post('/:id/timestamps', (req, res) => {
     const { time_seconds, label } = req.body;
     if (time_seconds == null || Number(time_seconds) < 0) return res.status(400).json({ error: 'time_seconds must be >= 0' });
 
+    const tsVal = Math.round(Number(time_seconds));
+    if (material.duration_seconds && tsVal > material.duration_seconds) {
+      const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+      return res.status(400).json({ error: `Timestamp ${fmt(tsVal)} exceeds video length (max ${fmt(material.duration_seconds)})` });
+    }
+
     const nextOrder = db.prepare('SELECT COALESCE(MAX(order_index),-1)+1 AS n FROM video_timestamps WHERE material_id = ?').get(req.params.id).n;
     const result = db.prepare(
       'INSERT INTO video_timestamps (material_id, time_seconds, label, order_index) VALUES (?, ?, ?, ?)'
@@ -209,8 +215,18 @@ router.put('/:mid/timestamps/:tsid', (req, res) => {
     const existing = db.prepare('SELECT * FROM video_timestamps WHERE id = ? AND material_id = ?').get(req.params.tsid, req.params.mid);
     if (!existing) return res.status(404).json({ error: 'Timestamp not found' });
     const { time_seconds, label } = req.body;
+
+    let newSecs = time_seconds != null ? Math.round(Number(time_seconds)) : existing.time_seconds;
+    if (time_seconds != null) {
+      const material = db.prepare('SELECT duration_seconds FROM lesson_materials WHERE id = ?').get(req.params.mid);
+      if (material?.duration_seconds && newSecs > material.duration_seconds) {
+        const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+        return res.status(400).json({ error: `Timestamp ${fmt(newSecs)} exceeds video length (max ${fmt(material.duration_seconds)})` });
+      }
+    }
+
     db.prepare('UPDATE video_timestamps SET time_seconds=?, label=? WHERE id=?')
-      .run(time_seconds != null ? Math.round(Number(time_seconds)) : existing.time_seconds, label !== undefined ? label : existing.label, req.params.tsid);
+      .run(newSecs, label !== undefined ? label : existing.label, req.params.tsid);
     res.json({ timestamp: db.prepare('SELECT * FROM video_timestamps WHERE id = ?').get(req.params.tsid) });
   } catch (err) {
     res.status(500).json({ error: err.message });

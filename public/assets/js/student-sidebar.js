@@ -26,7 +26,7 @@
     { href: '/student-dashboard.html', label: 'Dashboard', icon: I.dashboard },
     { section: 'Learning' },
     { href: '/student-courses.html', label: 'My Courses', icon: I.courses },
-    { href: '/student-lessons.html', label: 'My Lessons', icon: I.lessons },
+    // { href: '/student-lessons.html', label: 'My Lessons', icon: I.lessons },
     // { href: '/my-assignments.html',     label: 'Assignments',    icon: I.assignments },
     // { href: '/student-certificates.html', label: 'Certificates', icon: I.certificates },
     { href: '/student-course-catalog.html', label: 'Browse Catalog', icon: I.catalog },
@@ -54,6 +54,10 @@
     const style = document.createElement('style');
     style.id = 'student-sidebar-styles';
     style.textContent = `
+      .sidebar-brand {
+        background: rgba(200, 168, 75, 0.07);
+        border-bottom: 1px solid rgba(200,168,75,0.13) !important;
+      }
       .sidebar-nav .nav-section {
         font-size: 10px;
         font-weight: 700;

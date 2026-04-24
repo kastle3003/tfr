@@ -184,6 +184,25 @@ router.put('/:id', requireRole(['instructor', 'admin']), upload.single('cover_im
   }
 });
 
+// POST /api/courses/:id/cover-image — upload a cover image for a course
+router.post('/:id/cover-image', requireRole(['instructor', 'admin']), upload.single('cover_image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    let course;
+    if (req.user.role === 'admin') {
+      course = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
+    } else {
+      course = db.prepare('SELECT * FROM courses WHERE id = ? AND instructor_id = ?').get(req.params.id, req.user.id);
+    }
+    if (!course) return res.status(404).json({ error: 'Course not found or not authorized' });
+    const url = await persistUpload(req.file, 'courses/covers');
+    db.prepare("UPDATE courses SET cover_image_url = ?, updated_at = datetime('now') WHERE id = ?").run(url, req.params.id);
+    res.json({ cover_image_url: url });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // DELETE /api/courses/:id — instructor (own) or admin (any)
 router.delete('/:id', requireRole(['instructor', 'admin']), (req, res) => {
   try {

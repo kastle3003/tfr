@@ -163,11 +163,13 @@ router.get('/history', (req, res) => {
 });
 
 // GET /api/payments/admin  (instructor/admin)
+// Instructors see only payments for their own courses; admins see all.
 router.get('/admin', (req, res) => {
   try {
     if (!['instructor', 'admin'].includes(req.user.role)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
+    const isInstructor = req.user.role === 'instructor';
     const payments = db.prepare(`
       SELECT p.*,
         u.first_name || ' ' || u.last_name AS student_name,
@@ -176,8 +178,9 @@ router.get('/admin', (req, res) => {
       FROM payments p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN courses c ON p.course_id = c.id
+      ${isInstructor ? 'WHERE c.instructor_id = ?' : ''}
       ORDER BY p.created_at DESC
-    `).all();
+    `).all(...(isInstructor ? [req.user.id] : []));
 
     const totalPaid = payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + (p.amount_paise || 0), 0);
     const thisMonth = payments.filter(p => {

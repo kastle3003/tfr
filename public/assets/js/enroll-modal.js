@@ -71,7 +71,7 @@
     modal.innerHTML = `
       <button class="em-close" onclick="closeEnrollModal()">×</button>
       <h2 class="em-title">${escapeHTML(data.title)}</h2>
-      <p class="em-subtitle">Choose how you'd like to learn. Chapters unlock A → E in sequence.</p>
+      <p class="em-subtitle">Choose how you'd like to learn. Buy any chapter or the full bundle.</p>
       <div class="em-tabs">
         ${hasBundle ? `<button class="em-tab active" data-tab="bundle" onclick="emSwitchTab('bundle')">Full Bundle</button>` : ''}
         ${hasChapters ? `<button class="em-tab${hasBundle ? '' : ' active'}" data-tab="chapters" onclick="emSwitchTab('chapters')">Chapter by Chapter</button>` : ''}
@@ -140,23 +140,14 @@
           <span class="em-row-price">—</span>
         </div>`;
       }
-      if (c.purchasable) {
-        return `<div class="em-row">
+      return `<div class="em-row">
           <div class="em-row-main">
             <span class="em-row-title">${letter}. ${escapeHTML(c.title)}</span>
-            <span class="em-row-note">Available to purchase</span>
+            <span class="em-row-note">${c.price_paise > 0 ? 'Available to purchase' : 'Included'}</span>
           </div>
-          <span class="em-row-price">${fmtINR(c.price_paise)}</span>
-          <button class="em-btn" onclick="startPurchase('individual', ${c.id})">Buy</button>
+          <span class="em-row-price">${c.price_paise > 0 ? fmtINR(c.price_paise) : '—'}</span>
+          ${c.price_paise > 0 ? `<button class="em-btn" onclick="startPurchase('individual', ${c.id})">Buy</button>` : ''}
         </div>`;
-      }
-      return `<div class="em-row locked">
-        <div class="em-row-main">
-          <span class="em-row-title">${letter}. ${escapeHTML(c.title)}</span>
-          <span class="em-row-note">🔒 Unlock previous chapter first</span>
-        </div>
-        <span class="em-row-price">${fmtINR(c.price_paise)}</span>
-      </div>`;
     });
     return rows.join('') +
       `<p style="font-size:12px;color:#a09889;margin-top:10px">Chapters sum: ${fmtINR(data.chapters_sum_paise)} · Bundle: ${data.bundle_price_paise > 0 ? fmtINR(data.bundle_price_paise) : '—'}</p>`;

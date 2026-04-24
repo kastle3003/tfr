@@ -1477,4 +1477,68 @@ try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_title TEXT`); } ca
   }
 }
 
+// ── Back-fill cover images for seeded courses that still have NULL cover_image_url ──
+{
+  const COURSE_IMAGES = {
+    'sitar-the-complete-foundation':       'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1200&q=75&auto=format&fit=crop',
+    'djembe-world-percussions':            'https://images.unsplash.com/photo-1519683109079-d5f539e1542f?w=1200&q=75&auto=format&fit=crop',
+    'hindustani-vocals-kirana-gharana':    'https://images.unsplash.com/photo-1558098329-a11cff621064?w=1200&q=75&auto=format&fit=crop',
+    'kathak-lucknow-gharana':              'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1200&q=75&auto=format&fit=crop',
+    'film-songs-the-playback-art':         'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&q=75&auto=format&fit=crop',
+    'writers-room-makarand-deshpande':     'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=1200&q=75&auto=format&fit=crop',
+  };
+  try {
+    const upd = db.prepare("UPDATE courses SET cover_image_url = ? WHERE slug = ? AND (cover_image_url IS NULL OR cover_image_url = '')");
+    for (const [slug, url] of Object.entries(COURSE_IMAGES)) {
+      upd.run(url, slug);
+    }
+    // Fallback for any remaining NULL courses: use level-based default
+    const nullCourses = db.prepare("SELECT id, level FROM courses WHERE cover_image_url IS NULL OR cover_image_url = ''").all();
+    const levelUpd = db.prepare("UPDATE courses SET cover_image_url = ? WHERE id = ?");
+    for (const c of nullCourses) {
+      levelUpd.run(defaultCoverForLevel(c.level), c.id);
+    }
+  } catch (e) {
+    console.warn('[seed] cover image back-fill skipped:', e.message);
+  }
+}
+
+// ── Ensure Saylee Talwalkar (Singing) instructor + course exist ──
+{
+  try {
+    const existing = db.prepare("SELECT id FROM users WHERE email = 'saylee@thefoundationroom.in'").get();
+    if (!existing) {
+      const _hash = bcrypt.hashSync('password123', 10);
+      const saylee = db.prepare(`
+        INSERT INTO users (email, password_hash, first_name, last_name, role, instrument, avatar_initials, bio, verified)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        'saylee@thefoundationroom.in', _hash,
+        'Saylee', 'Talwalkar', 'instructor', 'Singing', 'ST',
+        "Saylee Talwalkar is a celebrated playback singer and live performer, known for her expressive renditions spanning classical, semi-classical, and contemporary Indian music. A trained vocalist with command of both Hindustani classical and modern styles, she brings warmth, technique, and soulful precision to every performance.",
+        1
+      );
+      db.prepare(`
+        INSERT INTO courses
+          (title, slug, subtitle, description, instructor_id, instrument, level, category, tags,
+           cover_color, cover_accent, cover_image_url, duration_weeks, lesson_count,
+           status, is_paid, price_paise, bundle_price_paise)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        'Singing — From Soul to Stage',
+        'singing-soul-to-stage',
+        'Find your voice. Share your song.',
+        "Saylee Talwalkar guides you through the complete journey of a singer — from breath control and sur alignment to stage presence and microphone mastery. Drawing on her vast experience in playback recording and live performance, this course bridges Hindustani classical foundations with the contemporary Indian music styles students actually love.",
+        saylee.lastInsertRowid, 'Singing', 'Beginner', 'Vocals',
+        '["Singing","Playback","Hindustani","Sur","Stage Performance","Beginner Friendly"]',
+        '#180A18', '#C8A84B', '/assets/tfr-play/saylee-talwalkar.jpg',
+        16, 32, 'active', 1, 99900, 99900
+      );
+      console.log('[seed] Saylee Talwalkar instructor + course added.');
+    }
+  } catch (e) {
+    console.warn('[seed] Saylee Talwalkar insert skipped:', e.message);
+  }
+}
+
 module.exports = db;

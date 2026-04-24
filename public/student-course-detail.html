@@ -1189,15 +1189,15 @@
 
 <script src="/assets/js/api.js"></script>
 <script>
-  // This page is superseded by student-lessons.html which handles both
-  // curriculum display and inline video playback. Redirect all traffic there.
+  // Redirect to the course landing page (which serves as the player for enrolled students).
   (function redirect() {
+    const id = new URLSearchParams(location.search).get('id');
     if (!localStorage.getItem('archive_token')) {
-      const id = new URLSearchParams(location.search).get('id');
       if (id) window.location.replace('/courses/' + id);
       else    window.location.replace('/courses.html');
     } else {
-      window.location.replace('/student-lessons.html');
+      if (id) window.location.replace('/courses/' + id + '#foundation-tabs');
+      else    window.location.replace('/student-lessons.html');
     }
   })();
 </script>

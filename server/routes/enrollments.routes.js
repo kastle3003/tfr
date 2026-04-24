@@ -9,7 +9,8 @@ router.get('/me', (req, res) => {
     const enrollments = db.prepare(`
       SELECT e.*, c.title AS course_title, c.subtitle AS course_subtitle,
         c.cover_color, c.cover_accent, c.level, c.instrument, c.category,
-        c.lesson_count, u.first_name || ' ' || u.last_name AS instructor_name
+        c.slug AS course_slug, c.lesson_count,
+        u.first_name || ' ' || u.last_name AS instructor_name
       FROM enrollments e
       JOIN courses c ON e.course_id = c.id
       LEFT JOIN users u ON c.instructor_id = u.id
@@ -22,9 +23,14 @@ router.get('/me', (req, res) => {
   }
 });
 
-// GET /api/enrollments/instructor
-router.get('/instructor', requireRole('instructor'), (req, res) => {
+// GET /api/enrollments/instructor  — accessible by instructor (own courses) and admin (all)
+router.get('/instructor', (req, res) => {
   try {
+    if (!['instructor', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const whereClause = req.user.role === 'admin' ? '' : 'WHERE c.instructor_id = ?';
+    const params = req.user.role === 'admin' ? [] : [req.user.id];
     const students = db.prepare(`
       SELECT e.*, c.title AS course_title, c.level,
         u.first_name, u.last_name, u.email, u.avatar_initials, u.instrument,
@@ -32,13 +38,17 @@ router.get('/instructor', requireRole('instructor'), (req, res) => {
           WHEN e.progress_pct >= 80 THEN 'Excellent'
           WHEN e.progress_pct >= 50 THEN 'On Track'
           ELSE 'At Risk'
-        END AS status_label
+        END AS status_label,
+        COALESCE(pur.status, pay.status, 'free') AS payment_status,
+        COALESCE(pur.amount_paise, pay.amount_paise, 0) AS amount_paid_paise
       FROM enrollments e
       JOIN courses c ON e.course_id = c.id
       JOIN users u ON e.student_id = u.id
-      WHERE c.instructor_id = ?
+      LEFT JOIN purchases pur ON pur.user_id = e.student_id AND pur.course_id = e.course_id AND pur.status = 'completed'
+      LEFT JOIN payments pay ON pay.user_id = e.student_id AND pay.course_id = e.course_id AND pay.status = 'paid'
+      ${whereClause}
       ORDER BY e.last_accessed_at DESC
-    `).all(req.user.id);
+    `).all(...params);
     res.json({ students });
   } catch (err) {
     res.status(500).json({ error: err.message });

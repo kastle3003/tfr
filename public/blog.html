@@ -42,8 +42,10 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 100;
-      background: rgba(8,7,6,0);
-      border-bottom: 1px solid transparent;
+      background: rgba(240, 228, 196, 0.22);
+      border-bottom: 1px solid rgba(240, 228, 196, 0.12);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       transition: background 0.4s ease, border-color 0.4s ease;
       padding: 0 40px;
       height: 72px;
@@ -52,8 +54,8 @@
       justify-content: space-between;
     }
     .nav.scrolled {
-      background: rgba(8,7,6,0.95);
-      border-bottom-color: rgba(200,168,75,0.2);
+      background: rgba(240, 228, 196, 0.28);
+      border-bottom-color: rgba(240, 228, 196, 0.18);
     }
     .nav-logo {
       display: flex;
@@ -840,7 +842,7 @@
       </div>
     </div>
     <div class="footer-bar">
-      <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved.</p>
+      <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved. &nbsp;&middot;&nbsp; Designed and developed by Techinfinity</p>
       <div class="footer-legal">
         <a href="/privacy">Privacy Policy</a>
         <a href="/refund-policy">Refund Policy</a>

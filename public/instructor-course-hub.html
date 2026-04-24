@@ -333,8 +333,8 @@
         </div>
         <div class="table-wrap">
           <table class="table">
-            <thead><tr><th>Student</th><th>Progress</th><th>Enrolled</th><th>Last Active</th><th>Status</th><th></th></tr></thead>
-            <tbody id="students-tbody"><tr><td colspan="6"><div class="skeleton" style="height:44px;"></div></td></tr></tbody>
+            <thead><tr><th>Student</th><th>Progress</th><th>Enrolled</th><th>Last Active</th><th>Status</th><th>Payment</th><th></th></tr></thead>
+            <tbody id="students-tbody"><tr><td colspan="7"><div class="skeleton" style="height:44px;"></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -688,13 +688,13 @@ async function loadStudents() {
     document.getElementById('hs-progress').textContent = avg+'%';
     renderStudents(students);
     renderEnrollmentList(students);
-  } catch(e) { document.getElementById('students-tbody').innerHTML = `<tr><td colspan="6" style="padding:16px;color:var(--text-3);font-size:13px;text-align:center;">Could not load students.</td></tr>`; }
+  } catch(e) { document.getElementById('students-tbody').innerHTML = `<tr><td colspan="7" style="padding:16px;color:var(--text-3);font-size:13px;text-align:center;">Could not load students.</td></tr>`; }
 }
 
 function renderStudents(students) {
   const tbody = document.getElementById('students-tbody');
   if (!students.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state" style="padding:40px 0;"><div class="empty-icon">🎓</div><h3 style="font-size:15px;">No students yet</h3><p>Share your course link to get enrollments.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state" style="padding:40px 0;"><div class="empty-icon">🎓</div><h3 style="font-size:15px;">No students yet</h3><p>Share your course link to get enrollments.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = students.map(s => `
@@ -712,6 +712,7 @@ function renderStudents(students) {
       <td style="font-size:12px;color:var(--text-3);">${s.enrolled_at ? new Date(s.enrolled_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '—'}</td>
       <td style="font-size:12px;color:var(--text-3);">${s.last_accessed_at ? new Date(s.last_accessed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '—'}</td>
       <td>${progressBadge(s.progress_pct||0)}</td>
+      <td>${paymentBadge(s.payment_status, s.amount_paid_paise)}</td>
       <td><button class="btn btn-ghost btn-sm" style="font-size:11px;" onclick="unenrollStudent(${s.student_id||s.id})">Remove</button></td>
     </tr>`).join('');
 }
@@ -731,6 +732,15 @@ function progressBadge(pct) {
   if (pct>=80) return `<span class="badge badge-warning">Excellent</span>`;
   if (pct>=40) return `<span class="badge badge-success">On Track</span>`;
   return `<span class="badge badge-muted">Started</span>`;
+}
+
+function paymentBadge(status, amountPaise) {
+  if (status === 'completed' || status === 'paid') {
+    const amt = amountPaise > 0 ? ' · ₹' + Math.round(amountPaise / 100).toLocaleString('en-IN') : '';
+    return `<span class="badge badge-success" style="font-size:10px;">Paid${amt}</span>`;
+  }
+  if (status === 'pending' || status === 'created') return `<span class="badge badge-warning" style="font-size:10px;">Pending</span>`;
+  return `<span class="badge badge-muted" style="font-size:10px;">Free</span>`;
 }
 
 async function manualEnroll() {

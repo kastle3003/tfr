@@ -63,11 +63,11 @@
       left: 0;
       right: 0;
       z-index: 100;
-      background: rgba(10, 8, 4, 0.90);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(200, 168, 75, 0.15);
-      box-shadow: 0 2px 24px rgba(0,0,0,0.5);
+      background: rgba(240, 228, 196, 0.22);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(240, 228, 196, 0.12);
+      box-shadow: none;
       transition: box-shadow 0.3s ease;
       padding: 0 40px;
       height: 72px;
@@ -530,8 +530,31 @@
       color: var(--gold);
       opacity: 0.3;
       user-select: none;
-      z-index: 1;
+      z-index: 2;
       position: relative;
+    }
+
+    .instructor-card-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.35;
+      z-index: 0;
+    }
+
+    @keyframes cardFadeIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .instructor-card-loaded {
+      animation: cardFadeIn 0.55s ease both;
+    }
+
+    .nav-logo-img-bg {
+      display: flex;
+      align-items: center;
     }
 
     .instructor-card-body {
@@ -1088,9 +1111,10 @@
 
     /* ─── FOOTER ─── */
     footer {
-      background: #0A0806;
-      border-top: 1px solid rgba(200, 168, 75, 0.12);
+      background: rgba(240, 228, 196, 0.22);
+      border-top: 1px solid rgba(240, 228, 196, 0.12);
       padding: 64px 40px 0;
+      scroll-margin-top: 72px;
     }
 
     .footer-grid {
@@ -1817,7 +1841,9 @@
   <!-- NAVIGATION -->
   <nav class="nav" id="main-nav">
     <a href="#experience" class="nav-logo">
-      <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;flex-shrink:0;">
+      <span class="nav-logo-img-bg">
+        <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;flex-shrink:0;">
+      </span>
     </a>
     <ul class="nav-links">
       <li><a href="#experience">Experience</a></li>
@@ -1836,7 +1862,7 @@
     <div class="hero-bg-gradient"></div>
     <div class="hero-grain"></div>
     <div class="hero-abstract" aria-hidden="true">
-      <img src="/assets/tfr-play/taufiq-hero.jpg" alt="" class="hero-artist-photo" loading="eager">
+      <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1200&q=75&auto=format&fit=crop" alt="" class="hero-artist-photo" loading="eager" style="object-position:center center;">
       <svg class="hero-wave-art" viewBox="0 0 560 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="opacity:0.35;">
         <defs>
           <radialGradient id="bloom" cx="58%" cy="48%" r="55%">
@@ -1939,92 +1965,8 @@
       <p class="section-label reveal">World-Class Faculty</p>
       <h2 class="section-heading reveal reveal-delay-1">Learn from the <em>Masters</em></h2>
     </div>
-    <div class="instructor-grid">
-
-      <!-- Niladri Kumar -->
-      <div class="instructor-card reveal">
-        <div class="instructor-card-img" style="background: linear-gradient(135deg, #1a0a00 0%, #3D2600 100%);">
-          <span class="instructor-initials">NK</span>
-        </div>
-        <div class="instructor-card-body">
-          <p class="instructor-taught-by">Taught by</p>
-          <h3 class="instructor-name">Niladri Kumar</h3>
-          <p class="instructor-subject">Sitar</p>
-          <div class="instructor-sep"></div>
-          <a href="/experience/sitar-the-complete-foundation" class="instructor-cta">Explore Course &rarr;</a>
-        </div>
-      </div>
-
-      <!-- Taufiq Qureshi -->
-      <div class="instructor-card reveal reveal-delay-1">
-        <div class="instructor-card-img" style="background: linear-gradient(135deg, #0a1a00 0%, #1A3000 100%);">
-          <span class="instructor-initials">TQ</span>
-        </div>
-        <div class="instructor-card-body">
-          <p class="instructor-taught-by">Taught by</p>
-          <h3 class="instructor-name">Taufiq Qureshi</h3>
-          <p class="instructor-subject">Djembe &amp; Percussions</p>
-          <div class="instructor-sep"></div>
-          <a href="/experience/djembe-world-percussions" class="instructor-cta">Explore Course &rarr;</a>
-        </div>
-      </div>
-
-      <!-- Sveta Kilpady -->
-      <div class="instructor-card reveal reveal-delay-2">
-        <div class="instructor-card-img" style="background: linear-gradient(135deg, #1a0010 0%, #2D0020 100%);">
-          <span class="instructor-initials">SK</span>
-        </div>
-        <div class="instructor-card-body">
-          <p class="instructor-taught-by">Taught by</p>
-          <h3 class="instructor-name">Sveta Kilpady</h3>
-          <p class="instructor-subject">Hindustani Vocals</p>
-          <div class="instructor-sep"></div>
-          <a href="/experience/hindustani-vocals-kirana-gharana" class="instructor-cta">Explore Course &rarr;</a>
-        </div>
-      </div>
-
-      <!-- Guruma Sangeeta Sinha -->
-      <div class="instructor-card reveal reveal-delay-1">
-        <div class="instructor-card-img" style="background: linear-gradient(135deg, #001a1a 0%, #002D2D 100%);">
-          <span class="instructor-initials">GS</span>
-        </div>
-        <div class="instructor-card-body">
-          <p class="instructor-taught-by">Taught by</p>
-          <h3 class="instructor-name">Guruma Sangeeta Sinha</h3>
-          <p class="instructor-subject">Kathak</p>
-          <div class="instructor-sep"></div>
-          <a href="/experience/kathak-lucknow-gharana" class="instructor-cta">Explore Course &rarr;</a>
-        </div>
-      </div>
-
-      <!-- Milind Singh -->
-      <div class="instructor-card reveal reveal-delay-2">
-        <div class="instructor-card-img" style="background: linear-gradient(135deg, #1a1000 0%, #2D1F00 100%);">
-          <span class="instructor-initials">MS</span>
-        </div>
-        <div class="instructor-card-body">
-          <p class="instructor-taught-by">Taught by</p>
-          <h3 class="instructor-name">Milind Singh</h3>
-          <p class="instructor-subject">Film Songs</p>
-          <div class="instructor-sep"></div>
-          <span class="instructor-cta" style="opacity:0.55; cursor:default;">Coming Soon</span>
-        </div>
-      </div>
-
-      <!-- Makarand Deshpande -->
-      <div class="instructor-card reveal reveal-delay-3">
-        <div class="instructor-card-img" style="background: linear-gradient(135deg, #0a0a1a 0%, #12122D 100%);">
-          <span class="instructor-initials">MD</span>
-        </div>
-        <div class="instructor-card-body">
-          <p class="instructor-taught-by">Taught by</p>
-          <h3 class="instructor-name">Makarand Deshpande</h3>
-          <p class="instructor-subject">Writer's Room / Acting</p>
-          <div class="instructor-sep"></div>
-          <span class="instructor-cta" style="opacity:0.55; cursor:default;">Coming Soon</span>
-        </div>
-      </div>
-
+    <div class="instructor-grid" id="instructor-grid">
+      <!-- populated dynamically from DB via /api/public/courses -->
     </div>
   </section>
 
@@ -3353,7 +3295,7 @@
       </div>
     </div>
     <div class="footer-bar">
-      <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved.</p>
+      <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved. &nbsp;&middot;&nbsp; Designed and developed by Techinfinity</p>
       <div class="footer-legal">
         <a href="/privacy">Privacy Policy</a>
         <a href="/refund-policy">Refund Policy</a>
@@ -3617,6 +3559,57 @@
 
     // ─── AUTH REDIRECT ───
     // Home page is public — no auth guard needed
+
+    // ─── INSTRUCTOR GRID — load from DB ───
+    (async function loadInstructorGrid() {
+      const grid = document.getElementById('instructor-grid');
+      if (!grid) return;
+
+      const delays = ['', 'reveal-delay-1', 'reveal-delay-2', '', 'reveal-delay-1', 'reveal-delay-2', 'reveal-delay-3'];
+
+      function esc(s) {
+        return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
+      function buildCard(course, i) {
+        const delay = delays[i % delays.length];
+        const initials = esc(course.instructor_initials || '');
+        const bgColor  = esc(course.cover_color  || '#1a0a00');
+        const bgAccent = esc(course.cover_accent || '#3D2600');
+        const imgTag   = course.cover_image_url
+          ? `<img src="${esc(course.cover_image_url)}" class="instructor-card-photo" alt="" loading="lazy">`
+          : '';
+        const ctaTag = course.slug
+          ? `<a href="/experience/${esc(course.slug)}" class="instructor-cta">Explore Course &rarr;</a>`
+          : `<span class="instructor-cta" style="opacity:0.55;cursor:default;">Coming Soon</span>`;
+        return `
+          <div class="instructor-card instructor-card-loaded reveal ${delay}" style="animation-delay:${i * 0.08}s;">
+            <div class="instructor-card-img" style="background:linear-gradient(135deg,${bgColor} 0%,${bgAccent} 100%);">
+              ${imgTag}
+              <span class="instructor-initials">${initials}</span>
+            </div>
+            <div class="instructor-card-body">
+              <p class="instructor-taught-by">Taught by</p>
+              <h3 class="instructor-name">${esc(course.instructor_name || '')}</h3>
+              <p class="instructor-subject">${esc(course.instrument || course.category || '')}</p>
+              <div class="instructor-sep"></div>
+              ${ctaTag}
+            </div>
+          </div>`;
+      }
+
+      try {
+        const res  = await fetch('/api/public/courses');
+        const json = await res.json();
+        const courses = (Array.isArray(json) ? json : (json.courses || []))
+          .filter(c => !c.status || c.status === 'active');
+
+        if (!courses.length) return;
+        grid.innerHTML = courses.map(buildCard).join('');
+      } catch (e) {
+        // leave grid empty — section stays hidden
+      }
+    })();
   </script>
 </body>
 

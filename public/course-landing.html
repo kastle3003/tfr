@@ -49,11 +49,11 @@
       height: 64px;
       display: flex; align-items: center;
       padding: 0 40px;
-      background: rgba(10, 8, 4, 0.90);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(200,168,75,0.15);
-      box-shadow: 0 2px 24px rgba(0,0,0,0.5);
+      background: rgba(240, 228, 196, 0.22);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(240, 228, 196, 0.12);
+      box-shadow: none;
     }
     .nav-logo { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--gold); letter-spacing: .04em; }
     .nav-logo span { font-size: 10px; font-family: var(--font-body); font-weight: 400; color: var(--cream-dim); display: block; letter-spacing: .2em; text-transform: uppercase; margin-top: -4px; }
@@ -99,34 +99,38 @@
       background: linear-gradient(to top, var(--ink) 0%, rgba(8,7,6,.7) 40%, rgba(8,7,6,.3) 100%);
     }
 
-    /* ─── ENROLL BAR (replaces sticky sidebar) ─── */
-    .enroll-bar {
-      position: relative; z-index: 2;
-      background: rgba(10,9,7,.88);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid var(--border);
-      padding: 20px 80px;
-      display: flex; align-items: center; gap: 28px;
-      flex-wrap: wrap;
+    /* ─── ENROLL SIDEBAR ─── */
+    .enroll-sidebar {
+      padding: 48px 40px 80px 0;
+      position: sticky;
+      top: 80px;
+      align-self: start;
     }
-    .enroll-bar-price {
-      font-family: var(--font-display); font-size: 38px; font-weight: 600;
-      color: var(--gold); line-height: 1; white-space: nowrap;
+    .enroll-card {
+      background: linear-gradient(160deg, #1C1508 0%, #121008 100%);
+      border: 1px solid rgba(200,168,75,0.32);
+      border-top: 3px solid var(--gold);
+      border-radius: 6px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(200,168,75,0.08), inset 0 1px 0 rgba(200,168,75,0.06);
+      overflow: hidden;
     }
-    .enroll-bar-price-note { font-size: 11px; color: var(--cream-dim); letter-spacing: .05em; }
-    .enroll-bar-perks {
-      flex: 1; display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+    .enroll-card-inner {
+      padding: 32px 28px 28px;
+      display: flex; flex-direction: column; align-items: stretch;
     }
-    .enroll-bar-perk {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--cream-dim);
+    .enroll-card-label {
+      font-size: 10px; font-weight: 600; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 18px; opacity: .8;
     }
-    .enroll-bar-perk svg { width: 12px; height: 12px; stroke: var(--gold); fill: none; stroke-width: 2.5; flex-shrink: 0; }
-    .enroll-bar-enrolled {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; color: var(--gold); flex: 1;
+    .enroll-card-enrolled {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(200,168,75,.1); border: 1px solid rgba(200,168,75,.3);
+      border-radius: 4px; padding: 14px 16px;
+      font-size: 13px; color: var(--gold);
+      margin-bottom: 20px;
     }
-    .enroll-bar-enrolled svg { width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 2; }
+    .enroll-card-enrolled svg { width: 18px; height: 18px; stroke: var(--gold); fill: none; stroke-width: 2.2; flex-shrink: 0; }
     .hero-eyebrow {
       font-family: var(--font-body); font-size: 11px; font-weight: 500;
       letter-spacing: .25em; text-transform: uppercase; color: var(--gold);
@@ -148,43 +152,34 @@
     .hero-stat-val { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--gold); line-height: 1; }
     .hero-stat-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--cream-dim); }
 
-    /* sticky enroll card */
-    .enroll-panel {
-      background: var(--ink-mid);
-      border-left: 1px solid var(--border);
-      padding: 48px 36px;
-      display: flex; flex-direction: column; align-items: center;
-      position: sticky; top: 64px; align-self: start;
-      max-height: calc(100vh - 64px);
-      overflow-y: auto;
-      z-index: 2;
+    .enroll-price-big {
+      font-family: var(--font-display); font-size: 52px; font-weight: 600; line-height: 1;
+      color: var(--gold);
+      text-shadow: 0 0 40px rgba(200,168,75,.25);
+      margin-bottom: 4px;
     }
-    .enroll-price {
-      font-family: var(--font-display); font-size: 42px; font-weight: 600;
-      color: var(--gold); margin-bottom: 6px; text-align: center;
-    }
-    .enroll-price-note { font-size: 12px; color: var(--cream-dim); text-align: center; margin-bottom: 28px; letter-spacing: .06em; }
+    .enroll-price-note { font-size: 12px; color: var(--cream-dim); margin-bottom: 24px; letter-spacing: .04em; }
     .btn-enroll-big {
       width: 100%;
-      padding: 16px 24px;
+      padding: 18px 24px;
       background: var(--gold);
       color: var(--ink);
-      font-size: 14px; font-weight: 600;
-      letter-spacing: .1em; text-transform: uppercase;
+      font-size: 13px; font-weight: 700;
+      letter-spacing: .14em; text-transform: uppercase;
       border: none; border-radius: var(--radius);
       cursor: pointer; transition: all .25s;
       text-align: center; display: block;
     }
-    .btn-enroll-big:hover { background: var(--gold-bright); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,168,75,.25); }
+    .btn-enroll-big:hover { background: var(--gold-bright); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(200,168,75,.3); }
     .btn-enroll-big:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    .enroll-divider { width: 100%; border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+    .enroll-divider { width: 100%; border: none; border-top: 1px solid rgba(200,168,75,.12); margin: 22px 0; }
     .enroll-perks { list-style: none; width: 100%; }
     .enroll-perks li {
       display: flex; align-items: flex-start; gap: 10px;
-      font-size: 13px; color: var(--cream-dim); margin-bottom: 12px; line-height: 1.4;
+      font-size: 13px; color: var(--cream-dim); margin-bottom: 13px; line-height: 1.45;
     }
     .enroll-perks li svg { width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 2.5; flex-shrink: 0; margin-top: 2px; }
-    .enroll-note { font-size: 11px; color: var(--cream-dim); text-align: center; margin-top: 16px; letter-spacing: .04em; }
+    .enroll-note { font-size: 11px; color: rgba(184,173,158,.5); text-align: center; margin-top: 18px; letter-spacing: .04em; }
     .enroll-success {
       display: none;
       flex-direction: column; align-items: center; gap: 12px;
@@ -199,8 +194,21 @@
     /* ─── LAYOUT ─── */
     .page-wrap {
       max-width: var(--max); margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      align-items: start;
     }
-    .page-main { padding: 72px 80px 80px; }
+    .page-main { padding: 72px 56px 80px 80px; }
+    @media (max-width: 1024px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .enroll-sidebar { padding: 0 40px 48px; position: static; order: -1; }
+      .enroll-card { border-radius: 0; border-left: none; border-right: none; border-top: 3px solid var(--gold); }
+      .page-main { padding: 56px 40px 80px; }
+    }
+    @media (max-width: 600px) {
+      .page-main { padding: 40px 20px 60px; }
+      .enroll-sidebar { padding: 0 0 40px; }
+    }
 
     /* ─── SECTIONS ─── */
     .section { margin-bottom: 72px; }
@@ -321,6 +329,22 @@
     .lesson-item.selected .l-icon { color: var(--gold-bright, #E8C96E); }
     .lesson-item .l-name { flex: 1; }
     .lesson-item .l-dur { font-size: 11px; color: var(--cream-dim); font-variant-numeric: tabular-nums; }
+    /* Guest preview tooltip */
+    .lesson-item.guest-preview { position: relative; }
+    .lesson-item.guest-preview::after {
+      content: "Login to watch";
+      position: absolute;
+      right: 10px; top: 50%; transform: translateY(-50%);
+      background: #141312; color: var(--gold);
+      padding: 4px 10px; font-size: 10px; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      border: 1px solid rgba(200,168,75,.3); border-radius: 3px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .15s;
+      white-space: nowrap;
+    }
+    .lesson-item.guest-preview:hover::after { opacity: 1; }
+
     .l-timestamps { display: none; margin-top: 8px; padding-left: 30px; border-left: 2px solid rgba(200,168,75,.25); }
     .lesson-item.selected .l-timestamps { display: block; }
     .l-ts-item { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; font-size: 11px; }
@@ -426,23 +450,27 @@
        Fills the player box width; shows "Coming soon" on hover/tap.
        (Backend + /practice/:id page + course-manager editor are all wired and
        ready; flip this back to an <a href> when you want to unlock.) */
+    .curriculum-section.theater .practice-room-btn { display: none; }
+    .curriculum-section.theater .video-title-row { display: none; }
+
     .practice-room-btn {
       position: relative;
       display: flex; align-items: center; justify-content: center; gap: 10px;
-      margin: 14px 16px 18px;
-      padding: 14px 18px;
+      width: 100%;
+      margin: 12px 0 0;
+      padding: 15px 18px;
       background: var(--gold);
       color: var(--ink, #0F0D0B);
       border: 0;
-      border-radius: 3px;
+      border-radius: 0;
       font-family: inherit;
       font-size: 12px; font-weight: 700;
       letter-spacing: .12em; text-transform: uppercase;
       cursor: not-allowed;
-      opacity: .78;
-      transition: opacity .2s, background .2s, box-shadow .2s;
+      box-shadow: none;
+      transition: background .2s;
     }
-    .practice-room-btn:hover { opacity: 1; background: var(--gold-bright, #E8C96E); box-shadow: 0 6px 20px rgba(200,168,75,.25); }
+    .practice-room-btn:hover { background: var(--gold-bright, #E8C96E); }
     .practice-room-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; }
     .practice-room-btn::after {
       content: "Coming soon";
@@ -592,8 +620,6 @@
     @media (max-width: 900px) {
       .page-main { padding: 48px 24px; }
       .hero-left { padding: 48px 24px 36px; }
-      .enroll-bar { padding: 16px 24px; gap: 16px; }
-      .enroll-bar-perks { gap: 10px; }
       .hero-meta { gap: 20px; }
       .outcomes-grid { grid-template-columns: 1fr; }
       .testi-grid { grid-template-columns: 1fr; }
@@ -608,8 +634,6 @@
       .hero-title { font-size: clamp(30px, 9vw, 44px); }
       .hero-subtitle { font-size: 17px; margin-bottom: 24px; }
       .hero-left { padding: 32px 18px 28px; }
-      .enroll-bar { padding: 14px 18px; flex-direction: column; align-items: flex-start; gap: 12px; }
-      .enroll-bar-perks { display: none; }
       .hero-stat-val { font-size: 22px; }
       .hero-meta { gap: 14px 20px; }
       .page-main { padding: 32px 18px; }
@@ -709,11 +733,24 @@ function getToken() { return localStorage.getItem('archive_token'); }
 function isLoggedIn() { return !!getToken(); }
 async function checkEnrolled(id) {
   try {
-    const r = await fetch('/api/enrollments', { headers: { Authorization: 'Bearer ' + getToken() } });
+    const r = await fetch('/api/enrollments/me', { headers: { Authorization: 'Bearer ' + getToken() } });
     if (!r.ok) return false;
     const d = await r.json();
     return (d.enrollments || []).some(e => e.course_id == id);
   } catch { return false; }
+}
+
+async function checkPurchaseAccess(courseId) {
+  try {
+    const r = await fetch('/api/purchases/me', { headers: { Authorization: 'Bearer ' + getToken() } });
+    if (!r.ok) return;
+    const d = await r.json();
+    const completed = (d.purchases || []).filter(p => p.status === 'completed' && p.course_id == courseId);
+    _hasBundlePurchase = completed.some(p => p.type === 'bundle');
+    completed.filter(p => p.type === 'individual' && p.foundation_id).forEach(p => {
+      _purchasedChapterIds.add(String(p.foundation_id));
+    });
+  } catch { /* no-op */ }
 }
 
 // Enroll/Buy modal logic lives in /assets/js/enroll-modal.js (loaded via <script>).
@@ -815,12 +852,16 @@ async function renderPage(data) {
 
   let enrolled = false;
   if (isLoggedIn()) {
-    enrolled = await checkEnrolled(course.id);
+    [enrolled] = await Promise.all([
+      checkEnrolled(course.id),
+      checkPurchaseAccess(course.id),
+    ]);
   }
+  _isEnrolled = enrolled;
 
-  const enrollBtnLabel = enrolled ? 'Go to Course →' : 'Enroll Now';
+  const enrollBtnLabel = enrolled ? 'Start Learning →' : 'Enroll Now';
   const enrollBtnAction = enrolled
-    ? `window.location.href='/student-dashboard.html'`
+    ? `document.getElementById('foundation-tabs')?.scrollIntoView({behavior:'smooth',block:'start'})`
     : `openEnrollModal(${course.id})`;
 
   const enrollSuccessHTML = enrolled ? `
@@ -869,29 +910,9 @@ async function renderPage(data) {
         </div>
       </div>
 
-      <!-- ENROLL BAR (full-width strip at bottom of hero) -->
-      <div class="enroll-bar">
-        ${enrolled ? `
-          <div class="enroll-bar-enrolled">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            You're enrolled — continue from your dashboard
-          </div>` : `
-          <div>
-            <div class="enroll-bar-price">${priceStr}</div>
-            <div class="enroll-bar-price-note">Full bundle · or pay per chapter</div>
-          </div>
-          <div class="enroll-bar-perks">
-            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${course.lesson_count || totalLessons} lessons</span>
-            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live masterclasses</span>
-            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Sheet music &amp; downloads</span>
-            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Certificate of completion</span>
-            <span class="enroll-bar-perk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</span>
-          </div>`}
-        <button class="btn-enroll-big enroll-trigger" style="width:auto;padding:14px 36px;flex-shrink:0;" onclick="${enrollBtnAction}">${enrollBtnLabel}</button>
-      </div>
     </div>
 
-    <!-- MAIN BODY (full width, single column) -->
+    <!-- MAIN BODY + ENROLL SIDEBAR -->
     <div class="page-wrap">
       <main class="page-main">
 
@@ -933,7 +954,7 @@ async function renderPage(data) {
           </div>
           ${!isLoggedIn() ? `<div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cream-dim);background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.15);border-radius:4px;padding:8px 12px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold);flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-            <span><a href="/signin.html" style="color:var(--gold);text-decoration:none;font-weight:500;">Sign in</a> to access all lessons — the first lesson of each chapter is free to preview.</span>
+            <span><a href="/signin.html" style="color:var(--gold);text-decoration:none;font-weight:500;">Sign in</a> to watch free preview lessons — all foundations are locked until you log in.</span>
           </div>` : ''}
           <h2 class="section-heading">Course <em>structure</em></h2>
           <div class="curriculum-summary">
@@ -951,12 +972,12 @@ async function renderPage(data) {
               </button>
               <div class="video-slot" id="video-slot"></div>
               <div class="video-title-row" id="video-title">Select a lesson to preview</div>
-              <button class="practice-room-btn" id="practice-room-btn" type="button" onclick="_practiceRoomTap(this)" aria-label="Practice Room (coming soon)">
-                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                Practice Room
-              </button>
             </div>
           </div>
+          <button class="practice-room-btn" id="practice-room-btn" type="button" onclick="_practiceRoomTap(this)" aria-label="Practice Room (coming soon)">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Practice Room
+          </button>
         </div>
 
         <hr class="section-sep">
@@ -996,9 +1017,47 @@ async function renderPage(data) {
         </div>
 
       </main>
+
+      <!-- ENROLL SIDEBAR -->
+      <aside class="enroll-sidebar">
+        <div class="enroll-card">
+          <div class="enroll-card-inner">
+            ${enrolled ? `
+              <p class="enroll-card-label">Your Access</p>
+              <div class="enroll-card-enrolled">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                You're enrolled
+              </div>
+              <button class="btn-enroll-big" onclick="document.getElementById('foundation-tabs')?.scrollIntoView({behavior:'smooth',block:'start'})">Start Learning &rarr;</button>
+              <hr class="enroll-divider">
+              <ul class="enroll-perks">
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${course.lesson_count || totalLessons} on-demand lessons</li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${chapters.length} structured chapters</li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</li>
+              </ul>
+            ` : `
+              <p class="enroll-card-label">Enrol in this course</p>
+              <div class="enroll-price-big">${priceStr}</div>
+              <p class="enroll-price-note">Full bundle &middot; or pay per chapter</p>
+              <button class="btn-enroll-big enroll-trigger" onclick="${enrollBtnAction}">Enroll Now</button>
+              <hr class="enroll-divider">
+              <ul class="enroll-perks">
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${course.lesson_count || totalLessons} on-demand lessons</li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${chapters.length} structured chapters</li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live masterclasses with the instructor</li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Sheet music &amp; practice downloads</li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Certificate of completion</li>
+                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</li>
+              </ul>
+              <p class="enroll-note">Secure payment &middot; Cancel anytime</p>
+            `}
+          </div>
+        </div>
+      </aside>
     </div>
 
-    <!-- BOTTOM CTA -->
+    <!-- BOTTOM CTA (hidden for enrolled students) -->
+    ${!enrolled ? `
     <div class="bottom-cta reveal">
       <div class="bottom-cta-text">
         <h2>Ready to begin your <em>journey</em>?</h2>
@@ -1008,12 +1067,12 @@ async function renderPage(data) {
         <button class="btn-enroll-bottom enroll-trigger" onclick="${enrollBtnAction}">${enrollBtnLabel}</button>
         <span class="bottom-cta-note">${course.bundle_price_paise > 0 ? 'From ₹' + (course.bundle_price_paise / 100).toLocaleString('en-IN') + ' · Lifetime access' : 'Enrolment open'}</span>
       </div>
-    </div>
+    </div>` : ''}
 
     <!-- FOOTER -->
     <footer>
       <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:32px;width:auto;vertical-align:middle;">
-      <span class="footer-copy">© 2026 The Foundation Room. All rights reserved.</span>
+      <span class="footer-copy">© 2026 The Foundation Room. All rights reserved. &nbsp;·&nbsp; Designed and developed by Techinfinity</span>
       <a href="/" style="font-size:13px;color:var(--cream-dim)">← Back to Home</a>
     </footer>
   `;
@@ -1087,6 +1146,12 @@ async function renderPage(data) {
     const data = await r.json();
     await renderPage(data);
 
+    // Scroll to hash after dynamic render (e.g. #foundation-tabs from student dashboard "Continue")
+    if (window.location.hash) {
+      const target = document.querySelector(window.location.hash);
+      if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+    }
+
     // Auto-enroll if redirected back after login
     const pendingCourse = sessionStorage.getItem('tfr_enroll_after_login');
     if (pendingCourse && isLoggedIn() && pendingCourse == courseId) {
@@ -1104,6 +1169,9 @@ async function renderPage(data) {
 // controls are custom (play/pause + visual-only progress bar) — no seeker,
 // no keyboard seeking, no right-click menu.
 let _landingData = null;
+let _isEnrolled = false;
+let _hasBundlePurchase = false;
+let _purchasedChapterIds = new Set();
 const _origRenderForFoundations = renderPage;
 renderPage = async function patched(data) {
   _landingData = data;
@@ -1140,12 +1208,20 @@ function selectFoundation(chId, autoLoadVideo) {
   }
 }
 
+function _chapterAccessible(chId) {
+  if (_hasBundlePurchase) return true;
+  if (_purchasedChapterIds.has(String(chId))) return true;
+  // fallback: enrolled with no purchase record = admin-enrolled, grant full access
+  if (_isEnrolled && _purchasedChapterIds.size === 0 && !_hasBundlePurchase) return true;
+  return false;
+}
+
 function _findFirstPlayable(chId) {
+  if (!isLoggedIn()) return null; // guests never auto-play
   const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
   if (!ch) return null;
-  return (ch.lessons || []).find(l =>
-    l.is_preview && (l.materials || []).some(m => m.type === 'video' && m.url)
-  ) || null;
+  // First video lesson is always playable for logged-in users (free preview or owned)
+  return (ch.lessons || []).find(l => (l.materials || []).some(m => m.type === 'video' && m.url)) || null;
 }
 
 function renderLessonList(chId) {
@@ -1156,17 +1232,37 @@ function renderLessonList(chId) {
     list.innerHTML = '<li class="lesson-item locked" style="cursor:default;"><span class="l-name" style="color:var(--cream-dim);">No lessons in this foundation yet.</span></li>';
     return;
   }
-  // One free preview per chapter: only the FIRST lesson marked is_preview is playable
-  let previewUsed = false;
+  const hasAccess = _chapterAccessible(ch.id);
+  let firstVideoMarked = false;
+
   list.innerHTML = (ch.lessons || []).map((l, i) => {
     const video = (l.materials || []).find(m => m.type === 'video' && m.url);
-    const isFirstPreview = l.is_preview && video && !previewUsed;
-    if (isFirstPreview) previewUsed = true;
-    const playable = isFirstPreview;
-    const click = playable
-      ? `onclick="selectLesson('${ch.id}', ${l.id})"`
-      : `onclick="_showLockedPlayer(this.dataset.title)"`;
-    const timestamps = isFirstPreview ? (video.timestamps || []) : [];
+
+    // First video lesson in this chapter = free preview slot
+    const isFreeSlot = video && !firstVideoMarked;
+    if (video) firstVideoMarked = true;
+
+    const playable = (hasAccess && !!video) || (isFreeSlot && isLoggedIn());
+    const isGuestPreview = isFreeSlot && !isLoggedIn();
+
+    let click, extraClass;
+    if (playable) {
+      click = `onclick="selectLesson('${ch.id}', ${l.id})"`;
+      extraClass = '';
+    } else if (isGuestPreview) {
+      // Guest clicks preview → send to sign-in
+      click = `onclick="window.location.href='/signin.html'"`;
+      extraClass = ' guest-preview';
+    } else if (!hasAccess && isLoggedIn()) {
+      // Logged-in, not purchased → open pay modal
+      click = `onclick="openEnrollModal(${_landingData.course.id})"`;
+      extraClass = ' locked';
+    } else {
+      click = '';
+      extraClass = ' locked';
+    }
+
+    const timestamps = playable ? (video?.timestamps || []) : [];
     const tsHtml = timestamps.length
       ? `<div class="l-timestamps">${timestamps.map(t => {
           const m = Math.floor(t.time_seconds / 60);
@@ -1174,11 +1270,16 @@ function renderLessonList(chId) {
           return `<div class="l-ts-item"><span class="l-ts-time">${m}:${s}</span><span class="l-ts-label">${t.label || ''}</span></div>`;
         }).join('')}</div>`
       : '';
-    return `<li class="lesson-item${playable ? '' : ' locked'}" data-lesson="${l.id}" data-title="${(l.title || '').replace(/"/g,'&quot;')}" ${click}>
+
+    const badge = isFreeSlot
+      ? ' <span style="font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-left:4px;">Free Preview</span>'
+      : '';
+
+    return `<li class="lesson-item${extraClass}" data-lesson="${l.id}" data-title="${(l.title || '').replace(/"/g,'&quot;')}" ${click}>
       <div class="l-row">
         <span class="l-num">${i + 1}</span>
         <span class="l-icon">${playable ? _playIconSvg() : _lockIconSvg()}</span>
-        <span class="l-name">${l.title || ''}${playable ? ' <span style="font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-left:4px;">Free preview</span>' : ''}</span>
+        <span class="l-name">${l.title || ''}${badge}</span>
         <span class="l-dur">${_lessonDisplayDuration(l)}</span>
       </div>${tsHtml}
     </li>`;
@@ -1230,7 +1331,10 @@ function _loadLessonIntoPlayer(lesson, autoplay) {
     v.addEventListener('click', toggle);
     v.addEventListener('play', () => slot.classList.add('playing'));
     v.addEventListener('pause', () => slot.classList.remove('playing'));
-    v.addEventListener('ended', () => slot.classList.remove('playing'));
+    v.addEventListener('ended', () => {
+      slot.classList.remove('playing');
+      _autoMarkComplete(lesson.id);
+    });
     // Visual-only progress
     v.addEventListener('timeupdate', () => {
       if (v.duration) fill.style.width = ((v.currentTime / v.duration) * 100) + '%';
@@ -1249,19 +1353,39 @@ function _loadLessonIntoPlayer(lesson, autoplay) {
   titleEl.textContent = lesson.title || '';
 }
 
+async function _autoMarkComplete(lessonId) {
+  if (!isLoggedIn() || !lessonId) return;
+  try {
+    await fetch(`/api/lessons/${lessonId}/complete`, {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }
+    });
+    loadUserProgress();
+  } catch (_) { /* non-blocking */ }
+}
+
 function _showLockedPlayer(title) {
   const slot = document.getElementById('video-slot');
   const titleEl = document.getElementById('video-title');
   slot.classList.remove('playing');
   const loggedIn = isLoggedIn();
+  const enrolled = _isEnrolled;
+  const msg = !loggedIn
+    ? 'Sign in to watch the free preview lesson in each chapter.'
+    : enrolled
+      ? 'This chapter requires a separate purchase.'
+      : 'Purchase this chapter or the full bundle to continue.';
   slot.innerHTML = `
     <div class="video-locked">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
       <h3>${title || 'This lesson is locked'}</h3>
-      <p>${loggedIn ? 'Enroll to unlock all lessons in this foundation.' : 'Sign in or enroll to access all lessons in this course.'}</p>
+      <p>${msg}</p>
       <div class="cta-row">
-        ${loggedIn ? '' : '<a class="outline" href="/signin.html">Sign In</a>'}
-        <a href="#" onclick="const b=document.querySelector('.enroll-trigger'); if(b){b.click(); return false;}">Enroll Now</a>
+        ${!loggedIn
+          ? '<a class="outline" href="/signin.html">Sign In</a>'
+          : !enrolled
+            ? `<a href="#" onclick="openEnrollModal(${_landingData && _landingData.course ? _landingData.course.id : 0}); return false;">Unlock Now</a>`
+            : ''}
       </div>
     </div>
   `;

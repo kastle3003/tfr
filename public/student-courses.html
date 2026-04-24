@@ -507,7 +507,7 @@
         </div>
 
         <div class="course-actions">
-          <a href="/student-lessons.html" class="course-btn course-btn-primary">
+          <a href="/courses/${e.course_slug || e.course_id}#foundation-tabs" class="course-btn course-btn-primary">
             ${isComplete ? 'Review' : pct > 0 ? 'Continue' : 'Start'}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </a>

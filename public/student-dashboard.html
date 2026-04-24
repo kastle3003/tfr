@@ -124,7 +124,7 @@
           <div style="font-size:14px; color:var(--text-2); margin-bottom:4px;">Your practice streak: <strong style="color:var(--gold);" id="streak-count">14 days</strong> 🔥</div>
           <div style="font-size:13px; color:var(--text-3);" id="welcome-sub">Today's focus: Keep learning and growing.</div>
           <div style="display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;">
-            <a href="/student-lessons.html" class="btn btn-primary">Resume Session</a>
+            <a href="/student-courses.html" class="btn btn-primary">My Courses</a>
             <a href="/student-practice-log.html" class="btn btn-outline">View Goals</a>
           </div>
         </div>
@@ -415,11 +415,19 @@
   function renderEnrollments(enrollments) {
     const container = document.getElementById('enrollments-grid');
     if (!enrollments.length) {
-      container.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📚</div><h3>No courses yet</h3><p>Browse the catalog to enroll in your first course.</p><a href="/student-course-catalog.html" class="btn btn-primary" style="margin-top:14px; display:inline-flex;">Browse Catalog</a></div></div>`;
+      // No enrollments — replace the entire main content with a get-started screen
+      document.querySelector('main.main-content').innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:70vh; gap:20px; text-align:center; padding:40px;">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(200,168,75,0.35)" stroke-width="1.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <h2 style="font-family:var(--serif); font-style:italic; font-size:32px; color:var(--text); font-weight:600; line-height:1.2;">Your journey starts here</h2>
+          <p style="font-size:14px; color:var(--text-2); max-width:380px; line-height:1.7;">You haven't enrolled in any courses yet. Browse our catalog and purchase a course or foundation to unlock your dashboard.</p>
+          <a href="/student-course-catalog.html" style="margin-top:8px; padding:14px 36px; background:var(--gold); color:#080706; font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; border-radius:4px; text-decoration:none;">Browse Courses</a>
+          <a href="/" style="font-size:12px; color:var(--text-3); margin-top:4px;">← Back to Home</a>
+        </div>`;
       return;
     }
     container.innerHTML = enrollments.slice(0, 3).map(e => `
-      <a href="/student-course-detail.html?id=${e.course_id}" class="course-card-link">
+      <a href="/courses/${e.course_slug || e.course_id}#foundation-tabs" class="course-card-link">
         <div class="course-card-h">
           <div class="course-swatch-inner" style="background:${instructorGradient(e.instructor_name)};">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(200,168,75,0.40)" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
