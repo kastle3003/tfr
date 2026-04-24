@@ -107,6 +107,9 @@
         <a href="/student-profile.html" class="icon-btn" title="Settings">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </a>
+        <a href="/" class="icon-btn" title="View public website" style="font-size:15px; line-height:1;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
         <div class="topbar-avatar" id="topbar-avatar" title="Click to log out" style="cursor:pointer;" onclick="if(confirm('Log out?')) logout()">--</div>
       </div>
     </header>
@@ -324,13 +327,42 @@
     });
   }
 
+  let _dashboardLoaded = false;
+
+  /* Safety net: if userLoaded never fires (e.g. auth resolves but handler throws),
+     clear the skeleton after 10 s and show a retry prompt. */
+  setTimeout(() => {
+    if (_dashboardLoaded) return;
+    const grid = document.getElementById('enrollments-grid');
+    if (grid && grid.querySelector('.skeleton')) {
+      grid.innerHTML = `<div class="card"><div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <h3>Could not load courses</h3>
+        <p>Check your connection and <a href="" onclick="location.reload();return false;" style="color:var(--gold);">reload the page</a>.</p>
+      </div></div>`;
+    }
+    const mc = document.getElementById('masterclasses-list');
+    if (mc && mc.querySelector('.skeleton')) mc.innerHTML = '';
+    const sm = document.getElementById('sheet-music-table');
+    if (sm && sm.querySelector('.skeleton')) sm.innerHTML = '';
+  }, 10000);
+
   document.addEventListener('userLoaded', (e) => {
-    const user = e.detail;
-    const initials = user.avatar_initials || (user.first_name[0] + user.last_name[0]);
-    document.getElementById('sb-avatar').textContent = initials;
-    document.getElementById('sb-name').textContent = user.first_name + ' ' + user.last_name;
-    document.getElementById('topbar-avatar').textContent = initials;
-    document.getElementById('welcome-heading').textContent = user.first_name;
+    try {
+      const user = e.detail;
+      const fn = user.first_name || '';
+      const ln = user.last_name  || '';
+      const initials = user.avatar_initials || ((fn[0] || '') + (ln[0] || '')).toUpperCase() || '?';
+      const sbAvatar = document.getElementById('sb-avatar');
+      const sbName   = document.getElementById('sb-name');
+      if (sbAvatar) sbAvatar.textContent = initials;
+      if (sbName)   sbName.textContent   = fn + (ln ? ' ' + ln : '');
+      const topAvatar = document.getElementById('topbar-avatar');
+      if (topAvatar) topAvatar.textContent = initials;
+      const heading = document.getElementById('welcome-heading');
+      if (heading) heading.textContent = fn || 'Student';
+    } catch (_) {}
+    _dashboardLoaded = true;
     loadDashboard();
   });
 

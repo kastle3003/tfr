@@ -688,7 +688,6 @@
 <nav>
   <a class="nav-logo-link" href="/">
     <img class="nav-logo-img" src="/assets/tfr-play/tfr-logo.png" alt="TFR">
-    <div class="nav-logo-text">TFR<span>The Foundation Room</span></div>
   </a>
   <div class="nav-links">
     <a class="nav-link" href="/">Experience TFR</a>
@@ -886,10 +885,6 @@
     <div>
       <div class="footer-brand-row">
         <img class="footer-brand-logo" src="/assets/tfr-play/tfr-logo.png" alt="TFR">
-        <div>
-          <div class="footer-brand-text">TFR</div>
-          <div class="footer-brand-sub">The Foundation Room</div>
-        </div>
       </div>
       <p class="footer-note">Registrations for batches now open.</p>
       <div class="footer-cta">
@@ -925,6 +920,9 @@
     <div><a href="/privacy">Privacy</a> · <a href="/refund-policy">Refund Policy</a> · <a href="/terms">Terms &amp; Conditions</a></div>
   </div>
 </footer>
+
+<!-- Auth-aware nav (swaps Login/Join Now for an avatar pill when signed in) -->
+<script src="/assets/js/public-nav-auth.js"></script>
 
 <script>
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }

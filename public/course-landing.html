@@ -655,11 +655,16 @@
     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     TFR
   </a>
-  <a href="/" class="nav-logo">TFR <span>The Foundation Room</span></a>
+  <a href="/" class="nav-logo">
+    <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;">
+  </a>
   <div class="nav-spacer"></div>
   <a href="/login" class="nav-btn nav-ghost">Sign In</a>
   <a href="/login#panel-register" class="nav-btn nav-gold">Join Now</a>
 </nav>
+
+<!-- Auth-aware nav (swaps Sign In/Join Now for an avatar pill when signed in) -->
+<script src="/assets/js/public-nav-auth.js"></script>
 
 <!-- CONTENT (rendered by JS) -->
 <div id="app">
@@ -1002,7 +1007,7 @@ async function renderPage(data) {
 
     <!-- FOOTER -->
     <footer>
-      <span class="footer-logo">TFR</span>
+      <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:32px;width:auto;vertical-align:middle;">
       <span class="footer-copy">© 2026 The Foundation Room. All rights reserved.</span>
       <a href="/" style="font-size:13px;color:var(--cream-dim)">← Back to Home</a>
     </footer>

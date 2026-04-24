@@ -298,6 +298,9 @@
     <header class="topbar">
       <div class="topbar-title">Checkout</div>
       <div class="topbar-actions">
+        <a href="/" class="icon-btn" title="View public website" style="font-size:15px; line-height:1;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
         <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar" title="Profile">—</a>
       </div>
     </header>
@@ -305,8 +308,18 @@
     <main class="main-content">
       <div class="checkout-wrap">
         <div class="checkout-header">
-          <h1 class="checkout-title">Complete your enrollment</h1>
-          <p class="checkout-sub">You're one step away from lifetime access to this course.</p>
+          <h1 class="checkout-title" id="checkout-title">Complete your enrollment</h1>
+          <p class="checkout-sub" id="checkout-sub">You're one step away from lifetime access to this course.</p>
+          <div id="test-mode-banner" style="display:none;margin-top:12px;padding:12px 16px;border-radius:6px;background:rgba(200,168,75,0.08);border:1px solid rgba(200,168,75,0.30);color:#C8A84B;font-size:12px;line-height:1.7;">
+            <div style="font-weight:700;letter-spacing:0.08em;margin-bottom:8px;">TEST MODE — NO REAL CARD IS EVER CHARGED</div>
+            <div style="color:#e0d2a8;">
+              <strong style="color:#C8A84B;">Netbanking (most reliable):</strong> in the Razorpay modal → <em>Show All Options</em> → <em>Netbanking</em> → pick any bank → click <strong>Success</strong> on the simulator page.
+              <hr style="border:none;border-top:1px solid rgba(200,168,75,0.15);margin:8px 0;">
+              <strong style="color:#C8A84B;">UPI:</strong> <em>Show All Options</em> → <em>UPI</em> → <em>Enter UPI ID</em> tab → <code style="background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:3px;">success@razorpay</code>.
+              <hr style="border:none;border-top:1px solid rgba(200,168,75,0.15);margin:8px 0;">
+              <strong style="color:#C8A84B;">Avoid cards</strong> unless you've enabled International Payments on your Razorpay account — the classic <code>4111 1111 1111 1111</code> test card is flagged "International" and blocked by Razorpay's risk engine (<code>payment_risk_check_failed</code>) even in test mode.
+            </div>
+          </div>
         </div>
 
         <div class="checkout-grid">
@@ -348,8 +361,12 @@
             <div class="card-title">Payment Details</div>
 
             <div class="summary-row">
-              <span>Course price</span>
+              <span id="sum-price-label">Course price</span>
               <span class="summary-amount" id="sum-price">—</span>
+            </div>
+            <div class="summary-row" id="sum-discount-row" style="display:none;">
+              <span id="sum-discount-label" style="color:var(--forest);">Discount</span>
+              <span class="summary-amount" id="sum-discount" style="color:var(--forest);">—</span>
             </div>
             <div class="summary-row">
               <span>Platform fee</span>
@@ -359,6 +376,16 @@
               <span>Tax</span>
               <span class="summary-amount">Included</span>
             </div>
+
+            <div style="margin:16px 0 4px;">
+              <label class="form-label" style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);margin-bottom:6px;">Have a coupon?</label>
+              <div style="display:flex;gap:6px;">
+                <input class="form-input" id="coupon-input" type="text" placeholder="ENTER CODE" style="flex:1;background:var(--bg-elevated);border:1px solid rgba(200,168,75,0.18);color:var(--text);padding:9px 12px;border-radius:5px;font-family:inherit;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;">
+                <button type="button" id="coupon-btn" onclick="applyCoupon()" style="background:transparent;border:1px solid rgba(200,168,75,0.30);color:var(--gold);padding:0 14px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;">Apply</button>
+              </div>
+              <div id="coupon-msg" style="font-size:11px;margin-top:6px;color:var(--text-3);min-height:14px;"></div>
+            </div>
+
             <div class="summary-row divider total">
               <span>Total</span>
               <span class="amount" id="sum-total">—</span>
@@ -444,11 +471,22 @@
 <script>
   if (window.requireRole) requireRole(['student']);
 
-  const courseId = new URLSearchParams(window.location.search).get('course_id');
+  // ── URL params ──
+  // Supported:
+  //   ?course_id=X                       (legacy — bundle)
+  //   ?type=bundle&course_id=X
+  //   ?type=individual&foundation_id=Y
+  //   ?type=upgrade&course_id=X
+  const params = new URLSearchParams(window.location.search);
+  const courseId      = params.get('course_id') ? parseInt(params.get('course_id')) : null;
+  const foundationId  = params.get('foundation_id') ? parseInt(params.get('foundation_id')) : null;
+  const purchaseType  = (params.get('type') || (foundationId ? 'individual' : 'bundle')).toLowerCase();
   let courseData = null;
-  let priceData  = null;
+  let foundationData = null;
+  let priceData  = null;        // { basePaise, discountPaise, finalPaise, title, subtitle, keyId }
   let orderData  = null;
   let currentUser = null;
+  let appliedCoupon = null;      // coupon code string, when Apply returns success
 
   function toast(msg, type = 'success') {
     const el = document.createElement('div');
@@ -469,8 +507,18 @@
     document.getElementById('topbar-avatar').textContent = initials;
     document.getElementById('mock-name').value = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim();
 
-    if (!courseId) {
+    if (!['bundle', 'individual', 'upgrade'].includes(purchaseType)) {
+      toast('Invalid purchase type', 'error');
+      setTimeout(() => window.location.href = '/student-course-catalog.html', 1500);
+      return;
+    }
+    if ((purchaseType === 'bundle' || purchaseType === 'upgrade') && !courseId) {
       toast('No course selected', 'error');
+      setTimeout(() => window.location.href = '/student-course-catalog.html', 1500);
+      return;
+    }
+    if (purchaseType === 'individual' && !foundationId) {
+      toast('No foundation selected', 'error');
       setTimeout(() => window.location.href = '/student-course-catalog.html', 1500);
       return;
     }
@@ -480,63 +528,186 @@
 
   async function loadCheckout() {
     try {
-      const [courseRes, enrollRes] = await Promise.all([
-        api.get(`/api/courses/${courseId}`),
-        api.get('/api/enrollments/me').catch(() => ({ enrollments: [] }))
-      ]);
-
+      // Fetch course (always — we always need it for labels)
+      const targetCourseId = courseId || (await fetchFoundationCourseId());
+      if (!targetCourseId) throw new Error('Could not resolve course');
+      const courseRes = await api.get(`/api/courses/${targetCourseId}`);
       courseData = courseRes.course;
+
+      // Build headline + pricing preview via a dry-run order. The server is the
+      // single source of truth for price — we never trust client-side numbers.
+      const dry = await createPurchase();
+      if (!dry) return;  // createPurchase handled redirect / toast on error
+
+      orderData = dry;
       priceData = {
-        course_id:   courseData.id,
-        title:       courseData.title,
-        price_paise: courseData.price_paise || 0,
-        is_paid:     courseData.is_paid || 0,
-        currency:    'INR'
+        title:         buildTitle(),
+        subtitle:      buildSubtitle(),
+        basePaise:     dry.base_paise,
+        discountPaise: dry.discount_paise || 0,
+        finalPaise:    dry.amount_paise,
+        keyId:         dry.key_id,
       };
 
-      const already = (enrollRes.enrollments || []).some(e => e.course_id == courseId);
-      if (already) {
-        toast('You already own this course', 'success');
-        setTimeout(() => window.location.href = `/student-course-detail.html?id=${courseId}`, 1200);
+      // If the server auto-completed a ₹0 purchase (free bundle / full coupon), jump straight in.
+      if (dry.auto_completed) {
+        toast('Enrolled — welcome!', 'success');
+        setTimeout(() => window.location.href = `/student-course-detail.html?id=${targetCourseId}`, 1000);
         return;
       }
 
-      if (!priceData.is_paid || !priceData.price_paise) {
-        toast('This course is free — enrolling directly…', 'success');
-        await api.post('/api/enrollments', { course_id: parseInt(courseId) });
-        setTimeout(() => window.location.href = `/student-course-detail.html?id=${courseId}`, 1000);
-        return;
-      }
-
-      renderCheckout();
+      renderCheckout(targetCourseId);
     } catch (err) {
-      toast('Could not load checkout: ' + err.message, 'error');
+      toast('Could not load checkout: ' + (err.message || err), 'error');
     }
   }
 
-  function renderCheckout() {
-    document.title = `Checkout: ${courseData.title} — The Foundation Room`;
+  async function fetchFoundationCourseId() {
+    if (!foundationId) return null;
+    try {
+      const r = await api.get(`/api/chapters/${foundationId}`);
+      return r.chapter?.course_id || r.course_id || null;
+    } catch (e) { return null; }
+  }
 
-    document.getElementById('course-cover').textContent = (courseData.title || '?').charAt(0).toUpperCase();
-    document.getElementById('course-title').textContent = courseData.title;
+  function buildTitle() {
+    if (purchaseType === 'bundle')     return `${courseData.title}`;
+    if (purchaseType === 'upgrade')    return `Upgrade — ${courseData.title}`;
+    return foundationData?.title || 'Foundation';
+  }
+  function buildSubtitle() {
+    if (purchaseType === 'bundle')     return 'Full course bundle · lifetime access';
+    if (purchaseType === 'upgrade')    return 'Pro-rated upgrade — unlock every remaining foundation';
+    return courseData ? `Foundation in ${courseData.title}` : 'Individual foundation';
+  }
+
+  // Create (or re-create) a purchase order. Called once for the initial dry
+  // run, and again when the coupon is applied/cleared so the server re-prices.
+  async function createPurchase() {
+    const body = { type: purchaseType };
+    if (courseId)     body.course_id = courseId;
+    if (foundationId) body.foundation_id = foundationId;
+    if (appliedCoupon) body.coupon_code = appliedCoupon;
+
+    try {
+      return await api.post('/api/purchases', body);
+    } catch (err) {
+      if (err.status === 409) {
+        toast('You already own this', 'success');
+        setTimeout(() => {
+          const target = courseId || (foundationData?.course_id);
+          window.location.href = target ? `/student-course-detail.html?id=${target}` : '/student-courses.html';
+        }, 1200);
+        return null;
+      }
+      toast(err.message || 'Purchase error', 'error');
+      return null;
+    }
+  }
+
+  function renderCheckout(targetCourseId) {
+    document.title = `Checkout: ${priceData.title} — The Foundation Room`;
+
+    document.getElementById('checkout-title').textContent =
+      purchaseType === 'upgrade' ? 'Upgrade to full course' :
+      purchaseType === 'individual' ? 'Unlock this foundation' :
+      'Complete your enrollment';
+    document.getElementById('checkout-sub').textContent = priceData.subtitle;
+    document.getElementById('sum-price-label').textContent =
+      purchaseType === 'upgrade' ? 'Upgrade cost' :
+      purchaseType === 'individual' ? 'Foundation price' :
+      'Course price';
+
+    document.getElementById('course-cover').textContent = (priceData.title || '?').charAt(0).toUpperCase();
+    document.getElementById('course-title').textContent = priceData.title;
     document.getElementById('course-title').classList.remove('skeleton');
     document.getElementById('course-instructor').textContent = courseData.instructor_name || 'TFR Faculty';
 
     const meta = [];
-    if (courseData.level)           meta.push(courseData.level);
-    if (courseData.duration_weeks)  meta.push(`${courseData.duration_weeks} weeks`);
-    if (courseData.lesson_count)    meta.push(`${courseData.lesson_count} lessons`);
-    if (courseData.instrument)      meta.push(courseData.instrument);
+    if (courseData.level)          meta.push(courseData.level);
+    if (courseData.duration_weeks) meta.push(`${courseData.duration_weeks} weeks`);
+    if (courseData.lesson_count)   meta.push(`${courseData.lesson_count} lessons`);
+    if (courseData.instrument)     meta.push(courseData.instrument);
     document.getElementById('course-meta').innerHTML = meta.map(m => `<span>${m}</span>`).join('');
 
-    const priceLabel = formatINR(priceData.price_paise);
-    document.getElementById('sum-price').textContent = priceLabel;
-    document.getElementById('sum-total').textContent = priceLabel;
-    document.getElementById('pay-btn-label').textContent = `Pay ${priceLabel}`;
-    document.getElementById('modal-amount').textContent  = priceLabel;
-    document.getElementById('mock-amount-btn').textContent = (priceData.price_paise / 100).toLocaleString('en-IN');
+    renderAmounts();
+
+    // Show TEST MODE banner when the server handed us a test key or when we're in mock mode.
+    const isTest = !priceData.keyId || priceData.keyId === 'rzp_test_placeholder' || (typeof priceData.keyId === 'string' && priceData.keyId.startsWith('rzp_test_'));
+    if (isTest) document.getElementById('test-mode-banner').style.display = 'block';
 
     document.getElementById('pay-btn').disabled = false;
+  }
+
+  function renderAmounts() {
+    const base = priceData.basePaise;
+    const disc = priceData.discountPaise;
+    const tot  = priceData.finalPaise;
+    document.getElementById('sum-price').textContent = formatINR(base);
+    document.getElementById('sum-total').textContent = formatINR(tot);
+    document.getElementById('pay-btn-label').textContent = tot > 0 ? `Pay ${formatINR(tot)}` : 'Unlock now';
+    document.getElementById('modal-amount').textContent = formatINR(tot);
+    document.getElementById('mock-amount-btn').textContent = (tot / 100).toLocaleString('en-IN');
+
+    const row = document.getElementById('sum-discount-row');
+    if (disc > 0) {
+      row.style.display = '';
+      document.getElementById('sum-discount').textContent = '− ' + formatINR(disc);
+    } else {
+      row.style.display = 'none';
+    }
+  }
+
+  async function applyCoupon() {
+    const input = document.getElementById('coupon-input');
+    const btn = document.getElementById('coupon-btn');
+    const msg = document.getElementById('coupon-msg');
+    const code = input.value.trim().toUpperCase();
+    if (!code) {
+      // clear existing coupon
+      appliedCoupon = null;
+      msg.textContent = '';
+      msg.style.color = 'var(--text-3)';
+      btn.textContent = 'Apply';
+      await reprice();
+      return;
+    }
+    btn.disabled = true; btn.textContent = '…';
+    appliedCoupon = code;
+    const fresh = await createPurchase();
+    btn.disabled = false;
+    if (!fresh) {
+      appliedCoupon = null;
+      msg.textContent = 'Coupon rejected';
+      msg.style.color = 'var(--ruby)';
+      btn.textContent = 'Apply';
+      return;
+    }
+    orderData = fresh;
+    priceData.basePaise     = fresh.base_paise;
+    priceData.discountPaise = fresh.discount_paise || 0;
+    priceData.finalPaise    = fresh.amount_paise;
+    renderAmounts();
+    if (priceData.discountPaise > 0) {
+      msg.textContent = `Applied — you save ${formatINR(priceData.discountPaise)}`;
+      msg.style.color = 'var(--forest)';
+      btn.textContent = 'Clear';
+    } else {
+      msg.textContent = 'Coupon accepted (no discount on this item)';
+      msg.style.color = 'var(--text-3)';
+      btn.textContent = 'Clear';
+    }
+  }
+
+  // Re-create the order without the coupon (used by "Clear")
+  async function reprice() {
+    const fresh = await createPurchase();
+    if (!fresh) return;
+    orderData = fresh;
+    priceData.basePaise     = fresh.base_paise;
+    priceData.discountPaise = fresh.discount_paise || 0;
+    priceData.finalPaise    = fresh.amount_paise;
+    renderAmounts();
   }
 
   async function startPayment() {
@@ -545,24 +716,22 @@
     btn.innerHTML = '<span class="spinner"></span> Preparing…';
 
     try {
-      orderData = await api.post('/api/payments/create-order', { course_id: parseInt(courseId) });
-
+      // We already have orderData from loadCheckout/applyCoupon — just open the gateway.
       const isMock = !orderData.order_id || orderData.order_id.startsWith('order_mock_');
 
       if (isMock) {
         openMockModal();
         btn.disabled = false;
-        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Pay ${formatINR(priceData.price_paise)}`;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span id="pay-btn-label">Pay ${formatINR(priceData.finalPaise)}</span>`;
         return;
       }
 
-      // Real Razorpay
       const options = {
         key:         orderData.key_id,
-        amount:      orderData.amount,
+        amount:      orderData.amount_paise,
         currency:    orderData.currency || 'INR',
         name:        'The Foundation Room',
-        description: orderData.course_title || 'Course Enrollment',
+        description: priceData.title,
         order_id:    orderData.order_id,
         handler: (response) => verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature),
         prefill: {
@@ -573,7 +742,7 @@
         modal: {
           ondismiss: () => {
             btn.disabled = false;
-            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Pay ${formatINR(priceData.price_paise)}`;
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span id="pay-btn-label">Pay ${formatINR(priceData.finalPaise)}</span>`;
           }
         }
       };
@@ -585,7 +754,7 @@
         btn.disabled = false;
       }
     } catch (err) {
-      toast(err.message, 'error');
+      toast(err.message || 'Payment error', 'error');
       btn.disabled = false;
       btn.innerHTML = `Retry Payment`;
     }
@@ -621,31 +790,33 @@
 
   async function verifyPayment(order_id, payment_id, signature) {
     try {
-      const res = await api.post('/api/payments/verify', {
+      const res = await api.post('/api/purchases/verify', {
         razorpay_order_id:   order_id,
         razorpay_payment_id: payment_id,
-        razorpay_signature:  signature,
-        course_id:           parseInt(courseId)
+        razorpay_signature:  signature
       });
 
-      if (res.success) {
+      // Purchase is completed whenever the response carries a purchase_id (server sends
+      // "Payment verified" on fresh completion, "Already completed" on idempotent replay).
+      if (res.purchase_id) {
         document.getElementById('mock-pay-form').style.display = 'none';
         document.getElementById('mock-success').style.display  = 'block';
         if (!document.getElementById('mock-modal').classList.contains('open')) {
           openMockModal();
         }
+        const target = courseId || (foundationData?.course_id) || (courseData?.id);
         setTimeout(() => {
-          window.location.href = `/student-course-detail.html?id=${courseId}`;
+          window.location.href = target ? `/student-course-detail.html?id=${target}` : '/student-courses.html';
         }, 1800);
       } else {
-        throw new Error('Verification failed');
+        throw new Error(res.error || 'Verification failed');
       }
     } catch (err) {
-      toast('Payment failed: ' + err.message, 'error');
+      toast('Payment failed: ' + (err.message || err), 'error');
       const confirmBtn = document.getElementById('mock-confirm');
       if (confirmBtn) {
         confirmBtn.disabled = false;
-        confirmBtn.innerHTML = `Pay ₹<span id="mock-amount-btn">${(priceData.price_paise / 100).toLocaleString('en-IN')}</span>`;
+        confirmBtn.innerHTML = `Pay ₹<span id="mock-amount-btn">${(priceData.finalPaise / 100).toLocaleString('en-IN')}</span>`;
       }
     }
   }

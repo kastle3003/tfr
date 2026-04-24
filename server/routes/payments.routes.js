@@ -2,17 +2,22 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const crypto = require('crypto');
+const rzpGuard = require('../lib/razorpay-guard');
+const { emitEmail } = require('./progress.routes');
 
-// Initialize Razorpay (keys from env)
+// Initialize Razorpay — TEST KEYS ONLY. A live key would have been rejected
+// at server boot; we also double-check the prefix before building the client.
 let razorpay;
-try {
-  const Razorpay = require('razorpay');
-  razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret'
-  });
-} catch (e) {
-  console.warn('Razorpay not installed, payment routes in mock mode');
+if (rzpGuard.canUseSdk()) {
+  try {
+    const Razorpay = require('razorpay');
+    razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+  } catch (e) {
+    console.warn('Razorpay not installed, payment routes in mock mode');
+  }
 }
 
 // GET /api/payments/course/:course_id/price
@@ -45,7 +50,7 @@ router.post('/create-order', async (req, res) => {
     const currency = 'INR';
     let orderId;
 
-    if (razorpay && process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_ID !== 'rzp_test_placeholder') {
+    if (razorpay && rzpGuard.canUseSdk()) {
       const order = await razorpay.orders.create({
         amount,
         currency,
@@ -68,7 +73,7 @@ router.post('/create-order', async (req, res) => {
       order_id: orderId,
       amount,
       currency,
-      key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+      key_id: rzpGuard.publicKeyId(),
       course_title: course.title
     });
   } catch (err) {
@@ -84,13 +89,16 @@ router.post('/verify', (req, res) => {
       return res.status(400).json({ error: 'razorpay_order_id, razorpay_payment_id, and course_id are required' });
     }
 
-    // Verify HMAC signature
-    const secret = process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret';
+    // Verify HMAC signature (test mode only — never trust unsigned payloads
+    // when a real secret is present, but allow mock orders in dev).
+    const secret = process.env.RAZORPAY_KEY_SECRET || '';
     const body = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSignature = crypto.createHmac('sha256', secret).update(body).digest('hex');
+    const expectedSignature = secret
+      ? crypto.createHmac('sha256', secret).update(body).digest('hex')
+      : null;
 
     const isMock = razorpay_order_id.startsWith('order_mock_');
-    const signatureValid = isMock || (razorpay_signature && expectedSignature === razorpay_signature);
+    const signatureValid = isMock || (!!expectedSignature && razorpay_signature && expectedSignature === razorpay_signature);
 
     if (!signatureValid) {
       db.prepare(`UPDATE payments SET status='failed', updated_at=datetime('now') WHERE razorpay_order_id=?`).run(razorpay_order_id);
@@ -119,6 +127,18 @@ router.post('/verify', (req, res) => {
       `).run(req.user.id, course_id);
       enrollmentId = result.lastInsertRowid;
     }
+
+    // Fire-and-forget: payment receipt + course-subscribed notification.
+    const payment = db.prepare('SELECT amount_paise, razorpay_order_id, razorpay_payment_id FROM payments WHERE razorpay_order_id = ? AND user_id = ?')
+      .get(razorpay_order_id, req.user.id);
+    emitEmail(req.user.id, 'payment_success', {
+      amount_paise: payment?.amount_paise || 0,
+      order_id: payment?.razorpay_order_id || '',
+      payment_id: payment?.razorpay_payment_id || '',
+      course_id: parseInt(course_id),
+      item_name: 'course enrollment',
+    });
+    emitEmail(req.user.id, 'course_unlocked', { course_id: parseInt(course_id) });
 
     res.json({ success: true, enrollment_id: enrollmentId });
   } catch (err) {

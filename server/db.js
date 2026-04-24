@@ -609,15 +609,34 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_couponredeem_user ON coupon_redemptions(user_id);
 `);
 
-// Flag the first lesson of each chapter as a preview by default, one-shot backfill
+// Flag the first lesson of every chapter as a free preview — idempotent, re-runs
+// on every boot. "First" = lowest order_index with id as tiebreaker (matches
+// access.js foundationLessons ordering). We only set the flag; we never clear
+// other previews an admin may have turned on manually.
 try {
-  db.exec(`
-    UPDATE lessons SET is_preview = 1
-    WHERE id IN (
-      SELECT MIN(id) FROM lessons GROUP BY chapter_id
-    ) AND (is_preview = 0 OR is_preview IS NULL);
-  `);
-} catch (e) { /* ok */ }
+  const firstPerChapter = db.prepare(`
+    SELECT chapter_id, id AS lesson_id
+    FROM lessons l1
+    WHERE id = (
+      SELECT id FROM lessons l2
+      WHERE l2.chapter_id = l1.chapter_id
+      ORDER BY l2.order_index ASC, l2.id ASC
+      LIMIT 1
+    )
+  `).all();
+  const markPreview = db.prepare(
+    `UPDATE lessons SET is_preview = 1
+     WHERE id = ? AND (is_preview = 0 OR is_preview IS NULL)`
+  );
+  let flipped = 0;
+  for (const row of firstPerChapter) {
+    const r = markPreview.run(row.lesson_id);
+    if (r.changes) flipped++;
+  }
+  if (flipped > 0) console.log(`[preview] Marked ${flipped} first-lessons as free preview.`);
+} catch (e) {
+  console.warn('[preview] first-lesson seed skipped:', e.message);
+}
 
 // Backfill lesson.duration_seconds from duration_minutes when missing
 try {
@@ -1369,5 +1388,42 @@ db.defaultCoverForLevel = defaultCoverForLevel;
 try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_url TEXT`); } catch (_) {}
 try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_duration_seconds INTEGER`); } catch (_) {}
 try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_title TEXT`); } catch (_) {}
+
+// ── Dummy bundle + foundation pricing (Razorpay TEST mode only) ──
+// Any course with a zero/null bundle_price_paise and any chapter with a zero
+// price_individual_paise gets a dummy amount by level. Existing non-zero
+// prices set through the admin CMS are preserved. This is idempotent and
+// makes the Enroll-Now flow work with the test Razorpay key out of the box.
+{
+  const LEVEL_PRICING_PAISE = {
+    Foundation:   { bundle:  99900, per: 29900 }, // ₹999 / ₹299
+    Beginner:     { bundle:  99900, per: 29900 }, // ₹999 / ₹299
+    Intermediate: { bundle: 199900, per: 49900 }, // ₹1,999 / ₹499
+    Advanced:     { bundle: 299900, per: 69900 }, // ₹2,999 / ₹699
+    Masterclass:  { bundle: 499900, per: 99900 }, // ₹4,999 / ₹999
+  };
+  const DEFAULT_PRICING = { bundle: 99900, per: 29900 };
+  try {
+    const courses = db.prepare('SELECT id, level FROM courses').all();
+    const updateCourse = db.prepare(
+      "UPDATE courses SET bundle_price_paise = ?, is_paid = 1, price_paise = ? " +
+      "WHERE id = ? AND (bundle_price_paise IS NULL OR bundle_price_paise = 0)"
+    );
+    const updateChapter = db.prepare(
+      "UPDATE chapters SET price_individual_paise = ? " +
+      "WHERE course_id = ? AND (price_individual_paise IS NULL OR price_individual_paise = 0)"
+    );
+    let filled = 0;
+    for (const c of courses) {
+      const p = LEVEL_PRICING_PAISE[c.level] || DEFAULT_PRICING;
+      const r1 = updateCourse.run(p.bundle, p.bundle, c.id);
+      const r2 = updateChapter.run(p.per, c.id);
+      if (r1.changes || r2.changes) filled++;
+    }
+    if (filled > 0) console.log(`[pricing] Dummy bundle/foundation prices filled for ${filled} course(s).`);
+  } catch (e) {
+    console.warn('[pricing] dummy-pricing backfill skipped:', e.message);
+  }
+}
 
 module.exports = db;

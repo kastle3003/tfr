@@ -28,6 +28,8 @@
       --text-3: #6B5E50;
       --white: #FFFFFF;
       --ruby: #8B2E26;
+      --cta-red: #C8362A;
+      --cta-red-hover: #D44235;
       --emerald: #2D5A27;
       --serif: 'Cormorant Garamond', 'Georgia', serif;
       --sans: 'DM Sans', 'Inter', sans-serif;
@@ -78,15 +80,22 @@
 
     .nav-logo {
       display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo-text {
+      display: flex;
       flex-direction: column;
       gap: 1px;
-      text-decoration: none;
     }
 
     .nav-logo-main {
       font-family: var(--serif);
       font-style: italic;
-      font-size: 28px;
+      font-size: 22px;
       font-weight: 600;
       color: var(--gold);
       line-height: 1;
@@ -95,10 +104,10 @@
 
     .nav-logo-sub {
       font-family: var(--sans);
-      font-size: 11px;
-      font-weight: 400;
+      font-size: 9px;
+      font-weight: 500;
       color: var(--text-2);
-      letter-spacing: 0.18em;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
     }
 
@@ -131,41 +140,44 @@
 
     .btn-ghost {
       padding: 9px 20px;
-      border: 1px solid rgba(200, 168, 75, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.45);
       border-radius: 3px;
-      color: var(--gold);
+      color: #FFFFFF;
       background: transparent;
       font-family: var(--sans);
       font-size: 12px;
       font-weight: 600;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       text-decoration: none;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
     }
 
     .btn-ghost:hover {
-      border-color: var(--gold);
-      background: rgba(200, 168, 75, 0.06);
+      border-color: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.06);
     }
 
     .btn-gold {
-      padding: 9px 20px;
-      background: var(--gold);
-      border: 1px solid var(--gold);
+      padding: 9px 22px;
+      background: var(--cta-red);
+      border: 1px solid var(--cta-red);
       border-radius: 3px;
-      color: #080706;
+      color: #FFFFFF;
       font-family: var(--sans);
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       text-decoration: none;
       cursor: pointer;
       transition: background 0.2s, transform 0.15s;
     }
 
     .btn-gold:hover {
-      background: var(--gold-bright);
+      background: var(--cta-red-hover);
+      border-color: var(--cta-red-hover);
       transform: translateY(-1px);
     }
 
@@ -282,25 +294,26 @@
 
     .btn-hero-primary {
       height: 48px;
-      padding: 0 28px;
-      background: var(--gold);
+      padding: 0 32px;
+      background: var(--cta-red);
       border: none;
       border-radius: 3px;
-      color: #080706;
+      color: #FFFFFF;
       font-family: var(--sans);
       font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
+      gap: 8px;
       cursor: pointer;
       transition: background 0.2s, transform 0.15s;
     }
 
     .btn-hero-primary:hover {
-      background: var(--gold-bright);
+      background: var(--cta-red-hover);
       transform: translateY(-2px);
     }
 
@@ -768,21 +781,23 @@
 
     .btn-enroll {
       display: inline-block;
-      padding: 7px 16px;
-      background: var(--gold);
-      border-radius: 100px;
-      color: #080706;
+      padding: 7px 18px;
+      background: var(--cta-red);
+      border-radius: 3px;
+      color: #FFFFFF;
       font-family: var(--sans);
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       text-decoration: none;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.15s;
     }
 
     .btn-enroll:hover {
-      background: var(--gold-bright);
+      background: var(--cta-red-hover);
+      transform: translateY(-1px);
     }
 
     .courses-view-all {
@@ -1008,10 +1023,10 @@
       align-items: center;
       height: 54px;
       padding: 0 36px;
-      background: var(--gold);
+      background: var(--cta-red);
       border: none;
       border-radius: 3px;
-      color: #080706;
+      color: #FFFFFF;
       font-family: var(--sans);
       font-size: 13px;
       font-weight: 700;
@@ -1023,7 +1038,7 @@
     }
 
     .btn-cta-big:hover {
-      background: var(--gold-bright);
+      background: var(--cta-red-hover);
       transform: translateY(-2px);
     }
 
@@ -1042,20 +1057,33 @@
       margin: 0 auto 48px;
     }
 
+    .footer-brand-logo {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .footer-brand-logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
     .footer-brand-logo-main {
       font-family: var(--serif);
       font-style: italic;
-      font-size: 26px;
+      font-size: 20px;
       font-weight: 600;
       color: var(--gold);
       line-height: 1;
-      margin-bottom: 2px;
     }
 
     .footer-brand-logo-sub {
       font-family: var(--sans);
-      font-size: 10px;
-      letter-spacing: 0.18em;
+      font-size: 9px;
+      letter-spacing: 0.2em;
       color: var(--text-3);
       text-transform: uppercase;
       margin-bottom: 16px;
@@ -1607,14 +1635,14 @@
     }
 
     .tier-card.tier-featured .btn-tier {
-      background: var(--gold);
-      color: #080706;
-      border-color: var(--gold);
+      background: var(--cta-red);
+      color: #FFFFFF;
+      border-color: var(--cta-red);
     }
 
     .tier-card.tier-featured .btn-tier:hover {
-      background: var(--gold-bright);
-      border-color: var(--gold-bright);
+      background: var(--cta-red-hover);
+      border-color: var(--cta-red-hover);
     }
 
     /* ─── RESPONSIVE ─── */
@@ -1745,8 +1773,7 @@
   <!-- NAVIGATION -->
   <nav class="nav" id="main-nav">
     <a href="#experience" class="nav-logo">
-      <span class="nav-logo-main">TFR</span>
-      <span class="nav-logo-sub">The Foundation Room</span>
+      <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;flex-shrink:0;">
     </a>
     <ul class="nav-links">
       <li><a href="#experience">Experience</a></li>
@@ -1755,8 +1782,8 @@
       <li><a href="#connect">Connect</a></li>
     </ul>
     <div class="nav-actions">
-      <a href="/login" class="btn-ghost">Sign In</a>
-      <a href="/login#panel-register" class="btn-gold">Start Learning</a>
+      <a href="/login" class="btn-ghost">Login</a>
+      <a href="#courses" class="btn-gold">Join Now</a>
     </div>
   </nav>
 
@@ -1781,7 +1808,10 @@
         Learn live and interactively from India's greatest performing artists. Build your foundation. Master your craft.
       </p>
       <div class="hero-ctas reveal reveal-delay-3">
-        <a href="/login" class="btn-hero-primary">Begin Your Journey</a>
+        <a href="/login" class="btn-hero-primary">
+          <svg width="12" height="13" viewBox="0 0 12 13" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 5-9 5V1.5z"/></svg>
+          Begin Your Journey
+        </a>
         <a href="#explore" class="btn-hero-secondary">Explore Courses</a>
       </div>
       <div class="hero-proof reveal reveal-delay-4">
@@ -3143,8 +3173,9 @@
   <footer id="connect">
     <div class="footer-grid">
       <div>
-        <div class="footer-brand-logo-main">TFR</div>
-        <div class="footer-brand-logo-sub">The Foundation Room</div>
+        <div class="footer-brand-logo">
+          <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;display:block;margin-bottom:6px;">
+        </div>
         <p class="footer-tagline">Training is a Science.<br>Performing is an Art.</p>
         <div class="footer-socials">
           <!-- Instagram -->
@@ -3231,6 +3262,9 @@
       </div>
     </div>
   </footer>
+
+  <!-- Auth-aware nav (swaps Sign In/Start Learning for an avatar pill when signed in) -->
+  <script src="/assets/js/public-nav-auth.js"></script>
 
   <!-- GSAP -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>

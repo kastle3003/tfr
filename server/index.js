@@ -4,6 +4,9 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
+// Hard-stop if someone set a live Razorpay key — this build is test-only.
+require('./lib/razorpay-guard').assertTestOnly();
+
 const app = express();
 
 // Ensure data dirs exist

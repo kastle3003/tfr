@@ -5,6 +5,12 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db');
 const authMiddleware = require('../middleware/auth');
+const mailer = require('../lib/mailer');
+
+// OTPs and reset links are best delivered, not echoed back. When SMTP is
+// configured we do NOT return the secret in the API response. Only fall back
+// to returning it when the mailer is disabled, so local dev still works.
+const expose_secrets_in_response = () => !mailer.isConfigured();
 
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -41,7 +47,12 @@ router.post('/register', (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
     `).run(email, password_hash, first_name, last_name, role, instrument || null, avatar_initials, otp, otp_expires_at);
 
-    res.status(201).json({ message: 'Registration successful. Please verify your email.', email, otp });
+    mailer.sendTemplate('otp_verification', email, { first_name, otp })
+      .catch(e => console.warn('[auth] OTP send error:', e?.message || e));
+
+    const resp = { message: 'Registration successful. Please verify your email.', email };
+    if (expose_secrets_in_response()) resp.otp = otp;
+    res.status(201).json(resp);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -83,7 +94,12 @@ router.post('/resend-otp', (req, res) => {
     const otp_expires_at = new Date(Date.now() + 10 * 60 * 1000).toISOString();
     db.prepare('UPDATE users SET otp_code = ?, otp_expires_at = ? WHERE id = ?').run(otp, otp_expires_at, user.id);
 
-    res.json({ message: 'OTP resent successfully', email, otp });
+    mailer.sendTemplate('otp_verification', email, { first_name: user.first_name, otp })
+      .catch(e => console.warn('[auth] OTP resend error:', e?.message || e));
+
+    const resp = { message: 'OTP resent successfully', email };
+    if (expose_secrets_in_response()) resp.otp = otp;
+    res.json(resp);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -121,7 +137,13 @@ router.post('/forgot-password', (req, res) => {
     const reset_expires_at = new Date(Date.now() + 60 * 60 * 1000).toISOString();
     db.prepare('UPDATE users SET reset_token = ?, reset_expires_at = ? WHERE id = ?').run(reset_token, reset_expires_at, user.id);
 
-    res.json({ message: 'Password reset token generated (demo mode)', reset_token });
+    const reset_url = `${mailer.frontendUrl()}/reset-password.html?token=${encodeURIComponent(reset_token)}`;
+    mailer.sendTemplate('password_reset', email, { first_name: user.first_name, reset_url, reset_token })
+      .catch(e => console.warn('[auth] reset-link send error:', e?.message || e));
+
+    const resp = { message: 'If that email is registered, a reset link has been sent.' };
+    if (expose_secrets_in_response()) { resp.reset_token = reset_token; resp.reset_url = reset_url; }
+    res.json(resp);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -210,22 +210,42 @@ router.get('/foundation/:foundation_id', (req, res) => {
   }
 });
 
-// Internal: simulated email sender — writes to email_logs so the existing
-// admin Email-Logs page shows these events. Real SMTP integration lives in admin config.
-function emitEmail(userId, template, data) {
+// Internal event emitter — resolves the user + related entities and delivers
+// a real email through the mailer. The mailer logs every attempt (sent /
+// failed / logged) into email_logs, so the admin Email-Logs page remains
+// authoritative without us double-writing here.
+const mailer = require('../lib/mailer');
+
+function emitEmail(userId, template, data = {}) {
   try {
-    const user = db.prepare('SELECT email FROM users WHERE id = ?').get(userId);
+    const user = db.prepare('SELECT id, email, first_name FROM users WHERE id = ?').get(userId);
     if (!user) return;
-    const subjects = {
-      payment_success:      'Payment received',
-      foundation_unlocked:  'New foundation unlocked',
-      course_unlocked:      'Course complete — well done',
-      lecture_completed:    'Lecture completed',
-    };
-    db.prepare(`
-      INSERT INTO email_logs (to_email, subject, template_name, status)
-      VALUES (?, ?, ?, 'sent')
-    `).run(user.email, subjects[template] || template, template);
+
+    const vars = { first_name: user.first_name || 'there', ...data };
+
+    // Hydrate friendly names for course / foundation emails.
+    if (data.course_id) {
+      const course = db.prepare('SELECT id, title, slug FROM courses WHERE id = ?').get(data.course_id);
+      if (course) {
+        vars.course_name = course.title;
+        vars.course_url = `${mailer.frontendUrl()}/courses/${course.slug || course.id}`;
+      }
+    }
+    if (data.foundation_id && !vars.foundation_name) {
+      const f = db.prepare('SELECT id, title, course_id FROM chapters WHERE id = ?').get(data.foundation_id);
+      if (f) vars.foundation_name = f.title;
+    }
+    if (data.title && !vars.foundation_name && template === 'foundation_unlocked') {
+      vars.foundation_name = data.title;
+    }
+
+    // Payment-specific variables.
+    if (typeof data.amount_paise === 'number') {
+      vars.amount_rupees = (data.amount_paise / 100).toFixed(2);
+    }
+
+    mailer.sendTemplate(template, user.email, vars)
+      .catch(err => console.warn('[email] send failed:', template, err?.message || err));
   } catch (e) { /* best-effort */ }
 }
 

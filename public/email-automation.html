@@ -161,6 +161,64 @@
         <p class="page-subtitle">Edit email templates, review send history, and configure automation rules.</p>
       </div>
 
+      <!-- SMTP Status -->
+      <div id="smtp-status-banner" style="margin-bottom:20px;padding:12px 16px;border-radius:8px;font-size:12px;display:flex;align-items:center;gap:10px;">
+        <span id="smtp-status-dot" style="width:10px;height:10px;border-radius:50%;background:#888;"></span>
+        <span id="smtp-status-text">Checking SMTP…</span>
+      </div>
+
+      <!-- Custom Email Composer (admin) -->
+      <div id="custom-composer" style="margin-bottom:28px;">
+        <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:10px;">Custom Email</div>
+        <div class="editor-panel">
+          <div class="editor-title">Send a custom email</div>
+
+          <div class="form-group">
+            <label class="form-label">Audience</label>
+            <select class="form-input" id="cc-audience" onchange="onAudienceChange()">
+              <option value="single">Single recipient</option>
+              <option value="all-students">All students</option>
+              <option value="all-instructors">All instructors</option>
+              <option value="all-users">All users</option>
+              <option value="custom">Custom list (comma-separated)</option>
+            </select>
+            <div id="cc-audience-info" style="font-size:11px;color:var(--text-3);margin-top:6px;"></div>
+          </div>
+
+          <div class="form-group" id="cc-recipient-group">
+            <label class="form-label" id="cc-recipient-label">Recipient Email</label>
+            <input class="form-input" id="cc-recipient" type="text" placeholder="you@example.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <input class="form-input" id="cc-subject" type="text" placeholder="Subject line">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="margin-bottom:8px;">HTML Body</label>
+            <div class="tab-bar">
+              <button class="tab-btn-sm active" type="button" onclick="switchCcTab('code', this)">Code</button>
+              <button class="tab-btn-sm" type="button" onclick="switchCcTab('preview', this)">Preview</button>
+            </div>
+            <div id="cc-code-area">
+              <textarea class="code-editor" id="cc-body" spellcheck="false" placeholder="<p>Dear student, …</p>"></textarea>
+            </div>
+            <div id="cc-preview-area" style="display:none;">
+              <iframe class="preview-frame" id="cc-preview-frame"></iframe>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; margin-top:8px; align-items:center;">
+            <button class="btn btn-primary" id="cc-send-btn" onclick="sendCustomEmail()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Send Email
+            </button>
+            <button class="btn btn-ghost" type="button" onclick="useAnnouncementWrapper()">Wrap in brand template</button>
+          </div>
+        </div>
+      </div>
+
       <div class="email-layout">
         <!-- Template List -->
         <div>
@@ -305,8 +363,17 @@
     document.getElementById('sb-avatar').textContent = currentUser.avatar_initials || (currentUser.first_name[0] + currentUser.last_name[0]);
     document.getElementById('sb-name').textContent = currentUser.first_name + ' ' + currentUser.last_name;
     document.getElementById('topbar-avatar').textContent = currentUser.avatar_initials || (currentUser.first_name[0] + currentUser.last_name[0]);
+
+    // Custom composer is admin-only
+    if (currentUser.role !== 'admin') {
+      const cc = document.getElementById('custom-composer');
+      if (cc) cc.style.display = 'none';
+    }
+
     loadTemplates();
     loadLogs();
+    loadSmtpStatus();
+    onAudienceChange();
   });
 
   async function loadTemplates() {
@@ -442,18 +509,147 @@
     if (!email) { toast('Please enter a recipient email', 'error'); return; }
     btn.disabled = true; btn.textContent = 'Sending…';
     try {
-      await api.post('/api/email/send', {
+      const r = await api.post('/api/email/send', {
         template_name: currentTemplate?.name,
         to_email: email,
         variables: {}
       });
       document.getElementById('test-modal').style.display = 'none';
-      toast('Test email sent (simulated)!', 'success');
+      toast(r.logged ? 'Logged (SMTP not configured).' : 'Test email sent!', 'success');
       loadLogs();
     } catch (e) {
       toast(e.message, 'error');
     } finally {
       btn.disabled = false; btn.textContent = 'Send Test';
+    }
+  }
+
+  // ── SMTP status ──
+  async function loadSmtpStatus() {
+    try {
+      const { smtp } = await api.get('/api/email/status');
+      const dot = document.getElementById('smtp-status-dot');
+      const txt = document.getElementById('smtp-status-text');
+      const banner = document.getElementById('smtp-status-banner');
+      if (!smtp.configured) {
+        dot.style.background = '#d19b3a';
+        banner.style.background = 'rgba(209,155,58,0.10)';
+        banner.style.border = '1px solid rgba(209,155,58,0.35)';
+        txt.innerHTML = `<strong>SMTP not configured.</strong> Set <code>ZOHO_USER</code> and <code>ZOHO_PASS</code> in <code>.env</code>. Sends will be logged, not delivered.`;
+      } else if (smtp.verified) {
+        dot.style.background = '#6fcf6f';
+        banner.style.background = 'rgba(45,90,39,0.12)';
+        banner.style.border = '1px solid rgba(45,90,39,0.35)';
+        txt.innerHTML = `<strong>Zoho SMTP ready</strong> — sending as <code>${smtp.user}</code> via <code>${smtp.host}:${smtp.port}</code>`;
+      } else {
+        dot.style.background = '#e07070';
+        banner.style.background = 'rgba(139,46,38,0.10)';
+        banner.style.border = '1px solid rgba(139,46,38,0.35)';
+        txt.innerHTML = `<strong>SMTP verify failed:</strong> ${smtp.lastError || 'unknown error'} — check ZOHO_USER / ZOHO_PASS (needs an App Password).`;
+      }
+    } catch (e) { /* silent */ }
+  }
+
+  // ── Custom composer ──
+  function switchCcTab(tab, btn) {
+    const tabs = document.querySelectorAll('#custom-composer .tab-btn-sm');
+    tabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const preview = tab === 'preview';
+    document.getElementById('cc-code-area').style.display = preview ? 'none' : 'block';
+    document.getElementById('cc-preview-area').style.display = preview ? 'block' : 'none';
+    if (preview) {
+      const html = document.getElementById('cc-body').value || '';
+      document.getElementById('cc-preview-frame').srcdoc = html;
+    }
+  }
+
+  async function onAudienceChange() {
+    const audience = document.getElementById('cc-audience').value;
+    const group = document.getElementById('cc-recipient-group');
+    const label = document.getElementById('cc-recipient-label');
+    const input = document.getElementById('cc-recipient');
+    const info = document.getElementById('cc-audience-info');
+    info.textContent = '';
+
+    if (audience === 'single') {
+      group.style.display = '';
+      label.textContent = 'Recipient Email';
+      input.placeholder = 'you@example.com';
+    } else if (audience === 'custom') {
+      group.style.display = '';
+      label.textContent = 'Emails (comma-separated)';
+      input.placeholder = 'a@x.com, b@y.com';
+    } else {
+      group.style.display = 'none';
+      try {
+        const r = await api.get('/api/email/audience/' + audience);
+        info.textContent = `→ ${r.count} recipient${r.count === 1 ? '' : 's'} in this audience.`;
+      } catch (e) {
+        info.textContent = 'Could not resolve audience: ' + e.message;
+      }
+    }
+  }
+
+  function useAnnouncementWrapper() {
+    const body = document.getElementById('cc-body').value.trim() || '<p>Your message here.</p>';
+    const wrapped = `<!DOCTYPE html>
+<html><body style="font-family:Georgia,serif;background:#F4EBD0;margin:0;padding:0;">
+<div style="max-width:600px;margin:40px auto;background:#FAF7EE;border:1px solid #D1A14E;border-radius:8px;overflow:hidden;">
+  <div style="background:#2D4F1E;padding:28px 32px;">
+    <h1 style="font-family:Georgia,serif;font-style:italic;color:#F4EBD0;margin:0;font-size:26px;">The Foundation Room</h1>
+    <p style="color:rgba(244,235,208,0.7);margin:4px 0 0;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Announcement</p>
+  </div>
+  <div style="padding:32px;color:#4A3C28;line-height:1.7;">
+    ${body}
+    <p style="color:#7A6A52;font-size:12px;margin-top:28px;border-top:1px solid #D1A14E;padding-top:16px;">The Foundation Room · Est. 1952</p>
+  </div>
+</div>
+</body></html>`;
+    document.getElementById('cc-body').value = wrapped;
+    toast('Wrapped in brand template.', 'success');
+  }
+
+  async function sendCustomEmail() {
+    const btn = document.getElementById('cc-send-btn');
+    const audience = document.getElementById('cc-audience').value;
+    const subject = document.getElementById('cc-subject').value.trim();
+    const html_body = document.getElementById('cc-body').value.trim();
+    const recipientRaw = document.getElementById('cc-recipient').value.trim();
+
+    if (!subject) return toast('Subject is required', 'error');
+    if (!html_body) return toast('HTML body is required', 'error');
+
+    btn.disabled = true;
+    const origHtml = btn.innerHTML;
+    btn.textContent = 'Sending…';
+
+    try {
+      if (audience === 'single') {
+        if (!recipientRaw) { toast('Recipient is required', 'error'); return; }
+        const r = await api.post('/api/email/send-custom', {
+          to_email: recipientRaw, subject, html_body
+        });
+        toast(r.logged ? 'Logged (SMTP not configured).' : `Sent to ${recipientRaw}`, 'success');
+      } else if (audience === 'custom') {
+        if (!recipientRaw) { toast('Enter at least one email', 'error'); return; }
+        const r = await api.post('/api/email/send-bulk', {
+          audience: 'custom', emails: recipientRaw, subject, html_body
+        });
+        toast(`Queued ${r.count} email${r.count === 1 ? '' : 's'}`, 'success');
+      } else {
+        if (!confirm(`Send this email to EVERY ${audience.replace('all-', '')}? This cannot be undone.`)) return;
+        const r = await api.post('/api/email/send-bulk', {
+          audience, subject, html_body
+        });
+        toast(`Queued ${r.count} email${r.count === 1 ? '' : 's'}`, 'success');
+      }
+      // refresh logs after a short delay so bulk rows appear
+      setTimeout(loadLogs, 1200);
+    } catch (e) {
+      toast(e.message, 'error');
+    } finally {
+      btn.disabled = false; btn.innerHTML = origHtml;
     }
   }
 

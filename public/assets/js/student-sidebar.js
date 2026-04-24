@@ -94,7 +94,7 @@
 
     return `
       <div class="sidebar-brand">
-        <div class="brand-monogram">TFR</div>
+        <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:36px;width:auto;display:block;margin-bottom:8px;">
         <div class="brand-title">The Foundation Room</div>
         <div class="brand-sub">Student Portal</div>
       </div>

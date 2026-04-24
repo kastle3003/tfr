@@ -4,11 +4,15 @@ const router = express.Router();
 const db = require('../db');
 const access = require('../lib/access');
 const pricing = require('../lib/pricing');
+const rzpGuard = require('../lib/razorpay-guard');
+const mailer = require('../lib/mailer');
 const { emitEmail } = require('./progress.routes');
 
-// Razorpay client (optional — falls back to mock orders when keys missing)
+// Razorpay client — TEST KEYS ONLY. Live keys are refused at server boot by
+// razorpay-guard; here we additionally require the rzp_test_ prefix before
+// building the client so a misconfigured env never reaches real money.
 let razorpay = null;
-if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+if (rzpGuard.canUseSdk()) {
   try {
     const Razorpay = require('razorpay');
     razorpay = new Razorpay({
@@ -161,7 +165,7 @@ router.post('/', async (req, res) => {
       base_paise: baseAmount,
       discount_paise: discount,
       currency: 'INR',
-      key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+      key_id: rzpGuard.publicKeyId(),
       auto_completed: finalAmount === 0,
     });
   } catch (err) {
@@ -275,7 +279,23 @@ function finalizePurchase(purchaseId) {
       .run(p.user_id, courseId);
   }
 
-  emitEmail(p.user_id, 'payment_success', { purchase_id: p.id, amount_paise: p.amount_paise });
+  // Friendly item name for the receipt email.
+  let itemName = 'your purchase';
+  if (p.type === 'bundle' && courseId) {
+    const c = db.prepare('SELECT title FROM courses WHERE id = ?').get(courseId);
+    itemName = c ? `${c.title} — full bundle` : itemName;
+  } else if (p.type === 'individual' && p.foundation_id) {
+    const f = db.prepare('SELECT title FROM chapters WHERE id = ?').get(p.foundation_id);
+    itemName = f ? `${f.title}` : itemName;
+  }
+
+  emitEmail(p.user_id, 'payment_success', {
+    purchase_id: p.id,
+    amount_paise: p.amount_paise,
+    order_id: p.razorpay_order_id || '',
+    payment_id: p.razorpay_payment_id || '',
+    item_name: itemName,
+  });
   if (p.type === 'bundle') {
     emitEmail(p.user_id, p.is_upgrade ? 'course_upgraded' : 'course_unlocked', { course_id: courseId });
   } else if (p.type === 'individual') {
