@@ -49,9 +49,11 @@
       height: 64px;
       display: flex; align-items: center;
       padding: 0 40px;
-      background: rgba(8,7,6,.92);
+      background: rgba(10, 8, 4, 0.90);
       backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200,168,75,0.15);
+      box-shadow: 0 2px 24px rgba(0,0,0,0.5);
     }
     .nav-logo { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--gold); letter-spacing: .04em; }
     .nav-logo span { font-size: 10px; font-family: var(--font-body); font-weight: 400; color: var(--cream-dim); display: block; letter-spacing: .2em; text-transform: uppercase; margin-top: -4px; }
@@ -61,8 +63,8 @@
       letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: none;
       transition: all .2s;
     }
-    .nav-ghost { background: transparent; border: 1px solid var(--border-hi); color: var(--cream); margin-right: 12px; }
-    .nav-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .nav-ghost { background: transparent; border: 1px solid rgba(200,168,75,0.32); color: var(--cream-dim); margin-right: 12px; }
+    .nav-ghost:hover { border-color: rgba(200,168,75,0.65); background: rgba(200,168,75,0.08); }
     .nav-gold { background: var(--gold); color: var(--ink); }
     .nav-gold:hover { background: var(--gold-bright); }
     .nav-back { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--cream-dim); margin-right: 24px; transition: color .2s; }
@@ -296,7 +298,7 @@
     }
     .lesson-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
     .lesson-item {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; flex-direction: column;
       padding: 10px 12px;
       font-size: 13px; color: var(--cream-dim);
       cursor: pointer;
@@ -304,6 +306,7 @@
       transition: background .15s, color .15s;
       user-select: none;
     }
+    .lesson-item .l-row { display: flex; align-items: center; gap: 12px; }
     .lesson-item:hover { background: var(--ghost-mid); color: var(--cream); }
     .lesson-item.selected {
       background: rgba(200,168,75,.1);
@@ -318,6 +321,11 @@
     .lesson-item.selected .l-icon { color: var(--gold-bright, #E8C96E); }
     .lesson-item .l-name { flex: 1; }
     .lesson-item .l-dur { font-size: 11px; color: var(--cream-dim); font-variant-numeric: tabular-nums; }
+    .l-timestamps { display: none; margin-top: 8px; padding-left: 30px; border-left: 2px solid rgba(200,168,75,.25); }
+    .lesson-item.selected .l-timestamps { display: block; }
+    .l-ts-item { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; font-size: 11px; }
+    .l-ts-time { color: var(--gold); font-variant-numeric: tabular-nums; font-weight: 600; min-width: 36px; flex-shrink: 0; }
+    .l-ts-label { color: var(--cream-dim); }
 
     .foundation-player {
       background: var(--ghost);
@@ -546,13 +554,16 @@
 
     /* ─── FOOTER ─── */
     footer {
-      border-top: 1px solid var(--border);
+      background: #080706;
+      border-top: 1px solid rgba(200,168,75,0.12);
       padding: 40px 80px;
       display: flex; justify-content: space-between; align-items: center;
       flex-wrap: wrap; gap: 16px;
     }
     .footer-logo { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--gold); }
     .footer-copy { font-size: 12px; color: var(--cream-dim); }
+    footer a { color: var(--cream-dim); transition: color 0.2s; }
+    footer a:hover { color: var(--gold); }
 
     /* ─── LOADING SKELETON ─── */
     .loading-wrap {
@@ -608,7 +619,8 @@
       .course-progress svg { width: 28px; height: 28px; }
       .foundation-tab { padding: 10px 14px; font-size: 12px; }
       .foundation-lessons { padding: 6px; }
-      .lesson-item { padding: 9px 10px; gap: 10px; font-size: 12px; }
+      .lesson-item { padding: 9px 10px; font-size: 12px; }
+      .lesson-item .l-row { gap: 10px; }
       .video-title-row { font-size: 12px; padding: 10px 12px; }
       .instructor-card-pub { flex-direction: column; padding: 22px; gap: 18px; }
       .instructor-avatar-big { align-self: flex-start; }
@@ -919,6 +931,10 @@ async function renderPage(data) {
               <button class="foundation-tab${i === 0 ? ' active' : ''}" data-ch="${ch.id}" onclick="selectFoundation('${ch.id}', true)" role="tab">${ch.title}</button>
             `).join('')}
           </div>
+          ${!isLoggedIn() ? `<div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cream-dim);background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.15);border-radius:4px;padding:8px 12px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold);flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <span><a href="/index.html" style="color:var(--gold);text-decoration:none;font-weight:500;">Sign in</a> to access all lessons — the first lesson of each chapter is free to preview.</span>
+          </div>` : ''}
           <h2 class="section-heading">Course <em>structure</em></h2>
           <div class="curriculum-summary">
             <span class="curr-stat"><strong id="stat-lessons-num">${(chapters[0]?.lessons || []).length}</strong> <span id="stat-lessons-label">${(chapters[0]?.lessons || []).length === 1 ? 'lesson' : 'lessons'}</span></span>
@@ -1150,11 +1166,21 @@ function renderLessonList(chId) {
     const click = playable
       ? `onclick="selectLesson('${ch.id}', ${l.id})"`
       : `onclick="_showLockedPlayer(this.dataset.title)"`;
+    const timestamps = isFirstPreview ? (video.timestamps || []) : [];
+    const tsHtml = timestamps.length
+      ? `<div class="l-timestamps">${timestamps.map(t => {
+          const m = Math.floor(t.time_seconds / 60);
+          const s = String(t.time_seconds % 60).padStart(2, '0');
+          return `<div class="l-ts-item"><span class="l-ts-time">${m}:${s}</span><span class="l-ts-label">${t.label || ''}</span></div>`;
+        }).join('')}</div>`
+      : '';
     return `<li class="lesson-item${playable ? '' : ' locked'}" data-lesson="${l.id}" data-title="${(l.title || '').replace(/"/g,'&quot;')}" ${click}>
-      <span class="l-num">${i + 1}</span>
-      <span class="l-icon">${playable ? _playIconSvg() : _lockIconSvg()}</span>
-      <span class="l-name">${l.title || ''}${playable ? ' <span style="font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-left:4px;">Free preview</span>' : ''}</span>
-      <span class="l-dur">${_lessonDisplayDuration(l)}</span>
+      <div class="l-row">
+        <span class="l-num">${i + 1}</span>
+        <span class="l-icon">${playable ? _playIconSvg() : _lockIconSvg()}</span>
+        <span class="l-name">${l.title || ''}${playable ? ' <span style="font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-left:4px;">Free preview</span>' : ''}</span>
+        <span class="l-dur">${_lessonDisplayDuration(l)}</span>
+      </div>${tsHtml}
     </li>`;
   }).join('');
 }

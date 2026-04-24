@@ -137,8 +137,8 @@ router.post('/admin', (req, res) => {
   }
 });
 
-// PATCH /api/coupons/admin/:id — update (description/active/expires/max)
-router.patch('/admin/:id', (req, res) => {
+// PATCH + PUT /api/coupons/admin/:id — update (description/active/expires/max)
+const updateCoupon = (req, res) => {
   if (!isAdmin(req.user)) return res.status(403).json({ error: 'Forbidden' });
   try {
     const id = parseInt(req.params.id, 10);
@@ -164,7 +164,9 @@ router.patch('/admin/:id', (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+};
+router.patch('/admin/:id', updateCoupon);
+router.put('/admin/:id', updateCoupon);
 
 // DELETE /api/coupons/admin/:id — soft delete (deactivate)
 router.delete('/admin/:id', (req, res) => {

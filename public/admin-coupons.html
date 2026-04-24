@@ -73,6 +73,22 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(200,168,75,0.08); }
 
+    /* Sidebar internals */
+    .sidebar-brand { padding: 20px 16px 14px; border-bottom: 1px solid rgba(200,168,75,0.06); }
+    .brand-title { font-family: var(--serif); font-style: italic; font-size: 17px; font-weight: 600; color: var(--gold); line-height: 1; }
+    .brand-sub { font-size: 10px; color: var(--text-3); margin-top: 3px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .sidebar-nav { flex: 1; padding: 10px; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; color: var(--text-3); font-size: 13px; font-weight: 500; transition: background 0.15s, color 0.15s; margin-bottom: 2px; text-decoration: none; }
+    .nav-item:hover { background: var(--bg-elevated); color: var(--text-2); }
+    .nav-item.active { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(200,168,75,0.15); }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-footer { padding: 12px 10px 16px; border-top: 1px solid rgba(200,168,75,0.06); }
+    .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; }
+    .sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--gold); flex-shrink: 0; }
+    .sidebar-user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 12px; font-weight: 600; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 10px; color: var(--text-3); margin-top: 1px; }
+
     /* Toast */
     .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
     .toast { background: var(--bg-elevated); border: 1px solid rgba(200,168,75,0.15); border-left: 3px solid var(--gold); border-radius: 6px; padding: 12px 16px; font-size: 13px; color: var(--text); min-width: 240px; }

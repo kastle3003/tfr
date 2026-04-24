@@ -567,6 +567,9 @@ db.exec(`
     currency TEXT NOT NULL DEFAULT 'INR',
     razorpay_order_id TEXT,
     razorpay_payment_id TEXT,
+    coupon_id INTEGER REFERENCES coupons(id),
+    discount_paise INTEGER NOT NULL DEFAULT 0,
+    is_upgrade INTEGER NOT NULL DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
   );
@@ -608,6 +611,23 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_couponredeem_coupon ON coupon_redemptions(coupon_id);
   CREATE INDEX IF NOT EXISTS idx_couponredeem_user ON coupon_redemptions(user_id);
 `);
+
+// Ensure coupon columns exist on purchases — guard for databases created before
+// the migration block ran (migrations fire before purchases table exists on a
+// fresh install, so the ALTER TABLEs silently fail; these are the recovery path).
+for (const sql of [
+  `ALTER TABLE purchases ADD COLUMN coupon_id INTEGER REFERENCES coupons(id)`,
+  `ALTER TABLE purchases ADD COLUMN discount_paise INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE purchases ADD COLUMN is_upgrade INTEGER NOT NULL DEFAULT 0`,
+]) { try { db.exec(sql); } catch(_) {} }
+
+// Seed test coupon — idempotent
+try {
+  db.prepare(`
+    INSERT OR IGNORE INTO coupons (code, description, discount_type, discount_value, applies_to, active)
+    VALUES ('TFR10', '10% off — test coupon (bundle & chapters)', 'pct', 10, 'both', 1)
+  `).run();
+} catch (_) {}
 
 // Flag the first lesson of every chapter as a free preview — idempotent, re-runs
 // on every boot. "First" = lowest order_index with id as tiebreaker (matches

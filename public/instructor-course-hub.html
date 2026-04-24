@@ -964,7 +964,7 @@ const PANELS = {
         <div class="form-group"><label class="form-label">Chapter</label>
           <select class="form-select" id="up-lesson-chapter">${courseChapters.map(ch=>`<option value="${ch.id}" ${ch.id==chId?'selected':''}>${ch.title}</option>`).join('')}</select></div>
         <div class="form-group"><label class="form-label">Type</label>
-          <select class="form-select" id="up-lesson-type"><option value="video">Video</option><option value="exercise">Exercise</option><option value="reading">Reading</option></select></div>
+          <select class="form-select" id="up-lesson-type" onchange="toggleTimestampSection()"><option value="video">Video</option><option value="exercise">Exercise</option><option value="reading">Reading</option></select></div>
       </div>
       <div class="form-group"><label class="form-label">Duration (minutes)</label><input class="form-input" id="up-lesson-dur" type="number" min="1" placeholder="e.g. 25"></div>
       <div class="form-group"><label class="form-label">Content URL <span style="font-weight:400;color:var(--text-3);">(YouTube, Vimeo, S3…)</span></label><input class="form-input" id="up-lesson-url" placeholder="https://…"></div>
@@ -973,6 +973,17 @@ const PANELS = {
         <div class="dz-icon">📹</div><div class="dz-text">Drop video or click to browse</div><div class="dz-hint">MP4, MOV up to 2 GB</div>
       </div>
       <div class="file-list" id="up-lesson-flist"></div>
+      <label style="display:flex;align-items:center;gap:10px;margin:12px 0 4px;font-size:13px;cursor:pointer;">
+        <input type="checkbox" id="up-lesson-preview"> <span>Free preview <span style="font-size:11px;color:var(--text-3);">(visible to non-enrolled visitors)</span></span>
+      </label>
+      <div id="up-ts-section" style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);padding-top:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <label class="form-label" style="margin:0;">Timestamps</label>
+          <button type="button" class="btn btn-outline btn-sm" onclick="addTimestampRow()" style="padding:4px 12px;font-size:12px;">+ Add</button>
+        </div>
+        <div id="up-ts-rows" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <p style="font-size:11px;color:var(--text-3);margin:8px 0 0;">Time format: <code style="background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px;">MM:SS</code> &nbsp;e.g. <code style="background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px;">1:30</code></p>
+      </div>
       <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;" onclick="submitLesson()">Add Lesson</button>`
   },
   chapter: {
@@ -1108,14 +1119,75 @@ function previewFiles(inputId, listId) {
     </div>`).join('');
 }
 
+// ── Timestamp helpers ──
+function toggleTimestampSection() {
+  const type = document.getElementById('up-lesson-type')?.value;
+  const sec = document.getElementById('up-ts-section');
+  if (sec) sec.style.display = type === 'video' ? 'block' : 'none';
+}
+function addTimestampRow() {
+  const container = document.getElementById('up-ts-rows');
+  if (!container) return;
+  const idx = container.children.length;
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  row.innerHTML = `
+    <input type="text" class="form-input ts-time" placeholder="1:30" style="width:72px;flex-shrink:0;font-size:13px;padding:7px 10px;" maxlength="7">
+    <input type="text" class="form-input ts-label" placeholder="What happens here…" style="flex:1;font-size:13px;padding:7px 10px;">
+    <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;flex-shrink:0;" title="Remove">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  container.appendChild(row);
+}
+function _parseTimestampTime(str) {
+  // Accepts "M:SS", "MM:SS", "S", "S.s"
+  const s = (str || '').trim();
+  if (!s) return null;
+  const parts = s.split(':');
+  if (parts.length === 2) {
+    const m = parseInt(parts[0], 10), sec = parseInt(parts[1], 10);
+    if (isNaN(m) || isNaN(sec)) return null;
+    return m * 60 + sec;
+  }
+  const n = parseInt(s, 10);
+  return isNaN(n) ? null : n;
+}
+function collectTimestamps() {
+  const rows = document.querySelectorAll('#up-ts-rows > div');
+  const result = [];
+  rows.forEach(row => {
+    const timeStr = row.querySelector('.ts-time')?.value || '';
+    const label = row.querySelector('.ts-label')?.value || '';
+    const secs = _parseTimestampTime(timeStr);
+    if (secs !== null) result.push({ time_seconds: secs, label });
+  });
+  return result;
+}
+
 // ── Submit handlers ──
 async function submitLesson() {
   const title = document.getElementById('up-lesson-title')?.value;
   const chapterId = document.getElementById('up-lesson-chapter')?.value;
   if (!title) return toast('Lesson title is required','error');
   if (!chapterId) return toast('Select a chapter','error');
+  const type = document.getElementById('up-lesson-type').value;
+  const contentUrl = document.getElementById('up-lesson-url').value || null;
+  const isPreview = document.getElementById('up-lesson-preview')?.checked ? 1 : 0;
+  const timestamps = type === 'video' ? collectTimestamps() : [];
   try {
-    await api.post('/api/lessons', { title, chapter_id:chapterId, course_id:currentCourseId, type:document.getElementById('up-lesson-type').value, duration_minutes:parseInt(document.getElementById('up-lesson-dur').value)||null, content_url:document.getElementById('up-lesson-url').value||null });
+    const lessonData = await api.post('/api/lessons', { title, chapter_id:chapterId, course_id:currentCourseId, type, duration_minutes:parseInt(document.getElementById('up-lesson-dur').value)||null, content_url:contentUrl, is_preview:isPreview });
+    const lessonId = lessonData.lesson?.id;
+    if (lessonId && contentUrl && timestamps.length) {
+      try {
+        const matData = await api.post('/api/materials', { lesson_id:lessonId, type:'video', url:contentUrl, title });
+        const materialId = matData.material?.id;
+        if (materialId) {
+          for (const ts of timestamps) {
+            await api.post(`/api/materials/${materialId}/timestamps`, ts).catch(()=>{});
+          }
+        }
+      } catch(e) { console.warn('Timestamps not saved:', e?.message); }
+    }
     closePanel(); toast('Lesson added!'); loadCurriculum();
   } catch(e){toast(e.message,'error');}
 }

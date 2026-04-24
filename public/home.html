@@ -63,9 +63,12 @@
       left: 0;
       right: 0;
       z-index: 100;
-      background: rgba(8, 7, 6, 0);
-      border-bottom: 1px solid transparent;
-      transition: background 0.4s ease, border-color 0.4s ease;
+      background: rgba(10, 8, 4, 0.90);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200, 168, 75, 0.15);
+      box-shadow: 0 2px 24px rgba(0,0,0,0.5);
+      transition: box-shadow 0.3s ease;
       padding: 0 40px;
       height: 72px;
       display: flex;
@@ -74,8 +77,7 @@
     }
 
     .nav.scrolled {
-      background: rgba(8, 7, 6, 0.95);
-      border-bottom-color: rgba(200, 168, 75, 0.2);
+      box-shadow: 0 3px 20px rgba(0,0,0,0.12);
     }
 
     .nav-logo {
@@ -140,9 +142,9 @@
 
     .btn-ghost {
       padding: 9px 20px;
-      border: 1px solid rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(200, 168, 75, 0.32);
       border-radius: 3px;
-      color: #FFFFFF;
+      color: var(--text-2);
       background: transparent;
       font-family: var(--sans);
       font-size: 12px;
@@ -155,8 +157,8 @@
     }
 
     .btn-ghost:hover {
-      border-color: rgba(255, 255, 255, 0.8);
-      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(200, 168, 75, 0.65);
+      background: rgba(200, 168, 75, 0.08);
     }
 
     .btn-gold {
@@ -224,6 +226,48 @@
       stroke: var(--gold);
       stroke-width: 1;
       opacity: 0.04;
+    }
+
+    /* Hero artist photo — inside hero-abstract right panel */
+    .hero-artist-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 18%;
+      filter: brightness(0.55) saturate(0.75) sepia(0.12);
+      z-index: 1;
+    }
+
+    /* Generic abstract hero visual — full right-side layer */
+    .hero-abstract {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 54%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(28,20,10,0) 0%, rgba(28,20,10,0.55) 35%, rgba(20,14,6,0.82) 100%);
+    }
+    .hero-abstract::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to right, var(--bg) 0%, rgba(8,7,6,0.2) 30%, transparent 60%),
+        linear-gradient(to top, var(--bg) 0%, transparent 22%),
+        linear-gradient(to bottom, var(--bg) 0%, transparent 14%);
+      z-index: 3;
+    }
+    .hero-wave-art {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
     }
 
     .hero-content {
@@ -1044,8 +1088,8 @@
 
     /* ─── FOOTER ─── */
     footer {
-      background: var(--bg-2);
-      border-top: 1px solid rgba(200, 168, 75, 0.1);
+      background: #0A0806;
+      border-top: 1px solid rgba(200, 168, 75, 0.12);
       padding: 64px 40px 0;
     }
 
@@ -1131,7 +1175,7 @@
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 0.2em;
-      color: var(--text-2);
+      color: var(--text-3);
       text-transform: uppercase;
       margin-bottom: 20px;
     }
@@ -1146,7 +1190,7 @@
     .footer-links a {
       font-family: var(--sans);
       font-size: 13px;
-      color: var(--text-3);
+      color: var(--text-2);
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -1177,12 +1221,12 @@
     .footer-connect-text {
       font-family: var(--sans);
       font-size: 13px;
-      color: var(--text-3);
+      color: var(--text-2);
       line-height: 1.5;
     }
 
     .footer-connect-text a {
-      color: var(--text-3);
+      color: var(--text-2);
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -1194,7 +1238,7 @@
     .footer-bar {
       max-width: 1200px;
       margin: 0 auto;
-      border-top: 1px solid rgba(200, 168, 75, 0.08);
+      border-top: 1px solid rgba(200, 168, 75, 0.12);
       padding: 20px 0;
       display: flex;
       align-items: center;
@@ -1791,6 +1835,61 @@
   <section id="experience">
     <div class="hero-bg-gradient"></div>
     <div class="hero-grain"></div>
+    <div class="hero-abstract" aria-hidden="true">
+      <img src="/assets/tfr-play/taufiq-hero.jpg" alt="" class="hero-artist-photo" loading="eager">
+      <svg class="hero-wave-art" viewBox="0 0 560 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="opacity:0.35;">
+        <defs>
+          <radialGradient id="bloom" cx="58%" cy="48%" r="55%">
+            <stop offset="0%"   stop-color="#C8A84B" stop-opacity="0.18"/>
+            <stop offset="45%"  stop-color="#C8A84B" stop-opacity="0.05"/>
+            <stop offset="100%" stop-color="#C8A84B" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#E8C96E" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#E8C96E" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <!-- Full area radial bloom -->
+        <rect width="560" height="700" fill="url(#bloom)"/>
+        <!-- Soft central glow -->
+        <ellipse cx="340" cy="350" rx="180" ry="200" fill="url(#glow)"/>
+        <!-- Concentric rings — clearly visible -->
+        <g fill="none" stroke="#C8A84B">
+          <ellipse cx="340" cy="350" rx="48"  ry="48"  stroke-opacity="0.55" stroke-width="1.5"/>
+          <ellipse cx="340" cy="350" rx="90"  ry="90"  stroke-opacity="0.40" stroke-width="1.2"/>
+          <ellipse cx="340" cy="350" rx="140" ry="140" stroke-opacity="0.28" stroke-width="1"/>
+          <ellipse cx="340" cy="350" rx="200" ry="200" stroke-opacity="0.18" stroke-width="0.8"/>
+          <ellipse cx="340" cy="350" rx="268" ry="268" stroke-opacity="0.11" stroke-width="0.7"/>
+          <ellipse cx="340" cy="350" rx="345" ry="345" stroke-opacity="0.06" stroke-width="0.6"/>
+        </g>
+        <!-- Vertical string lines (tanpura-inspired) -->
+        <g stroke="#C8A84B" fill="none" stroke-opacity="0.22" stroke-width="1">
+          <line x1="240" y1="0" x2="240" y2="700"/>
+          <line x1="280" y1="0" x2="280" y2="700"/>
+          <line x1="320" y1="0" x2="320" y2="700"/>
+          <line x1="360" y1="0" x2="360" y2="700"/>
+          <line x1="400" y1="0" x2="400" y2="700"/>
+          <line x1="440" y1="0" x2="440" y2="700"/>
+          <line x1="480" y1="0" x2="480" y2="700"/>
+          <line x1="520" y1="0" x2="520" y2="700"/>
+        </g>
+        <!-- Sinusoidal sound waves -->
+        <g stroke="#C8A84B" fill="none" stroke-opacity="0.20" stroke-width="1.1">
+          <path d="M180,140 Q260,116 340,140 Q420,164 500,140 Q540,128 560,132"/>
+          <path d="M180,200 Q260,176 340,200 Q420,224 500,200 Q540,188 560,192"/>
+          <path d="M180,260 Q260,236 340,260 Q420,284 500,260 Q540,248 560,252"/>
+          <path d="M180,320 Q260,296 340,320 Q420,344 500,320 Q540,308 560,312"/>
+          <path d="M180,380 Q260,356 340,380 Q420,404 500,380 Q540,368 560,372"/>
+          <path d="M180,440 Q260,416 340,440 Q420,464 500,440 Q540,428 560,432"/>
+          <path d="M180,500 Q260,476 340,500 Q420,524 500,500 Q540,488 560,492"/>
+          <path d="M180,560 Q260,536 340,560 Q420,584 500,560 Q540,548 560,552"/>
+          <path d="M180,620 Q260,596 340,620 Q420,644 500,620 Q540,608 560,612"/>
+        </g>
+        <!-- Bright centre dot -->
+        <circle cx="340" cy="350" r="5"   fill="#E8C96E" fill-opacity="0.6"/>
+        <circle cx="340" cy="350" r="2"   fill="#FFFFFF"  fill-opacity="0.9"/>
+      </svg>
+    </div>
     <svg class="hero-circles" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
       <circle cx="300" cy="300" r="280" />
       <circle cx="300" cy="300" r="220" />
