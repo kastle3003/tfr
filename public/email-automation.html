@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email Automation — The Foundation Room</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/archive.css">
   <style>
     .email-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
@@ -79,7 +79,7 @@
 
     .status-badge { display: inline-flex; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; }
     .status-sent { background: rgba(45,90,39,0.15); color: #6fcf6f; }
-    .status-failed { background: rgba(139,46,38,0.15); color: #e07070; }
+    .status-failed { background: rgba(191,0,0,0.15); color: #e07070; }
 
     /* Rule items */
     .rule-item {
@@ -543,8 +543,8 @@
         txt.innerHTML = `<strong>Zoho SMTP ready</strong> — sending as <code>${smtp.user}</code> via <code>${smtp.host}:${smtp.port}</code>`;
       } else {
         dot.style.background = '#e07070';
-        banner.style.background = 'rgba(139,46,38,0.10)';
-        banner.style.border = '1px solid rgba(139,46,38,0.35)';
+        banner.style.background = 'rgba(191,0,0,0.10)';
+        banner.style.border = '1px solid rgba(191,0,0,0.35)';
         txt.innerHTML = `<strong>SMTP verify failed:</strong> ${smtp.lastError || 'unknown error'} — check ZOHO_USER / ZOHO_PASS (needs an App Password).`;
       }
     } catch (e) { /* silent */ }

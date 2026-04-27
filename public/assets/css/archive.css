@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
   --bg:          #080706;
@@ -17,11 +17,11 @@
   --text-3:      #6B5E50;
   --white:       #FFFFFF;
 
-  --ruby:        #8B2E26;
+  --ruby:        #bf0000;
   --emerald:     #2D5A27;
   --amber:       #C8A84B;
 
-  --serif:  'Cormorant Garamond', Georgia, serif;
+  --serif:  'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
   --sans:   'DM Sans', sans-serif;
 
   --r-sm:  4px;
@@ -515,7 +515,7 @@ img { display: block; max-width: 100%; }
 
 .stat-card .stat-icon.green  { background: rgba(45,90,39,0.15);  color: #5BAD55; }
 .stat-card .stat-icon.gold   { background: rgba(200,168,75,0.12); color: var(--gold); }
-.stat-card .stat-icon.ruby   { background: rgba(139,46,38,0.15);  color: #D0675D; }
+.stat-card .stat-icon.ruby   { background: rgba(191,0,0,0.15);  color: #bf0000; }
 
 .stat-card .stat-number {
   font-family: var(--serif);
@@ -596,18 +596,18 @@ img { display: block; max-width: 100%; }
 /* New naming */
 .badge-success  { background: rgba(45,90,39,0.20);  color: #6DC766; }
 .badge-warning  { background: rgba(200,168,75,0.18); color: var(--gold); }
-.badge-danger   { background: rgba(139,46,38,0.20);  color: #D0675D; }
+.badge-danger   { background: rgba(191,0,0,0.20);  color: #bf0000; }
 .badge-muted    { background: var(--bg-elevated);    color: var(--text-3); border: 1px solid rgba(200,168,75,0.08); }
 
 /* Legacy names kept */
 .badge-green    { background: rgba(45,90,39,0.20);  color: #6DC766; }
-.badge-crimson  { background: rgba(139,46,38,0.20);  color: #D0675D; }
+.badge-crimson  { background: rgba(191,0,0,0.20);  color: #bf0000; }
 .badge-gold     { background: rgba(200,168,75,0.18); color: var(--gold); }
 .badge-dark     { background: var(--bg-elevated);    color: var(--text-2); border: 1px solid rgba(200,168,75,0.10); }
 .badge-gray     { background: var(--bg-elevated);    color: var(--text-3); }
 
 /* Format badges */
-.badge-pdf      { background: rgba(139,46,38,0.20);  color: #D0675D; }
+.badge-pdf      { background: rgba(191,0,0,0.20);  color: #bf0000; }
 .badge-mp3      { background: rgba(45,90,39,0.20);   color: #6DC766; }
 .badge-img      { background: var(--bg-elevated);    color: var(--text-3); }
 
@@ -652,7 +652,7 @@ img { display: block; max-width: 100%; }
   background: var(--ruby);
   color: var(--text);
 }
-.btn-danger:hover { background: #A83B32; }
+.btn-danger:hover { background: #990000; }
 
 /* Legacy compat */
 .btn-green         { background: #2D5A27; color: var(--text); }
@@ -730,7 +730,7 @@ img { display: block; max-width: 100%; }
   font-family: var(--sans);
 }
 
-.toast.error   { border-left-color: #D0675D; }
+.toast.error   { border-left-color: #bf0000; }
 .toast.warning { border-left-color: var(--gold); }
 
 @keyframes slideUp {
@@ -1161,7 +1161,7 @@ img { display: block; max-width: 100%; }
 
 .sub-type-audio { background: rgba(45,90,39,0.20);  color: #6DC766; }
 .sub-type-doc   { background: rgba(200,168,75,0.15); color: var(--gold); }
-.sub-type-quiz  { background: rgba(139,46,38,0.20);  color: #D0675D; }
+.sub-type-quiz  { background: rgba(191,0,0,0.20);  color: #bf0000; }
 
 /* ─── Recording item ─── */
 .recording-item {
@@ -1344,7 +1344,7 @@ img { display: block; max-width: 100%; }
   flex-shrink: 0;
 }
 
-.type-video    { background: rgba(139,46,38,0.15);  color: #D0675D; }
+.type-video    { background: rgba(191,0,0,0.15);  color: #bf0000; }
 .type-reading  { background: rgba(45,90,39,0.15);   color: #6DC766; }
 .type-exercise { background: rgba(200,168,75,0.12); color: var(--gold); }
 .type-quiz     { background: rgba(100,80,200,0.12); color: #A08CF0; }

@@ -12,7 +12,8 @@ router.get(/^\/(.+)$/, async (req, res) => {
     }
     const key = req.params[0];
     if (!key) return res.status(400).json({ error: 'Missing key' });
-    const url = await storage.presignedUrl(key, 900);
+    const url = await storage.presignedUrl(key, 21600);
+    res.setHeader('Cache-Control', 'private, max-age=21600');
     res.redirect(302, url);
   } catch (err) {
     console.error('[files] presign error:', err);

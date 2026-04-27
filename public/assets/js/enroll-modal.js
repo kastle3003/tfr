@@ -263,6 +263,12 @@
       modal._coupon = { code, discount_paise: d.discount_paise, final_paise: d.final_paise, apply_type: applyType };
       msg.className = 'em-coupon-msg ok';
       msg.textContent = `Coupon applied! You save ${fmtINR(d.discount_paise)}`;
+      if (applyType === 'bundle') {
+        const totalEl = document.getElementById('em-total-bundle');
+        if (totalEl) totalEl.textContent = fmtINR(d.final_paise);
+        const buyBtn = document.getElementById('em-buy-bundle');
+        if (buyBtn) buyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pay ${fmtINR(d.final_paise)}`;
+      }
     } catch (err) {
       msg.className = 'em-coupon-msg err';
       msg.textContent = 'Network error validating coupon';

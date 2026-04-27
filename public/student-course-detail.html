@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Course — The Foundation Room</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/enroll-modal.css">
   <style>
     :root {
@@ -21,9 +21,9 @@
       --text:        #F0E6D3;
       --text-2:      #B8A898;
       --text-3:      #6B5E50;
-      --ruby:        #8B2E26;
+      --ruby:        #bf0000;
       --emerald:     #2D5A27;
-      --serif:       'Cormorant Garamond', Georgia, serif;
+      --serif:       'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
       --sans:        'DM Sans', sans-serif;
       --sidebar-w:   240px;
       --topbar-h:    60px;
@@ -235,15 +235,33 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-family: var(--serif);
-      font-style: italic;
-      font-size: 200px;
-      font-weight: 600;
-      color: var(--gold);
-      opacity: 0.04;
-      line-height: 1;
       pointer-events: none;
       user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 1;
+    }
+
+    .hero-inst-svg {
+      width: 150px;
+      height: auto;
+      transition: filter 0.8s ease;
+    }
+
+    .hero-inst-svg.has-fill {
+      filter: drop-shadow(0 0 18px rgba(200,168,75,0.45)) drop-shadow(0 0 40px rgba(200,168,75,0.2));
+    }
+
+    .hero-inst-counter {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(200,168,75,0.55);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-align: center;
     }
 
     .hero-overlay {
@@ -555,7 +573,7 @@
 
     .type-video    { background: rgba(200,168,75,0.12); color: var(--gold); }
     .type-reading  { background: rgba(45,90,39,0.15);   color: #6fcf6f; }
-    .type-exercise { background: rgba(139,46,38,0.15);  color: #e07070; }
+    .type-exercise { background: rgba(191,0,0,0.15);  color: #e07070; }
     .type-quiz     { background: rgba(80,80,160,0.15);  color: #9090d0; }
 
     .lesson-title {
@@ -954,6 +972,61 @@
 
     .sheet-download-btn:hover { color: var(--gold-bright); }
 
+    /* ── Custom Video Player ── */
+    .custom-player { position: relative; background: #000; border-radius: 6px; overflow: hidden; }
+    .player-video-wrap { position: relative; aspect-ratio: 16/9; background: #000; }
+    .player-video-wrap video,
+    .player-video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+    .player-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.18); transition: opacity 0.2s; pointer-events: none;
+    }
+    .player-overlay.faded { opacity: 0; }
+    .player-video-wrap:hover .player-overlay.faded { opacity: 1; }
+    .play-btn {
+      pointer-events: auto;
+      width: 62px; height: 62px; border-radius: 50%;
+      background: rgba(200,168,75,0.92); color: #0F0D0B;
+      display: flex; align-items: center; justify-content: center;
+      border: 0; cursor: pointer; transition: transform 0.15s, background 0.15s;
+    }
+    .play-btn:hover { transform: scale(1.07); background: var(--gold-bright); }
+    .play-btn svg { width: 26px; height: 26px; fill: currentColor; }
+    .player-progress {
+      position: absolute; bottom: 40px; left: 0; right: 0;
+      height: 2px; background: rgba(255,255,255,0.12); pointer-events: none;
+    }
+    .player-progress-fill { height: 100%; background: var(--gold); width: 0%; }
+    .player-bar {
+      display: flex; align-items: center; gap: 10px; padding: 7px 14px;
+      background: rgba(12,10,8,0.97); min-height: 40px;
+    }
+    .player-bar-time { font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+    .vol-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .vol-icon { color: var(--gold); display: flex; }
+    .vol-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .vol-slider { width: 80px; accent-color: var(--gold); cursor: pointer; }
+    .mark-done-btn {
+      font-family: var(--sans); font-size: 11px; font-weight: 600;
+      color: var(--gold); background: rgba(200,168,75,0.12);
+      border: 1px solid rgba(200,168,75,0.3); padding: 4px 12px; border-radius: 4px;
+      cursor: pointer; transition: background 0.15s; margin-left: 8px; flex-shrink: 0;
+    }
+    .mark-done-btn:hover { background: rgba(200,168,75,0.22); }
+    .mark-done-btn.done { opacity: 0.5; pointer-events: none; }
+
+    /* ── Sequential lock ── */
+    .lesson-row.seq-locked { opacity: 0.36; pointer-events: none; }
+    .lesson-row.seq-locked .lesson-title { color: var(--text-3); }
+
+    /* ── Completion flash ── */
+    @keyframes lessonCompleteFlash {
+      0%   { background: rgba(200,168,75,0.2); }
+      100% { background: transparent; }
+    }
+    .lesson-row.flash-complete { animation: lessonCompleteFlash 1.1s ease-out forwards; }
+
     /* ── Skeleton ── */
     .skeleton-hero {
       height: 400px;
@@ -1199,6 +1272,27 @@
   let enrollmentProgress = 0;
   let currentUser       = null;
 
+  /* Sequential unlock state */
+  let _allChapters  = [];          // all chapters with lessons
+  let _seqList      = [];          // [{lessonId}] flat across all chapters in order
+  let _completedSet = new Set();   // lesson IDs that are completed
+
+  function buildSeqState(chapters) {
+    _allChapters  = chapters;
+    _seqList      = [];
+    _completedSet = new Set();
+    chapters.forEach(ch => {
+      (ch.lessons || []).forEach(l => {
+        _seqList.push({ lessonId: l.id });
+        if (l.completed) _completedSet.add(l.id);
+      });
+    });
+  }
+
+  function isLessonUnlocked(lessonId) {
+    return isEnrolled;
+  }
+
   /* ── Category gradients ── */
   const categoryGradients = {
     'Sitar':      'linear-gradient(160deg, #1A0D00 0%, #3D2400 60%, #1A0D00 100%)',
@@ -1284,7 +1378,9 @@
 
     /* Hero */
     document.getElementById('hero-bg').style.background = gradient;
-    document.getElementById('hero-initials').textContent = initial;
+    document.getElementById('hero-initials').innerHTML =
+      renderHeroInstrument(category) +
+      `<div class="hero-inst-counter" id="hero-inst-counter">0 / — lessons</div>`;
     if (category) {
       document.getElementById('hero-breadcrumb-cat').innerHTML = ` <span style="color:#6B5E50; margin:0 6px;">/</span> ${category}`;
     }
@@ -1370,8 +1466,10 @@
     document.getElementById('card-instructor-bio').textContent       = course.instructor_bio || 'One of India\'s foremost performing artists, bringing decades of mastery to every session.';
 
     /* Curriculum */
+    buildSeqState(chapters);
     document.getElementById('curriculum-count').textContent = `${chapters.length} chapters · ${totalLessons} lessons`;
     renderChapters(chapters);
+    updateInstrumentFill();
 
     /* Related sheet music */
     loadRelatedSheetMusic(courseId);
@@ -1413,30 +1511,44 @@
       return `<div style="padding:12px 20px; font-family:'DM Sans',sans-serif; font-size:13px; color:#6B5E50;">No lessons in this chapter yet.</div>`;
     }
 
-    return lessons.map(l => {
-      const completed = l.completed;
-      const locked    = !isEnrolled && !completed;
-      const rowClass  = completed ? 'lesson-row completed' : locked ? 'lesson-row locked' : 'lesson-row';
-      const typeIcons = {
-        video:    `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
-        reading:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
-        exercise: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
-        quiz:     `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-      };
+    const LOCK_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+    const DONE_SVG = `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const typeIcons = {
+      video:    `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+      reading:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+      exercise: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+      quiz:     `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    };
 
-      const typeIcon = typeIcons[l.type] || typeIcons.video;
+    return lessons.map(l => {
+      const completed   = l.completed || _completedSet.has(l.id);
+      const notEnrolled = !isEnrolled;
+      const isVideo     = !l.type || l.type === 'video';
+
+      let rowClass = 'lesson-row';
+      if (completed)   rowClass += ' completed';
+      if (notEnrolled) rowClass += ' locked';
+
+      const typeIcon  = typeIcons[l.type] || typeIcons.video;
       const typeClass = `lesson-type-icon type-${l.type || 'video'}`;
       const duration  = l.duration_minutes ? `${l.duration_minutes} min` : '';
 
-      const rightEl = locked
-        ? `<div class="lesson-lock"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>`
-        : `<div class="lesson-check ${completed ? 'done' : ''}" id="check-${l.id}" onclick="event.stopPropagation(); completeLesson(${l.id})">
-            ${completed ? '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
-          </div>`;
+      const canOpen   = isEnrolled;
+      const clickAttr = canOpen ? `onclick="toggleLessonViewer(${l.id})" style="cursor:pointer;"` : '';
 
-      const clickAttr = locked ? '' : `onclick="toggleLessonViewer(${l.id})" style="cursor:pointer;"`;
+      let rightEl;
+      if (notEnrolled) {
+        rightEl = `<div class="lesson-lock">${LOCK_SVG}</div>`;
+      } else if (isVideo && !completed) {
+        rightEl = `<div class="lesson-check" id="check-${l.id}" title="Watch the video to complete"></div>`;
+      } else {
+        rightEl = `<div class="lesson-check ${completed ? 'done' : ''}" id="check-${l.id}" onclick="event.stopPropagation(); completeLesson(${l.id})">
+            ${completed ? DONE_SVG : ''}
+          </div>`;
+      }
+
       return `
-        <div class="${rowClass}" ${clickAttr}>
+        <div class="${rowClass}" id="row-${l.id}" ${clickAttr}>
           <div class="${typeClass}">${typeIcon}</div>
           <div class="lesson-title">${l.title}</div>
           <div class="lesson-duration">${duration}</div>
@@ -1486,10 +1598,11 @@
       viewer.innerHTML = `<div class="viewer-empty">No materials have been added to this lesson yet.</div>`;
       return;
     }
-    viewer.innerHTML = materials.map(m => renderMaterialBlock(m)).join('');
+    viewer.innerHTML = materials.map(m => renderMaterialBlock(m, lessonId)).join('');
+    viewer.querySelectorAll('.custom-player').forEach(p => setupCustomPlayer(p));
   }
 
-  function renderMaterialBlock(m) {
+  function renderMaterialBlock(m, lessonId) {
     const title = m.title || `(untitled ${m.type})`;
     const head = `
       <div class="mat-block-head">
@@ -1498,17 +1611,38 @@
       </div>`;
     let body = '';
     if (m.type === 'video' && m.url) {
-      const isYT = /youtube\.com|youtu\.be/i.test(m.url);
-      const embed = isYT ? toYouTubeEmbed(m.url) : m.url;
-      const player = isYT
-        ? `<iframe id="vid-${m.id}" src="${embed}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
-        : `<video id="vid-${m.id}" src="${m.url}" controls preload="metadata"></video>`;
-      body = `<div class="mat-video-frame">${player}</div>`;
+      const isYT  = /youtube\.com|youtu\.be/i.test(m.url);
+      const embed = isYT ? toYouTubeEmbed(m.url) : null;
+
+      const videoInner = isYT
+        ? `<iframe src="${embed}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
+        : `<video src="${m.url}" preload="auto" playsinline oncontextmenu="return false;"></video>
+           <div class="player-overlay">
+             <button class="play-btn" aria-label="Play"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg></button>
+           </div>
+           <div class="player-progress"><div class="player-progress-fill"></div></div>`;
+
+      const barLeft = isYT
+        ? `<button class="mark-done-btn">&#10003; Mark Complete</button>`
+        : `<span class="player-bar-time">00:00 / 00:00</span>`;
+
+      body = `
+        <div class="custom-player" data-lesson-id="${lessonId}" data-type="${isYT ? 'youtube' : 'native'}">
+          <div class="player-video-wrap">${videoInner}</div>
+          <div class="player-bar">
+            ${barLeft}
+            <div class="vol-wrap">
+              <span class="vol-icon"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
+              <input type="range" class="vol-slider" min="0" max="1" step="0.02" value="1">
+            </div>
+          </div>
+        </div>`;
+
       const ts = m.timestamps || [];
       if (ts.length) {
         body += `
           <div class="mat-ts-bar">
-            <div class="mat-ts-head">Chapters · ${ts.length}</div>
+            <div class="mat-ts-head">Chapters &middot; ${ts.length}</div>
             <div class="mat-ts-chips">
               ${ts.map(t => `<button class="mat-ts-chip" onclick="seekVideo(${m.id}, ${t.time_seconds}, ${isYT ? 1 : 0})"><span class="ts-time">${fmtViewerTime(t.time_seconds)}</span><span>${escapeHtml(t.label || '')}</span></button>`).join('')}
             </div>
@@ -1522,7 +1656,7 @@
       body = `
         <div class="mat-url-cta">
           <div style="font-size:12px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(m.url)}</div>
-          <a href="${m.url}" target="_blank" rel="noopener">Open link →</a>
+          <a href="${m.url}" target="_blank" rel="noopener">Open link &rarr;</a>
         </div>`;
     } else {
       body = `<div style="padding:16px;font-size:12px;color:var(--text-3);">No content URL set.</div>`;
@@ -1577,23 +1711,28 @@
     header.nextElementSibling.classList.toggle('open');
   }
 
-  /* ── Complete lesson ── */
+  /* ── Complete lesson (manual check or auto from video end) ── */
   async function completeLesson(lessonId) {
     if (!isEnrolled) { toast('Enroll in the course first', 'error'); return; }
+    if (_completedSet.has(lessonId)) return;
     const el = document.getElementById(`check-${lessonId}`);
     if (el && el.classList.contains('done')) return;
     try {
       const data = await api.post(`/api/lessons/${lessonId}/complete`, {});
+      _completedSet.add(lessonId);
       if (el) {
         el.classList.add('done');
         el.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
       }
+      const rowEl = document.getElementById('row-' + lessonId);
+      if (rowEl) { rowEl.classList.add('completed', 'flash-complete'); rowEl.classList.remove('seq-locked'); }
       enrollmentProgress = data.progress_pct || enrollmentProgress;
       const pctEl  = document.getElementById('ring-pct');
       const fillEl = document.getElementById('ring-fill');
       if (pctEl)  pctEl.textContent = enrollmentProgress + '%';
       if (fillEl) fillEl.style.strokeDashoffset = 175.9 - (enrollmentProgress / 100) * 175.9;
-      toast(`Progress: ${enrollmentProgress}%`);
+      updateInstrumentFill();
+      toast(`Lesson complete! ${enrollmentProgress}% done`);
     } catch (err) {
       toast(err.message, 'error');
     }
@@ -1640,6 +1779,168 @@
 
   function downloadSheet(id) {
     window.open(`/api/sheet-music/${id}/download`, '_blank');
+  }
+
+  /* ── Custom player: wire events after HTML is rendered ── */
+  function setupCustomPlayer(playerEl) {
+    const lessonId  = parseInt(playerEl.dataset.lessonId);
+    const isYT      = playerEl.dataset.type === 'youtube';
+    const volSlider = playerEl.querySelector('.vol-slider');
+
+    if (isYT) {
+      const iframe = playerEl.querySelector('iframe');
+      const setVol = (v) => {
+        try {
+          iframe && iframe.contentWindow && iframe.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: 'setVolume', args: [Math.round(v * 100)] }), '*'
+          );
+        } catch (_) {}
+      };
+      if (volSlider) volSlider.addEventListener('input', () => setVol(parseFloat(volSlider.value)));
+      const markBtn = playerEl.querySelector('.mark-done-btn');
+      if (markBtn) markBtn.addEventListener('click', () => {
+        markBtn.classList.add('done');
+        markBtn.textContent = '✓ Marked';
+        autoCompleteLesson(lessonId);
+      });
+    } else {
+      const video    = playerEl.querySelector('video');
+      const overlay  = playerEl.querySelector('.player-overlay');
+      const playBtn  = playerEl.querySelector('.play-btn');
+      const progBar  = playerEl.querySelector('.player-progress');
+      const progFill = playerEl.querySelector('.player-progress-fill');
+      const timeEl   = playerEl.querySelector('.player-bar-time');
+      if (!video) return;
+
+      if (volSlider) volSlider.addEventListener('input', () => { video.volume = parseFloat(volSlider.value); });
+
+      const toggle = () => { if (video.paused) video.play().catch(() => {}); else video.pause(); };
+      if (playBtn) playBtn.addEventListener('click', toggle);
+      video.addEventListener('click', toggle);
+      video.addEventListener('play',  () => { if (overlay) overlay.classList.add('faded'); });
+      video.addEventListener('pause', () => { if (overlay) overlay.classList.remove('faded'); });
+      video.addEventListener('ended', () => {
+        if (overlay) overlay.classList.remove('faded');
+        autoCompleteLesson(lessonId);
+      });
+      video.addEventListener('timeupdate', () => {
+        if (!video.duration) return;
+        const pct = (video.currentTime / video.duration) * 100;
+        if (progFill) progFill.style.width = pct + '%';
+        if (timeEl)   timeEl.textContent   = fmtViewerTime(video.currentTime) + ' / ' + fmtViewerTime(video.duration);
+        // Auto-complete at 90% watched
+        if (pct >= 90 && !_completedSet.has(lessonId)) autoCompleteLesson(lessonId);
+      });
+      // Click-to-seek on progress bar
+      if (progBar) {
+        progBar.style.cursor = 'pointer';
+        progBar.addEventListener('click', e => {
+          if (!video.duration) return;
+          const rect = progBar.getBoundingClientRect();
+          video.currentTime = ((e.clientX - rect.left) / rect.width) * video.duration;
+        });
+      }
+      // Progress ping every 5s while playing
+      let _lastPing = 0;
+      video.addEventListener('timeupdate', () => {
+        if (!isEnrolled || !video.duration) return;
+        if (Math.floor(video.currentTime) !== _lastPing && Math.floor(video.currentTime) % 5 === 0) {
+          _lastPing = Math.floor(video.currentTime);
+          api.post('/api/progress/update', {
+            lesson_id: lessonId,
+            position_seconds: Math.round(video.currentTime),
+            duration_seconds: Math.round(video.duration)
+          }).catch(() => {});
+        }
+      });
+    }
+  }
+
+  /* ── Auto-complete lesson when video ends ── */
+  async function autoCompleteLesson(lessonId) {
+    if (!isEnrolled || !lessonId) return;
+    if (_completedSet.has(lessonId)) return;
+    try {
+      const data = await api.post(`/api/lessons/${lessonId}/complete`, {});
+      _completedSet.add(lessonId);
+      const checkEl = document.getElementById('check-' + lessonId);
+      if (checkEl) {
+        checkEl.classList.add('done');
+        checkEl.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+      }
+      const rowEl = document.getElementById('row-' + lessonId);
+      if (rowEl) { rowEl.classList.add('completed', 'flash-complete'); }
+      enrollmentProgress = data.progress_pct || enrollmentProgress;
+      const pctEl  = document.getElementById('ring-pct');
+      const fillEl = document.getElementById('ring-fill');
+      if (pctEl)  pctEl.textContent = enrollmentProgress + '%';
+      if (fillEl) fillEl.style.strokeDashoffset = 175.9 - (enrollmentProgress / 100) * 175.9;
+      updateInstrumentFill();
+      toast('Lesson complete!');
+    } catch (_) { /* non-blocking */ }
+  }
+
+  function unlockNextLesson(completedId) {
+    // No-op: sequential locking removed. Lessons are all accessible once enrolled.
+    const idx = _seqList.findIndex(e => e.lessonId == completedId);
+    if (idx < 0 || idx >= _seqList.length - 1) return;
+    const nextId  = _seqList[idx + 1].lessonId;
+    const nextRow = document.getElementById('row-' + nextId);
+    if (!nextRow) return;
+    // Gentle fade-in to signal completion
+    nextRow.style.opacity    = '0.15';
+    nextRow.style.transition = 'opacity 0.5s ease';
+    requestAnimationFrame(() => requestAnimationFrame(() => { nextRow.style.opacity = ''; }));
+  }
+
+  /* ── Instrument SVG hero fill ── */
+  function _instrInner(category) {
+    const c = (category || '').toLowerCase();
+    if (c.includes('percussion') || c.includes('djembe') || c.includes('drum')) {
+      return `<ellipse cx="12" cy="5.5" rx="6" ry="1.8"/><path d="M6 5.5 L8 13 L10 19 L14 19 L16 13 L18 5.5 Z"/>`;
+    }
+    if (c.includes('sitar') || c.includes('tanpura') || c.includes('veena')) {
+      return `<circle cx="6.5" cy="18" r="4"/><path d="M9 15.5 L19.5 4.5 L21 6 L10.5 17 Z"/>`;
+    }
+    if (c.includes('vocal') || c.includes('voice') || c.includes('singing')) {
+      return `<rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/>`;
+    }
+    if (c.includes('kathak') || c.includes('dance')) {
+      return `<circle cx="12" cy="5" r="2.2"/><path d="M12 7 L12 14 L9 22 L11 22 L12 16 L13 22 L15 22 L12 14 Z"/>`;
+    }
+    return `<path d="M9 17V3l12-2v13"/><ellipse cx="6" cy="17" rx="3" ry="2.2"/><ellipse cx="15.5" cy="13.5" rx="3" ry="2.2"/>`;
+  }
+
+  function renderHeroInstrument(category) {
+    const inner  = _instrInner(category);
+    const maskId = 'imask-' + Math.random().toString(36).slice(2, 8);
+    return `<svg class="hero-inst-svg" id="hero-inst-svg" viewBox="0 0 24 24" aria-hidden="true" fill="var(--gold)">
+      <defs>
+        <mask id="${maskId}">
+          <rect width="24" height="24" fill="black"/>
+          <rect id="inst-fill-rect" x="0" y="24" width="24" height="0" fill="white"/>
+        </mask>
+      </defs>
+      <g opacity="0.18">${inner}</g>
+      <g mask="url(#${maskId})">${inner}</g>
+    </svg>`;
+  }
+
+  function updateInstrumentFill() {
+    const videoLessons = _allChapters.flatMap(ch =>
+      (ch.lessons || []).filter(l => (l.type || 'video') === 'video')
+    );
+    const total     = videoLessons.length;
+    const completed = videoLessons.filter(l => _completedSet.has(l.id)).length;
+    const fillRect  = document.getElementById('inst-fill-rect');
+    const svgEl     = document.getElementById('hero-inst-svg');
+    const counterEl = document.getElementById('hero-inst-counter');
+    if (!fillRect) return;
+    const pct = total > 0 ? Math.min(1, completed / total) : 0;
+    fillRect.setAttribute('y',      (24 - 24 * pct).toFixed(2));
+    fillRect.setAttribute('height', (24 * pct).toFixed(2));
+    if (svgEl)     svgEl.classList.toggle('has-fill', completed > 0);
+    if (counterEl) counterEl.textContent = `${completed} / ${total} lessons`;
   }
 </script>
 

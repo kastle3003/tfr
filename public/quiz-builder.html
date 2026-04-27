@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quiz Builder — The Foundation Room</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg:          #080706;
@@ -20,9 +20,9 @@
       --text:        #F0E6D3;
       --text-2:      #B8A898;
       --text-3:      #6B5E50;
-      --ruby:        #8B2E26;
+      --ruby:        #bf0000;
       --emerald:     #2D5A27;
-      --serif:       'Cormorant Garamond', Georgia, serif;
+      --serif:       'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
       --sans:        'DM Sans', sans-serif;
       --sidebar-w:   240px;
       --topbar-h:    60px;
@@ -168,7 +168,7 @@
     }
     .question-type-badge.tf { background: rgba(180,120,40,0.18); color: #D4963A; border-color: rgba(180,120,40,0.30); }
     .question-type-badge.short { background: rgba(107,94,80,0.20); color: var(--text-2); border-color: rgba(107,94,80,0.30); }
-    .question-type-badge.ear { background: rgba(139,46,38,0.18); color: #E07070; border-color: rgba(139,46,38,0.25); }
+    .question-type-badge.ear { background: rgba(191,0,0,0.18); color: #E07070; border-color: rgba(191,0,0,0.25); }
 
     /* Option rows — dark with gold accent */
     .option-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -235,7 +235,7 @@
     /* Badges */
     .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
     .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(200,168,75,0.25); }
-    .badge-crimson { background: rgba(139,46,38,0.20); color: #E07070; }
+    .badge-crimson { background: rgba(191,0,0,0.20); color: #E07070; }
     .badge-green { background: rgba(45,90,39,0.20); color: #6fcf6f; }
 
     /* Grid */
@@ -416,7 +416,7 @@
                 </div>
                 <div style="display:flex;gap:12px;margin-top:24px;">
                   <button class="btn btn-primary" style="flex:1;" onclick="saveQuiz()">Save Quiz</button>
-                  <button class="btn btn-ghost" onclick="deleteQuizConfirm()" id="delete-quiz-btn" style="color:#E07070;border:1px solid rgba(139,46,38,0.30);">Delete</button>
+                  <button class="btn btn-ghost" onclick="deleteQuizConfirm()" id="delete-quiz-btn" style="color:#E07070;border:1px solid rgba(191,0,0,0.30);">Delete</button>
                 </div>
               </div>
 

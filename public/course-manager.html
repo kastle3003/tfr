@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Course Manager — The Foundation Room</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/archive.css">
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
@@ -21,7 +21,7 @@
       --text: #F0E6D3;
       --text-2: #B8A898;
       --text-3: #6B5E50;
-      --serif: 'Cormorant Garamond', Georgia, serif;
+      --serif: 'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
       --sans: 'DM Sans', sans-serif;
     }
 
@@ -482,10 +482,10 @@
     .btn-ghost:hover { background: rgba(240,230,211,0.05); }
     .btn-danger-ghost {
       background: transparent;
-      border: 1px solid rgba(220,70,70,0.25);
-      color: #e08080;
+      border: 1px solid rgba(191,0,0,0.25);
+      color: #e60000;
     }
-    .btn-danger-ghost:hover { background: rgba(220,70,70,0.08); }
+    .btn-danger-ghost:hover { background: rgba(191,0,0,0.08); }
     .btn-sm { padding: 6px 14px; font-size: 12px; }
 
     /* ── Color swatch picker ── */
@@ -610,7 +610,7 @@
       cursor: pointer;
     }
     .icon-action:hover { background: rgba(200,168,75,0.08); color: var(--gold); }
-    .icon-action.danger:hover { background: rgba(220,70,70,0.1); color: #e08080; }
+    .icon-action.danger:hover { background: rgba(191,0,0,0.1); color: #e60000; }
 
     .chapter-lessons { padding: 6px 0 4px 26px; display: none; }
     .chapter-lessons.open { display: block; }
@@ -725,7 +725,7 @@
       color: var(--bg);
     }
     .mat-type-pill.type-video { background: #C8A84B; }
-    .mat-type-pill.type-pdf   { background: #B76A5F; }
+    .mat-type-pill.type-pdf   { background: #bf0000; }
     .mat-type-pill.type-image { background: #6A8F6E; }
     .mat-type-pill.type-url   { background: #5E7DB3; color: #F0E6D3; }
     .mat-input {
@@ -741,10 +741,10 @@
     }
     .mat-input:focus { border-color: var(--gold); color: var(--text); }
     .mat-del {
-      background: none; border: 1px solid rgba(200,46,38,0.25); color: #B76A5F;
+      background: none; border: 1px solid rgba(191,0,0,0.25); color: #bf0000;
       padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px;
     }
-    .mat-del:hover { color: #E88A7A; border-color: #B76A5F; }
+    .mat-del:hover { color: #E88A7A; border-color: #bf0000; }
     .mat-timestamps {
       grid-column: 1 / -1;
       margin: 4px 0 0 58px;
@@ -866,7 +866,7 @@
     }
     .badge-crimson {
       background: rgba(200,70,70,0.12);
-      color: #e08080;
+      color: #e60000;
       border: 1px solid rgba(200,70,70,0.2);
     }
 
@@ -1058,7 +1058,7 @@
       box-shadow: 0 4px 24px rgba(0,0,0,0.5);
       max-width: 360px;
     }
-    .toast.error { border-color: rgba(220,70,70,0.3); color: #f08080; }
+    .toast.error { border-color: rgba(191,0,0,0.3); color: #f08080; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
@@ -1205,7 +1205,7 @@
                     <label class="form-label">Cover Color</label>
                     <div class="swatch-row">
                       <div class="swatch-preset" style="background:#2D4F1E;" data-color="#2D4F1E" onclick="selectSwatch(this)"></div>
-                      <div class="swatch-preset" style="background:#8B2E26;" data-color="#8B2E26" onclick="selectSwatch(this)"></div>
+                      <div class="swatch-preset" style="background:#bf0000;" data-color="#bf0000" onclick="selectSwatch(this)"></div>
                       <div class="swatch-preset" style="background:#4A3728;" data-color="#4A3728" onclick="selectSwatch(this)"></div>
                       <div class="swatch-preset" style="background:#1A3050;" data-color="#1A3050" onclick="selectSwatch(this)"></div>
                       <div class="swatch-preset" style="background:#5C4033;" data-color="#5C4033" onclick="selectSwatch(this)"></div>
@@ -1251,6 +1251,13 @@
 
               <!-- ── Chapters & Lessons Tab ── -->
               <div class="editor-tab-panel" id="etab-chapters">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(200,168,75,0.08);">
+                  <div style="font-size:12px;color:var(--text-3);">Edit chapter and lesson names, types, and durations below, then save all at once.</div>
+                  <button class="btn btn-primary btn-sm" id="save-chapters-btn" onclick="saveAllChapters()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Save Changes
+                  </button>
+                </div>
                 <div id="chapters-container">
                   <div style="text-align:center;padding:30px;color:var(--text-3);">
                     <p style="font-size:13px;">Save the course first to manage chapters.</p>
@@ -1467,7 +1474,7 @@
   }
 
   // ── Render course list ──
-  function renderCourseList(courses) {
+  function renderCourseList(courses, animateIn = true) {
     const el = document.getElementById('course-list');
     if (!courses.length) {
       el.innerHTML = `<div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><p>No courses found. Create one!</p></div>`;
@@ -1486,10 +1493,12 @@
         </div>
       </div>
     `).join('');
-    // Animate items in
-    gsap.from(el.querySelectorAll('.course-list-item'), {
-      opacity: 0, x: -10, stagger: 0.05, duration: 0.4, ease: 'power2.out'
-    });
+    // Only animate on initial load — skip on post-save refresh to avoid flash
+    if (animateIn) {
+      gsap.from(el.querySelectorAll('.course-list-item:not(.selected)'), {
+        opacity: 0, x: -10, stagger: 0.05, duration: 0.4, ease: 'power2.out'
+      });
+    }
   }
 
   // ── Filter courses ──
@@ -1668,13 +1677,24 @@
         const course = result.course || result;
         selectedCourseId = course.id;
         isNewCourse = false;
-        await loadCourses();
+        const freshData = await api.get('/api/courses?status=all');
+        allCourses = freshData.courses || [];
+        renderCourseList(allCourses, false);
         toast('Course created successfully!');
         loadChapters(selectedCourseId);
         loadAssignments(selectedCourseId);
       } else {
         await api.put('/api/courses/' + selectedCourseId, payload);
-        await loadCourses();
+        // Update the list item in-place — no full re-render that causes a flash
+        const idx = allCourses.findIndex(c => c.id === selectedCourseId);
+        if (idx >= 0) {
+          allCourses[idx] = { ...allCourses[idx], ...payload, title: payload.title };
+          const listItem = document.getElementById('clist-' + selectedCourseId);
+          if (listItem) {
+            listItem.querySelector('.course-list-title').textContent = payload.title;
+            listItem.querySelector('.course-swatch').style.background = payload.cover_color || '#2D4F1E';
+          }
+        }
         toast('Course saved!');
       }
       document.getElementById('editor-course-title').textContent = payload.title;
@@ -1814,6 +1834,22 @@
       </div>`;
   }
 
+  // Sync all visible input values back into chaptersData so re-renders don't lose unsaved text
+  function syncInputsToData() {
+    chaptersData.forEach(ch => {
+      const chTitle = document.getElementById('ch-title-' + ch.id);
+      if (chTitle) ch.title = chTitle.value;
+      (ch.lessons || []).forEach(l => {
+        const t = document.getElementById('les-title-' + l.id);
+        const ty = document.getElementById('les-type-' + l.id);
+        const d = document.getElementById('les-dur-' + l.id);
+        if (t)  l.title = t.value;
+        if (ty) l.type = ty.value;
+        if (d)  l.duration_minutes = parseInt(d.value) || null;
+      });
+    });
+  }
+
   function escHtml(str) {
     return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
@@ -1827,6 +1863,7 @@
   async function addChapter() {
     if (!selectedCourseId) { toast('Save the course first.', 'error'); return; }
     try {
+      syncInputsToData();
       const data = await api.post('/api/chapters', {
         course_id: selectedCourseId,
         title: 'New Chapter',
@@ -1873,9 +1910,51 @@
     } catch (e) { toast(e.message, 'error'); }
   }
 
+  // ── Save all chapters + lessons in one shot ──
+  async function saveAllChapters() {
+    const btn = document.getElementById('save-chapters-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    syncInputsToData();
+    let saved = 0, failed = 0;
+    try {
+      for (const ch of chaptersData) {
+        try {
+          await api.put('/api/chapters/' + ch.id, {
+            title: ch.title,
+            order_index: ch.order_index || 0,
+            description: ch.description || '',
+            price_individual_paise: ch.price_individual_paise || 0
+          });
+        } catch (_) { failed++; }
+        for (const l of (ch.lessons || [])) {
+          try {
+            await api.put('/api/lessons/' + l.id, {
+              title: l.title,
+              type: l.type || 'video',
+              duration_minutes: l.duration_minutes || null,
+              order_index: l.order_index || 0
+            });
+            saved++;
+          } catch (_) { failed++; }
+        }
+      }
+      if (failed === 0) {
+        toast(`Saved ${saved} lesson${saved !== 1 ? 's' : ''} successfully!`);
+      } else {
+        toast(`Saved ${saved}, failed ${failed}`, 'error');
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Changes`;
+      }
+    }
+  }
+
   async function confirmDeleteChapter(id) {
     if (!confirm('Delete this chapter and all its lessons?')) return;
     try {
+      syncInputsToData();
       await api.del('/api/chapters/' + id);
       chaptersData = chaptersData.filter(c => c.id !== id);
       renderChapters();
@@ -1929,6 +2008,7 @@
         ch.practice_video_duration_seconds = data.chapter.practice_video_duration_seconds;
         ch.practice_video_title = data.chapter.practice_video_title;
       }
+      syncInputsToData();
       renderChapters();
       toast('Practice video uploaded.', 'success');
     } catch (e) {
@@ -1944,6 +2024,7 @@
         headers: { Authorization: 'Bearer ' + localStorage.getItem('archive_token') },
       });
       if (!res.ok) throw new Error('Clear failed');
+      syncInputsToData();
       const ch = chaptersData.find(c => c.id === chapterId);
       if (ch) {
         ch.practice_video_url = null;
@@ -1959,6 +2040,8 @@
 
   async function addLesson(chapterId, courseId) {
     try {
+      // Capture any unsaved input before re-rendering
+      syncInputsToData();
       const ch = chaptersData.find(c => c.id === chapterId);
       const data = await api.post('/api/lessons', {
         chapter_id: chapterId,
@@ -1968,7 +2051,6 @@
         duration_minutes: null,
         order_index: (ch?.lessons?.length || 0)
       });
-      // Backend returns { lesson: {...} }; tolerate an unwrapped response too.
       const lesson = data.lesson || data;
       if (ch) {
         ch.lessons = ch.lessons || [];
@@ -2004,6 +2086,7 @@
   async function confirmDeleteLesson(id, chapterId) {
     if (!confirm('Delete this lesson?')) return;
     try {
+      syncInputsToData();
       await api.del('/api/lessons/' + id);
       const ch = chaptersData.find(c => c.id === chapterId);
       if (ch) ch.lessons = ch.lessons.filter(l => l.id !== id);
@@ -2241,7 +2324,7 @@
       if (!val) { row.remove(); return; }
       const parsed = parseTimestamp(val, maxSecs);
       if (!parsed.ok) {
-        timeInput.style.borderColor = '#e05252';
+        timeInput.style.borderColor = '#bf0000';
         toast(parsed.error, 'error');
         timeInput.focus();
         return;
@@ -2262,7 +2345,7 @@
     const val = inputEl.value.trim();
     const parsed = parseTimestamp(val, maxSecs);
     if (!parsed.ok) {
-      inputEl.style.borderColor = '#e05252';
+      inputEl.style.borderColor = '#bf0000';
       toast(parsed.error, 'error');
       const mats = _materialsCache[lessonId] || [];
       const mat = mats.find(x => x.id === materialId);

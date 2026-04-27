@@ -6,7 +6,7 @@
   <title>Course — The Foundation Room</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -25,7 +25,7 @@
       --ghost-hi:    rgba(240,230,211,.18);
       --border:      rgba(200,168,75,.15);
       --border-hi:   rgba(200,168,75,.35);
-      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-display: 'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
       --font-body:    'DM Sans', system-ui, sans-serif;
       --radius:       4px;
       --max:          1280px;
@@ -295,6 +295,7 @@
       display: grid;
       grid-template-columns: minmax(280px, 1fr) 2.6fr;
       gap: 32px;
+      align-items: start;
     }
     @media (max-width: 860px) { .foundation-body { grid-template-columns: 1fr; gap: 18px; } }
 
@@ -303,7 +304,28 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 10px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(200,168,75,0.15) transparent;
     }
+    .foundation-lessons::-webkit-scrollbar { width: 3px; }
+    .foundation-lessons::-webkit-scrollbar-track { background: transparent; }
+    .foundation-lessons::-webkit-scrollbar-thumb { background: rgba(200,168,75,0.2); border-radius: 2px; }
+    .lesson-item.completed { opacity: 1; }
+    .lesson-item.completed .l-icon { color: var(--gold); }
+    .lesson-item.seq-locked { opacity: 0.38; cursor: pointer; }
+    .seq-lock-toast {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      background: rgba(10,8,6,0.97);
+      border: 1px solid rgba(200,168,75,0.3);
+      border-left: 3px solid var(--gold);
+      border-radius: 4px; padding: 11px 16px;
+      font-size: 13px; color: var(--cream-dim);
+      max-width: 310px; pointer-events: none;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity .2s, transform .2s;
+    }
+    .seq-lock-toast.show { opacity: 1; transform: none; }
     .lesson-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
     .lesson-item {
       display: flex; flex-direction: column;
@@ -445,6 +467,42 @@
       background: var(--ghost-mid);
       min-height: 42px;
     }
+
+    /* ─── VIDEO CONTROL BAR ─── */
+    .video-ctrl-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 12px;
+      background: rgba(8,7,6,0.98);
+      border-top: 1px solid rgba(200,168,75,0.07);
+      min-height: 34px; flex-shrink: 0;
+    }
+    .video-ctrl-bar:empty { display: none; }
+    .vcl-play-btn {
+      background: none; border: none; padding: 2px 4px;
+      color: rgba(240,230,211,0.75); cursor: pointer;
+      display: flex; align-items: center; flex-shrink: 0;
+      transition: color .15s;
+    }
+    .vcl-play-btn:hover { color: var(--gold); }
+    .vcl-play-btn svg { width: 13px; height: 13px; fill: currentColor; }
+    .vcl-time {
+      font-size: 11px; color: rgba(240,230,211,0.45);
+      font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    .vcl-vol { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .vcl-vol-btn {
+      background: none; border: none; padding: 0;
+      color: rgba(240,230,211,0.65); cursor: pointer;
+      display: flex; align-items: center; flex-shrink: 0;
+      transition: color .15s;
+    }
+    .vcl-vol-btn:hover { color: var(--gold); }
+    .vcl-vol-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .vcl-vol-btn .vol-hi { display: block; }
+    .vcl-vol-btn .vol-mute { display: none; }
+    .vcl-vol-btn.muted .vol-hi { display: none; }
+    .vcl-vol-btn.muted .vol-mute { display: block; }
+    .vcl-vol-slider { width: 68px; accent-color: var(--gold); cursor: pointer; }
 
     /* Practice Room CTA below the player — LOCKED for now.
        Fills the player box width; shows "Coming soon" on hover/tap.
@@ -665,6 +723,16 @@
     /* ─── REVEAL ANIM ─── */
     .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
     .reveal.visible { opacity: 1; transform: none; }
+
+    /* ─── CURRICULUM FULL-WIDTH WRAPPER ─── */
+    .curriculum-wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 40px 80px 0;
+    }
+    .curriculum-wrap .curriculum-section { margin-bottom: 0; }
+    @media (max-width: 900px) { .curriculum-wrap { padding: 32px 24px 0; } }
+    @media (max-width: 600px) { .curriculum-wrap { padding: 20px 16px 0; } }
   </style>
   <link rel="stylesheet" href="/assets/css/enroll-modal.css">
 </head>
@@ -672,10 +740,6 @@
 
 <!-- NAV -->
 <nav>
-  <a href="/" class="nav-back">
-    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    TFR
-  </a>
   <a href="/" class="nav-logo">
     <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;">
   </a>
@@ -971,6 +1035,7 @@ async function renderPage(data) {
                 <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
               </button>
               <div class="video-slot" id="video-slot"></div>
+              <div class="video-ctrl-bar" id="video-ctrl-bar"></div>
               <div class="video-title-row" id="video-title">Select a lesson to preview</div>
             </div>
           </div>
@@ -1079,6 +1144,23 @@ async function renderPage(data) {
 
   document.getElementById('app').innerHTML = html;
 
+  // Move curriculum section to full-width strip above the page-wrap
+  (function moveCurriculum() {
+    const cs = document.querySelector('.curriculum-section');
+    const pw = document.querySelector('.page-wrap');
+    if (!cs || !pw) return;
+    // Remove the orphaned <hr> that was immediately before the curriculum section
+    let prev = cs.previousElementSibling;
+    while (prev && prev.tagName !== 'HR' && prev.tagName !== 'DIV') prev = prev.previousElementSibling;
+    if (prev && prev.tagName === 'HR') prev.remove();
+    cs.classList.remove('section', 'reveal');
+    const wrap = document.createElement('div');
+    wrap.className = 'curriculum-wrap';
+    cs.parentNode.removeChild(cs);
+    wrap.appendChild(cs);
+    pw.parentNode.insertBefore(wrap, pw);
+  })();
+
   // ─── GSAP Animations after render ───
   // Hero title words stagger
   const heroTitle = document.querySelector('.hero-title');
@@ -1172,6 +1254,22 @@ let _landingData = null;
 let _isEnrolled = false;
 let _hasBundlePurchase = false;
 let _purchasedChapterIds = new Set();
+let _completedLessons = new Set();
+let _syncHtTimer;
+
+function _syncFoundationHeight() {
+  const section = document.querySelector('.curriculum-section');
+  if (section && section.classList.contains('theater')) return;
+  const player = document.querySelector('.foundation-player');
+  const lessons = document.querySelector('.foundation-lessons');
+  if (!player || !lessons) return;
+  const h = player.offsetHeight;
+  if (h > 0) lessons.style.maxHeight = h + 'px';
+}
+window.addEventListener('resize', () => {
+  clearTimeout(_syncHtTimer);
+  _syncHtTimer = setTimeout(_syncFoundationHeight, 80);
+});
 const _origRenderForFoundations = renderPage;
 renderPage = async function patched(data) {
   _landingData = data;
@@ -1220,6 +1318,7 @@ function selectFoundation(chId, autoLoadVideo) {
       _markSelectedLesson(chId, first.id);
     } else {
       _showLockedPlayer('No free preview in this foundation');
+      requestAnimationFrame(_syncFoundationHeight);
     }
   }
 }
@@ -1233,11 +1332,22 @@ function _chapterAccessible(chId) {
 }
 
 function _findFirstPlayable(chId) {
-  if (!isLoggedIn()) return null; // guests never auto-play
+  if (!isLoggedIn()) return null;
   const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
   if (!ch) return null;
-  // First video lesson is always playable for logged-in users (free preview or owned)
-  return (ch.lessons || []).find(l => (l.materials || []).some(m => m.type === 'video' && m.url)) || null;
+  const hasAccess = _chapterAccessible(ch.id);
+  const videoLessons = (ch.lessons || []).filter(l =>
+    (l.materials || []).some(m => m.type === 'video' && m.url)
+  );
+  if (!videoLessons.length) return null;
+  if (!hasAccess) return videoLessons[0]; // free preview: always first
+  // Find first uncompleted lesson that is sequentially unlocked
+  for (let i = 0; i < videoLessons.length; i++) {
+    const unlocked = i === 0 || _completedLessons.has(videoLessons[i - 1].id);
+    if (unlocked && !_completedLessons.has(videoLessons[i].id)) return videoLessons[i];
+  }
+  // All unlocked lessons completed: return the last one
+  return videoLessons[videoLessons.length - 1];
 }
 
 function renderLessonList(chId) {
@@ -1249,36 +1359,59 @@ function renderLessonList(chId) {
     return;
   }
   const hasAccess = _chapterAccessible(ch.id);
+
+  // Build ordered list of video lessons for sequential unlock
+  const videoLessonsSeq = (ch.lessons || []).filter(l =>
+    (l.materials || []).some(m => m.type === 'video' && m.url)
+  );
+  function seqUnlocked(lessonId) {
+    const idx = videoLessonsSeq.findIndex(l => l.id == lessonId);
+    if (idx < 0) return false;
+    if (idx === 0) return true;
+    return _completedLessons.has(videoLessonsSeq[idx - 1].id);
+  }
+
   let firstVideoMarked = false;
 
   list.innerHTML = (ch.lessons || []).map((l, i) => {
     const video = (l.materials || []).find(m => m.type === 'video' && m.url);
-
-    // First video lesson in this chapter = free preview slot
     const isFreeSlot = video && !firstVideoMarked;
     if (video) firstVideoMarked = true;
 
-    const playable = (hasAccess && !!video) || (isFreeSlot && isLoggedIn());
+    const isCompleted = _completedLessons.has(l.id);
+    const unlocked = hasAccess && seqUnlocked(l.id);
+    const canPlay = (unlocked || isCompleted) || (isFreeSlot && isLoggedIn() && !hasAccess);
     const isGuestPreview = isFreeSlot && !isLoggedIn();
+    const isSeqLocked = hasAccess && !!video && !unlocked && !isCompleted;
 
     let click, extraClass;
-    if (playable) {
+    if (canPlay) {
       click = `onclick="selectLesson('${ch.id}', ${l.id})"`;
-      extraClass = '';
+      extraClass = isCompleted ? ' completed' : '';
     } else if (isGuestPreview) {
-      // Guest clicks preview → send to sign-in
       click = `onclick="window.location.href='/signin.html'"`;
       extraClass = ' guest-preview';
     } else if (!hasAccess && isLoggedIn()) {
-      // Logged-in, not purchased → open pay modal
       click = `onclick="openEnrollModal(${_landingData.course.id})"`;
       extraClass = ' locked';
+    } else if (isSeqLocked) {
+      click = 'onclick="_showSeqLockMsg()"';
+      extraClass = ' locked seq-locked';
     } else {
       click = '';
       extraClass = ' locked';
     }
 
-    const timestamps = playable ? (video?.timestamps || []) : [];
+    let icon;
+    if (isCompleted) {
+      icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    } else if (canPlay) {
+      icon = _playIconSvg();
+    } else {
+      icon = _lockIconSvg();
+    }
+
+    const timestamps = canPlay ? (video?.timestamps || []) : [];
     const tsHtml = timestamps.length
       ? `<div class="l-timestamps">${timestamps.map(t => {
           const m = Math.floor(t.time_seconds / 60);
@@ -1287,19 +1420,21 @@ function renderLessonList(chId) {
         }).join('')}</div>`
       : '';
 
-    const badge = isFreeSlot
+    const badge = isFreeSlot && !hasAccess
       ? ' <span style="font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-left:4px;">Free Preview</span>'
       : '';
 
     return `<li class="lesson-item${extraClass}" data-lesson="${l.id}" data-title="${(l.title || '').replace(/"/g,'&quot;')}" ${click}>
       <div class="l-row">
         <span class="l-num">${i + 1}</span>
-        <span class="l-icon">${playable ? _playIconSvg() : _lockIconSvg()}</span>
+        <span class="l-icon">${icon}</span>
         <span class="l-name">${l.title || ''}${badge}</span>
         <span class="l-dur">${_lessonDisplayDuration(l)}</span>
       </div>${tsHtml}
     </li>`;
   }).join('');
+
+  requestAnimationFrame(_syncFoundationHeight);
 }
 
 function _markSelectedLesson(chId, lessonId) {
@@ -1317,56 +1452,127 @@ function selectLesson(chId, lessonId) {
 }
 
 function _loadLessonIntoPlayer(lesson, autoplay) {
-  const slot = document.getElementById('video-slot');
+  const slot    = document.getElementById('video-slot');
+  const ctrlBar = document.getElementById('video-ctrl-bar');
   const titleEl = document.getElementById('video-title');
   const vid = (lesson.materials || []).find(m => m.type === 'video' && m.url);
   if (!vid) { _showLockedPlayer(lesson.title); return; }
 
+  slot.classList.remove('playing');
+  if (ctrlBar) ctrlBar.innerHTML = '';
+
   const url = vid.url;
   const isIframeHost = /youtube\.com|youtu\.be|vimeo\.com/i.test(url);
-  slot.classList.remove('playing');
+
+  const PLAY_ICON  = '<svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/></svg>';
+  const PAUSE_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+  const VOL_ICON   = `<svg class="vol-hi" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+    <svg class="vol-mute" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
 
   if (isIframeHost) {
     const embed = _toEmbed(url);
-    const sep = embed.includes('?') ? '&' : '?';
-    slot.innerHTML = `<iframe src="${embed}${autoplay ? sep + 'autoplay=1' : ''}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+    const sep   = embed.includes('?') ? '&' : '?';
+    slot.innerHTML = `<iframe src="${embed}${sep}enablejsapi=1${autoplay ? '&autoplay=1' : ''}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+
+    if (ctrlBar) {
+      ctrlBar.innerHTML = `<div class="vcl-vol"><button class="vcl-vol-btn" id="_yvb" type="button" title="Volume">${VOL_ICON}</button><input class="vcl-vol-slider" id="_yvs" type="range" min="0" max="1" step="0.02" value="1"></div>`;
+      const iframe  = slot.querySelector('iframe');
+      const slider  = ctrlBar.querySelector('#_yvs');
+      const volBtn  = ctrlBar.querySelector('#_yvb');
+      function ytCmd(func, args) {
+        try { iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: args || [] }), '*'); } catch(_) {}
+      }
+      slider.addEventListener('input', () => {
+        const pct = parseFloat(slider.value);
+        ytCmd('setVolume', [Math.round(pct * 100)]);
+        if (pct === 0) { ytCmd('mute'); volBtn.classList.add('muted'); }
+        else { ytCmd('unMute'); volBtn.classList.remove('muted'); }
+      });
+      volBtn.addEventListener('click', () => {
+        if (volBtn.classList.contains('muted')) {
+          slider.value = 0.8; ytCmd('unMute'); ytCmd('setVolume', [80]); volBtn.classList.remove('muted');
+        } else {
+          slider.value = 0; ytCmd('mute'); ytCmd('setVolume', [0]); volBtn.classList.add('muted');
+        }
+      });
+    }
   } else {
-    // HTML5 video with custom no-seeker controls
     slot.innerHTML = `
       <video preload="auto" playsinline oncontextmenu="return false;" src="${url}"></video>
       <div class="video-overlay">
-        <button class="video-play-btn" aria-label="Play" type="button">${_playIconSvg()}</button>
+        <button class="video-play-btn" type="button" aria-label="Play">${_playIconSvg()}</button>
       </div>
-      <div class="video-progress-bar"><div class="video-progress-fill" id="video-progress-fill"></div></div>
-    `;
-    const v = slot.querySelector('video');
-    const btn = slot.querySelector('.video-play-btn');
-    const fill = slot.querySelector('.video-progress-fill');
-    const toggle = () => { if (v.paused) v.play().catch(()=>{}); else v.pause(); };
-    btn.addEventListener('click', toggle);
+      <div class="video-progress-bar"><div class="video-progress-fill"></div></div>`;
+
+    const v      = slot.querySelector('video');
+    const bigBtn = slot.querySelector('.video-play-btn');
+    const fill   = slot.querySelector('.video-progress-fill');
+
+    function fmtT(s) { s = Math.floor(s || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+
+    if (ctrlBar) {
+      ctrlBar.innerHTML = `
+        <button class="vcl-play-btn" id="_vpb" type="button" title="Play / Pause">${PLAY_ICON}</button>
+        <span class="vcl-time" id="_vt">0:00 / 0:00</span>
+        <div class="vcl-vol">
+          <button class="vcl-vol-btn" id="_vvb" type="button" title="Mute">${VOL_ICON}</button>
+          <input class="vcl-vol-slider" id="_vvs" type="range" min="0" max="1" step="0.02" value="1">
+        </div>`;
+    }
+    const playBtn   = ctrlBar && ctrlBar.querySelector('#_vpb');
+    const timeEl    = ctrlBar && ctrlBar.querySelector('#_vt');
+    const volBtn    = ctrlBar && ctrlBar.querySelector('#_vvb');
+    const volSlider = ctrlBar && ctrlBar.querySelector('#_vvs');
+
+    const toggle = () => v.paused ? v.play().catch(() => {}) : v.pause();
+    bigBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
     v.addEventListener('click', toggle);
-    v.addEventListener('play', () => slot.classList.add('playing'));
-    v.addEventListener('pause', () => slot.classList.remove('playing'));
+    playBtn && playBtn.addEventListener('click', toggle);
+
+    v.addEventListener('play',  () => { slot.classList.add('playing');    if (playBtn) playBtn.innerHTML = PAUSE_ICON; });
+    v.addEventListener('pause', () => { slot.classList.remove('playing'); if (playBtn) playBtn.innerHTML = PLAY_ICON;  });
     v.addEventListener('ended', () => {
       slot.classList.remove('playing');
+      if (playBtn) playBtn.innerHTML = PLAY_ICON;
       _autoMarkComplete(lesson.id);
     });
-    // Visual-only progress
+
     v.addEventListener('timeupdate', () => {
-      if (v.duration) fill.style.width = ((v.currentTime / v.duration) * 100) + '%';
+      if (!v.duration) return;
+      fill.style.width = (v.currentTime / v.duration * 100) + '%';
+      if (timeEl) timeEl.textContent = fmtT(v.currentTime) + ' / ' + fmtT(v.duration);
     });
-    // Anti-scrub: if any code tries to seek, snap back. (UI exposes no seek path,
-    // but this blocks keyboard shortcuts and programmatic seeks.)
+    v.addEventListener('loadedmetadata', () => {
+      if (timeEl) timeEl.textContent = '0:00 / ' + fmtT(v.duration);
+    });
+
+    if (volSlider) {
+      volSlider.addEventListener('input', () => {
+        v.volume = parseFloat(volSlider.value);
+        v.muted  = v.volume === 0;
+        if (volBtn) v.muted ? volBtn.classList.add('muted') : volBtn.classList.remove('muted');
+      });
+    }
+    if (volBtn) {
+      volBtn.addEventListener('click', () => {
+        v.muted = !v.muted;
+        v.muted ? volBtn.classList.add('muted') : volBtn.classList.remove('muted');
+        if (volSlider) volSlider.value = v.muted ? 0 : (v.volume || 0.8);
+      });
+    }
+
+    // Block only deliberate large seeks (keyboard shortcuts); allow buffering
     let _lastT = 0;
     v.addEventListener('timeupdate', () => { _lastT = v.currentTime; });
     v.addEventListener('seeking', () => {
-      if (Math.abs(v.currentTime - _lastT) > 1.25) {
-        v.currentTime = _lastT;
-      }
+      if (Math.abs(v.currentTime - _lastT) > 30) v.currentTime = _lastT;
     });
+
     if (autoplay) v.play().catch(() => {});
   }
+
   titleEl.textContent = lesson.title || '';
+  requestAnimationFrame(_syncFoundationHeight);
 }
 
 async function _autoMarkComplete(lessonId) {
@@ -1376,14 +1582,28 @@ async function _autoMarkComplete(lessonId) {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }
     });
-    loadUserProgress();
+    _completedLessons.add(lessonId);
+    // Sync into _landingData so sequential checks stay consistent
+    (_landingData && _landingData.chapters || []).forEach(ch =>
+      (ch.lessons || []).forEach(l => { if (l.id == lessonId) l.completed = true; })
+    );
+    // Refresh progress ring
+    if (_landingData && _landingData.course) {
+      const total = _countVideoLessons(_landingData);
+      renderCourseProgress(total, _completedLessons.size, _landingData.course.instrument || '');
+    }
+    // Re-render lesson list to unlock the next lesson
+    const activeTab = document.querySelector('.foundation-tab.active');
+    if (activeTab) renderLessonList(activeTab.dataset.ch);
   } catch (_) { /* non-blocking */ }
 }
 
 function _showLockedPlayer(title) {
-  const slot = document.getElementById('video-slot');
+  const slot    = document.getElementById('video-slot');
+  const ctrlBar = document.getElementById('video-ctrl-bar');
   const titleEl = document.getElementById('video-title');
   slot.classList.remove('playing');
+  if (ctrlBar) ctrlBar.innerHTML = '';
   const loggedIn = isLoggedIn();
   const enrolled = _isEnrolled;
   const msg = !loggedIn
@@ -1408,6 +1628,21 @@ function _showLockedPlayer(title) {
   titleEl.textContent = '';
 }
 
+let _seqToastTimer;
+function _showSeqLockMsg() {
+  let toast = document.getElementById('_seq-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = '_seq-toast';
+    toast.className = 'seq-lock-toast';
+    toast.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" style="color:var(--gold);vertical-align:middle;margin-right:7px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Please complete the earlier lesson to watch this one.';
+    document.body.appendChild(toast);
+  }
+  clearTimeout(_seqToastTimer);
+  toast.classList.add('show');
+  _seqToastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
 function _toEmbed(url) {
   const id = (url.match(/youtu\.be\/([\w-]+)/) || [])[1]
           || (url.match(/[?&]v=([\w-]+)/) || [])[1]
@@ -1430,16 +1665,16 @@ function _lessonSeconds(l) {
 }
 function _fmtSeconds(sec) {
   sec = Math.max(0, Math.round(Number(sec) || 0));
-  if (sec === 0) return '0s';
-  if (sec < 60) return sec + 's';
+  if (sec === 0) return '—';
   if (sec < 3600) {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
-    return s ? `${m}m ${s}s` : `${m}m`;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
   const h = Math.floor(sec / 3600);
   const m = Math.floor((sec % 3600) / 60);
-  return m ? `${h}h ${m}m` : `${h}h`;
+  const s = sec % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 function _lessonDisplayDuration(l) {
   const s = _lessonSeconds(l);
@@ -1519,16 +1754,30 @@ async function loadUserProgress() {
   const total = _countVideoLessons(_landingData);
   const instrument = _landingData.course.instrument || '';
 
-  // Default render: 0 completed
   renderCourseProgress(total, 0, instrument);
 
   const token = localStorage.getItem('archive_token');
-  if (!token) return; // anonymous — leave as all-empty
+  if (!token) return;
   try {
     const data = await api.get('/api/courses/' + _landingData.course.id + '/chapters');
-    const completed = (data.chapters || []).reduce((a, ch) =>
-      a + (ch.lessons || []).filter(l => (l.type || '').toLowerCase() === 'video' && l.completed).length, 0);
-    renderCourseProgress(total, completed, instrument);
+    _completedLessons = new Set();
+    (data.chapters || []).forEach(ch => {
+      (ch.lessons || []).forEach(l => {
+        if ((l.type || '').toLowerCase() === 'video' && l.completed) {
+          _completedLessons.add(l.id);
+        }
+      });
+    });
+    // Sync completion into _landingData for sequential checks
+    (_landingData.chapters || []).forEach(ch => {
+      (ch.lessons || []).forEach(l => {
+        if (_completedLessons.has(l.id)) l.completed = true;
+      });
+    });
+    renderCourseProgress(total, _completedLessons.size, instrument);
+    // Re-render active lesson list to reflect unlock state
+    const activeTab = document.querySelector('.foundation-tab.active');
+    if (activeTab) renderLessonList(activeTab.dataset.ch);
   } catch (_) { /* not enrolled / auth fail — stay at 0 */ }
 }
 
@@ -1540,23 +1789,59 @@ renderPage = async function wrappedForProgress(data) {
   return out;
 };
 
+function _updateExpandBtn(on) {
+  const btn = document.getElementById('video-expand-btn');
+  if (!btn) return;
+  btn.setAttribute('aria-label', on ? 'Shrink' : 'Expand');
+  btn.setAttribute('title', on ? 'Exit fullscreen (Esc)' : 'Expand to fullscreen');
+  btn.innerHTML = on
+    ? '<svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>'
+    : '<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+}
+
 function toggleCurriculumTheater() {
   const section = document.querySelector('.curriculum-section');
   if (!section) return;
   const on = section.classList.toggle('theater');
   document.body.classList.toggle('curriculum-theater-on', on);
-  const btn = document.getElementById('video-expand-btn');
-  if (btn) {
-    btn.setAttribute('aria-label', on ? 'Shrink' : 'Expand');
-    btn.setAttribute('title', on ? 'Exit full-size (Esc)' : 'Expand to full-size');
-    btn.innerHTML = on
-      ? '<svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>'
-      : '<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+  const lessonsEl = document.querySelector('.foundation-lessons');
+  if (lessonsEl) lessonsEl.style.maxHeight = on ? '' : '';
+  if (on) {
+    const req = document.documentElement.requestFullscreen
+      || document.documentElement.webkitRequestFullscreen
+      || document.documentElement.mozRequestFullScreen
+      || document.documentElement.msRequestFullscreen;
+    if (req) req.call(document.documentElement).catch(() => {});
+  } else {
+    const isFs = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+    if (isFs) {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+      if (exit) exit.call(document).catch(() => {});
+    }
+  }
+  _updateExpandBtn(on);
+}
+
+function _onFullscreenChange() {
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  if (!isFs) {
+    const section = document.querySelector('.curriculum-section');
+    if (section && section.classList.contains('theater')) {
+      section.classList.remove('theater');
+      document.body.classList.remove('curriculum-theater-on');
+      _updateExpandBtn(false);
+      requestAnimationFrame(_syncFoundationHeight);
+    }
   }
 }
+document.addEventListener('fullscreenchange', _onFullscreenChange);
+document.addEventListener('webkitfullscreenchange', _onFullscreenChange);
+document.addEventListener('msfullscreenchange', _onFullscreenChange);
 
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
+  // If browser is handling native fullscreen exit, let fullscreenchange handle it
+  if (document.fullscreenElement || document.webkitFullscreenElement) return;
   const section = document.querySelector('.curriculum-section');
   if (section && section.classList.contains('theater')) toggleCurriculumTheater();
 });

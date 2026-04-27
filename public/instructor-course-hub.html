@@ -21,7 +21,7 @@
   <title>Course Hub — The Foundation Room</title>
   <meta name="description" content="Manage your course, upload content, track students, and communicate — all in one place.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/archive.css">
   <style>
     /* ── Tabs ── */
@@ -56,20 +56,58 @@
     .chapter-block.open .ch-expand { transform:rotate(90deg); }
     .ch-title { flex:1; font-weight:600; font-size:14px; color:var(--text); }
     .ch-meta { font-size:11px; color:var(--text-3); }
-    .lessons-list { border-top:1px solid rgba(200,168,75,0.08); display:none; }
+    .lessons-list { border-top:1px solid rgba(200,168,75,0.08); display:none; padding:6px 0 4px 20px; }
     .chapter-block.open .lessons-list { display:block; }
-    .lesson-row { display:flex; align-items:center; gap:12px; padding:10px 18px 10px 38px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:13px; transition:background .15s; }
-    .lesson-row:last-child { border-bottom:none; }
-    .lesson-row:hover { background:rgba(200,168,75,0.03); }
-    .type-pill { font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:20px; flex-shrink:0; }
-    .pill-video    { background:rgba(139,46,38,0.2); color:#E07A72; }
-    .pill-exercise { background:rgba(34,139,34,0.15); color:#72C472; }
-    .pill-reading  { background:rgba(200,168,75,0.15); color:var(--gold); }
-    .free-badge { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; background:rgba(200,168,75,0.2); color:var(--gold); border:1px solid rgba(200,168,75,0.3); padding:1px 6px; border-radius:20px; flex-shrink:0; }
-    .lesson-name { flex:1; color:var(--text-2); }
-    .lesson-dur { font-size:11px; color:var(--text-3); }
-    .add-lesson-row { display:flex; align-items:center; gap:12px; padding:8px 18px 8px 38px; font-size:12px; color:var(--text-3); font-style:italic; cursor:pointer; opacity:.6; transition:opacity .2s; }
+    .lesson-row { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:7px; transition:background .13s; margin-bottom:2px; }
+    .lesson-row:hover { background:rgba(200,168,75,0.05); }
+    .lesson-type-icon { font-size:14px; flex-shrink:0; }
+    .lesson-title-input { flex:1; background:none; border:none; outline:none; font-size:13px; color:var(--text-2); font-family:var(--sans); min-width:0; }
+    .lesson-title-input:focus { background:rgba(200,168,75,0.06); border-radius:4px; padding:2px 6px; color:var(--text); }
+    .lesson-duration { width:56px; border:1px solid rgba(200,168,75,0.15); border-radius:5px; padding:3px 6px; font-size:12px; font-family:var(--sans); color:var(--text-2); background:var(--bg-2); text-align:center; outline:none; }
+    .lesson-duration:focus { border-color:var(--gold); }
+    .lesson-type-select { width:88px; border:1px solid rgba(200,168,75,0.15); border-radius:5px; padding:3px 6px; font-size:11px; font-family:var(--sans); color:var(--text-2); background:var(--bg-2); outline:none; cursor:pointer; }
+    .lesson-type-select:focus { border-color:var(--gold); }
+    .lesson-type-select option { background:var(--bg-elevated); }
+    .icon-action { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:var(--text-3); transition:all 0.14s; background:none; border:none; cursor:pointer; }
+    .icon-action:hover { background:rgba(200,168,75,0.08); color:var(--gold); }
+    .icon-action.danger:hover { background:rgba(191,0,0,0.1); color:#e60000; }
+    .lesson-mat-toggle { background:none; border:1px solid rgba(200,168,75,0.15); color:var(--text-3); font-size:11px; font-family:var(--sans); padding:3px 8px; border-radius:5px; cursor:pointer; letter-spacing:0.02em; }
+    .lesson-mat-toggle:hover { color:var(--gold); border-color:rgba(200,168,75,0.4); }
+    .lesson-mat-toggle.open { color:var(--gold); border-color:var(--gold); }
+    .lesson-mat-panel { margin:4px 0 10px 36px; padding:10px 12px; border-left:2px solid rgba(200,168,75,0.15); background:rgba(200,168,75,0.03); border-radius:0 6px 6px 0; }
+    .lesson-mat-panel[hidden] { display:none !important; }
+    .mat-add-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+    .mat-add-btn { background:var(--bg-2); border:1px solid rgba(200,168,75,0.15); color:var(--text-2); font-size:11px; font-family:var(--sans); padding:4px 10px; border-radius:5px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
+    .mat-add-btn:hover { color:var(--gold); border-color:rgba(200,168,75,0.4); }
+    .mat-item { display:grid; grid-template-columns:52px 1fr 2fr 76px auto; gap:6px; align-items:center; padding:5px 0; border-top:1px solid rgba(200,168,75,0.06); }
+    .mat-item:first-of-type { border-top:none; }
+    .mat-type-pill { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; text-align:center; padding:3px 0; border-radius:4px; color:var(--bg); }
+    .mat-type-pill.type-video { background:#C8A84B; }
+    .mat-type-pill.type-pdf   { background:#bf0000; }
+    .mat-type-pill.type-image { background:#6A8F6E; }
+    .mat-type-pill.type-url   { background:#5E7DB3; color:#F0E6D3; }
+    .mat-input { background:var(--bg-2); border:1px solid rgba(200,168,75,0.12); color:var(--text-2); border-radius:4px; padding:4px 7px; font-size:11px; font-family:var(--sans); outline:none; min-width:0; }
+    .mat-input:focus { border-color:var(--gold); color:var(--text); }
+    .mat-del { background:none; border:1px solid rgba(191,0,0,0.25); color:#bf0000; padding:3px 6px; border-radius:4px; cursor:pointer; font-size:10px; }
+    .mat-del:hover { color:#E88A7A; border-color:#bf0000; }
+    .mat-timestamps { grid-column:1 / -1; margin:4px 0 0 58px; padding:6px 8px 8px; background:rgba(0,0,0,0.25); border-radius:5px; }
+    .mat-ts-head { display:flex; justify-content:space-between; align-items:center; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-3); margin-bottom:5px; }
+    .mat-ts-head button { background:none; border:1px solid rgba(200,168,75,0.2); color:rgba(200,168,75,0.7); font-size:10px; padding:2px 6px; border-radius:3px; cursor:pointer; font-family:var(--sans); letter-spacing:0.05em; }
+    .mat-ts-head button:hover { color:var(--gold); border-color:var(--gold); }
+    .mat-ts-row { display:grid; grid-template-columns:70px 1fr auto; gap:5px; align-items:center; padding:2px 0; }
+    .mat-ts-time { width:70px; text-align:center; background:var(--bg-2); border:1px solid rgba(200,168,75,0.1); color:var(--text-2); font-size:10px; padding:3px; border-radius:3px; outline:none; font-family:monospace; }
+    .mat-ts-time:focus { border-color:var(--gold); color:var(--text); }
+    .mat-ts-label-input { background:var(--bg-2); border:1px solid rgba(200,168,75,0.1); color:var(--text-2); font-size:11px; padding:3px 6px; border-radius:3px; outline:none; }
+    .mat-ts-label-input:focus { border-color:var(--gold); color:var(--text); }
+    .add-lesson-row { display:flex; align-items:center; gap:12px; padding:4px 0 4px 10px; font-size:12px; color:var(--text-3); font-style:italic; cursor:pointer; opacity:.6; transition:opacity .2s; }
     .add-lesson-row:hover { opacity:1; }
+    .drag-handle { color:var(--text-3); cursor:grab; flex-shrink:0; opacity:.4; transition:opacity .15s; display:flex; align-items:center; }
+    .drag-handle:hover { opacity:1; }
+    .drag-handle:active { cursor:grabbing; }
+    .chapter-drag-handle { padding:0 6px 0 0; }
+    .lesson-drag-handle { padding:0 4px; }
+    .chapter-block.drag-over { outline:2px solid var(--gold); outline-offset:-2px; border-radius:var(--r-md); }
+    .lesson-row.drag-over-lesson { border-top:2px solid var(--gold); }
 
     /* ── Upload Panel ── */
     .upload-panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:200; display:none; align-items:flex-end; justify-content:flex-end; }
@@ -94,7 +132,7 @@
     .upload-card:hover { border-color:rgba(200,168,75,0.4); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.25); }
     .upload-card:hover::before { opacity:1; }
     .uc-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; font-size:17px; }
-    .uc-red{background:rgba(139,46,38,0.2)} .uc-gold{background:rgba(200,168,75,0.15)} .uc-green{background:rgba(34,139,34,0.12)} .uc-blue{background:rgba(50,120,200,0.15)} .uc-purple{background:rgba(120,50,180,0.15)} .uc-teal{background:rgba(20,160,160,0.15)}
+    .uc-red{background:rgba(191,0,0,0.2)} .uc-gold{background:rgba(200,168,75,0.15)} .uc-green{background:rgba(34,139,34,0.12)} .uc-blue{background:rgba(50,120,200,0.15)} .uc-purple{background:rgba(120,50,180,0.15)} .uc-teal{background:rgba(20,160,160,0.15)}
     .uc-title { font-weight:600; font-size:13.5px; color:var(--text); margin-bottom:4px; }
     .uc-desc { font-size:12px; color:var(--text-3); line-height:1.6; }
 
@@ -119,7 +157,7 @@
     .a-val { font-family:var(--serif); font-size:32px; font-weight:600; color:var(--gold); line-height:1; margin-bottom:6px; }
     .a-lbl { font-size:11px; color:var(--text-3); letter-spacing:.04em; text-transform:uppercase; }
     .a-change { font-size:11px; margin-top:6px; }
-    .a-up { color:#72C472; } .a-down { color:#E07A72; }
+    .a-up { color:#72C472; } .a-down { color:#e60000; }
     .bar-chart { display:flex; align-items:flex-end; gap:6px; height:80px; margin-top:16px; }
     .bar { flex:1; border-radius:3px 3px 0 0; background:rgba(200,168,75,0.2); transition:background .2s; }
     .bar:hover { background:rgba(200,168,75,0.5); }
@@ -167,7 +205,7 @@
     .file-item-name { flex:1; font-size:13px; color:var(--text-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .file-item-size { font-size:11px; color:var(--text-3); flex-shrink:0; }
     .file-remove { background:none; border:none; cursor:pointer; color:var(--text-3); transition:color .2s; }
-    .file-remove:hover { color:#E07A72; }
+    .file-remove:hover { color:#e60000; }
 
     /* ── Grade modal ── */
     .grade-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:300; display:none; align-items:center; justify-content:center; }
@@ -555,12 +593,16 @@ document.addEventListener('userLoaded', e => {
 
 async function loadMyCourses() {
   try {
+    const prevId = currentCourseId;
     const data = await api.get('/api/courses?status=all');
     myCourses = (data.courses || []).filter(c => c.instructor_id === currentUser.id);
     const sel = document.getElementById('course-select');
-    if (!myCourses.length) { sel.innerHTML = '<option value="">No courses — create one from the Dashboard</option>'; return; }
-    sel.innerHTML = myCourses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
-    currentCourseId = myCourses[0].id;
+    if (!myCourses.length) { sel.innerHTML = '<option value="">No courses — create one from the Dashboard</option>'; currentCourseId = null; return; }
+    sel.innerHTML = myCourses.map(c => `<option value="${c.id}">${c.title}${c.status==='active'?'':' (Draft)'}</option>`).join('');
+    // Preserve current selection if the course still exists; otherwise default to first
+    const stillExists = prevId && myCourses.some(c => String(c.id) === String(prevId));
+    currentCourseId = stillExists ? prevId : myCourses[0].id;
+    sel.value = currentCourseId;
     loadCourseData();
   } catch(e) { toast('Could not load courses', 'error'); }
 }
@@ -571,8 +613,11 @@ function switchCourse() {
 }
 
 async function loadCourseData() {
-  if (!currentCourseId) return;
-  const course = myCourses.find(c => c.id == currentCourseId);
+  if (!currentCourseId) {
+    document.getElementById('curriculum-tree').innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">📚</div><h3>No course selected</h3><p>Create a course from the Dashboard, then return here.</p></div></div>';
+    return;
+  }
+  const course = myCourses.find(c => String(c.id) == String(currentCourseId));
   if (course) {
     const badge = document.getElementById('course-badge');
     badge.textContent = course.status === 'active' ? 'Published' : 'Draft';
@@ -628,22 +673,48 @@ async function loadCurriculum() {
       return;
     }
     tree.innerHTML = courseChapters.map((ch, ci) => `
-      <div class="chapter-block" id="chb-${ch.id}">
+      <div class="chapter-block" id="chb-${ch.id}" draggable="true" data-chapter-id="${ch.id}">
         <div class="chapter-hdr" onclick="toggleChapter(${ch.id})">
+          <span class="drag-handle chapter-drag-handle" title="Drag to reorder" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1.2" fill="currentColor"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="19" r="1.2" fill="currentColor"/><circle cx="15" cy="5" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="19" r="1.2" fill="currentColor"/></svg>
+          </span>
           <svg class="ch-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           <div class="ch-title">Chapter ${ci+1}: ${ch.title}</div>
           <span class="ch-meta">${(ch.lessons||[]).length} lessons</span>
           <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:3px 8px;" onclick="event.stopPropagation();deleteChapter(${ch.id})">Delete</button>
         </div>
         <div class="lessons-list" id="ll-${ch.id}">
-          ${(ch.lessons||[]).map((l,li) => `
-            <div class="lesson-row">
-              <span style="font-size:11px;color:var(--text-3);width:20px;">${li+1}.</span>
-              <span class="type-pill ${lessonPill(l.type)}">${l.type||'video'}</span>
-              ${(ci===0&&li===0) ? '<span class="free-badge">FREE PREVIEW</span>' : ''}
-              <span class="lesson-name">${l.title}</span>
-              <span class="lesson-dur">${l.duration_minutes ? l.duration_minutes+'m' : ''}</span>
-              <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:2px 6px;" onclick="deleteLesson(${l.id})">✕</button>
+          ${(ch.lessons||[]).map(l => `
+            <div class="lesson-row" id="les-${l.id}" draggable="true" data-lesson-id="${l.id}" data-chapter-id="${ch.id}">
+              <span class="drag-handle lesson-drag-handle" title="Drag to reorder">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1.2" fill="currentColor"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="19" r="1.2" fill="currentColor"/><circle cx="15" cy="5" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="19" r="1.2" fill="currentColor"/></svg>
+              </span>
+              <span class="lesson-type-icon">${typeIcon(l.type)}</span>
+              <input class="lesson-title-input" value="${escHtml(l.title)}" id="les-title-${l.id}"
+                onblur="updateLesson(${l.id}, ${l.chapter_id})" onkeydown="if(event.key==='Enter')this.blur()">
+              <select class="lesson-type-select" id="les-type-${l.id}" onchange="updateLesson(${l.id}, ${l.chapter_id})">
+                <option value="video" ${l.type==='video'?'selected':''}>Video</option>
+                <option value="reading" ${l.type==='reading'?'selected':''}>Reading</option>
+                <option value="exercise" ${l.type==='exercise'?'selected':''}>Exercise</option>
+                <option value="quiz" ${l.type==='quiz'?'selected':''}>Quiz</option>
+              </select>
+              <input class="lesson-duration" type="number" min="1" placeholder="min" id="les-dur-${l.id}"
+                value="${l.duration_minutes || ''}" onblur="updateLesson(${l.id}, ${l.chapter_id})">
+              <button class="lesson-mat-toggle" id="les-mat-btn-${l.id}" onclick="toggleMaterials(${l.id})">Materials</button>
+              <button class="icon-action danger" onclick="confirmDeleteLesson(${l.id})">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+              </button>
+            </div>
+            <div class="lesson-mat-panel" id="les-mat-panel-${l.id}" hidden>
+              <div class="mat-add-row">
+                <button class="mat-add-btn" onclick="addMaterial(${l.id}, 'video')">+ Video</button>
+                <button class="mat-add-btn" onclick="addMaterial(${l.id}, 'url')">+ URL</button>
+                <button class="mat-add-btn" onclick="addMaterial(${l.id}, 'image')">+ Image</button>
+                <button class="mat-add-btn" onclick="addMaterial(${l.id}, 'pdf')">+ PDF</button>
+              </div>
+              <div class="mat-list" id="les-mat-list-${l.id}">
+                <div style="font-size:11px;color:var(--text-3);">Loading…</div>
+              </div>
             </div>
           `).join('')}
           <div class="add-lesson-row" onclick="openPanel('lesson', ${ch.id})">
@@ -655,24 +726,334 @@ async function loadCurriculum() {
     gsap.from('.chapter-block', { opacity:0, y:10, stagger:.06, duration:.32, ease:'power3.out' });
     // Auto-open first
     if (courseChapters.length) toggleChapter(courseChapters[0].id);
+    initDragDrop();
   } catch(e) {
     tree.innerHTML = `<div class="card"><p style="font-size:13px;color:var(--text-3);padding:16px;">Could not load curriculum.</p></div>`;
   }
 }
 
-function lessonPill(type) {
-  if (type==='exercise') return 'pill-exercise';
-  if (type==='reading') return 'pill-reading';
-  return 'pill-video';
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function typeIcon(type) {
+  return { video:'🎬', reading:'📖', exercise:'🎵', quiz:'❓' }[type] || '📄';
 }
 function toggleChapter(id) { document.getElementById('chb-'+id)?.classList.toggle('open'); }
 async function deleteChapter(id) {
   if (!confirm('Delete this chapter and all its lessons?')) return;
   try { await api.delete(`/api/chapters/${id}`); toast('Chapter deleted'); loadCurriculum(); } catch(e){toast(e.message,'error');}
 }
-async function deleteLesson(id) {
+async function confirmDeleteLesson(id) {
   if (!confirm('Delete this lesson?')) return;
   try { await api.delete(`/api/lessons/${id}`); toast('Lesson deleted'); loadCurriculum(); } catch(e){toast(e.message,'error');}
+}
+async function updateLesson(id, chapterId) {
+  const titleInp = document.getElementById('les-title-' + id);
+  const typeInp  = document.getElementById('les-type-' + id);
+  const durInp   = document.getElementById('les-dur-' + id);
+  if (!titleInp) return;
+  try {
+    await api.put('/api/lessons/' + id, {
+      title: titleInp.value,
+      type: typeInp?.value || 'video',
+      duration_minutes: parseInt(durInp?.value) || null
+    });
+    const iconEl = titleInp.closest('.lesson-row')?.querySelector('.lesson-type-icon');
+    if (iconEl) iconEl.textContent = typeIcon(typeInp?.value || 'video');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ── Drag-and-drop reordering ──
+function initDragDrop() {
+  const tree = document.getElementById('curriculum-tree');
+  if (!tree) return;
+
+  // ── Chapter reordering ──
+  let dragChapter = null;
+  tree.querySelectorAll('.chapter-block').forEach(block => {
+    block.addEventListener('dragstart', e => {
+      if (!e.target.closest('.chapter-drag-handle')) { e.preventDefault(); return; }
+      dragChapter = block;
+      block.style.opacity = '0.45';
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    block.addEventListener('dragend', () => {
+      block.style.opacity = '';
+      tree.querySelectorAll('.chapter-block').forEach(b => b.classList.remove('drag-over'));
+      dragChapter = null;
+    });
+    block.addEventListener('dragover', e => {
+      if (!dragChapter || dragChapter === block) return;
+      e.preventDefault();
+      tree.querySelectorAll('.chapter-block').forEach(b => b.classList.remove('drag-over'));
+      block.classList.add('drag-over');
+    });
+    block.addEventListener('dragleave', () => block.classList.remove('drag-over'));
+    block.addEventListener('drop', e => {
+      if (!dragChapter || dragChapter === block) return;
+      e.preventDefault();
+      block.classList.remove('drag-over');
+      const blocks = [...tree.querySelectorAll('.chapter-block')];
+      const fromIdx = blocks.indexOf(dragChapter);
+      const toIdx   = blocks.indexOf(block);
+      if (fromIdx === toIdx) return;
+      // Move in DOM
+      if (fromIdx < toIdx) block.after(dragChapter);
+      else block.before(dragChapter);
+      saveChapterOrder();
+    });
+  });
+
+  // ── Lesson reordering within chapters ──
+  let dragLesson = null;
+  tree.querySelectorAll('.lessons-list').forEach(list => {
+    list.querySelectorAll('.lesson-row').forEach(row => {
+      row.addEventListener('dragstart', e => {
+        dragLesson = row;
+        row.style.opacity = '0.45';
+        e.dataTransfer.effectAllowed = 'move';
+        e.stopPropagation();
+      });
+      row.addEventListener('dragend', () => {
+        row.style.opacity = '';
+        list.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('drag-over-lesson'));
+        dragLesson = null;
+      });
+    });
+    list.addEventListener('dragover', e => {
+      if (!dragLesson) return;
+      e.preventDefault();
+      const target = e.target.closest('.lesson-row');
+      list.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('drag-over-lesson'));
+      if (target && target !== dragLesson) target.classList.add('drag-over-lesson');
+    });
+    list.addEventListener('dragleave', () => {
+      list.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('drag-over-lesson'));
+    });
+    list.addEventListener('drop', e => {
+      if (!dragLesson) return;
+      e.preventDefault();
+      e.stopPropagation();
+      list.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('drag-over-lesson'));
+      const target = e.target.closest('.lesson-row');
+      if (!target || target === dragLesson) return;
+      // Move lesson row + its sibling mat-panel together
+      const matPanel = document.getElementById('les-mat-panel-' + dragLesson.dataset.lessonId);
+      const rows = [...list.querySelectorAll('.lesson-row')];
+      const fromIdx = rows.indexOf(dragLesson);
+      const toIdx   = rows.indexOf(target);
+      if (fromIdx === toIdx) return;
+      if (fromIdx < toIdx) {
+        target.after(dragLesson);
+        if (matPanel) dragLesson.after(matPanel);
+      } else {
+        target.before(dragLesson);
+        if (matPanel) dragLesson.after(matPanel);
+      }
+      saveLessonOrder(list);
+    });
+  });
+}
+
+async function saveChapterOrder() {
+  const tree = document.getElementById('curriculum-tree');
+  const blocks = [...tree.querySelectorAll('.chapter-block')];
+  await Promise.all(blocks.map((b, i) => {
+    const id = parseInt(b.dataset.chapterId);
+    return api.put('/api/chapters/' + id, { order_index: i }).catch(() => {});
+  }));
+  toast('Chapter order saved');
+}
+
+async function saveLessonOrder(listEl) {
+  const rows = [...listEl.querySelectorAll('.lesson-row')];
+  await Promise.all(rows.map((r, i) => {
+    const id = parseInt(r.dataset.lessonId);
+    return api.put('/api/lessons/' + id, { order_index: i }).catch(() => {});
+  }));
+  toast('Lesson order saved');
+}
+
+// ── Lesson materials + timestamps ──
+const _materialsCache = {};
+
+async function toggleMaterials(lessonId) {
+  const panel = document.getElementById('les-mat-panel-' + lessonId);
+  const btn   = document.getElementById('les-mat-btn-' + lessonId);
+  if (!panel) return;
+  const willOpen = panel.hidden;
+  panel.hidden = !willOpen;
+  btn.classList.toggle('open', willOpen);
+  if (willOpen) await loadMaterials(lessonId);
+}
+async function loadMaterials(lessonId) {
+  try {
+    const data = await api.get('/api/materials?lesson_id=' + lessonId);
+    _materialsCache[lessonId] = data.materials || [];
+    renderMaterials(lessonId);
+  } catch(e) { toast(e.message, 'error'); }
+}
+function renderMaterials(lessonId) {
+  const list = document.getElementById('les-mat-list-' + lessonId);
+  if (!list) return;
+  const mats = _materialsCache[lessonId] || [];
+  if (!mats.length) {
+    list.innerHTML = `<div style="font-size:11px;color:var(--text-3);padding:4px 0;">No materials yet — use the buttons above to add one.</div>`;
+    return;
+  }
+  list.innerHTML = mats.map(m => `
+    <div class="mat-item" id="mat-${m.id}">
+      <div class="mat-type-pill type-${m.type}">${m.type}</div>
+      <input class="mat-input" placeholder="Title" value="${escHtml(m.title || '')}" onblur="updateMaterial(${m.id}, 'title', this.value)">
+      <input class="mat-input" placeholder="${m.type==='video'?'Video URL (YouTube embed or MP4)':m.type==='pdf'?'PDF URL':m.type==='image'?'Image URL':'External URL'}" value="${escHtml(m.url || '')}" onblur="updateMaterial(${m.id}, 'url', this.value)">
+      ${m.type==='video'?`<input class="mat-input" type="number" min="0" placeholder="dur (s)" value="${m.duration_seconds||''}" onblur="updateMaterial(${m.id},'duration_seconds',parseInt(this.value)||null)">`:`<span></span>`}
+      <button class="mat-del" onclick="deleteMaterial(${lessonId}, ${m.id})">Delete</button>
+      ${m.type==='video' ? renderTimestampsEditor(lessonId, m) : ''}
+    </div>
+  `).join('');
+}
+function fmtTime(s) {
+  s = Math.max(0, parseInt(s) || 0);
+  return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+function renderTimestampsEditor(lessonId, material) {
+  const ts = material.timestamps || [];
+  const maxSecs = material.duration_seconds || 0;
+  return `
+    <div class="mat-timestamps" data-dur="${maxSecs}">
+      <div class="mat-ts-head">
+        <span>Timestamps (${ts.length})${maxSecs?` <span style="color:rgba(200,168,75,0.7);font-weight:400;">/ ${fmtTime(maxSecs)} max</span>`:''}</span>
+        <div style="display:flex;gap:6px;">
+          <button onclick="autoTimestamps(${lessonId}, ${material.id})">Auto 1-min</button>
+          <button onclick="addTimestamp(${lessonId}, ${material.id}, ${maxSecs})">+ Manual</button>
+        </div>
+      </div>
+      <div id="ts-list-${material.id}">
+        ${ts.map(t => `
+          <div class="mat-ts-row">
+            <input class="mat-ts-time" value="${fmtTime(t.time_seconds)}" placeholder="MM:SS"
+              onblur="updateTimestampTime(${lessonId}, ${material.id}, ${t.id}, this, ${maxSecs})">
+            <input class="mat-ts-label-input" value="${escHtml(t.label||'')}" onblur="updateTimestampLabel(${lessonId}, ${material.id}, ${t.id}, this.value)">
+            <button class="mat-del" onclick="deleteTimestamp(${lessonId}, ${material.id}, ${t.id})">×</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+async function addMaterial(lessonId, type) {
+  if (type === 'url') {
+    try { await api.post('/api/materials', { lesson_id: lessonId, type, title: '', url: '' }); await loadMaterials(lessonId); } catch(e) { toast(e.message,'error'); }
+    return;
+  }
+  const accept = type==='video'?'video/*':type==='image'?'image/*':type==='pdf'?'application/pdf,.pdf':'';
+  const picker = document.createElement('input');
+  picker.type = 'file'; picker.accept = accept; picker.style.display = 'none';
+  document.body.appendChild(picker);
+  const pickedFile = await new Promise(resolve => {
+    let resolved = false;
+    picker.addEventListener('change', () => { resolved = true; resolve(picker.files && picker.files[0] ? picker.files[0] : null); }, { once:true });
+    picker.addEventListener('cancel', () => { if (!resolved) resolve(null); }, { once:true });
+    window.addEventListener('focus', () => { setTimeout(() => { if (!resolved) resolve(null); }, 300); }, { once:true });
+    picker.click();
+  });
+  picker.remove();
+  if (!pickedFile) {
+    try { await api.post('/api/materials', { lesson_id: lessonId, type, title: '', url: '' }); await loadMaterials(lessonId); } catch(e) { toast(e.message,'error'); }
+    return;
+  }
+  const fd = new FormData();
+  fd.append('lesson_id', lessonId); fd.append('type', type);
+  fd.append('title', pickedFile.name.replace(/\.[^.]+$/,'')); fd.append('file', pickedFile);
+  if (type === 'video') {
+    try { const sec = await _readVideoDuration(pickedFile); if (sec > 0) fd.append('duration_seconds', String(Math.round(sec))); } catch(_){}
+  }
+  toast(`Uploading ${pickedFile.name}…`, 'success');
+  try { await api.upload('/api/materials', fd); await loadMaterials(lessonId); toast(`${pickedFile.name} uploaded`, 'success'); } catch(e) { toast(e.message||'Upload failed','error'); }
+}
+function _readVideoDuration(file) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.preload = 'metadata'; v.muted = true; v.src = url;
+    const cleanup = () => { try { URL.revokeObjectURL(url); } catch {} };
+    v.onloadedmetadata = () => { cleanup(); resolve(v.duration || 0); };
+    v.onerror = () => { cleanup(); resolve(0); };
+    setTimeout(() => { cleanup(); resolve(0); }, 10000);
+  });
+}
+async function updateMaterial(materialId, field, value) {
+  try { await api.put('/api/materials/' + materialId, { [field]: value }); } catch(e) { toast(e.message,'error'); }
+}
+async function deleteMaterial(lessonId, materialId) {
+  if (!confirm('Delete this material?')) return;
+  try { await api.del('/api/materials/' + materialId); await loadMaterials(lessonId); } catch(e) { toast(e.message,'error'); }
+}
+async function autoTimestamps(lessonId, materialId) {
+  const mats = _materialsCache[lessonId] || [];
+  const m = mats.find(x => x.id === materialId);
+  if (!m?.duration_seconds) {
+    const val = prompt('Set video duration (in seconds) to auto-generate 1-min markers:');
+    const dur = parseInt(val);
+    if (!dur) return;
+    try { await api.post(`/api/materials/${materialId}/timestamps/auto`, { duration_seconds: dur }); await loadMaterials(lessonId); toast('Auto-generated 1-min timestamps'); } catch(e) { toast(e.message,'error'); }
+    return;
+  }
+  if (!confirm('This will replace existing timestamps with 1-min markers. Continue?')) return;
+  try { await api.post(`/api/materials/${materialId}/timestamps/auto`, {}); await loadMaterials(lessonId); toast('Auto-generated 1-min timestamps'); } catch(e) { toast(e.message,'error'); }
+}
+function parseTimestamp(val, maxSecs) {
+  const match = (val||'').trim().match(/^(\d{1,3}):(\d{2})$/);
+  if (!match) return { ok:false, error:'Format must be MM:SS (e.g. 02:30)' };
+  const mm = parseInt(match[1],10), ss = parseInt(match[2],10);
+  if (ss > 59) return { ok:false, error:'Seconds must be 00–59' };
+  const secs = mm*60+ss;
+  if (maxSecs > 0 && secs > maxSecs) return { ok:false, error:`Timestamp ${fmtTime(secs)} exceeds video length (max ${fmtTime(maxSecs)})` };
+  return { ok:true, secs };
+}
+async function addTimestamp(lessonId, materialId, maxSecs) {
+  const list = document.getElementById(`ts-list-${materialId}`);
+  if (!list) return;
+  if (list.querySelector('.ts-new-row')) { list.querySelector('.ts-new-row .mat-ts-time').focus(); return; }
+  const row = document.createElement('div');
+  row.className = 'mat-ts-row ts-new-row';
+  row.innerHTML = `
+    <input class="mat-ts-time" placeholder="MM:SS" style="border-color:rgba(200,168,75,0.4);">
+    <input class="mat-ts-label-input" placeholder="Label (optional)">
+    <button class="mat-del" onclick="this.closest('.ts-new-row').remove()">×</button>`;
+  list.appendChild(row);
+  const timeInput = row.querySelector('.mat-ts-time');
+  const labelInput = row.querySelector('.mat-ts-label-input');
+  timeInput.focus();
+  async function saveNewTimestamp() {
+    const val = timeInput.value.trim();
+    if (!val) { row.remove(); return; }
+    const parsed = parseTimestamp(val, maxSecs);
+    if (!parsed.ok) { timeInput.style.borderColor='#bf0000'; toast(parsed.error,'error'); timeInput.focus(); return; }
+    timeInput.style.borderColor='';
+    try { await api.post(`/api/materials/${materialId}/timestamps`, { time_seconds: parsed.secs, label: labelInput.value.trim() }); await loadMaterials(lessonId); } catch(e) { toast(e.message,'error'); }
+  }
+  timeInput.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); labelInput.focus(); } });
+  labelInput.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); saveNewTimestamp(); } });
+  row.addEventListener('focusout', e => { if (!row.contains(e.relatedTarget)) saveNewTimestamp(); });
+}
+async function updateTimestampTime(lessonId, materialId, tsId, inputEl, maxSecs) {
+  const val = inputEl.value.trim();
+  const parsed = parseTimestamp(val, maxSecs);
+  if (!parsed.ok) {
+    inputEl.style.borderColor='#bf0000'; toast(parsed.error,'error');
+    const mat = (_materialsCache[lessonId]||[]).find(x=>x.id===materialId);
+    const ts = (mat?.timestamps||[]).find(t=>t.id===tsId);
+    if (ts) inputEl.value = fmtTime(ts.time_seconds);
+    return;
+  }
+  inputEl.style.borderColor='';
+  try { await api.put(`/api/materials/${materialId}/timestamps/${tsId}`, { time_seconds: parsed.secs }); } catch(e) { toast(e.message,'error'); }
+}
+async function updateTimestampLabel(lessonId, materialId, tsId, val) {
+  try { await api.put(`/api/materials/${materialId}/timestamps/${tsId}`, { label: val }); } catch(e) { toast(e.message,'error'); }
+}
+async function deleteTimestamp(lessonId, materialId, tsId) {
+  try { await api.del(`/api/materials/${materialId}/timestamps/${tsId}`); await loadMaterials(lessonId); } catch(e) { toast(e.message,'error'); }
 }
 
 // ══════════════════════════════
@@ -919,9 +1300,12 @@ function updateVisDesc(isActive) {
   document.getElementById('vis-desc').textContent = isActive ? 'Course is published — visible to students' : 'Course is a draft — not visible to students';
 }
 async function saveCourseInfo() {
+  if (!currentCourseId) return toast('Select a course first','error');
+  const title = document.getElementById('set-title').value.trim();
+  if (!title) return toast('Course title is required','error');
   try {
     await api.put(`/api/courses/${currentCourseId}`, {
-      title: document.getElementById('set-title').value,
+      title,
       subtitle: document.getElementById('set-subtitle').value,
       description: document.getElementById('set-desc').value,
       level: document.getElementById('set-level').value,
@@ -933,24 +1317,34 @@ async function saveCourseInfo() {
   } catch(e) { toast(e.message,'error'); }
 }
 async function savePricing() {
+  if (!currentCourseId) return toast('Select a course first','error');
   try {
     const isPaid = document.getElementById('set-is-paid').checked;
     const price = parseFloat(document.getElementById('set-price').value)||0;
+    if (isPaid && price <= 0) return toast('Set a valid price','error');
     await api.put(`/api/courses/${currentCourseId}`, { is_paid: isPaid?1:0, price_paise: Math.round(price*100) });
     toast('Pricing updated!');
+    await loadMyCourses();
   } catch(e) { toast(e.message,'error'); }
 }
 async function savePublishStatus() {
+  if (!currentCourseId) return toast('Select a course first','error');
   const isActive = document.getElementById('set-published').checked;
   try {
     await api.put(`/api/courses/${currentCourseId}`, { status: isActive?'active':'draft' });
     updateVisDesc(isActive);
     await loadMyCourses();
     toast(isActive ? 'Course published!' : 'Course set to draft');
-  } catch(e) { toast(e.message,'error'); }
+  } catch(e) {
+    // Revert toggle on failure
+    document.getElementById('set-published').checked = !isActive;
+    updateVisDesc(!isActive);
+    toast(e.message,'error');
+  }
 }
 async function togglePublish() {
-  const course = myCourses.find(c=>c.id==currentCourseId);
+  if (!currentCourseId) return toast('Select a course first','error');
+  const course = myCourses.find(c=>String(c.id)===String(currentCourseId));
   if (!course) return;
   const newStatus = course.status==='active' ? 'draft' : 'active';
   try {
@@ -1175,20 +1569,48 @@ function collectTimestamps() {
 
 // ── Submit handlers ──
 async function submitLesson() {
-  const title = document.getElementById('up-lesson-title')?.value;
+  const title = document.getElementById('up-lesson-title')?.value?.trim();
   const chapterId = document.getElementById('up-lesson-chapter')?.value;
   if (!title) return toast('Lesson title is required','error');
   if (!chapterId) return toast('Select a chapter','error');
+  if (!currentCourseId) return toast('Select a course first','error');
   const type = document.getElementById('up-lesson-type').value;
-  const contentUrl = document.getElementById('up-lesson-url').value || null;
+  const contentUrl = (document.getElementById('up-lesson-url').value || '').trim() || null;
   const isPreview = document.getElementById('up-lesson-preview')?.checked ? 1 : 0;
+  const duration = parseInt(document.getElementById('up-lesson-dur').value) || null;
+  const fileInp = document.getElementById('up-lesson-file');
+  const hasFile = !!(fileInp && fileInp.files && fileInp.files.length);
+  if (!hasFile && !contentUrl && type === 'video') {
+    return toast('Provide either a video file or a content URL', 'error');
+  }
   const timestamps = type === 'video' ? collectTimestamps() : [];
+  const submitBtn = document.querySelector('#panel-body button.btn-primary');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = hasFile ? 'Uploading…' : 'Saving…'; }
   try {
-    const lessonData = await api.post('/api/lessons', { title, chapter_id:chapterId, course_id:currentCourseId, type, duration_minutes:parseInt(document.getElementById('up-lesson-dur').value)||null, content_url:contentUrl, is_preview:isPreview });
+    let lessonData;
+    if (hasFile) {
+      // multipart/form-data — server streams the video to storage
+      const fd = new FormData();
+      fd.append('video', fileInp.files[0]);
+      fd.append('title', title);
+      fd.append('chapter_id', chapterId);
+      fd.append('course_id', currentCourseId);
+      fd.append('type', type);
+      if (duration) fd.append('duration_minutes', String(duration));
+      if (contentUrl) fd.append('content_url', contentUrl);
+      fd.append('is_preview', String(isPreview));
+      lessonData = await api.upload('/api/lessons', fd);
+    } else {
+      lessonData = await api.post('/api/lessons', {
+        title, chapter_id: chapterId, course_id: currentCourseId, type,
+        duration_minutes: duration, content_url: contentUrl, is_preview: isPreview
+      });
+    }
     const lessonId = lessonData.lesson?.id;
-    if (lessonId && contentUrl && timestamps.length) {
+    const finalUrl = lessonData.lesson?.content_url || contentUrl;
+    if (lessonId && finalUrl && timestamps.length) {
       try {
-        const matData = await api.post('/api/materials', { lesson_id:lessonId, type:'video', url:contentUrl, title });
+        const matData = await api.post('/api/materials', { lesson_id:lessonId, type:'video', url:finalUrl, title });
         const materialId = matData.material?.id;
         if (materialId) {
           for (const ts of timestamps) {
@@ -1198,54 +1620,69 @@ async function submitLesson() {
       } catch(e) { console.warn('Timestamps not saved:', e?.message); }
     }
     closePanel(); toast('Lesson added!'); loadCurriculum();
-  } catch(e){toast(e.message,'error');}
+  } catch(e){
+    toast(e.message || 'Lesson upload failed','error');
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Add Lesson'; }
+  }
 }
 async function submitChapter() {
-  const title = document.getElementById('up-chap-title')?.value;
+  const title = document.getElementById('up-chap-title')?.value?.trim();
   if (!title) return toast('Chapter title is required','error');
+  if (!currentCourseId) return toast('Select a course first','error');
   try {
     await api.post('/api/chapters', { course_id:currentCourseId, title, description:document.getElementById('up-chap-desc').value });
     closePanel(); toast('Chapter created!'); loadCurriculum();
   } catch(e){toast(e.message,'error');}
 }
 async function submitResource() {
-  const title = document.getElementById('up-res-title')?.value;
+  const title = document.getElementById('up-res-title')?.value?.trim();
   const fileInp = document.getElementById('up-res-file');
   if (!title) return toast('Title is required','error');
   if (!fileInp?.files?.length) return toast('Select a file to upload','error');
+  if (!currentCourseId) return toast('Select a course first','error');
   try {
     const fd = new FormData();
     fd.append('file', fileInp.files[0]);
     fd.append('title', title);
-    fd.append('description', document.getElementById('up-res-desc').value);
+    fd.append('description', document.getElementById('up-res-desc').value || '');
     fd.append('course_id', currentCourseId);
-    fd.append('category', document.getElementById('up-res-cat').value);
-    fd.append('is_public', document.getElementById('up-res-pub').value);
-    const token = localStorage.getItem('archive_token');
-    const r = await fetch('/api/resources', { method:'POST', headers:{Authorization:'Bearer '+token}, body:fd });
-    if (!r.ok) { const d=await r.json(); throw new Error(d.error||'Upload failed'); }
+    fd.append('category', document.getElementById('up-res-cat').value || 'general');
+    fd.append('is_public', document.getElementById('up-res-pub').value || '0');
+    await api.upload('/api/resources', fd);
     closePanel(); toast('Resource uploaded!'); loadResources();
-  } catch(e){toast(e.message,'error');}
+  } catch(e){toast(e.message || 'Upload failed','error');}
 }
 async function submitSheetMusic() {
-  const title = document.getElementById('up-sm-title')?.value;
+  const title = document.getElementById('up-sm-title')?.value?.trim();
+  const fileInp = document.getElementById('up-sm-file');
   if (!title) return toast('Title is required','error');
+  if (!fileInp?.files?.length) return toast('Select a PDF file to upload','error');
   try {
-    await api.post('/api/sheet-music', { title, composer:document.getElementById('up-sm-composer').value, period:document.getElementById('up-sm-period').value, instrument:document.getElementById('up-sm-instr').value, difficulty:document.getElementById('up-sm-diff').value, course_id:currentCourseId });
+    const fd = new FormData();
+    fd.append('file', fileInp.files[0]);
+    fd.append('title', title);
+    fd.append('composer', document.getElementById('up-sm-composer').value || '');
+    fd.append('period', document.getElementById('up-sm-period').value || '');
+    fd.append('instrument', document.getElementById('up-sm-instr').value || '');
+    fd.append('difficulty', document.getElementById('up-sm-diff').value || '');
+    if (currentCourseId) fd.append('course_id', currentCourseId);
+    await api.upload('/api/sheet-music', fd);
     closePanel(); toast('Sheet music added!');
-  } catch(e){toast(e.message,'error');}
+  } catch(e){toast(e.message || 'Upload failed','error');}
 }
 async function submitAssignment() {
-  const title = document.getElementById('up-ass-title')?.value;
+  const title = document.getElementById('up-ass-title')?.value?.trim();
   if (!title) return toast('Title is required','error');
+  if (!currentCourseId) return toast('Select a course first','error');
   try {
     await api.post('/api/assignments', { course_id:currentCourseId, title, instructions:document.getElementById('up-ass-instr').value, submission_type:document.getElementById('up-ass-type').value, max_score:parseInt(document.getElementById('up-ass-score').value)||100, due_days:parseInt(document.getElementById('up-ass-days').value)||null });
     closePanel(); toast('Assignment created!');
   } catch(e){toast(e.message,'error');}
 }
 async function submitQuiz() {
-  const title = document.getElementById('up-quiz-title')?.value;
+  const title = document.getElementById('up-quiz-title')?.value?.trim();
   if (!title) return toast('Quiz title is required','error');
+  if (!currentCourseId) return toast('Select a course first','error');
   try {
     await api.post('/api/quizzes', { course_id:currentCourseId, title, description:document.getElementById('up-quiz-desc').value, time_limit_minutes:parseInt(document.getElementById('up-quiz-time').value)||null, passing_score:parseInt(document.getElementById('up-quiz-pass').value)||70, attempts_allowed:parseInt(document.getElementById('up-quiz-att').value)||3 });
     closePanel(); toast('Quiz created! Add questions in Quiz Builder.');
@@ -1253,9 +1690,10 @@ async function submitQuiz() {
   } catch(e){toast(e.message,'error');}
 }
 async function submitAnnouncement() {
-  const title = document.getElementById('up-ann-title')?.value;
-  const body = document.getElementById('up-ann-body')?.value;
+  const title = document.getElementById('up-ann-title')?.value?.trim();
+  const body = document.getElementById('up-ann-body')?.value?.trim();
   if (!title||!body) return toast('Title and message required','error');
+  if (!currentCourseId) return toast('Select a course first','error');
   try {
     await api.post('/api/announcements', { course_id:currentCourseId, title, body, pinned:document.getElementById('up-ann-pinned').checked?1:0, send_email:document.getElementById('up-ann-email').checked?1:0 });
     closePanel(); toast('Announcement posted!'); loadAnnouncements(); switchTab('announcements');

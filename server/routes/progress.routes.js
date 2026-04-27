@@ -3,19 +3,11 @@ const router = express.Router();
 const db = require('../db');
 const access = require('../lib/access');
 
-// Max forward jump (seconds) tolerated between two successive progress pings.
-// Anything bigger is treated as a scrub/skip and rejected.
-const MAX_FORWARD_JUMP_SECONDS = 10;
 
 // POST /api/progress/update
 // Body: { lesson_id, position_seconds, duration_seconds? }
 // - position_seconds: current playhead in the video
 // - duration_seconds: optional, used to compute completion percentage if lesson.duration_seconds is missing
-//
-// Anti-skip rule:
-//   Reject when position_seconds > stored_last_position + MAX_FORWARD_JUMP_SECONDS.
-//   Seeking backwards is always allowed (learners re-watch).
-//   Tiny forward jumps (≤ 10s) are allowed for network-lag tolerance.
 //
 // Completion rule:
 //   watched_seconds / duration_seconds >= COMPLETION_THRESHOLD%  →  is_completed = 1.
@@ -53,19 +45,7 @@ router.post('/update', (req, res) => {
 
     // Read existing progress (may not exist yet)
     const prev = access.getLessonProgress(userId, lesson.id);
-    const prevLast = prev ? (prev.last_position || 0) : 0;
     const prevWatched = prev ? (prev.watched_seconds || 0) : 0;
-
-    // ── Anti-skip: reject if client jumped forward more than the buffer ──
-    if (pos > prevLast + MAX_FORWARD_JUMP_SECONDS) {
-      return res.status(400).json({
-        error: 'Forward skipping is not allowed',
-        reason: 'skip_detected',
-        last_position: prevLast,
-        attempted_position: pos,
-        max_jump: MAX_FORWARD_JUMP_SECONDS,
-      });
-    }
 
     // watched_seconds is monotonic: only the max ever seen.
     const newWatched = Math.max(prevWatched, pos);

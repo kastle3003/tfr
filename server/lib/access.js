@@ -122,36 +122,6 @@ function canAccessLecture(user, lessonId) {
     return { allowed: false, reason: 'not_purchased' };
   }
 
-  // Cross-chapter sequential gate: previous foundation must be 100% complete,
-  // regardless of how the user owns the current one (bundle or individual).
-  const foundation = getFoundation(lesson.chapter_id);
-  if (foundation) {
-    const allFoundations = courseFoundations(foundation.course_id);
-    const fIdx = allFoundations.findIndex(f => f.id === foundation.id);
-    if (fIdx > 0) {
-      const prevFoundation = allFoundations[fIdx - 1];
-      if (!isFoundationCompleted(user.id, prevFoundation.id)) {
-        return {
-          allowed: false,
-          reason: 'previous_foundation_incomplete',
-          blocked_by_foundation: prevFoundation.id,
-        };
-      }
-    }
-  }
-
-  // Strict sequential unlock inside the foundation:
-  // first non-preview lecture is always accessible if owned;
-  // subsequent non-preview lectures require the previous one to be completed.
-  const siblings = foundationLessons(lesson.chapter_id);
-  const idx = siblings.findIndex(l => l.id === lesson.id);
-  for (let i = 0; i < idx; i++) {
-    const prev = siblings[i];
-    if (prev.is_preview) continue; // previews don't gate anything
-    if (!isLessonCompleted(user.id, prev.id)) {
-      return { allowed: false, reason: 'previous_lecture_incomplete', blocked_by: prev.id };
-    }
-  }
   return { allowed: true, reason: 'owned' };
 }
 

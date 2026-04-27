@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Lessons — The Foundation Room</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/archive.css">
   <style>
     :root {
@@ -19,7 +19,7 @@
       --text: #F0E6D3;
       --text-2: #B8A898;
       --text-3: #6B5E50;
-      --serif: 'Cormorant Garamond', serif;
+      --serif: 'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
       --sans: 'DM Sans', sans-serif;
     }
 
@@ -113,7 +113,7 @@
     <main class="main-content">
       <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; gap:16px; text-align:center; padding:40px;">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(200,168,75,0.4)" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        <h2 style="font-family:'Cormorant Garamond',serif; font-size:28px; color:#F0E6D3; font-weight:600;">Lessons are inside your courses</h2>
+        <h2 style="font-family:'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia,serif; font-size:28px; color:#F0E6D3; font-weight:600;">Lessons are inside your courses</h2>
         <p style="font-size:14px; color:#b8ad9e; max-width:340px;">Head to My Courses to pick up where you left off. Videos complete automatically when you finish watching.</p>
         <a href="/student-courses.html" style="margin-top:8px; padding:12px 28px; background:#C8A84B; color:#080706; font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; border-radius:4px; text-decoration:none;">Go to My Courses</a>
       </div>
@@ -162,7 +162,7 @@
         <div class="card content-card" style="padding:0; margin-bottom:14px; overflow:hidden;">
           <div style="background:${e.cover_color || 'rgba(200,168,75,0.15)'}; padding:16px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid rgba(200,168,75,0.1);" onclick="toggleCourse(${e.course_id}, this)">
             <div style="flex:1;">
-              <div style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16px; font-weight:600; color:#fff;">${e.course_title}</div>
+              <div style="font-family:'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia,serif; font-style:italic; font-size:16px; font-weight:600; color:#fff;">${e.course_title}</div>
               <div style="font-size:11px; color:rgba(255,255,255,0.65); margin-top:2px;">${e.instructor_name || ''} · ${e.level || ''}</div>
             </div>
             <div style="text-align:right;">
