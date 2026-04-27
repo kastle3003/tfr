@@ -137,11 +137,11 @@
       <h2 class="em-title">${escapeHTML(data.title)}</h2>
       <p class="em-subtitle">Choose how you'd like to learn — full bundle or chapter by chapter.</p>
       <div class="em-tabs">
-        ${hasBundle ? `<button class="em-tab active" data-tab="bundle" onclick="emSwitchTab('bundle')">Full Bundle</button>` : ''}
-        ${hasChapters ? `<button class="em-tab${hasBundle ? '' : ' active'}" data-tab="chapters" onclick="emSwitchTab('chapters')">By Chapter</button>` : ''}
+        ${hasChapters ? `<button class="em-tab${hasBundle ? '' : ' active'}" data-tab="chapters" onclick="emSwitchTab('chapters')">Chapter by Chapter</button>` : ''}
+        ${hasBundle ? `<button class="em-tab${hasChapters ? '' : ' active'}" data-tab="bundle" onclick="emSwitchTab('bundle')">Full Bundle</button>` : ''}
       </div>
-      <div class="em-pane active" data-pane="bundle">${renderBundlePane(data)}</div>
-      <div class="em-pane" data-pane="chapters">${renderChaptersPane(data)}</div>
+      <div class="em-pane${hasChapters ? ' active' : ''}" data-pane="chapters">${renderChaptersPane(data)}</div>
+      <div class="em-pane${!hasChapters && hasBundle ? ' active' : ''}" data-pane="bundle">${renderBundlePane(data)}</div>
       <div class="em-coupon">
         <div class="em-coupon-row">
           <input id="em-coupon-input" placeholder="Coupon code (optional)" maxlength="32" oninput="this.value = this.value.toUpperCase()">
@@ -154,10 +154,13 @@
         Secured by Razorpay &nbsp;·&nbsp; 256-bit SSL encryption &nbsp;·&nbsp; Cancel anytime
       </div>`;
 
-    if (!hasBundle && hasChapters) {
+    // Default active tab: chapters if available, else bundle
+    if (hasChapters) {
       modal._activeTab = 'chapters';
+    } else if (hasBundle) {
+      modal._activeTab = 'bundle';
       modal.querySelectorAll('.em-pane').forEach(p => p.classList.remove('active'));
-      modal.querySelector('[data-pane="chapters"]').classList.add('active');
+      modal.querySelector('[data-pane="bundle"]').classList.add('active');
     }
   }
 

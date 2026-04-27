@@ -747,15 +747,14 @@ async function manualEnroll() {
   const email = document.getElementById('enroll-email').value.trim();
   if (!email) return toast('Enter a student email', 'error');
   try {
-    // Find user by email — use admin endpoint or basic search
-    await api.post('/api/enrollments', { course_id: currentCourseId, email });
+    await api.post('/api/enrollments/enroll-student', { course_id: currentCourseId, email });
     toast('Student enrolled!'); loadStudents();
     document.getElementById('enroll-email').value = '';
   } catch(e) { toast(e.message||'Could not enroll — check the email', 'error'); }
 }
 async function unenrollStudent(sid) {
   if (!confirm('Remove this student from the course?')) return;
-  try { await api.delete(`/api/enrollments/${sid}/${currentCourseId}`); toast('Student removed'); loadStudents(); } catch(e){toast(e.message,'error');}
+  try { await api.delete(`/api/enrollments/student/${sid}/course/${currentCourseId}`); toast('Student removed'); loadStudents(); } catch(e){toast(e.message,'error');}
 }
 
 // ══════════════════════════════

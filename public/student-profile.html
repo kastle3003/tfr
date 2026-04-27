@@ -500,13 +500,8 @@
     const lastName = document.getElementById('last_name').value.trim();
     const phone = document.getElementById('phone').value.trim();
     const instrument = document.getElementById('instrument').value;
-    const missing = [];
-    if (!firstName) missing.push('First Name');
-    if (!lastName) missing.push('Last Name');
-    if (!phone) missing.push('Phone');
-    if (!instrument) missing.push('Instrument');
-    if (missing.length) {
-      toast(`Required: ${missing.join(', ')}`, 'error');
+    if (!firstName || !lastName) {
+      toast('First Name and Last Name are required.', 'error');
       return;
     }
     try {

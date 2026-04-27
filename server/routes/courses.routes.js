@@ -208,7 +208,7 @@ router.post('/', requireRole(['instructor', 'admin']), upload.single('cover_imag
 // PUT /api/courses/:id — instructor (own course) or admin (any course)
 router.put('/:id', requireRole(['instructor', 'admin']), upload.single('cover_image'), async (req, res) => {
   try {
-    const { title, subtitle, description, instrument, level, category, cover_color, cover_accent, cover_image_url, duration_weeks, status, bundle_price_paise } = req.body;
+    const { title, subtitle, description, instrument, level, category, cover_color, cover_accent, cover_image_url, duration_weeks, status, bundle_price_paise, is_paid, price_paise } = req.body;
     let course;
     if (req.user.role === 'admin') {
       course = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
@@ -226,8 +226,11 @@ router.put('/:id', requireRole(['instructor', 'admin']), upload.single('cover_im
       ? Math.max(0, Math.floor(Number(bundle_price_paise)))
       : course.bundle_price_paise;
 
+    const nextIsPaid = is_paid !== undefined ? (is_paid ? 1 : 0) : course.is_paid;
+    const nextPricePaise = price_paise !== undefined ? Math.max(0, Math.floor(Number(price_paise))) : course.price_paise;
+
     db.prepare(`
-      UPDATE courses SET title = ?, subtitle = ?, description = ?, instrument = ?, level = ?, category = ?, cover_color = ?, cover_accent = ?, cover_image_url = ?, duration_weeks = ?, status = ?, bundle_price_paise = ?, updated_at = datetime('now')
+      UPDATE courses SET title = ?, subtitle = ?, description = ?, instrument = ?, level = ?, category = ?, cover_color = ?, cover_accent = ?, cover_image_url = ?, duration_weeks = ?, status = ?, bundle_price_paise = ?, is_paid = ?, price_paise = ?, updated_at = datetime('now')
       WHERE id = ?
     `).run(
       title || course.title, subtitle || course.subtitle, description || course.description,
@@ -235,7 +238,7 @@ router.put('/:id', requireRole(['instructor', 'admin']), upload.single('cover_im
       cover_color || course.cover_color, cover_accent || course.cover_accent,
       finalCoverUrl,
       duration_weeks || course.duration_weeks, status || course.status,
-      nextBundlePrice,
+      nextBundlePrice, nextIsPaid, nextPricePaise,
       req.params.id
     );
 

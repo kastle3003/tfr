@@ -323,7 +323,7 @@
 
             <div class="form-group">
               <label class="form-label">Duration: <span id="duration-display" style="color:var(--gold); font-weight:700;">45 min</span></label>
-              <input type="range" class="duration-slider" id="f-duration" min="5" max="180" step="5" value="45" oninput="document.getElementById('duration-display').textContent = this.value + ' min'">
+              <input type="range" class="duration-slider" id="f-duration" min="5" max="180" step="5" value="45" oninput="updateDurationDisplay(this.value)" onchange="updateDurationDisplay(this.value)">
               <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-3); margin-top:4px;"><span>5 min</span><span>3 hours</span></div>
             </div>
 
@@ -353,17 +353,6 @@
                 <span class="focus-chip" data-value="Theory" onclick="toggleFocus(this)">Theory</span>
                 <span class="focus-chip" data-value="Ear Training" onclick="toggleFocus(this)">Ear Training</span>
                 <span class="focus-chip" data-value="Improvisation" onclick="toggleFocus(this)">Improvisation</span>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Quality Rating</label>
-              <div class="star-rating" id="star-rating">
-                <span class="star" data-val="1" onclick="setRating(1)">★</span>
-                <span class="star" data-val="2" onclick="setRating(2)">★</span>
-                <span class="star" data-val="3" onclick="setRating(3)">★</span>
-                <span class="star" data-val="4" onclick="setRating(4)">★</span>
-                <span class="star" data-val="5" onclick="setRating(5)">★</span>
               </div>
             </div>
 
@@ -582,6 +571,15 @@
 
   function clearFocusChips() {
     document.querySelectorAll('.focus-chip').forEach(c => c.classList.remove('selected'));
+  }
+
+  /* ─── Duration display ─── */
+  function updateDurationDisplay(val) {
+    val = parseInt(val);
+    const h = Math.floor(val / 60);
+    const m = val % 60;
+    const label = h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : `${val} min`;
+    document.getElementById('duration-display').textContent = label;
   }
 
   /* ─── Star rating ─── */
