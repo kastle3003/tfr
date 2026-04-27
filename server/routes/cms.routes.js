@@ -261,12 +261,13 @@ router.delete('/instructors/:id', (req, res) => {
     const existing = db.prepare(`SELECT id FROM users WHERE id = ? AND role = 'instructor'`).get(req.params.id);
     if (!existing) return res.status(404).json({ error: 'Instructor not found' });
 
-    const courseCount = db.prepare('SELECT COUNT(*) AS n FROM courses WHERE instructor_id = ?').get(req.params.id).n;
-    if (courseCount > 0) {
-      return res.status(409).json({ error: 'Cannot delete instructor with assigned courses' });
-    }
+    db.transaction(() => {
+      db.prepare('UPDATE courses SET instructor_id = NULL WHERE instructor_id = ?').run(req.params.id);
+      db.prepare('DELETE FROM enrollments WHERE student_id = ?').run(req.params.id);
+      db.prepare('DELETE FROM notifications WHERE user_id = ?').run(req.params.id);
+      db.prepare('DELETE FROM users WHERE id = ?').run(req.params.id);
+    })();
 
-    db.prepare('DELETE FROM users WHERE id = ?').run(req.params.id);
     res.json({ message: 'Instructor deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });

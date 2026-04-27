@@ -320,10 +320,17 @@ router.delete('/users/:id', adminOnly, (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     if (user.role === 'admin') return res.status(403).json({ error: 'Cannot delete admin users' });
 
-    // Clean up related data
-    db.prepare('DELETE FROM enrollments WHERE student_id = ?').run(req.params.id);
-    db.prepare('DELETE FROM notifications WHERE user_id = ?').run(req.params.id);
-    db.prepare('DELETE FROM users WHERE id = ?').run(req.params.id);
+    db.transaction(() => {
+      // Nullify instructor references so courses are not lost
+      db.prepare('UPDATE courses SET instructor_id = NULL WHERE instructor_id = ?').run(req.params.id);
+      // Remove student/user data
+      db.prepare('DELETE FROM enrollments WHERE student_id = ?').run(req.params.id);
+      db.prepare('DELETE FROM notifications WHERE user_id = ?').run(req.params.id);
+      try { db.prepare('DELETE FROM user_subscriptions WHERE user_id = ?').run(req.params.id); } catch (_) {}
+      try { db.prepare('DELETE FROM purchases WHERE user_id = ?').run(req.params.id); } catch (_) {}
+      try { db.prepare('DELETE FROM practice_sessions WHERE user_id = ?').run(req.params.id); } catch (_) {}
+      db.prepare('DELETE FROM users WHERE id = ?').run(req.params.id);
+    })();
 
     res.json({ message: 'User deleted successfully' });
   } catch (err) {
