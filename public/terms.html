@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#0F0D0B; --ink:#F0E6D3; --gold:#C8A84B; --dim:#B8A898; --mute:#6B5E50; --border:rgba(200,168,75,.12); --serif:'Libre Baskerville',Baskerville,'Baskerville Old Face',Georgia,serif; --sans:'DM Sans',sans-serif; }
+    :root { --bg:#0F0D0B; --ink:#F0E6D3; --gold:#C8A84B; --dim:#B8A898; --mute:#6B5E50; --border:rgba(200,168,75,.12); --serif:'Libre Baskerville',Baskerville,'Baskerville Old Face',Georgia,serif; --sans:'DM Sans',sans-serif; --text-2:var(--dim); --text-3:var(--mute); }
     *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
     body { background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.7; }
     header.topbar { padding:20px 48px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
@@ -24,9 +24,29 @@
     li { color:var(--dim); margin-bottom:6px; font-size:15px; }
     a.inline { color:var(--gold); text-decoration:none; }
     a.inline:hover { text-decoration:underline; }
-    footer { border-top:1px solid var(--border); padding:28px 48px; text-align:center; color:var(--mute); font-size:12px; }
-    footer a { color:var(--dim); margin:0 10px; text-decoration:none; }
-    footer a:hover { color:var(--gold); }
+    footer { background:rgba(240,228,196,0.22); border-top:1px solid rgba(240,228,196,0.12); padding:64px 40px 0; }
+    .footer-grid { display:grid; grid-template-columns:1.5fr 1fr 1fr 1.5fr; gap:48px; max-width:1200px; margin:0 auto 48px; }
+    .footer-tagline { font-family:var(--serif); font-style:italic; font-size:14px; color:var(--text-2); line-height:1.6; margin-bottom:20px; }
+    .footer-socials { display:flex; gap:12px; }
+    .footer-social { width:34px; height:34px; border:1px solid rgba(200,168,75,0.25); border-radius:50%; display:flex; align-items:center; justify-content:center; transition:border-color 0.2s,background 0.2s; text-decoration:none; }
+    .footer-social:hover { border-color:var(--gold); background:rgba(200,168,75,0.08); }
+    .footer-social svg { width:14px; height:14px; fill:var(--gold); }
+    .footer-col-title { font-family:var(--sans); font-size:10px; font-weight:700; letter-spacing:0.2em; color:var(--text-3); text-transform:uppercase; margin-bottom:20px; }
+    .footer-links { list-style:none; display:flex; flex-direction:column; gap:12px; }
+    .footer-links a { font-family:var(--sans); font-size:13px; color:var(--text-2); text-decoration:none; transition:color 0.2s; }
+    .footer-links a:hover { color:var(--gold); }
+    .footer-connect-item { display:flex; align-items:flex-start; gap:10px; margin-bottom:14px; }
+    .footer-connect-item svg { width:14px; height:14px; stroke:var(--gold); fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; margin-top:2px; }
+    .footer-connect-text { font-family:var(--sans); font-size:13px; color:var(--text-2); line-height:1.5; }
+    .footer-connect-text a { color:var(--text-2); text-decoration:none; transition:color 0.2s; }
+    .footer-connect-text a:hover { color:var(--gold); }
+    .footer-bar { max-width:1200px; margin:0 auto; border-top:1px solid rgba(200,168,75,0.12); padding:20px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .footer-copy { font-family:var(--sans); font-size:12px; color:var(--text-3); }
+    .footer-legal { display:flex; gap:20px; }
+    .footer-legal a { font-family:var(--sans); font-size:12px; color:var(--text-3); text-decoration:none; transition:color 0.2s; }
+    .footer-legal a:hover { color:var(--gold); }
+    @media (max-width:960px) { .footer-grid { grid-template-columns:1fr 1fr; gap:32px; } }
+    @media (max-width:768px) { footer { padding:48px 24px 0; } .footer-grid { grid-template-columns:1fr; gap:32px; } .footer-bar { flex-direction:column; align-items:flex-start; } }
   </style>
 </head>
 <body>
@@ -95,11 +115,66 @@
   <h2>11. Contact</h2>
   <p>Questions? Write to <a class="inline" href="mailto:support@thefoundationroom.in">support@thefoundationroom.in</a>.</p>
 </main>
-<footer>
-  © 2026 The Foundation Room ·
-  <a href="/privacy.html">Privacy</a> ·
-  <a href="/terms.html">Terms</a> ·
-  <a href="/refund-policy.html">Refunds</a>
+<footer id="connect">
+  <div class="footer-grid">
+    <div>
+      <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;display:block;margin-bottom:6px;">
+      <p class="footer-tagline">Training is a Science.<br>Performing is an Art.</p>
+      <div class="footer-socials">
+        <a href="https://instagram.com/thisistfr" class="footer-social" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+        <a href="https://facebook.com/thefoundationroom" class="footer-social" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div>
+      <p class="footer-col-title">Courses</p>
+      <ul class="footer-links">
+        <li><a href="/experience/sitar-the-complete-foundation">Sitar with Niladri Kumar</a></li>
+        <li><a href="/experience/djembe-world-percussions">Djembe &amp; Percussions — Taufiq Qureshi</a></li>
+        <li><a href="/experience/hindustani-vocals-kirana-gharana">Hindustani Vocals — Sveta Kilpady</a></li>
+        <li><a href="/experience/kathak-lucknow-gharana">Kathak — Guruma Sangeeta Sinha</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Platform</p>
+      <ul class="footer-links">
+        <li><a href="/#experience">Experience TFR</a></li>
+        <li><a href="/login">TFR Play</a></li>
+        <li><a href="/#community">Community</a></li>
+        <li><a href="/#courses">Instructors</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Connect</p>
+      <div class="footer-connect-item">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
+        <span class="footer-connect-text"><a href="tel:+919920615500">+91 99206 15500</a></span>
+      </div>
+      <div class="footer-connect-item">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span class="footer-connect-text"><a href="mailto:join@thefoundationroom.in">join@thefoundationroom.in</a></span>
+      </div>
+      <div class="footer-connect-item">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="footer-connect-text">403 Windermere, North Avenue,<br>Santacruz West, Mumbai 400054</span>
+      </div>
+      <div class="footer-connect-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+        <span class="footer-connect-text">@thisistfr on Instagram</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved. &nbsp;&middot;&nbsp; Designed and developed by Techinfinity</p>
+    <div class="footer-legal">
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/refund-policy">Refund Policy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
 </footer>
 </body>
 </html>
