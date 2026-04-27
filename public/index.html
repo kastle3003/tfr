@@ -521,17 +521,31 @@
       justify-content: center;
       overflow: hidden;
     }
+    .instructor-card-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(8,7,6,0) 0%, rgba(8,7,6,0.55) 100%),
+        linear-gradient(135deg, rgba(200,168,75,0.08) 0%, transparent 60%);
+      z-index: 1;
+      transition: opacity 0.35s;
+    }
+    .instructor-card:hover .instructor-card-img::after {
+      opacity: 0.7;
+    }
 
     .instructor-initials {
       font-family: var(--serif);
       font-style: italic;
       font-size: 72px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--gold);
-      opacity: 0.3;
+      opacity: 0.22;
       user-select: none;
       z-index: 2;
       position: relative;
+      letter-spacing: -0.02em;
     }
 
     .instructor-card-photo {
@@ -540,8 +554,14 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      opacity: 0.35;
+      object-position: top center;
+      opacity: 0.72;
       z-index: 0;
+      transition: transform 0.45s ease, opacity 0.3s;
+    }
+    .instructor-card:hover .instructor-card-photo {
+      transform: scale(1.04);
+      opacity: 0.82;
     }
 
     @keyframes cardFadeIn {
@@ -1362,6 +1382,120 @@
       will-change: transform;
     }
 
+    /* ─── PRACTISE ROOM SPOTLIGHT ─── */
+    #practice-room-spotlight {
+      position: relative;
+      padding: 120px 40px;
+      background: #06040200;
+      overflow: hidden;
+      text-align: center;
+    }
+    #practice-room-spotlight::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 70% at 50% 50%, rgba(200,168,75,0.09) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(191,0,0,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 40% at 80% 20%, rgba(191,0,0,0.06) 0%, transparent 55%),
+        linear-gradient(180deg, var(--bg) 0%, #0c0906 50%, var(--bg) 100%);
+      pointer-events: none;
+    }
+    #practice-room-spotlight::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(200,168,75,0.3), transparent);
+    }
+    .pr-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      left: 50%; top: 50%;
+      transform: translate(-50%,-50%);
+      background: radial-gradient(circle, rgba(200,168,75,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .pr-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .pr-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(200,168,75,0.25);
+      border-radius: 50px;
+      padding: 6px 16px;
+      margin-bottom: 32px;
+    }
+    .pr-eyebrow svg { opacity: 0.8; }
+    .pr-heading {
+      font-family: var(--serif);
+      font-size: clamp(38px, 5vw, 62px);
+      font-weight: 600;
+      line-height: 1.18;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+    .pr-heading em {
+      font-style: italic;
+      color: var(--gold);
+    }
+    .pr-sub {
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text-3);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+    .pr-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 48px;
+    }
+    .pr-pill {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      background: rgba(200,168,75,0.07);
+      border: 1px solid rgba(200,168,75,0.18);
+      border-radius: 50px;
+      padding: 6px 16px;
+    }
+    .btn-pr {
+      display: inline-block;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #080706;
+      background: linear-gradient(135deg, #E8C96E 0%, #C8A84B 50%, #A8882B 100%);
+      padding: 14px 36px;
+      border-radius: 3px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+      box-shadow: 0 4px 24px rgba(200,168,75,0.3);
+    }
+    .btn-pr:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 36px rgba(200,168,75,0.45);
+      filter: brightness(1.08);
+    }
+
     /* ─── CHOOSE YOUR COURSE (CAROUSEL) ─── */
     #choose-course {
       padding: 100px 40px;
@@ -1937,7 +2071,7 @@
           <svg width="12" height="13" viewBox="0 0 12 13" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 5-9 5V1.5z"/></svg>
           Begin Your Journey
         </a>
-        <a href="#explore" class="btn-hero-secondary">Explore Courses</a>
+        <a href="#courses" class="btn-hero-secondary">Explore Courses</a>
       </div>
       <div class="hero-proof reveal reveal-delay-4">
         <div class="hero-avatars">
@@ -2114,8 +2248,28 @@
     </div>
   </section>
 
-  <!-- CHOOSE YOUR COURSE -->
-  <section id="explore">
+  <!-- PRACTISE ROOM SPOTLIGHT -->
+  <section id="practice-room-spotlight">
+    <div class="pr-glow"></div>
+    <div class="pr-inner">
+      <div class="pr-eyebrow reveal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        The Practise Room
+      </div>
+      <h2 class="pr-heading reveal reveal-delay-1">Practice every day.<br><em>Master your art.</em></h2>
+      <p class="pr-sub reveal reveal-delay-2">The only way to truly master an instrument is to practise it — obsessively, repeatedly, joyfully. The Practise Room is your dedicated space to grind, grow and perform.</p>
+      <div class="pr-pills reveal reveal-delay-3">
+        <span class="pr-pill">Daily new practises</span>
+        <span class="pr-pill">All levels welcome</span>
+        <span class="pr-pill">Guided by the Master</span>
+        <span class="pr-pill">Track your progress</span>
+      </div>
+      <a href="/practice-room.html" class="btn-pr reveal reveal-delay-4">Enter the Practise Room &rarr;</a>
+    </div>
+  </section>
+
+  <!-- CHOOSE YOUR COURSE (removed from landing) -->
+  <section id="explore" style="display:none;">
     <div class="choose-header">
       <p class="section-label reveal">Pick Your Path</p>
       <h2 class="section-heading reveal reveal-delay-1">Choose Your <em>Course</em></h2>
@@ -3584,7 +3738,8 @@
           : `<span class="instructor-cta" style="opacity:0.55;cursor:default;">Coming Soon</span>`;
         return `
           <div class="instructor-card instructor-card-loaded reveal ${delay}" style="animation-delay:${i * 0.08}s;">
-            <div class="instructor-card-img" style="background:linear-gradient(135deg,${bgColor} 0%,${bgAccent} 100%);">
+            <div class="instructor-card-img" style="background:linear-gradient(150deg,${bgColor} 0%,${bgAccent} 55%,${bgColor} 100%);">
+              <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 30% 40%,rgba(200,168,75,0.12) 0%,transparent 70%);z-index:1;pointer-events:none;"></div>
               ${imgTag}
               <span class="instructor-initials">${initials}</span>
             </div>
