@@ -235,7 +235,7 @@ router.post('/smtp/test', adminOnly, (req, res) => {
 router.get('/users', adminOnly, (req, res) => {
   try {
     const users = db.prepare(`
-      SELECT id, first_name, last_name, email, role, instrument, avatar_initials, bio, verified, created_at
+      SELECT id, first_name, last_name, email, role, instrument, avatar_initials, bio, verified, is_blocked, created_at
       FROM users ORDER BY created_at DESC
     `).all();
 
@@ -294,6 +294,20 @@ router.put('/users/:id', adminOnly, (req, res) => {
 
     const updated = db.prepare('SELECT id, first_name, last_name, email, role, instrument, avatar_initials, created_at FROM users WHERE id = ?').get(req.params.id);
     res.json({ user: updated, message: 'User updated' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/admin/users/:id/block — Block or unblock a user
+router.put('/users/:id/block', adminOnly, (req, res) => {
+  try {
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (user.role === 'admin') return res.status(403).json({ error: 'Cannot block admin users' });
+    const is_blocked = req.body.is_blocked ? 1 : 0;
+    db.prepare('UPDATE users SET is_blocked = ? WHERE id = ?').run(is_blocked, req.params.id);
+    res.json({ message: is_blocked ? 'User blocked' : 'User unblocked', is_blocked });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -36,9 +36,9 @@
     { href: '/analytics-student.html',    label: 'Analytics',    icon: I.analytics },
     { href: '/student-calendar.html',     label: 'Calendar',     icon: I.calendar },
     { section: 'Library' },
-    { href: '/student-sheet-music.html', label: 'Sheet Music', icon: I.sheet,     locked: true },
-    { href: '/student-resources.html',   label: 'Resources',   icon: I.resources, locked: true },
-    { href: '/student-archive.html',     label: 'The Archive', icon: I.archive,   locked: true },
+    { href: '/student-sheet-music.html', label: 'Sheet Music', icon: I.sheet },
+    { href: '/student-resources.html',   label: 'Resources',   icon: I.resources },
+    { href: '/student-archive.html',     label: 'The Archive', icon: I.archive },
     { section: 'Community' },
     { href: '/student-announcements.html', label: 'Announcements', icon: I.announcements },
     { href: '/student-notifications.html', label: 'Notifications', icon: I.notifications },
@@ -142,11 +142,85 @@
     `;
   }
 
+  function setupTopbarAvatar() {
+    const el = document.getElementById('topbar-avatar');
+    if (!el) return;
+
+    const user = getCachedUser();
+    const initials = initialsFor(user);
+    const name = [user.first_name, user.last_name].filter(Boolean).join(' ') || 'Student';
+
+    el.textContent = initials;
+    el.title = name;
+
+    // If already converted to a dropdown, just update the header text
+    const existingHead = document.getElementById('_td-head-name');
+    if (existingHead) { existingHead.textContent = name; return; }
+
+    el.removeAttribute('href');
+    el.removeAttribute('onclick');
+    el.style.cursor = 'pointer';
+
+    const dropdown = document.createElement('div');
+    dropdown.style.cssText = [
+      'position:absolute', 'top:calc(100% + 8px)', 'right:0',
+      'min-width:200px', 'background:#0F0D0B',
+      'border:1px solid rgba(200,168,75,0.22)', 'border-radius:8px',
+      'padding:8px', 'box-shadow:0 18px 40px rgba(0,0,0,.45)',
+      'opacity:0', 'transform:translateY(-4px)',
+      'pointer-events:none', 'transition:opacity .15s,transform .15s', 'z-index:1000'
+    ].join(';');
+
+    const linkStyle = 'display:block;padding:9px 12px;border-radius:5px;font-size:13px;font-weight:500;color:#F0E6D3;text-decoration:none;';
+    const btnStyle  = linkStyle + 'width:100%;text-align:left;background:transparent;border:0;cursor:pointer;';
+
+    dropdown.innerHTML = `
+      <div style="padding:10px 12px 12px;border-bottom:1px solid rgba(200,168,75,0.12);margin-bottom:6px;">
+        <div id="_td-head-name" style="font-size:13px;font-weight:600;color:#F0E6D3;">${name}</div>
+        <div style="font-size:10px;font-weight:600;color:#C8A84B;letter-spacing:.18em;text-transform:uppercase;margin-top:2px;">Student</div>
+      </div>
+      <a href="/student-dashboard.html" style="${linkStyle}" class="_td-item">Dashboard</a>
+      <a href="/student-profile.html"   style="${linkStyle}" class="_td-item">Profile</a>
+      <div style="height:1px;background:rgba(200,168,75,0.12);margin:6px 4px;"></div>
+      <button style="${btnStyle}" class="_td-item _td-logout">Log Out</button>
+    `;
+
+    dropdown.querySelectorAll('._td-item').forEach(item => {
+      item.addEventListener('mouseenter', () => { item.style.background = 'rgba(200,168,75,0.08)'; item.style.color = '#E8C96E'; });
+      item.addEventListener('mouseleave', () => { item.style.background = 'transparent'; item.style.color = '#F0E6D3'; });
+    });
+    dropdown.querySelector('._td-logout').addEventListener('click', () => {
+      (window.logout || function() { localStorage.clear(); location.href = '/signin.html'; })();
+    });
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:relative;display:inline-flex;align-items:center;';
+    el.parentNode.insertBefore(wrapper, el);
+    wrapper.appendChild(el);
+    wrapper.appendChild(dropdown);
+
+    let open = false;
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      open = !open;
+      dropdown.style.opacity = open ? '1' : '0';
+      dropdown.style.transform = open ? 'none' : 'translateY(-4px)';
+      dropdown.style.pointerEvents = open ? 'auto' : 'none';
+    });
+    document.addEventListener('click', () => {
+      open = false;
+      dropdown.style.opacity = '0';
+      dropdown.style.transform = 'translateY(-4px)';
+      dropdown.style.pointerEvents = 'none';
+    });
+  }
+
   function mount() {
     const el = document.getElementById('sidebar') || document.querySelector('aside.sidebar');
     if (!el) return;
     ensureStyles();
     el.innerHTML = render();
+    setupTopbarAvatar();
   }
 
   if (document.readyState === 'loading') {
@@ -154,5 +228,5 @@
   } else {
     mount();
   }
-  document.addEventListener('userLoaded', mount);
+  document.addEventListener('userLoaded', () => { mount(); setupTopbarAvatar(); });
 })();

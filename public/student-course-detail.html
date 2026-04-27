@@ -1188,19 +1188,6 @@
 <div class="toast-container" id="toast-container"></div>
 
 <script src="/assets/js/api.js"></script>
-<script>
-  // Redirect to the course landing page (which serves as the player for enrolled students).
-  (function redirect() {
-    const id = new URLSearchParams(location.search).get('id');
-    if (!localStorage.getItem('archive_token')) {
-      if (id) window.location.replace('/courses/' + id);
-      else    window.location.replace('/courses.html');
-    } else {
-      if (id) window.location.replace('/courses/' + id + '#foundation-tabs');
-      else    window.location.replace('/student-lessons.html');
-    }
-  })();
-</script>
 <script src="/assets/js/auth-guard.js"></script>
 <script>requireRole(['student']);</script>
 <script src="/assets/js/student-sidebar.js"></script>

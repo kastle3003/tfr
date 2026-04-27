@@ -1168,6 +1168,7 @@
               <label class="check-item"><input type="checkbox" id="ft-midi" value="midi"> MIDI</label>
               <label class="check-item"><input type="checkbox" id="ft-png" value="png" checked> PNG</label>
               <label class="check-item"><input type="checkbox" id="ft-jpg" value="jpg" checked> JPG</label>
+              <label class="check-item"><input type="checkbox" id="ft-link" value="link" checked> LINK</label>
             </div>
           </div>
           <div class="toggle-wrap" style="margin-top:6px;">
@@ -1744,12 +1745,12 @@
 
 <!-- Confirm Delete Modal -->
 <div class="modal-overlay" id="confirm-modal" style="display:none;">
-  <div class="modal">
-    <div class="modal-title" id="confirm-title">Confirm Action</div>
-    <p style="font-size:13px;color:var(--text-2);margin-bottom:20px;line-height:1.6;" id="confirm-body">Are you sure?</p>
-    <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button class="btn btn-ghost" onclick="closeModal('confirm-modal')">Cancel</button>
-      <button class="btn btn-danger" id="confirm-action-btn">Delete</button>
+  <div class="modal" style="text-align:center;">
+    <div class="modal-title" id="confirm-title" style="text-align:center;">Confirm Action</div>
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:24px;line-height:1.6;text-align:center;" id="confirm-body">Are you sure?</p>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-danger" style="min-width:130px;" id="confirm-action-btn">Delete</button>
+      <button class="btn btn-ghost" onclick="closeModal('confirm-modal'); document.getElementById('confirm-action-btn').className='btn btn-danger';">Cancel</button>
     </div>
   </div>
 </div>
@@ -2004,7 +2005,7 @@
     };
     wrap.innerHTML = `<table>
       <thead><tr>
-        <th>Name</th><th>Email</th><th>Role</th><th>Instrument</th><th>Enrollments</th><th>Joined</th><th>Actions</th>
+        <th>Name</th><th>Email</th><th>Role</th><th>Instrument</th><th>Enrollments</th><th>Joined</th><th>Status</th><th>Actions</th>
       </tr></thead>
       <tbody>
         ${users.map(u => `<tr>
@@ -2021,12 +2022,61 @@
           <td style="text-align:center;">${u.enrollment_count || 0}</td>
           <td style="font-size:12px;color:var(--text-3);">${fmtDate(u.created_at)}</td>
           <td>
-            ${u.role !== 'admin' ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteUser(${u.id}, '${esc(u.name || '')}')">Delete</button>` : '—'}
+            ${u.is_blocked
+              ? `<span class="badge badge-red">Blocked</span>`
+              : `<span class="badge badge-green">Active</span>`}
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              ${u.role !== 'admin' ? `
+                <button class="btn btn-outline btn-sm" onclick="viewUser(${u.id})" title="View details">👁</button>
+                <button class="btn btn-outline btn-sm" onclick="toggleBlockUser(${u.id}, ${u.is_blocked ? 1 : 0})" title="${u.is_blocked ? 'Unblock' : 'Block'} user"
+                  style="${u.is_blocked ? '' : 'color:#E07070;'}">${u.is_blocked ? '🔓' : '🚫'}</button>
+                <button class="btn btn-danger btn-sm" onclick="confirmDeleteUser(${u.id}, '${esc(u.name || '')}')">Delete</button>
+              ` : '—'}
+            </div>
           </td>
         </tr>`).join('')}
       </tbody>
     </table>`;
     gsap.from(wrap.querySelectorAll('tbody tr'), { opacity: 0, x: -8, stagger: 0.03, duration: 0.3 });
+  }
+
+  function viewUser(userId) {
+    const u = allUsers.find(x => x.id === userId);
+    if (!u) return;
+    const name = esc(u.name || (u.first_name + ' ' + u.last_name));
+    document.getElementById('confirm-title').textContent = 'User Details';
+    document.getElementById('confirm-body').innerHTML = [
+      `<strong>${name}</strong>`,
+      `Email: ${esc(u.email)}`,
+      `Role: ${esc(u.role)}`,
+      `Instrument: ${esc(u.instrument || '—')}`,
+      `Enrolled: ${u.enrollment_count || 0} course(s)`,
+      `Joined: ${fmtDate(u.created_at)}`,
+      `Status: ${u.is_blocked ? '<span style="color:#E07070;">Blocked</span>' : '<span style="color:#6fcf6f;">Active</span>'}`
+    ].join('<br>');
+    const btn = document.getElementById('confirm-action-btn');
+    btn.textContent = 'Close';
+    btn.className = 'btn btn-ghost';
+    btn.onclick = () => {
+      btn.className = 'btn btn-danger';
+      closeModal('confirm-modal');
+    };
+    openModal('confirm-modal');
+  }
+
+  async function toggleBlockUser(userId, currentlyBlocked) {
+    const u = allUsers.find(x => x.id === userId);
+    if (!u) return;
+    const name = u.name || (u.first_name + ' ' + u.last_name);
+    const action = currentlyBlocked ? 'Unblock' : 'Block';
+    if (!confirm(`${action} user "${name}"?`)) return;
+    try {
+      await api.put('/api/admin/users/' + userId + '/block', { is_blocked: !currentlyBlocked });
+      toast(`User ${currentlyBlocked ? 'unblocked' : 'blocked'}.`);
+      loadUsers();
+    } catch (e) { toast(e.message || 'Failed', 'error'); }
   }
 
   function openCreateUserModal() { openModal('create-user-modal'); }

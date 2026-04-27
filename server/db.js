@@ -21,6 +21,9 @@ process.once('SIGTERM', () => { try { db.close(); } catch (_) {} process.exit(0)
 
 db.pragma('foreign_keys = ON');
 
+// Migrations — add columns that may not exist in older DB files
+try { db.exec('ALTER TABLE users ADD COLUMN is_blocked INTEGER DEFAULT 0'); } catch (_) {}
+
 // Create tables
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
