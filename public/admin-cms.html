@@ -1030,7 +1030,10 @@ async function cmsApi(method, path, body) {
   }
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.message || `HTTP ${res.status}`);
+    const err = new Error(errData.error || errData.message || `HTTP ${res.status}`);
+    err.status = res.status;
+    err.data = errData;
+    throw err;
   }
   if (res.status === 204) return null;
   return res.json();
@@ -1573,14 +1576,27 @@ async function toggleCourseStatus(id, currentStatus) {
   } catch(e) { showToast(e.message, 'error'); }
 }
 
-function deleteCourse(id, name) {
-  confirmDelete(id, name, async () => {
-    try {
-      await cmsApi('DELETE', `/api/cms/courses/${id}`);
-      showToast('Course deleted', 'success');
-      loadCourses();
-    } catch(e) { showToast(e.message, 'error'); }
-  });
+async function deleteCourse(id, name) {
+  try {
+    await cmsApi('DELETE', `/api/cms/courses/${id}`);
+    showToast('Course deleted', 'success');
+    loadCourses();
+  } catch(e) {
+    if (e.status === 409 && e.data?.requires_confirmation) {
+      // Course has enrolled students — ask for explicit confirmation
+      confirmDelete(id, name, async () => {
+        try {
+          await cmsApi('DELETE', `/api/cms/courses/${id}?force=true`);
+          showToast('Course and all enrolments deleted', 'success');
+          loadCourses();
+        } catch(e2) { showToast(e2.message, 'error'); }
+      });
+      // Override the generic modal body with the enrollment warning
+      document.getElementById('modalBody').textContent = e.message;
+    } else {
+      showToast(e.message, 'error');
+    }
+  }
 }
 
 // Override openDrawer for courses to load instructors

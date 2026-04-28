@@ -153,12 +153,50 @@ router.delete('/courses/:id', (req, res) => {
     const existing = db.prepare('SELECT id FROM courses WHERE id = ?').get(req.params.id);
     if (!existing) return res.status(404).json({ error: 'Course not found' });
 
-    const enrollCount = db.prepare('SELECT COUNT(*) AS n FROM enrollments WHERE course_id = ?').get(req.params.id).n;
-    if (enrollCount > 0) {
-      return res.status(409).json({ error: 'Cannot delete course with active enrollments' });
+    // If not force-confirmed, warn about active enrollments
+    if (req.query.force !== 'true') {
+      const enrollCount = db.prepare('SELECT COUNT(*) AS n FROM enrollments WHERE course_id = ?').get(req.params.id).n;
+      if (enrollCount > 0) {
+        return res.status(409).json({
+          error: `This course has ${enrollCount} enrolled student${enrollCount !== 1 ? 's' : ''}. Deleting it will permanently remove all enrolments and course data.`,
+          enrollment_count: enrollCount,
+          requires_confirmation: true,
+        });
+      }
     }
 
-    db.prepare('DELETE FROM courses WHERE id = ?').run(req.params.id);
+    // Cascade delete: deepest dependencies first
+    const lessonIds = db.prepare('SELECT id FROM lessons WHERE course_id = ?').all(req.params.id).map(r => r.id);
+    if (lessonIds.length) {
+      const matIds = db.prepare(`SELECT id FROM lesson_materials WHERE lesson_id IN (${lessonIds.map(() => '?').join(',')})`).all(...lessonIds).map(r => r.id);
+      if (matIds.length) {
+        db.prepare(`DELETE FROM video_timestamps WHERE material_id IN (${matIds.map(() => '?').join(',')})`).run(...matIds);
+      }
+      const ph = lessonIds.map(() => '?').join(',');
+      db.prepare(`DELETE FROM lesson_materials WHERE lesson_id IN (${ph})`).run(...lessonIds);
+      db.prepare(`DELETE FROM lesson_progress WHERE lesson_id IN (${ph})`).run(...lessonIds);
+      db.prepare(`DELETE FROM quizzes WHERE lesson_id IN (${ph})`).run(...lessonIds);
+      db.prepare(`DELETE FROM submissions WHERE lesson_id IN (${ph})`).run(...lessonIds);
+      db.prepare(`DELETE FROM recordings WHERE lesson_id IN (${ph})`).run(...lessonIds);
+      db.prepare(`DELETE FROM resources WHERE lesson_id IN (${ph})`).run(...lessonIds);
+    }
+
+    const id = req.params.id;
+    db.prepare('DELETE FROM lessons WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM chapters WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM enrollments WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM assignments WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM announcements WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM certificates WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM live_sessions WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM message_threads WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM payments WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM practice_sessions WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM purchases WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM sheet_music WHERE course_id = ?').run(id);
+    db.prepare('UPDATE coupons SET course_id = NULL WHERE course_id = ?').run(id);
+    db.prepare('DELETE FROM courses WHERE id = ?').run(id);
+
     res.json({ message: 'Course deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });

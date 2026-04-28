@@ -104,6 +104,17 @@ function isFoundationCompleted(userId, foundationId) {
   return lessons.every(l => isLessonCompleted(userId, l.id));
 }
 
+// Returns true when this lesson is the very first lesson in the first foundation
+// of its course — automatically free for any authenticated user.
+function isFirstLessonOfCourse(lesson) {
+  const foundations = courseFoundations(lesson.course_id);
+  if (!foundations.length) return false;
+  const firstFoundation = foundations[0];
+  if (lesson.chapter_id !== firstFoundation.id) return false;
+  const lessons = foundationLessons(firstFoundation.id);
+  return lessons.length > 0 && lessons[0].id === lesson.id;
+}
+
 // ── Lecture access ─────────────────────────────────────────────────────────
 // Returns { allowed, reason? } so the route can send a helpful 403 body.
 function canAccessLecture(user, lessonId) {
@@ -117,9 +128,14 @@ function canAccessLecture(user, lessonId) {
   // Preview lectures are open for any authed user.
   if (lesson.is_preview) return { allowed: true, reason: 'preview' };
 
+  // First lesson of Foundation A is always free — auto free trial.
+  if (isFirstLessonOfCourse(lesson)) {
+    return { allowed: true, reason: 'first_lesson_free' };
+  }
+
   // Must own the foundation OR the course bundle.
   if (!hasFoundationAccess(user.id, lesson.chapter_id)) {
-    return { allowed: false, reason: 'not_purchased' };
+    return { allowed: false, reason: 'not_purchased', course_id: lesson.course_id };
   }
 
   return { allowed: true, reason: 'owned' };
@@ -165,6 +181,7 @@ module.exports = {
   ownsBundle, ownsFoundation,
   hasFoundationAccess, hasCourseAccess,
   isLessonCompleted, isFoundationCompleted,
+  isFirstLessonOfCourse,
   canAccessLecture, canPurchaseFoundation,
   lessonCompletionPct, foundationProgressPct,
 };

@@ -105,6 +105,25 @@
       position: absolute; inset: 0;
       background: linear-gradient(to top, var(--ink) 0%, rgba(8,7,6,.7) 40%, rgba(8,7,6,.3) 100%);
     }
+    /* YouTube video background */
+    .hero-yt-wrap {
+      position: absolute; inset: 0; z-index: 0; overflow: hidden; background: #000;
+    }
+    .hero-yt-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--ink) 0%, rgba(8,7,6,.65) 40%, rgba(8,7,6,.25) 100%);
+      z-index: 1;
+    }
+    .hero-yt-wrap iframe {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 177.78vh; /* 16:9 at full height */
+      height: 56.25vw; /* 16:9 at full width */
+      min-width: 100%; min-height: 100%;
+      transform: translate(-50%, -50%);
+      border: none; pointer-events: none;
+    }
 
     /* ─── ENROLL SIDEBAR ─── */
     .enroll-sidebar {
@@ -1067,9 +1086,13 @@ async function renderPage(data) {
   const html = `
     <!-- HERO (full width) -->
     <div id="hero">
+      ${course.slug === 'djembe-world-percussions' ? `
+      <div class="hero-yt-wrap">
+        <iframe src="https://www.youtube.com/embed/En8fsz2uQ7k?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&rel=0&showinfo=0&playlist=En8fsz2uQ7k" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>` : `
       <div class="hero-bg" style="background:${course.cover_color || '#1a0d00'}">
         ${course.cover_image_url ? `<img src="${course.cover_image_url}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">` : ''}
-      </div>
+      </div>`}
       <div class="hero-left">
         <p class="hero-eyebrow">${course.category} · ${course.level || 'All Levels'}</p>
         <h1 class="hero-title">${course.title}</h1>
@@ -1107,7 +1130,8 @@ async function renderPage(data) {
           <div class="section-body">
             ${(course.description || `An immersive ${course.instrument || course.category || ''} course taught by ${course.instructor_name || 'our expert faculty'}.`)
               .split('. ').reduce((acc, s, i) => {
-                if (i === 0 || i % 3 !== 0) return acc + (acc ? '. ' : '') + s;
+                if (i === 0) return acc + s;
+                if (i % 3 !== 0) return acc + '. ' + s;
                 return acc + '.</p><p>' + s;
               }, '<p>') + '.</p>'}
           </div>
@@ -1142,7 +1166,7 @@ async function renderPage(data) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold);flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
             <span><a href="/signin.html" style="color:var(--gold);text-decoration:none;font-weight:500;">Sign in</a> to watch free preview lessons — all foundations are locked until you log in.</span>
           </div>` : ''}
-          <h2 class="section-heading">Course <em>structure</em></h2>
+          <h2 class="section-heading">${course.slug === 'djembe-world-percussions' ? 'Course <em>topics</em>' : 'Course <em>structure</em>'}</h2>
           <div class="curriculum-summary">
             <span class="curr-stat"><strong id="stat-lessons-num">${(chapters[0]?.lessons || []).length}</strong> <span id="stat-lessons-label">${(chapters[0]?.lessons || []).length === 1 ? 'lesson' : 'lessons'}</span></span>
             <span class="curr-stat"><strong id="stat-runtime-num">—</strong> total runtime</span>
@@ -1167,8 +1191,9 @@ async function renderPage(data) {
           </button>
         </div>
 
-        <hr class="section-sep">
+        ${course.slug !== 'djembe-world-percussions' ? `<hr class="section-sep">` : ''}
 
+        ${course.slug !== 'djembe-world-percussions' ? `
         <!-- INSTRUCTOR -->
         <div class="section reveal">
           <p class="section-label">Your Instructor</p>
@@ -1205,7 +1230,7 @@ async function renderPage(data) {
                 <p class="testi-origin">${t.origin}</p>
               </div>`).join('')}
           </div>
-        </div>
+        </div>` : ''}
 
       </main>
 

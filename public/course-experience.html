@@ -144,7 +144,7 @@
   }
   .title-red { color: #fff; }
   .hero-sub {
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     font-size: clamp(15px, 1.4vw, 20px);
     color: #fff; opacity: .92;
     margin: 0 auto 16px;
@@ -415,6 +415,8 @@
     position: relative; z-index: 1;
     display: flex; flex-direction: column; align-items: center; gap: 14px;
     padding: 24px; text-align: center;
+    width: 100%; height: 100%;
+    justify-content: flex-end;
   }
   .play-card-logo {
     height: 58px; width: auto;
@@ -430,7 +432,8 @@
   .play-card:hover .play-card-play { transform: scale(1.1); }
   .play-card-play svg { width: 24px; height: 24px; fill: #fff; margin-left: 3px; }
   .play-card-label {
-    font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--cream-dim);
+    font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,0.65);
+    padding: 6px 16px; background: rgba(8,7,6,0.45); border-radius: 3px;
   }
 
   /* ─────────── Instructor ─────────── */
@@ -522,17 +525,18 @@
   .pr-card-body p strong { color: var(--gold); font-weight: 500; }
   .pr-card-visual {
     position: relative;
-    background-size: cover; background-position: center;
+    background-size: cover; background-position: center top;
     min-height: 260px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 14px;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
   }
   .pr-card-visual::before {
     content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(8,7,6,.65) 0%, rgba(8,7,6,.4) 100%);
+    background: linear-gradient(to top, rgba(8,7,6,.88) 0%, rgba(8,7,6,.55) 28%, rgba(8,7,6,.1) 55%, transparent 72%);
   }
   .pr-card-visual-inner {
     position: relative; z-index: 1; text-align: center;
+    padding: 0 24px 22px;
+    width: 100%;
   }
   .pr-card-visual .pr-card-play {
     width: 76px; height: 76px; border-radius: 50%;
@@ -543,15 +547,26 @@
   }
   .pr-card-visual .pr-card-play svg { width: 26px; height: 26px; fill: #fff; margin-left: 3px; }
   .pr-card-visual-label {
-    margin-top: 22px;
+    margin-top: 0;
     font-size: 11px; font-weight: 700;
     letter-spacing: .22em; text-transform: uppercase;
     color: var(--gold);
   }
   .pr-card-visual-sublabel {
-    margin-top: 6px;
+    margin-top: 4px;
     font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
     color: var(--cream-dim);
+  }
+  .pr-watch-preview {
+    margin-top: 10px;
+    font-size: 11px; letter-spacing: .12em;
+    color: rgba(255,255,255,0.55);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pr-watch-preview::before {
+    content: '▶';
+    font-size: 8px;
+    color: var(--gold);
   }
   .pr-locked-btn {
     position: relative;
@@ -1097,11 +1112,9 @@
         </div>
         <div class="pr-card-visual" id="pr-card-visual">
           <div class="pr-card-visual-inner">
-            <div class="pr-card-play">
-              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21"/></svg>
-            </div>
             <div class="pr-card-visual-label">The Practice Room</div>
             <div class="pr-card-visual-sublabel" id="pr-card-visual-sublabel">Get ready to practise</div>
+            <div class="pr-watch-preview">Watch Preview</div>
           </div>
         </div>
       </div>
@@ -1192,7 +1205,7 @@
       title: 'Basic Foundation Course',
       subtitle: 'New to Djembe? New to a rhythm instrument?',
       btnText: 'Start Training',
-      link: '/djembe-hero.html',
+      link: '/courses/djembe-world-percussions',
       highlights: [
         'Designed for anybody who wishes to start playing a rhythm instrument',
         'Train on any instrument — Djembe, Cajon, Darbuka, Duff',
@@ -1409,7 +1422,7 @@
       document.getElementById('hero-title').innerHTML = esc(mainTitle);
 
       document.getElementById('hero-eyebrow').textContent = slug === 'djembe-world-percussions'
-        ? 'Djembe · Rhythm'
+        ? 'Rhythm'
         : (course.instrument || 'Course') + ' · ' + (course.level || 'All levels');
       document.getElementById('hero-sub').textContent = overrides?.heroSub || course.subtitle || 'Begin your journey';
       document.getElementById('hero-sub-note').textContent = 'Mentor-led course';
@@ -1430,7 +1443,7 @@
             window.__openVideoModal(v);
           }
         });
-        document.getElementById('play-card-label').textContent = overrides.previewVideo.includes('instagram') ? 'Watch on Instagram ▶' : 'Watch trailer ▶';
+        document.getElementById('play-card-label').textContent = 'Watch Preview ▶';
       } else {
         playCardLink.setAttribute('href', trainUrl);
         document.getElementById('play-card-label').textContent = 'Watch preview →';
@@ -1446,7 +1459,7 @@
         pcImg.style.opacity = '1';
         pcImg.classList.add('play-card-img-branded');
         const pcPlay = document.querySelector('.play-card .play-card-play');
-        if (pcPlay && (!overrides.previewVideo || overrides.hidePlayBtn)) pcPlay.style.display = 'none';
+        if (pcPlay) pcPlay.style.display = 'none';
       }
 
       const upImg = document.getElementById('upcoming-card-img');

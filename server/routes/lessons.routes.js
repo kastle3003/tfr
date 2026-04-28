@@ -61,7 +61,7 @@ router.get('/:id', (req, res) => {
       return res.status(403).json({
         error: 'Access denied',
         reason: acc.reason,
-        blocked_by: acc.blocked_by,
+        course_id: lesson.course_id,
         lesson: {
           id: lesson.id,
           chapter_id: lesson.chapter_id,
@@ -102,6 +102,9 @@ router.get('/:id', (req, res) => {
       completion_percentage: p ? (p.completion_percentage || 0) : 0,
       is_completed: !!(p && p.completed === 1),
     };
+
+    // Tell the client when this lesson is the automatic free first-lesson preview
+    lesson.is_first_free = acc.reason === 'first_lesson_free';
 
     res.json({ lesson });
   } catch (err) {

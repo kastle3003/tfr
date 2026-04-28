@@ -677,6 +677,19 @@
     .lesson-type-select:focus { border-color: var(--gold); }
     .lesson-type-select option { background: var(--bg-elevated); }
 
+    .lesson-preview-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--text-3);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .lesson-preview-label input[type="checkbox"] { accent-color: var(--gold); cursor: pointer; }
+    .lesson-preview-label:has(input:checked) { color: var(--gold); }
+
     /* ── Lesson materials editor ── */
     .lesson-mat-toggle {
       background: none;
@@ -1828,6 +1841,10 @@
         <input class="lesson-duration" type="number" min="1" placeholder="min" id="les-dur-${l.id}"
           value="${l.duration_minutes || ''}" onblur="updateLesson(${l.id}, ${l.chapter_id})">
         <button class="lesson-mat-toggle" id="les-mat-btn-${l.id}" onclick="toggleMaterials(${l.id})">Materials</button>
+        <label class="lesson-preview-label" title="Mark as free preview — accessible without purchase">
+          <input type="checkbox" id="les-preview-${l.id}" ${l.is_preview ? 'checked' : ''} onchange="updateLesson(${l.id}, ${l.chapter_id})">
+          Free
+        </label>
         <button class="icon-action danger" onclick="confirmDeleteLesson(${l.id}, ${l.chapter_id})">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
         </button>
@@ -2077,18 +2094,32 @@
 
   async function updateLesson(id, chapterId) {
     const titleInp = document.getElementById('les-title-' + id);
-    const typeInp = document.getElementById('les-type-' + id);
-    const durInp = document.getElementById('les-dur-' + id);
+    const typeInp  = document.getElementById('les-type-' + id);
+    const durInp   = document.getElementById('les-dur-' + id);
+    const prevInp  = document.getElementById('les-preview-' + id);
     if (!titleInp) return;
+
+    // Preserve the lesson's current order_index — never overwrite it with 0.
+    const ch = chaptersData.find(c => c.id === chapterId);
+    const lessonData = ch?.lessons?.find(l => l.id === id);
+    const currentOrderIndex = lessonData?.order_index ?? 0;
+
     try {
       await api.put('/api/lessons/' + id, {
         title: titleInp.value,
         type: typeInp?.value || 'video',
         duration_minutes: parseInt(durInp?.value) || null,
-        order_index: 0
+        order_index: currentOrderIndex,
+        is_preview: prevInp?.checked ? 1 : 0,
       });
       const iconEl = titleInp.closest('.lesson-row')?.querySelector('.lesson-type-icon');
       if (iconEl) iconEl.textContent = typeIcon(typeInp?.value || 'video');
+      if (lessonData) {
+        lessonData.title = titleInp.value;
+        lessonData.type  = typeInp?.value || 'video';
+        lessonData.duration_minutes = parseInt(durInp?.value) || null;
+        lessonData.is_preview = prevInp?.checked ? 1 : 0;
+      }
     } catch (e) {
       toast(e.message, 'error');
     }
@@ -2167,18 +2198,24 @@
         e.stopPropagation();
         list.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('drag-over-lesson'));
         const target = e.target.closest('.lesson-row');
-        if (!target || target === dragLesson) return;
+        if (target === dragLesson) return;
         const matPanel = document.getElementById('les-mat-panel-' + dragLesson.dataset.lessonId);
-        const rows = [...list.querySelectorAll('.lesson-row')];
-        const fromIdx = rows.indexOf(dragLesson);
-        const toIdx   = rows.indexOf(target);
-        if (fromIdx === toIdx) return;
-        if (fromIdx < toIdx) {
-          target.after(dragLesson);
-          if (matPanel) dragLesson.after(matPanel);
+        if (!target) {
+          // Dropped in empty space — append to end
+          list.appendChild(dragLesson);
+          if (matPanel) list.appendChild(matPanel);
         } else {
-          target.before(dragLesson);
-          if (matPanel) dragLesson.after(matPanel);
+          const rows = [...list.querySelectorAll('.lesson-row')];
+          const fromIdx = rows.indexOf(dragLesson);
+          const toIdx   = rows.indexOf(target);
+          if (fromIdx === toIdx) return;
+          if (fromIdx < toIdx) {
+            target.after(dragLesson);
+            if (matPanel) dragLesson.after(matPanel);
+          } else {
+            target.before(dragLesson);
+            if (matPanel) dragLesson.after(matPanel);
+          }
         }
         saveLessonOrder(list);
       });
@@ -2200,10 +2237,17 @@
 
   async function saveLessonOrder(listEl) {
     const rows = [...listEl.querySelectorAll('.lesson-row')];
+    let targetCh = null;
     await Promise.all(rows.map((r, i) => {
       const id = parseInt(r.dataset.lessonId);
+      const chapterId = parseInt(r.dataset.chapterId);
+      const ch = chaptersData.find(c => c.id === chapterId);
+      const l = ch?.lessons?.find(x => x.id === id);
+      if (l) { l.order_index = i; targetCh = ch; }
       return api.put('/api/lessons/' + id, { order_index: i }).catch(() => {});
     }));
+    // Keep chaptersData.lessons sorted so renderChapters() preserves this order
+    if (targetCh) targetCh.lessons.sort((a, b) => a.order_index - b.order_index);
     toast('Lesson order saved');
   }
 

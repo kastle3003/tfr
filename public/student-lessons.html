@@ -235,7 +235,7 @@
           </div>
           ${lockBanner}
           ${(ch.lessons || []).map(l => `
-            <div class="lesson-row section-block" style="${unlocked ? 'cursor:pointer;' : 'pointer-events:none;'}" ${unlocked ? `onclick="openLessonPlayer(${l.id})"` : ''}>
+            <div class="lesson-row section-block" style="${unlocked ? 'cursor:pointer;' : 'pointer-events:none;'}" ${unlocked ? `onclick="openLessonPlayer(${l.id}, ${courseId})"` : ''}>
               <div class="lesson-check ${l.completed ? 'done' : ''}" id="check-${l.id}" ${unlocked ? `onclick="event.stopPropagation(); toggleLesson(${l.id}, ${courseId}, this)"` : ''}>
                 ${l.completed ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
               </div>
@@ -262,7 +262,7 @@
   /* ── Inline lesson video player ── */
   const _lpCache = {};
 
-  async function openLessonPlayer(lessonId) {
+  async function openLessonPlayer(lessonId, courseId) {
     const panel = document.getElementById('lv-' + lessonId);
     if (!panel) return;
     if (panel.style.display === 'block') {
@@ -275,10 +275,23 @@
     panel.innerHTML = '<div style="padding:20px; text-align:center; font-size:13px; color:var(--text-3);">Loading…</div>';
     try {
       const data = await api.get('/api/lessons/' + lessonId);
-      _lpCache[lessonId] = data.lesson;
+      _lpCache[lessonId] = { ...data.lesson, _courseId: courseId };
       renderLessonPlayer(lessonId);
     } catch (e) {
-      panel.innerHTML = '<div style="padding:16px; font-size:12px; color:var(--text-3); text-align:center;">Could not load lesson content.</div>';
+      const isLocked = e.message && (e.message.includes('Access denied') || e.message.includes('not_purchased'));
+      if (isLocked) {
+        panel.innerHTML = `
+          <div style="padding:32px 20px; text-align:center; background:rgba(200,168,75,0.03); border-top:1px solid rgba(200,168,75,0.08);">
+            <div style="width:48px;height:48px;background:rgba(200,168,75,0.08);border:1px solid rgba(200,168,75,0.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(200,168,75,0.7)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <h4 style="font-family:'Libre Baskerville',serif;font-size:16px;color:#fff;margin-bottom:8px;font-weight:400;">Purchase to unlock</h4>
+            <p style="font-size:13px;color:var(--text-2);margin-bottom:20px;line-height:1.6;">Kindly purchase to view the complete course.</p>
+            <a href="/student-courses.html" style="display:inline-block;padding:10px 28px;background:linear-gradient(180deg,#E8C96E,#C8A84B);border-radius:3px;color:#080706;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;">View Course Options</a>
+          </div>`;
+      } else {
+        panel.innerHTML = '<div style="padding:16px; font-size:12px; color:var(--text-3); text-align:center;">Could not load lesson content.</div>';
+      }
     }
   }
 
@@ -291,14 +304,18 @@
       return;
     }
     panel.innerHTML = mats.map(m => {
-      if (m.type === 'video' && m.url) {
-        const isYT = /youtube\.com|youtu\.be/i.test(m.url);
+      if (m.type === 'video') {
+        const isYT = m.url && /youtube\.com|youtu\.be/i.test(m.url);
         let player;
         if (isYT) {
           const ytId = extractYtId(m.url);
           player = `<iframe src="https://www.youtube.com/embed/${ytId}" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+        } else if (m.secure_stream) {
+          player = `<video id="vid-${m.id}" controls preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;background:#000;"></video>`;
+        } else if (m.url) {
+          player = `<video id="vid-${m.id}" src="${m.url}" controls preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;background:#000;"></video>`;
         } else {
-          player = `<video src="${m.url}" controls preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;background:#000;"></video>`;
+          player = `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:13px;">Video unavailable</div>`;
         }
         const ts = m.timestamps || [];
         const tsBar = ts.length ? `
@@ -320,6 +337,41 @@
       if (m.type === 'url' && m.url) return `<div style="padding:16px;"><a href="${m.url}" target="_blank" rel="noopener" style="color:var(--gold); font-size:13px;">Open resource →</a></div>`;
       return '';
     }).join('');
+
+    // For Wasabi-hosted videos, fetch a short-lived stream token and set the video src
+    mats.forEach(m => {
+      if (m.type !== 'video' || !m.secure_stream) return;
+      const vid = panel.querySelector('#vid-' + m.id);
+      if (!vid) return;
+      api.get('/api/video/' + m.id + '/token').then(data => {
+        if (data.stream_url) vid.src = data.stream_url;
+      }).catch(() => {});
+    });
+
+    // After video ends on a free-preview lesson, show purchase gate overlay
+    if (lesson.is_first_free || lesson.is_preview) {
+      mats.forEach(m => {
+        if (m.type !== 'video' || /youtube\.com|youtu\.be/i.test(m.url || '')) return;
+        const vid = panel.querySelector('#vid-' + m.id);
+        const wrap = panel.querySelector('#vwrap-' + m.id);
+        if (!vid || !wrap) return;
+        vid.addEventListener('ended', () => {
+          if (wrap.querySelector('.purchase-gate')) return;
+          const gate = document.createElement('div');
+          gate.className = 'purchase-gate';
+          gate.style.cssText = 'position:absolute;inset:0;background:rgba(8,7,6,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:32px;text-align:center;';
+          gate.innerHTML = `
+            <div style="width:56px;height:56px;background:rgba(200,168,75,0.1);border:1px solid rgba(200,168,75,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:22px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(200,168,75,0.85)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <h3 style="font-family:'Libre Baskerville',serif;font-size:20px;font-weight:400;color:#fff;margin-bottom:10px;">Continue Learning</h3>
+            <p style="font-size:14px;color:#B8A898;max-width:300px;line-height:1.65;margin-bottom:28px;">Kindly purchase to view the complete course.</p>
+            <a href="/student-courses.html" style="display:inline-block;padding:12px 36px;background:linear-gradient(180deg,#E8C96E,#C8A84B);border-radius:3px;color:#080706;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;">View Course Options</a>
+          `;
+          wrap.appendChild(gate);
+        });
+      });
+    }
   }
 
   function extractYtId(url) {
