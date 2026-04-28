@@ -27,9 +27,41 @@
   background: rgba(8, 7, 6, 0.72);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: none;
   font-family: var(--sc-sans);
   transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+/* Base persistent gold line */
+.site-nav::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: rgba(200, 168, 75, 0.22);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+/* Cursor spotlight layer */
+.site-nav::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(200, 168, 75, 0.18) calc(var(--nav-glow-x, 50%) - 22%),
+    rgba(232, 201, 110, 0.95) var(--nav-glow-x, 50%),
+    rgba(200, 168, 75, 0.18) calc(var(--nav-glow-x, 50%) + 22%),
+    transparent
+  );
+  box-shadow: 0 0 8px rgba(200, 168, 75, 0.22);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.site-nav.nav-lit::after {
+  opacity: 1;
 }
 .site-nav.scrolled {
   background: rgba(8, 7, 6, 0.92);
@@ -206,17 +238,40 @@
   line-height: 1.4;
 }
 .site-footer .footer-links a:hover { color: #fff; }
+.site-footer .footer-connect-tagline {
+  font-size: 13px;
+  color: var(--sc-fg-2);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.site-footer .footer-connect-cta {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--sc-gold);
+  border: 1px solid rgba(200,168,75,0.35);
+  border-radius: 3px;
+  padding: 9px 18px;
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.site-footer .footer-connect-cta:hover {
+  background: rgba(200,168,75,0.08);
+  border-color: var(--sc-gold);
+}
 .site-footer .footer-connect-item {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   font-size: 13px;
   color: var(--sc-fg-2);
   line-height: 1.5;
 }
 .site-footer .footer-connect-item svg {
-  width: 14px; height: 14px;
+  width: 13px; height: 13px;
   flex-shrink: 0;
   margin-top: 2px;
   fill: none;

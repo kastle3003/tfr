@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loading… · The Foundation Room</title>
-<link rel="icon" type="image/svg+xml" href="/assets/tfr-play/favicon.svg">
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -95,61 +95,68 @@
   .hero {
     position: relative;
     min-height: 100vh;
-    display: flex; align-items: flex-end; justify-content: flex-end;
-    padding: 100px 8% 100px 40px;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 100px 4% 100px 52%;
     overflow: hidden;
     text-align: center;
   }
   .hero-bg {
     position: absolute; inset: 0; z-index: 0;
-    background-size: cover; background-position: 35% center;
+    background-size: cover; background-position: left center;
   }
   .hero-bg::after {
     content: ''; position: absolute; inset: 0;
     background:
-      linear-gradient(180deg, rgba(8,7,6,0.15) 0%, transparent 22%, transparent 70%, rgba(8,7,6,0.65) 100%),
-      linear-gradient(to left, rgba(8,7,6,0.78) 0%, rgba(8,7,6,0.35) 32%, transparent 60%),
-      radial-gradient(ellipse at 72% 55%, transparent 30%, rgba(8,7,6,0.2) 100%);
+      linear-gradient(180deg, rgba(8,7,6,0.08) 0%, transparent 18%, transparent 78%, rgba(8,7,6,0.4) 100%),
+      linear-gradient(to left, rgba(8,7,6,0.25) 0%, rgba(8,7,6,0.08) 40%, transparent 65%);
   }
-  .hero-content { position: relative; z-index: 1; max-width: 580px; text-align: center; }
+  .hero-content { position: relative; z-index: 2; width: 100%; max-width: 46vw; text-align: center; }
   .hero-eyebrow {
-    font-size: 11px; font-weight: 500; letter-spacing: .3em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 16px;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-size: 10px; font-weight: 500; letter-spacing: .32em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
   }
   .hero-eyebrow::before,
   .hero-eyebrow::after {
-    content: ''; display: block; width: 28px; height: 1px; background: var(--gold-dim);
+    content: ''; display: block; width: 32px; height: 1px; background: var(--gold-dim);
+    flex-shrink: 0;
   }
+  .hero-eyebrow:empty { display: none; }
   .hero-pretitle {
     font-family: var(--font-display);
-    font-size: clamp(15px, 2.2vw, 24px);
+    font-size: clamp(16px, 2vw, 28px);
     font-weight: 400;
     color: #fff;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     margin-bottom: 4px;
-    opacity: 0.9;
+    line-height: 1.15;
+    text-align: center;
   }
   .hero-title {
     font-family: var(--font-display);
-    font-size: clamp(44px, 7.5vw, 96px);
-    font-weight: 700; line-height: 1.0;
-    color: #fff; margin-bottom: 22px;
-    letter-spacing: .025em;
+    font-size: clamp(52px, 7vw, 96px);
+    font-weight: 700; line-height: 0.95;
+    color: #fff; margin-bottom: 28px;
+    letter-spacing: .01em;
     text-transform: uppercase;
+    text-align: center;
   }
-  .title-red { color: var(--accent-red); }
+  .title-red { color: #fff; }
   .hero-sub {
     font-family: var(--font-display);
-    font-size: clamp(16px, 1.8vw, 21px);
-    color: #fff; opacity: .85;
-    margin-bottom: 10px; max-width: 580px;
-    margin-left: auto; margin-right: auto;
+    font-size: clamp(15px, 1.4vw, 20px);
+    color: #fff; opacity: .92;
+    margin: 0 auto 16px;
+    line-height: 1.45;
+    text-align: center;
+    max-width: 38vw;
   }
   .hero-sub-note {
-    font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
-    color: rgba(255,255,255,0.5); margin-bottom: 36px;
+    font-size: 10px; letter-spacing: .22em;
+    color: rgba(255,255,255,0.5); margin-bottom: 32px;
+    font-style: normal; text-transform: uppercase;
+    text-align: center;
   }
   .train-btn {
     display: inline-flex; align-items: center; gap: 12px;
@@ -161,12 +168,42 @@
     font-size: 14px; font-weight: 700;
     letter-spacing: .16em; text-transform: uppercase;
     cursor: pointer;
-    transition: background .2s, transform .1s, box-shadow .2s;
     text-decoration: none;
   }
-  .train-btn:hover { background: linear-gradient(180deg, #F0D277 0%, var(--gold-bright) 100%); box-shadow: 0 12px 32px rgba(200,168,75,.4); }
-  .train-btn:active { transform: translateY(1px); }
+  .train-btn:hover { background: linear-gradient(180deg, #F0D277 0%, var(--gold-bright) 100%); }
   .train-btn svg { width: 13px; height: 13px; fill: currentColor; }
+
+  /* ─── Video modal ─── */
+  .video-modal {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    align-items: center; justify-content: center;
+  }
+  .video-modal.open { display: flex; }
+  .video-modal-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(5,4,3,0.93);
+    backdrop-filter: blur(10px);
+  }
+  .video-modal-box {
+    position: relative; z-index: 1;
+    width: min(960px, 92vw);
+  }
+  .video-modal-close {
+    position: absolute; top: -44px; right: 0;
+    background: none; border: none;
+    color: rgba(255,255,255,0.65); font-size: 24px; line-height: 1;
+    cursor: pointer; padding: 4px 8px; border-radius: 4px;
+    transition: color .15s;
+  }
+  .video-modal-close:hover { color: #fff; }
+  .video-modal-player {
+    position: relative; padding-bottom: 56.25%;
+    background: #000; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,.7);
+  }
+  .video-modal-player iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+  }
 
   /* Hero bottom accent */
   .hero-drum-accent {
@@ -176,15 +213,15 @@
     opacity: .3; z-index: 2;
   }
 
-  /* Artist panel — absolute-positioned left portrait for courses that need it */
+  /* Artist panel — full-viewport photo with gradient overlay */
   .hero-artist-panel {
     position: absolute;
     top: 0; left: 0; bottom: 0;
-    width: 56%;
-    background-size: auto 100%;
+    width: 100%;
+    background-size: cover;
     background-repeat: no-repeat;
-    background-position: left bottom;
-    z-index: 0;
+    background-position: 25% center;
+    z-index: 1;
   }
   .hero-artist-panel::after {
     content: '';
@@ -192,22 +229,22 @@
     background:
       linear-gradient(to right,
         transparent 0%,
-        transparent 38%,
-        rgba(8,7,6,0.55) 62%,
-        rgba(8,7,6,0.88) 80%,
-        #080706 97%
+        transparent 48%,
+        rgba(8,7,6,0.28) 58%,
+        rgba(8,7,6,0.6) 76%,
+        rgba(8,7,6,0.82) 92%
       ),
       linear-gradient(to bottom,
-        rgba(8,7,6,0.45) 0%,
-        transparent 15%,
-        transparent 80%,
-        rgba(8,7,6,0.55) 100%
+        rgba(8,7,6,0.15) 0%,
+        transparent 12%,
+        transparent 85%,
+        rgba(8,7,6,0.25) 100%
       );
   }
-  /* When artist panel is active, reset the bg element to a plain dark fill */
+  /* Dark base behind the artist panel */
   .hero.has-artist-panel .hero-bg {
     background-image: none !important;
-    background: linear-gradient(160deg, #100e0b 0%, #080706 100%);
+    background: #080706;
   }
 
   /* Upcoming card — features block fills the blank top-left area */
@@ -620,10 +657,20 @@
   }
   .tier-list li.special { color: var(--gold); }
   .tier-list li.special::before { background: var(--accent-red); }
-  .tier-notify-btn {
+  /* Spinning-border wrapper for tier buttons */
+  .tier-cta-wrap {
+    display: block !important;
+    width: 100%;
     margin-top: auto;
-    padding: 11px 16px;
-    background: transparent;
+    border-radius: 6px;
+  }
+  .tier-cta-wrap > .tier-notify-btn {
+    width: 100%;
+  }
+
+  .tier-notify-btn {
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
     color: var(--cream);
     border: 1px solid var(--border-hi);
     border-radius: 4px;
@@ -638,6 +685,19 @@
     background: rgba(200,168,75,0.07);
     box-shadow: 0 0 14px rgba(200,168,75,0.18), inset 0 0 8px rgba(200,168,75,0.06);
     transform: translateY(-1px);
+  }
+  /* Filled gold — Start Training (first tier with a live link) */
+  .tier-start-btn {
+    background: linear-gradient(180deg, var(--gold-bright) 0%, #a87224 100%);
+    color: #0d0900;
+    border-color: var(--gold);
+    letter-spacing: .16em;
+  }
+  .tier-start-btn:hover {
+    background: linear-gradient(180deg, #ffe078 0%, var(--gold-bright) 100%);
+    color: #0d0900;
+    box-shadow: 0 6px 24px rgba(200,168,75,0.35);
+    transform: translateY(-2px);
   }
   .tier-card.featured .tier-notify-btn {
     background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
@@ -877,7 +937,9 @@
     nav { padding: 0 20px; gap: 14px; }
     .nav-links { display: none; }
     .nav-logo-text { font-size: 16px; } .nav-logo-text span { font-size: 8px; }
-    .hero { padding: 100px 22px 70px; min-height: 80vh; }
+    .hero { padding: 100px 22px 70px; min-height: 80vh; justify-content: center; }
+    .hero-content { text-align: center; }
+    .hero-pretitle, .hero-title { text-align: center; }
     .section { padding: 60px 24px; }
     .play-intro { grid-template-columns: 1fr; gap: 0; }
     .play-card-wrap { min-height: 280px; }
@@ -952,7 +1014,6 @@
         Train Now
       </a>
     </div>
-    <div class="hero-drum-accent"></div>
   </section>
 
   <!-- TFR PLAY INTRO -->
@@ -1049,7 +1110,6 @@
 
   <!-- CHOOSE YOUR COURSE -->
   <section class="section">
-    <p class="section-eyebrow"><span>Curriculum</span></p>
     <h2 class="section-title">Choose Your <em>Course</em></h2>
     <div class="tiers-grid" id="tiers-grid"></div>
   </section>
@@ -1057,7 +1117,8 @@
   <!-- UPCOMING -->
   <div class="upcoming-strip reveal">
     <h3>Upcoming at <em>TFR PL<span class="play-mark">▶</span>Y</em></h3>
-    <div class="upcoming-card">
+    <div class="gb-wrap" style="width:100%;border-radius:calc(var(--radius) + 2px);">
+    <div class="upcoming-card" style="border:none;">
       <div class="upcoming-card-img" id="upcoming-card-img"></div>
       <div class="upcoming-card-features">
         <div class="upcoming-feat-badge">Coming Soon</div>
@@ -1077,60 +1138,9 @@
         <button type="submit">Notify Me</button>
       </form>
     </div>
-  </div>
-
-  <!-- LEGACY SERIES -->
-  <div class="series-block reveal">
-    <h3>TFR PL<span class="play-mark">▶</span>Y <em>Legacy Series</em></h3>
-    <div class="series-grid">
-      <div class="gb-wrap">
-        <div class="series-card">
-          <div class="series-ribbon">Coming Soon</div>
-          <div class="series-img" style="background-image:url('/assets/tfr-play/kartick-kumar.jpg');"></div>
-          <div class="series-body">
-            <div class="series-name">Pandit Kartick Kumar</div>
-            <div class="series-desc">Play Sitar — an ultimate guide from basics to advanced performer training.</div>
-          </div>
-        </div>
-      </div>
-      <div class="gb-wrap">
-        <div class="series-card">
-          <div class="series-ribbon">Coming Soon</div>
-          <div class="series-img" style="background-image:url('/assets/tfr-play/ustad-allarakha.jpg');"></div>
-          <div class="series-body">
-            <div class="series-name">Ustad Allarakha</div>
-            <div class="series-desc">Learn some of his popular and select evergreen compositions.</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- NEXT UP + TFR KIDS -->
-  <div class="series-block reveal" style="padding-top:0;">
-    <h3>Next up at <em>TFR PL<span class="play-mark">▶</span>Y</em></h3>
-    <div class="kids-row">
-      <div class="gb-wrap">
-        <div class="series-card">
-          <div class="series-ribbon">Coming Soon</div>
-          <div class="series-img" style="background-image:url('/assets/tfr-play/saylee-talwalkar-full.jpg'); background-position: center 15%;"></div>
-          <div class="series-body">
-            <div class="series-name" style="color:var(--accent-red);">Start Singing</div>
-            <div class="series-desc">Hindustani Vocals with Saylee Talwalkar</div>
-          </div>
-        </div>
-      </div>
-      <div class="gb-wrap">
-        <div class="kids-card">
-          <div class="kids-logo">
-            <span class="r1">T</span><span class="r2">F</span><span class="r3">R</span><span class="kids-word">Kids</span>
-          </div>
-          <div class="kids-logo-sub">The Foundation Room</div>
-          <h4>Step into the world of music,<br>made just for kids.</h4>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- FOOTER (shared) -->
@@ -1297,8 +1307,8 @@
               ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + esc(f) + '</li>').join('')}
             </ul>
             ${t.link
-              ? `<a href="${t.link}" class="tier-notify-btn" style="text-decoration:none;display:block;text-align:center;">${esc(t.btnText || 'Start Training')}</a>`
-              : `<button class="tier-notify-btn" onclick="notifyTier(this, '${esc(t.title)}')">${featured ? 'Notify me' : 'Notify to pre-enrol'}</button>`
+              ? `<div class="gb-wrap-sm tier-cta-wrap"><a href="${t.link}" class="tier-notify-btn tier-start-btn" style="text-decoration:none;display:block;text-align:center;">${esc(t.btnText || 'Start Training')}</a></div>`
+              : `<div class="tier-cta-wrap" style="margin-top:auto;display:block;width:100%;"><button class="tier-notify-btn" style="width:100%;" onclick="notifyTier(this, '${esc(t.title)}')">${featured ? 'Notify me' : 'Notify to pre-enrol'}</button></div>`
             }
           </div>
         </div>`;
@@ -1336,11 +1346,13 @@
 
   const COURSE_ASSETS = {
     'djembe-world-percussions': {
-      hero:           '/assets/tfr-play/taufiq-djembe-hero.png',
-      heroArtist:     '/assets/tfr-play/taufiq-djembe-hero.png',
+      hero:           '/assets/tfr-play/taufiq-hero-wide.png',
       portrait:       '/assets/tfr-play/taufiq-portrait.jpg',
-      previewCard:    '/assets/tfr-play/tfr-play-hero.png',
+      previewCard:    '/assets/tfr-play/tfr-play-thumbnail.png',
       previewBranded: true,
+      previewVideo:   'https://www.instagram.com/tv/CZhBW0NFNp_/',
+      practiceVideo:  'u8tbx8-KOdM',
+      hidePlayBtn:    true,
       practice:       '/assets/tfr-play/taufiq-practice.jpg',
       upcoming:       '/assets/tfr-play/taufiq-portrait.jpg',
       heroTitle:      'DJEMBE WITH TAUFIQ QURESHI',
@@ -1403,8 +1415,26 @@
       document.getElementById('hero-sub-note').textContent = 'Mentor-led course';
       const trainUrl = '/courses/' + encodeURIComponent(course.slug || course.id);
       document.getElementById('train-btn-top').setAttribute('href', trainUrl);
-      document.getElementById('play-card-link').setAttribute('href', trainUrl);
-      document.getElementById('play-card-label').textContent = 'Watch preview →';
+
+      // Play card — video modal or course link
+      const playCardLink = document.getElementById('play-card-link');
+      if (overrides?.previewVideo) {
+        playCardLink.removeAttribute('href');
+        playCardLink.style.cursor = 'pointer';
+        playCardLink.addEventListener('click', function(e){
+          e.preventDefault();
+          const v = overrides.previewVideo;
+          if (v.startsWith('http')) {
+            window.open(v, '_blank', 'noopener');
+          } else {
+            window.__openVideoModal(v);
+          }
+        });
+        document.getElementById('play-card-label').textContent = overrides.previewVideo.includes('instagram') ? 'Watch on Instagram ▶' : 'Watch trailer ▶';
+      } else {
+        playCardLink.setAttribute('href', trainUrl);
+        document.getElementById('play-card-label').textContent = 'Watch preview →';
+      }
 
       // Media
       const pcImg = document.getElementById('play-card-img');
@@ -1412,11 +1442,11 @@
       else if (course.cover_image_url) pcImg.style.backgroundImage = 'url("' + course.cover_image_url + '")';
       if (overrides?.previewBranded) {
         const pcLogo = document.querySelector('.play-card-logo');
-        const pcPlay = document.querySelector('.play-card .play-card-play');
         if (pcLogo) pcLogo.style.display = 'none';
-        if (pcPlay) pcPlay.style.display = 'none';
         pcImg.style.opacity = '1';
         pcImg.classList.add('play-card-img-branded');
+        const pcPlay = document.querySelector('.play-card .play-card-play');
+        if (pcPlay && (!overrides.previewVideo || overrides.hidePlayBtn)) pcPlay.style.display = 'none';
       }
 
       const upImg = document.getElementById('upcoming-card-img');
@@ -1425,6 +1455,12 @@
 
       const prVisual = document.getElementById('pr-card-visual');
       if (overrides?.practice) prVisual.style.backgroundImage = 'url("' + overrides.practice + '")';
+      if (overrides?.practiceVideo) {
+        prVisual.style.cursor = 'pointer';
+        prVisual.addEventListener('click', function() {
+          window.__openVideoModal(overrides.practiceVideo);
+        });
+      }
       const firstName = (course.instructor_name || 'the Maestro').split(' ')[0];
       document.getElementById('pr-card-visual-sublabel').textContent = 'Get ready to practise with ' + firstName;
 
@@ -1441,7 +1477,7 @@
         document.getElementById('instructor-initials').textContent = initials;
       }
       if (slug === 'djembe-world-percussions') {
-        document.getElementById('instructor-bio-sub-label').textContent = 'Train and Learn the Instrument, world grooves, indian rhythms and the Tabla repertoire on the Djembe.';
+        document.getElementById('instructor-bio-sub-label').textContent = '';
         document.getElementById('instructor-bio-title').innerHTML = 'Djembe with <em>Taufiq Qureshi</em>';
       } else {
         document.getElementById('instructor-bio-title').innerHTML = 'Meet <em>' + esc(firstName) + '</em>';
@@ -1480,6 +1516,40 @@
     } catch (e) {
       document.getElementById('loading-state').innerHTML = '<p>Course not found. <a href="/courses" style="color:var(--gold);">Browse all courses →</a></p>';
     }
+  })();
+</script>
+
+<!-- Video modal -->
+<div class="video-modal" id="video-modal" aria-hidden="true">
+  <div class="video-modal-backdrop" id="video-modal-backdrop"></div>
+  <div class="video-modal-box">
+    <button class="video-modal-close" id="video-modal-close" aria-label="Close video">&#x2715;</button>
+    <div class="video-modal-player">
+      <iframe id="video-modal-iframe" src="" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+<script>
+  (function(){
+    function openVideoModal(videoId) {
+      const modal = document.getElementById('video-modal');
+      document.getElementById('video-modal-iframe').src =
+        'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeVideoModal() {
+      const modal = document.getElementById('video-modal');
+      document.getElementById('video-modal-iframe').src = '';
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('video-modal-backdrop').addEventListener('click', closeVideoModal);
+    document.getElementById('video-modal-close').addEventListener('click', closeVideoModal);
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeVideoModal(); });
+    window.__openVideoModal = openVideoModal;
   })();
 </script>
 </body>

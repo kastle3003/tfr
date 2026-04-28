@@ -14,8 +14,8 @@
       </a>
       <ul class="nav-links">
         <li><a href="/#experience" data-nav-key="experience">Experience</a></li>
-        <li><a href="/courses.html" data-nav-key="courses">Courses</a></li>
-        <li><a href="/#cta-banner" data-nav-key="connect">Connect</a></li>
+        <li><a href="/#courses" data-nav-key="courses">Courses</a></li>
+        <li><a href="/#connect" data-nav-key="connect">Connect</a></li>
       </ul>
       <div class="nav-actions">
         <a href="/login" class="btn-ghost">Log In</a>
@@ -45,27 +45,27 @@
         <div>
           <p class="footer-col-title">Courses</p>
           <ul class="footer-links">
-            <li><a href="/experience/sitar-the-complete-foundation">Sitar — Niladri Kumar</a></li>
-            <li><a href="/experience/djembe-world-percussions">Djembe &amp; Percussions — Taufiq Qureshi</a></li>
-            <li><a href="/experience/hindustani-vocals-kirana-gharana">Hindustani Vocals — Sveta Kilpady</a></li>
-            <li><a href="/experience/kathak-lucknow-gharana">Kathak — Sangeeta Sinha</a></li>
-            <li><a href="/courses.html">All Courses</a></li>
+            <li><a href="/experience/sitar-the-complete-foundation">Sitara — Niladri Kumar's Signature Sitar Program</a></li>
+            <li><a href="/experience/djembe-world-percussions">Djembe &amp; Indian Percussions — Taufiq Qureshi</a></li>
+            <li><a href="/experience/hindustani-vocals-kirana-gharana">Vocals — Saylee Talwalkar</a></li>
+            <li><a href="/experience/kathak-lucknow-gharana">Kathak — Guruma Sangeeta Sinha</a></li>
+            <li><a href="/#courses">All Courses</a></li>
           </ul>
         </div>
 
         <div>
           <p class="footer-col-title">Platform</p>
           <ul class="footer-links">
-            <li><a href="/#experience">Experience TFR</a></li>
+            <li><a href="/">Home</a></li>
             <li><a href="/login">TFR Play</a></li>
-            <li><a href="/#community">Community</a></li>
-            <li><a href="/blog.html">Journal</a></li>
-            <li><a href="/#courses">Instructors</a></li>
+            <li><a href="/tfr-kids">TFR Kids</a></li>
           </ul>
         </div>
 
         <div>
           <p class="footer-col-title">Connect</p>
+          <p class="footer-connect-tagline">Ready to begin? We'd love to hear from you.</p>
+          <a href="mailto:join@thefoundationroom.in" class="footer-connect-cta">Start a Conversation &rarr;</a>
           <div class="footer-connect-item">
             <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
             <span><a href="tel:+919920615500">+91 99206 15500</a></span>
@@ -76,16 +76,16 @@
           </div>
           <div class="footer-connect-item">
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>403 Windermere, North Avenue,<br>Santacruz West, Mumbai 400054</span>
+            <span>504, 505, Bal Gandharva Rang Mandir Auditorium,<br>Linking Road, Bandra West, Mumbai 400050</span>
           </div>
           <div class="footer-connect-item">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
-            <span>@thisistfr on Instagram</span>
+            <span><a href="https://instagram.com/thisistfr" target="_blank" rel="noopener">@thisistfr on Instagram</a></span>
           </div>
         </div>
       </div>
       <div class="footer-bar">
-        <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved. &nbsp;&middot;&nbsp; Designed and developed by Techinfinity</p>
+        <p class="footer-copy">&copy; 2026 THE FOUNDATION ROOM. ALL RIGHTS RESERVED. &nbsp;&middot;&nbsp; Designed &amp; Developed by Techinfinity</p>
         <div class="footer-legal">
           <a href="/privacy">Privacy Policy</a>
           <a href="/refund-policy">Refund Policy</a>
@@ -113,14 +113,14 @@
   function ensureFavicon() {
     const existing = document.querySelector('link[rel="icon"]');
     if (existing) {
-      existing.setAttribute('type', 'image/svg+xml');
-      existing.setAttribute('href', '/assets/tfr-play/favicon.svg');
+      existing.setAttribute('type', 'image/png');
+      existing.setAttribute('href', '/assets/tfr-play/favicon-tfr.png');
       return;
     }
     const link = document.createElement('link');
     link.rel = 'icon';
-    link.type = 'image/svg+xml';
-    link.href = '/assets/tfr-play/favicon.svg';
+    link.type = 'image/png';
+    link.href = '/assets/tfr-play/favicon-tfr.png';
     document.head.appendChild(link);
   }
 
@@ -163,6 +163,13 @@
       const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 30);
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
+
+      nav.addEventListener('mouseenter', () => nav.classList.add('nav-lit'));
+      nav.addEventListener('mouseleave', () => nav.classList.remove('nav-lit'));
+      nav.addEventListener('mousemove', e => {
+        const rect = nav.getBoundingClientRect();
+        nav.style.setProperty('--nav-glow-x', ((e.clientX - rect.left) / rect.width * 100).toFixed(1) + '%');
+      });
     }
   }
 
