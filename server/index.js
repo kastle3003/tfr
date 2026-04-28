@@ -33,6 +33,15 @@ app.use(cors({
   credentials: true,
 }));
 
+// Security headers on all responses
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
 // ── Razorpay webhook — MUST be mounted BEFORE the global JSON body parser so
 //    the raw body is intact for HMAC verification. No-auth by design (Razorpay
 //    won't send a JWT); the route does its own signature check. ──
@@ -77,6 +86,34 @@ app.get('/refund-policy',  (req, res) => res.sendFile(path.join(__dirname, '../p
 // ── Public (no-auth) API for landing pages ──
 app.use('/api/public', require('./routes/public.routes'));
 
+// ── Notify-interest (course waitlist signup from landing pages) ──
+app.post('/api/notify-interest', async (req, res) => {
+  const { email, course, tier } = req.body || {};
+  if (!email || !email.includes('@')) return res.status(400).json({ error: 'Invalid email' });
+  try {
+    const dataDir = path.join(__dirname, '../data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    const file = path.join(dataDir, 'notify-interest.json');
+    const existing = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : [];
+    existing.push({ email, course: course || 'unknown', tier: tier || null, at: new Date().toISOString() });
+    fs.writeFileSync(file, JSON.stringify(existing, null, 2));
+    // Try to send admin notification email
+    try {
+      const mailer = require('./lib/mailer');
+      const adminEmail = process.env.ADMIN_EMAIL || 'developers@techinfinity.io';
+      await mailer.send({
+        to: adminEmail,
+        subject: `TFR Interest: ${course || 'unknown'}${tier ? ' — ' + tier : ''}`,
+        html: `<p><strong>${email}</strong> signed up for notifications about <strong>${course || 'a course'}</strong>${tier ? `, tier: <em>${tier}</em>` : ''}.</p><p>Time: ${new Date().toLocaleString()}</p>`
+      });
+    } catch (_) { /* mailer optional */ }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('notify-interest error:', err);
+    res.json({ ok: true }); // Always return success to user
+  }
+});
+
 // Static files — never cache HTML, so admin-page changes propagate immediately
 app.use(express.static(path.join(__dirname, '../public'), {
   setHeaders: (res, filePath) => {
@@ -91,6 +128,10 @@ app.use('/uploads', express.static(path.join(__dirname, '../data/uploads')));
 
 // Wasabi-backed file redirect (presigned URLs). Legacy rows with /uploads/... still resolve above.
 app.use('/api/files', require('./routes/files.routes'));
+
+// Secure video streaming — stream endpoint uses a signed token in the path (no Bearer header);
+// the token endpoint itself requires Bearer auth (handled inside the router).
+app.use('/api/video', require('./routes/video.routes'));
 
 // Mount routes
 app.use('/api/auth', require('./routes/auth.routes'));

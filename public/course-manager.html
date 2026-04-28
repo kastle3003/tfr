@@ -171,7 +171,7 @@
       font-size: 17px;
       font-weight: 600;
       color: var(--text);
-      font-style: italic;
+      font-style: normal;
     }
     .topbar-actions { display: flex; align-items: center; gap: 12px; }
     .icon-btn {
@@ -361,7 +361,7 @@
     }
     .editor-course-title {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 19px;
       font-weight: 600;
       color: var(--text);
@@ -566,7 +566,14 @@
       transition: border-color 0.15s;
     }
     .chapter-header:hover { border-color: rgba(200,168,75,0.18); }
-    .chapter-drag { color: var(--text-3); cursor: grab; flex-shrink: 0; }
+    .chapter-drag { color: var(--text-3); cursor: grab; flex-shrink: 0; opacity: 0.45; transition: opacity 0.15s; display: flex; align-items: center; }
+    .chapter-drag:hover { opacity: 1; }
+    .chapter-drag:active { cursor: grabbing; }
+    .lesson-drag-handle { padding: 0 4px; color: var(--text-3); cursor: grab; flex-shrink: 0; opacity: 0.4; transition: opacity 0.15s; display: flex; align-items: center; }
+    .lesson-drag-handle:hover { opacity: 1; }
+    .lesson-drag-handle:active { cursor: grabbing; }
+    .chapter-wrap.drag-over > .chapter-header { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(200,168,75,0.35); }
+    .lesson-row.drag-over-lesson { border-top: 2px solid var(--gold); }
     .chapter-toggle-btn {
       background: none;
       border: none;
@@ -906,7 +913,7 @@
     }
     .drawer-title {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 19px;
       font-weight: 600;
       color: var(--text);
@@ -1022,7 +1029,7 @@
     }
     .confirm-title {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 20px;
       font-weight: 600;
       color: var(--text);
@@ -1746,9 +1753,9 @@
       return;
     }
     container.innerHTML = chaptersData.map((ch) => `
-      <div class="chapter-wrap" id="chap-${ch.id}">
+      <div class="chapter-wrap" id="chap-${ch.id}" draggable="true" data-chapter-id="${ch.id}">
         <div class="chapter-header">
-          <span class="chapter-drag" title="Drag to reorder">
+          <span class="chapter-drag" title="Drag to reorder" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
           </span>
           <button class="chapter-toggle-btn open" onclick="toggleChapter(${ch.id}, this)">
@@ -1800,11 +1807,15 @@
     gsap.from(container.querySelectorAll('.chapter-wrap'), {
       opacity: 0, y: 12, stagger: 0.07, duration: 0.4, ease: 'power2.out'
     });
+    initDragDrop();
   }
 
   function renderLessonRow(l) {
     return `
-      <div class="lesson-row" id="les-${l.id}">
+      <div class="lesson-row" id="les-${l.id}" draggable="true" data-lesson-id="${l.id}" data-chapter-id="${l.chapter_id}">
+        <span class="lesson-drag-handle" title="Drag to reorder">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1.2" fill="currentColor"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="19" r="1.2" fill="currentColor"/><circle cx="15" cy="5" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="19" r="1.2" fill="currentColor"/></svg>
+        </span>
         <span class="lesson-type-icon">${typeIcon(l.type)}</span>
         <input class="lesson-title-input" value="${escHtml(l.title)}" id="les-title-${l.id}"
           onblur="updateLesson(${l.id}, ${l.chapter_id})" onkeydown="if(event.key==='Enter')this.blur()">
@@ -2081,6 +2092,119 @@
     } catch (e) {
       toast(e.message, 'error');
     }
+  }
+
+  // ── Drag-and-drop reordering ──
+  function initDragDrop() {
+    const container = document.getElementById('chapters-container');
+    if (!container) return;
+
+    // Chapter reordering — drag only when initiated from the handle
+    let dragChapter = null;
+    container.querySelectorAll('.chapter-wrap').forEach(block => {
+      block.addEventListener('dragstart', e => {
+        if (!e.target.closest('.chapter-drag')) { e.preventDefault(); return; }
+        dragChapter = block;
+        block.style.opacity = '0.45';
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      block.addEventListener('dragend', () => {
+        block.style.opacity = '';
+        container.querySelectorAll('.chapter-wrap').forEach(b => b.classList.remove('drag-over'));
+        dragChapter = null;
+      });
+      block.addEventListener('dragover', e => {
+        if (!dragChapter || dragChapter === block) return;
+        e.preventDefault();
+        container.querySelectorAll('.chapter-wrap').forEach(b => b.classList.remove('drag-over'));
+        block.classList.add('drag-over');
+      });
+      block.addEventListener('dragleave', () => block.classList.remove('drag-over'));
+      block.addEventListener('drop', e => {
+        if (!dragChapter || dragChapter === block) return;
+        e.preventDefault();
+        block.classList.remove('drag-over');
+        const blocks = [...container.querySelectorAll('.chapter-wrap')];
+        const fromIdx = blocks.indexOf(dragChapter);
+        const toIdx   = blocks.indexOf(block);
+        if (fromIdx === toIdx) return;
+        if (fromIdx < toIdx) block.after(dragChapter);
+        else block.before(dragChapter);
+        saveChapterOrder();
+      });
+    });
+
+    // Lesson reordering within each chapter
+    let dragLesson = null;
+    container.querySelectorAll('.chapter-lessons').forEach(list => {
+      list.querySelectorAll('.lesson-row').forEach(row => {
+        row.addEventListener('dragstart', e => {
+          if (!e.target.closest('.lesson-drag-handle')) { e.preventDefault(); return; }
+          dragLesson = row;
+          row.style.opacity = '0.45';
+          e.dataTransfer.effectAllowed = 'move';
+          e.stopPropagation();
+        });
+        row.addEventListener('dragend', () => {
+          row.style.opacity = '';
+          list.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('drag-over-lesson'));
+          dragLesson = null;
+        });
+      });
+      list.addEventListener('dragover', e => {
+        if (!dragLesson) return;
+        e.preventDefault();
+        const target = e.target.closest('.lesson-row');
+        list.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('drag-over-lesson'));
+        if (target && target !== dragLesson) target.classList.add('drag-over-lesson');
+      });
+      list.addEventListener('dragleave', () => {
+        list.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('drag-over-lesson'));
+      });
+      list.addEventListener('drop', e => {
+        if (!dragLesson) return;
+        e.preventDefault();
+        e.stopPropagation();
+        list.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('drag-over-lesson'));
+        const target = e.target.closest('.lesson-row');
+        if (!target || target === dragLesson) return;
+        const matPanel = document.getElementById('les-mat-panel-' + dragLesson.dataset.lessonId);
+        const rows = [...list.querySelectorAll('.lesson-row')];
+        const fromIdx = rows.indexOf(dragLesson);
+        const toIdx   = rows.indexOf(target);
+        if (fromIdx === toIdx) return;
+        if (fromIdx < toIdx) {
+          target.after(dragLesson);
+          if (matPanel) dragLesson.after(matPanel);
+        } else {
+          target.before(dragLesson);
+          if (matPanel) dragLesson.after(matPanel);
+        }
+        saveLessonOrder(list);
+      });
+    });
+  }
+
+  async function saveChapterOrder() {
+    const container = document.getElementById('chapters-container');
+    const blocks = [...container.querySelectorAll('.chapter-wrap')];
+    await Promise.all(blocks.map((b, i) => {
+      const id = parseInt(b.dataset.chapterId);
+      const ch = chaptersData.find(c => c.id === id);
+      if (!ch) return Promise.resolve();
+      ch.order_index = i;
+      return api.put('/api/chapters/' + id, { title: ch.title, order_index: i, description: ch.description || '' }).catch(() => {});
+    }));
+    toast('Chapter order saved');
+  }
+
+  async function saveLessonOrder(listEl) {
+    const rows = [...listEl.querySelectorAll('.lesson-row')];
+    await Promise.all(rows.map((r, i) => {
+      const id = parseInt(r.dataset.lessonId);
+      return api.put('/api/lessons/' + id, { order_index: i }).catch(() => {});
+    }));
+    toast('Lesson order saved');
   }
 
   async function confirmDeleteLesson(id, chapterId) {

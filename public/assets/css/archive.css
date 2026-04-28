@@ -18,6 +18,7 @@
   --white:       #FFFFFF;
 
   --ruby:        #bf0000;
+  --heading-red: #C8362A;
   --emerald:     #2D5A27;
   --amber:       #C8A84B;
 
@@ -107,6 +108,8 @@ input::placeholder, textarea::placeholder { color: var(--text-3) !important; }
 .stat-gold { font-family: var(--serif); font-size: 42px; font-weight: 600; color: var(--gold); line-height: 1; }
 .stat-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); margin-top: 4px; }
 
+em, i { font-style: normal; }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -179,7 +182,7 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: center;
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 18px;
   font-weight: 600;
   color: var(--gold);
@@ -336,7 +339,7 @@ img { display: block; max-width: 100%; }
 
 .topbar-title {
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 22px;
   font-weight: 600;
   color: var(--gold);
@@ -436,10 +439,10 @@ img { display: block; max-width: 100%; }
 /* ─── Page Titles ─── */
 .page-title {
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 52px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--heading-red);
   margin-bottom: 6px;
   line-height: 1.1;
 }
@@ -466,10 +469,10 @@ img { display: block; max-width: 100%; }
 
 .card-title {
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 18px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--heading-red);
   margin-bottom: 4px;
 }
 
@@ -478,7 +481,7 @@ img { display: block; max-width: 100%; }
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--gold);
   margin-bottom: 12px;
 }
 
@@ -798,10 +801,10 @@ img { display: block; max-width: 100%; }
 
 .modal-title {
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 22px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--heading-red);
   margin-bottom: 20px;
 }
 
@@ -876,7 +879,7 @@ img { display: block; max-width: 100%; }
 .text-muted  { color: var(--text-3); }
 .text-gold   { color: var(--gold); }
 .font-serif  { font-family: var(--serif); }
-.italic      { font-style: italic; }
+.italic      { font-style: normal; }
 .font-bold   { font-weight: 700; }
 .font-semi   { font-weight: 600; }
 
@@ -890,10 +893,10 @@ img { display: block; max-width: 100%; }
 
 .section-title {
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 20px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--heading-red);
 }
 
 .section-title-dark { color: var(--text-2); }
@@ -932,10 +935,10 @@ img { display: block; max-width: 100%; }
 
 .welcome-banner h1 {
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 42px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--heading-red);
   margin-bottom: 4px;
   line-height: 1.1;
   position: relative;
@@ -1001,7 +1004,7 @@ img { display: block; max-width: 100%; }
 
 .quote-text {
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 18px;
   color: var(--text);
   line-height: 1.6;
@@ -1212,10 +1215,10 @@ img { display: block; max-width: 100%; }
 
 .book-cover .book-title {
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 18px;
   font-weight: 600;
-  color: #fff;
+  color: var(--heading-red);
   margin-bottom: 4px;
   line-height: 1.25;
 }
@@ -1257,9 +1260,9 @@ img { display: block; max-width: 100%; }
 
 .empty-state h3 {
   font-family: var(--serif);
-  font-style: italic;
+  font-style: normal;
   font-size: 20px;
-  color: var(--text-2);
+  color: var(--heading-red);
   margin-bottom: 8px;
 }
 

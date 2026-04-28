@@ -31,7 +31,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
       font-family: var(--sans);
       background-color: var(--bg);
       background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
@@ -49,7 +50,9 @@
       display: flex;
       width: 100%;
       max-width: 960px;
-      min-height: 600px;
+      height: calc(100vh - 48px);
+      max-height: 780px;
+      min-height: 520px;
       border-radius: 6px;
       overflow: hidden;
       box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(200,168,75,0.08);
@@ -60,153 +63,170 @@
       width: 380px;
       flex-shrink: 0;
       background: var(--bg-card);
-      background-image: radial-gradient(ellipse 120% 80% at 0% 100%, rgba(200,168,75,0.08) 0%, transparent 60%);
-      padding: 48px 40px;
+      background-image:
+        radial-gradient(ellipse 130% 70% at 0% 100%, rgba(200,168,75,0.07) 0%, transparent 65%),
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(200,168,75,0.03) 0%, transparent 70%);
+      padding: 44px 42px 32px;
       display: flex;
       flex-direction: column;
       position: relative;
+      overflow-y: auto;
     }
-    .left-logo {
-      margin-bottom: 32px;
-    }
-    .left-logo-main {
-      font-family: var(--serif);
-      font-style: normal;
-      font-size: 32px;
-      font-weight: 600;
-      color: var(--gold);
-      line-height: 1;
-      letter-spacing: 0.01em;
-    }
-    .left-logo-sub {
-      font-family: var(--sans);
-      font-size: 11px;
-      font-weight: 400;
-      color: var(--text-3);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      margin-top: 3px;
-    }
+
+    .left-logo { margin-bottom: 22px; }
+
     .left-sep {
-      width: 40px;
+      width: 52px;
       height: 1px;
-      background: var(--gold-dim);
-      margin-bottom: 28px;
+      background: linear-gradient(to right, var(--gold), transparent);
+      margin-bottom: 26px;
     }
+
+    /* Quote block — large decorative open-quote floats behind text */
     .left-quote {
       font-family: var(--serif);
       font-style: normal;
-      font-size: 32px;
+      font-size: 27px;
       font-weight: 400;
       color: var(--text);
-      line-height: 1.25;
-      margin-bottom: 20px;
+      line-height: 1.32;
+      position: relative;
+      padding-top: 18px;
+      margin-bottom: 0;
     }
+    .left-quote::before {
+      content: '\201C';
+      position: absolute;
+      top: -10px;
+      left: -6px;
+      font-family: var(--serif);
+      font-size: 80px;
+      line-height: 1;
+      color: var(--gold);
+      opacity: 0.13;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Ruled tagline — gold lines extend on both sides */
+    .left-tagline {
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 26px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .left-tagline::before,
+    .left-tagline::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(200,168,75,0.2);
+    }
+
+    .left-headline {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .left-craft {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--gold-dim);
+      letter-spacing: 0.03em;
+      margin-bottom: 0;
+    }
+
+    /* Thin section divider between pitch and detail copy */
+    .left-mid-rule {
+      height: 1px;
+      background: rgba(200,168,75,0.08);
+      margin: 24px 0 22px;
+    }
+
     .left-body {
       font-family: var(--sans);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 300;
       color: var(--text-2);
-      line-height: 1.7;
-      margin-bottom: 28px;
+      line-height: 1.72;
+      margin-bottom: 16px;
     }
-    .left-features {
+
+    /* Bullets with gold dash rule */
+    .left-bullets {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-    .left-feature {
-      display: flex;
-      align-items: flex-start;
       gap: 10px;
-      font-family: var(--sans);
-      font-size: 13px;
-      color: var(--text-2);
     }
-    .left-feature-check {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      margin-top: 1px;
+    .left-bullets li {
+      font-family: var(--sans);
+      font-size: 11.5px;
+      font-weight: 300;
+      color: rgba(184,168,152,0.65);
+      letter-spacing: 0.01em;
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 10px;
     }
-    .left-feature-check svg {
-      width: 14px;
-      height: 14px;
-      stroke: var(--gold);
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    .left-bullets li::before {
+      content: '';
+      width: 16px;
+      height: 1px;
+      background: var(--gold-dim);
+      flex-shrink: 0;
+      opacity: 0.7;
     }
-    .left-testimonial {
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(200,168,75,0.08);
-      border-radius: 4px;
-      padding: 16px 18px;
-      margin-bottom: 24px;
-    }
-    .left-testimonial-quote {
-      font-family: var(--serif);
-      font-size: 20px;
-      color: var(--gold);
-      opacity: 0.4;
-      line-height: 0.7;
-      margin-bottom: 8px;
-    }
-    .left-testimonial-text {
-      font-family: var(--serif);
-      font-style: normal;
-      font-size: 13px;
-      color: var(--text-2);
-      line-height: 1.6;
-      margin-bottom: 10px;
-    }
-    .left-testimonial-author {
-      font-family: var(--sans);
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-3);
-      letter-spacing: 0.06em;
-    }
+
+    /* Stats bar at bottom */
     .left-stats {
       display: flex;
-      gap: 0;
       margin-top: auto;
+      padding-top: 20px;
     }
     .left-stat {
       flex: 1;
       text-align: center;
-      padding: 12px 8px;
-      border-top: 1px solid rgba(200,168,75,0.1);
+      padding: 16px 8px 10px;
+      border-top: 1px solid rgba(200,168,75,0.12);
     }
     .left-stat:not(:last-child) {
       border-right: 1px solid rgba(200,168,75,0.07);
     }
     .left-stat-num {
       font-family: var(--serif);
-      font-size: 20px;
-      font-weight: 500;
+      font-size: 24px;
+      font-weight: 400;
       color: var(--gold);
       display: block;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
     .left-stat-label {
       font-family: var(--sans);
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-3);
-      letter-spacing: 0.06em;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
 
     /* ─── RIGHT PANEL ─── */
     .auth-right {
       flex: 1;
       background: var(--bg-2);
-      padding: 48px 44px;
+      padding: 36px 44px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -219,18 +239,18 @@
 
     .panel-eyebrow {
       font-family: var(--sans);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
       color: var(--gold);
       text-transform: uppercase;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .panel-title {
       font-family: var(--serif);
       font-style: normal;
-      font-size: 36px;
-      font-weight: 500;
+      font-size: 34px;
+      font-weight: 400;
       color: var(--text);
       line-height: 1.1;
       margin-bottom: 6px;
@@ -239,13 +259,13 @@
       font-family: var(--sans);
       font-size: 13px;
       color: var(--text-2);
-      margin-bottom: 28px;
+      margin-bottom: 22px;
       line-height: 1.5;
     }
 
     /* ─── FORM ELEMENTS ─── */
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .form-group { margin-bottom: 18px; }
+    .form-group { margin-bottom: 14px; }
     .form-label {
       display: block;
       font-family: var(--sans);
@@ -533,16 +553,19 @@
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 760px) {
-      body { padding: 0; align-items: stretch; }
+      body { padding: 0; align-items: stretch; height: auto; overflow: auto; }
       .auth-card {
         flex-direction: column;
         border-radius: 0;
+        height: auto;
+        max-height: none;
         min-height: 100vh;
         box-shadow: none;
       }
       .auth-left {
         width: 100%;
         padding: 32px 24px;
+        overflow-y: visible;
       }
       .left-features, .left-testimonial { display: none; }
       .left-quote { font-size: 24px; margin-bottom: 12px; }
@@ -564,53 +587,32 @@
     <!-- LEFT BRANDING PANEL -->
     <aside class="auth-left">
       <div class="left-logo">
-        <img src="/assets/tfr-play/tfr-logo-main.png" alt="TFR" style="height:48px;width:auto;display:block;margin-bottom:8px;">
+        <img src="/assets/tfr-play/tfr-logo-main.png" alt="TFR" style="height:44px;width:auto;display:block;">
       </div>
       <div class="left-sep"></div>
       <blockquote class="left-quote">
-        "Training is a Science."<br>
-        "Performing is an Art."
+        Training is a Science.<br>
+        Performing is an Art.
       </blockquote>
+      <p class="left-tagline">Practice &middot; Pursue &middot; Perform</p>
+      <p class="left-headline">India's Greatest Performing Arts Tradition &mdash; Now, becomes yours</p>
+      <p class="left-craft">Build your foundation. Master your craft</p>
+      <div class="left-mid-rule"></div>
       <p class="left-body">
-        Join India's most intimate learning experience with the country's greatest performing artists.
+        Experience it with some of the finest maestros, artists and performers in the field.
       </p>
-      <ul class="left-features">
-        <li class="left-feature">
-          <span class="left-feature-check">
-            <svg viewBox="0 0 14 14"><polyline points="2,7 5.5,10.5 12,3"/></svg>
-          </span>
-          Live, interactive sessions with masters
-        </li>
-        <li class="left-feature">
-          <span class="left-feature-check">
-            <svg viewBox="0 0 14 14"><polyline points="2,7 5.5,10.5 12,3"/></svg>
-          </span>
-          Real-time feedback &amp; corrections
-        </li>
-        <li class="left-feature">
-          <span class="left-feature-check">
-            <svg viewBox="0 0 14 14"><polyline points="2,7 5.5,10.5 12,3"/></svg>
-          </span>
-          Structured curriculum, flexible schedule
-        </li>
+      <ul class="left-bullets">
+        <li>Structured Curriculum &middot; Flexible Schedule</li>
+        <li>Join a Worldwide Community of Learners</li>
       </ul>
-      <div class="left-testimonial">
-        <div class="left-testimonial-quote">&ldquo;</div>
-        <p class="left-testimonial-text">I still cannot believe I'm interacting with THE Niladri Kumar. Every session feels like a private concert that transforms into a lesson.</p>
-        <p class="left-testimonial-author">Debaditya &mdash; Kolkata &middot; Sitar</p>
-      </div>
       <div class="left-stats">
         <div class="left-stat">
           <span class="left-stat-num">2,400+</span>
           <span class="left-stat-label">Students</span>
         </div>
         <div class="left-stat">
-          <span class="left-stat-num">6</span>
-          <span class="left-stat-label">Masters</span>
-        </div>
-        <div class="left-stat">
-          <span class="left-stat-num">Live</span>
-          <span class="left-stat-label">Classes</span>
+          <span class="left-stat-num">1</span>
+          <span class="left-stat-label">Experience</span>
         </div>
       </div>
     </aside>
@@ -1130,13 +1132,16 @@
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
       // Left panel sequential
-      tl.from('.left-logo', { opacity: 0, y: 16, duration: 0.45 }, 0.1);
-      tl.from('.left-sep', { opacity: 0, scaleX: 0, duration: 0.35, transformOrigin: 'left' }, 0.35);
-      tl.from('.left-quote', { opacity: 0, y: 14, duration: 0.45 }, 0.5);
-      tl.from('.left-body', { opacity: 0, y: 10, duration: 0.4 }, 0.65);
-      tl.from('.left-feature', { opacity: 0, x: -12, duration: 0.35, stagger: 0.08 }, 0.75);
-      tl.from('.left-testimonial', { opacity: 0, y: 12, duration: 0.4 }, 0.95);
-      tl.from('.left-stat', { opacity: 0, y: 10, duration: 0.35, stagger: 0.08 }, 1.1);
+      tl.from('.left-logo',    { opacity: 0, y: 16, duration: 0.45 }, 0.1);
+      tl.from('.left-sep',     { opacity: 0, scaleX: 0, duration: 0.4, transformOrigin: 'left' }, 0.3);
+      tl.from('.left-quote',   { opacity: 0, y: 16, duration: 0.5 }, 0.48);
+      tl.from('.left-tagline', { opacity: 0, scaleX: 0.7, duration: 0.4, transformOrigin: 'center' }, 0.7);
+      tl.from('.left-headline',{ opacity: 0, y: 8, duration: 0.35 }, 0.82);
+      tl.from('.left-craft',   { opacity: 0, y: 6, duration: 0.3 }, 0.90);
+      tl.from('.left-mid-rule',{ opacity: 0, scaleX: 0, duration: 0.35, transformOrigin: 'left' }, 0.98);
+      tl.from('.left-body',    { opacity: 0, y: 6, duration: 0.3 }, 1.06);
+      tl.from('.left-bullets li', { opacity: 0, x: -10, duration: 0.3, stagger: 0.09 }, 1.14);
+      tl.from('.left-stat',    { opacity: 0, y: 8, duration: 0.35, stagger: 0.12 }, 1.3);
 
       // Right panel slides from right
       tl.from('.auth-right', { x: 30, opacity: 0, duration: 0.55 }, 0.15);

@@ -70,7 +70,7 @@
 
     .brand-name {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 18px;
       font-weight: 600;
       color: var(--gold);
@@ -176,7 +176,7 @@
 
     .topbar-brand {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 22px;
       font-weight: 600;
       color: var(--gold);
@@ -301,7 +301,7 @@
 
     .hero-instructor {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 52px;
       font-weight: 500;
       color: var(--text);
@@ -759,7 +759,7 @@
 
     .price-free {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 28px;
       color: var(--gold);
     }
@@ -863,7 +863,7 @@
       justify-content: center;
       font-family: var(--serif);
       font-size: 18px;
-      font-style: italic;
+      font-style: normal;
       color: var(--gold);
       flex-shrink: 0;
     }
@@ -974,13 +974,32 @@
 
     /* ── Custom Video Player ── */
     .custom-player { position: relative; background: #000; border-radius: 6px; overflow: hidden; }
-    .player-video-wrap { position: relative; aspect-ratio: 16/9; background: #000; }
+    .player-video-wrap { position: relative; aspect-ratio: 16/9; background: #000; user-select: none; -webkit-user-select: none; }
     .player-video-wrap video,
     .player-video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
     .player-overlay {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
       background: rgba(0,0,0,0.18); transition: opacity 0.2s; pointer-events: none;
+    }
+    /* Watermark — drifts to deter cropping during screen recording */
+    .video-watermark {
+      position: absolute; bottom: 52px; right: 10px;
+      font-size: 10px; color: rgba(255,255,255,0.15);
+      pointer-events: none; user-select: none; -webkit-user-select: none;
+      z-index: 20; font-family: monospace; letter-spacing: 0.03em;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+      animation: wm-drift 28s ease-in-out infinite alternate;
+    }
+    @keyframes wm-drift {
+      0%   { bottom: 52px; right: 10px; }
+      33%  { bottom: 80px; right: 40%; }
+      66%  { bottom: 60px; right: 20px; }
+      100% { bottom: 100px; right: 15%; }
+    }
+    .video-loading {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: #000; font-size: 12px; color: rgba(255,255,255,0.4); pointer-events: none;
     }
     .player-overlay.faded { opacity: 0; }
     .player-video-wrap:hover .player-overlay.faded { opacity: 1; }
@@ -1610,17 +1629,24 @@
         <span class="mat-type-tag type-${m.type}">${m.type}</span>
       </div>`;
     let body = '';
-    if (m.type === 'video' && m.url) {
-      const isYT  = /youtube\.com|youtu\.be/i.test(m.url);
+    // m.url is null for Wasabi videos (secure_stream=true); YouTube URLs pass through as-is
+    const isYTVideo = m.type === 'video' && m.url && /youtube\.com|youtu\.be/i.test(m.url);
+    const isWasabiVideo = m.type === 'video' && (m.secure_stream || (!m.url && m.type === 'video'));
+
+    if (isWasabiVideo || isYTVideo) {
+      const isYT  = isYTVideo;
       const embed = isYT ? toYouTubeEmbed(m.url) : null;
 
       const videoInner = isYT
         ? `<iframe src="${embed}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
-        : `<video src="${m.url}" preload="auto" playsinline oncontextmenu="return false;"></video>
+        : `<div class="video-loading" id="vload-${m.id}">Loading secure video…</div>
+           <video data-material-id="${m.id}" preload="none" playsinline
+                  controlsList="nodownload noremoteplayback" disablePictureInPicture></video>
            <div class="player-overlay">
              <button class="play-btn" aria-label="Play"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg></button>
            </div>
-           <div class="player-progress"><div class="player-progress-fill"></div></div>`;
+           <div class="player-progress"><div class="player-progress-fill"></div></div>
+           <div class="video-watermark" id="wm-${m.id}"></div>`;
 
       const barLeft = isYT
         ? `<button class="mark-done-btn">&#10003; Mark Complete</button>`
@@ -1781,6 +1807,17 @@
     window.open(`/api/sheet-music/${id}/download`, '_blank');
   }
 
+  /* ── Fetch a short-lived signed stream URL for a Wasabi video material ── */
+  async function fetchVideoToken(materialId) {
+    try {
+      const data = await api.get(`/api/video/${materialId}/token`);
+      return data.stream_url || null;
+    } catch (e) {
+      console.error('[player] video token fetch failed:', e.message);
+      return null;
+    }
+  }
+
   /* ── Custom player: wire events after HTML is rendered ── */
   function setupCustomPlayer(playerEl) {
     const lessonId  = parseInt(playerEl.dataset.lessonId);
@@ -1812,6 +1849,40 @@
       const timeEl   = playerEl.querySelector('.player-bar-time');
       if (!video) return;
 
+      const materialId = video.dataset.materialId;
+      const loadingEl  = materialId ? document.getElementById('vload-' + materialId) : null;
+
+      // Block right-click and save-shortcuts on the video wrap
+      const wrap = playerEl.querySelector('.player-video-wrap');
+      if (wrap) {
+        wrap.addEventListener('contextmenu', e => e.preventDefault());
+        wrap.addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && ['s','S','u','U'].includes(e.key)) e.preventDefault();
+        });
+      }
+
+      // Stamp watermark with the logged-in user's email (accountability layer)
+      const wmEl = materialId ? document.getElementById('wm-' + materialId) : null;
+      try {
+        const u = JSON.parse(localStorage.getItem('archive_user') || '{}');
+        if (wmEl && u.email) wmEl.textContent = u.email;
+      } catch (_) {}
+
+      // Fetch signed stream URL then assign as video src — raw URL never touches the DOM
+      if (materialId) {
+        fetchVideoToken(parseInt(materialId)).then(streamUrl => {
+          if (loadingEl) loadingEl.remove();
+          if (!streamUrl) {
+            if (overlay) overlay.innerHTML = '<div style="color:rgba(255,255,255,0.5);font-size:12px;padding:20px;text-align:center;">Video unavailable. Please refresh.</div>';
+            return;
+          }
+          video.src = streamUrl;
+          video.load();
+        });
+      } else {
+        if (loadingEl) loadingEl.remove();
+      }
+
       if (volSlider) volSlider.addEventListener('input', () => { video.volume = parseFloat(volSlider.value); });
 
       const toggle = () => { if (video.paused) video.play().catch(() => {}); else video.pause(); };
@@ -1828,7 +1899,6 @@
         const pct = (video.currentTime / video.duration) * 100;
         if (progFill) progFill.style.width = pct + '%';
         if (timeEl)   timeEl.textContent   = fmtViewerTime(video.currentTime) + ' / ' + fmtViewerTime(video.duration);
-        // Auto-complete at 90% watched
         if (pct >= 90 && !_completedSet.has(lessonId)) autoCompleteLesson(lessonId);
       });
       // Click-to-seek on progress bar

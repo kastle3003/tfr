@@ -85,7 +85,15 @@ router.get('/:id', (req, res) => {
     `).all(lesson.id);
     const byMaterial = {};
     timestamps.forEach(t => { (byMaterial[t.material_id] = byMaterial[t.material_id] || []).push(t); });
-    lesson.materials = materials.map(m => ({ ...m, timestamps: byMaterial[m.id] || [] }));
+    lesson.materials = materials.map(m => {
+      const mat = { ...m, timestamps: byMaterial[m.id] || [] };
+      // Strip raw Wasabi URLs for video materials — client must use /api/video/:id/token instead
+      if (m.type === 'video' && m.url && m.url.startsWith('/api/files/')) {
+        mat.url = null;
+        mat.secure_stream = true;
+      }
+      return mat;
+    });
 
     const p = access.getLessonProgress(req.user.id, lesson.id);
     lesson.progress = {

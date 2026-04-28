@@ -189,7 +189,7 @@
 
     /* ─── HERO ─── */
     #experience {
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -232,38 +232,34 @@
       opacity: 0.04;
     }
 
-    /* Hero artist photo — inside hero-abstract right panel */
+    /* Hero artist photo — full bleed background */
     .hero-artist-photo {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center 18%;
-      filter: brightness(0.55) saturate(0.75) sepia(0.12);
+      object-position: center center;
+      filter: brightness(0.72) saturate(1.1);
       z-index: 1;
     }
 
-    /* Generic abstract hero visual — full right-side layer */
+    /* Full-bleed background visual */
     .hero-abstract {
       position: absolute;
-      right: 0;
-      top: 0;
-      width: 54%;
-      height: 100%;
+      inset: 0;
       pointer-events: none;
       z-index: 1;
       overflow: hidden;
-      background: linear-gradient(135deg, rgba(28,20,10,0) 0%, rgba(28,20,10,0.55) 35%, rgba(20,14,6,0.82) 100%);
     }
     .hero-abstract::before {
       content: '';
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(to right, var(--bg) 0%, rgba(8,7,6,0.2) 30%, transparent 60%),
-        linear-gradient(to top, var(--bg) 0%, transparent 22%),
-        linear-gradient(to bottom, var(--bg) 0%, transparent 14%);
+        linear-gradient(to right, rgba(8,7,6,0.94) 0%, rgba(8,7,6,0.82) 28%, rgba(8,7,6,0.5) 50%, rgba(8,7,6,0.18) 70%, transparent 88%),
+        linear-gradient(to top, rgba(8,7,6,0.7) 0%, transparent 28%),
+        linear-gradient(to bottom, rgba(8,7,6,0.45) 0%, transparent 18%);
       z-index: 3;
     }
     .hero-wave-art {
@@ -1985,67 +1981,54 @@
     <div class="hero-bg-gradient"></div>
     <div class="hero-grain"></div>
     <div class="hero-abstract" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1200&q=75&auto=format&fit=crop" alt="" class="hero-artist-photo" loading="eager" style="object-position:center center;">
-      <svg class="hero-wave-art" viewBox="0 0 560 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="opacity:0.35;">
+      <img src="/assets/tfr-play/homepage-hero.png" alt="" class="hero-artist-photo" loading="eager" style="object-position:center center;">
+      <!-- Musical elements — left dark side -->
+      <svg class="hero-wave-art" viewBox="0 0 1400 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="opacity:1; z-index:4;">
         <defs>
-          <radialGradient id="bloom" cx="58%" cy="48%" r="55%">
-            <stop offset="0%"   stop-color="#C8A84B" stop-opacity="0.18"/>
-            <stop offset="45%"  stop-color="#C8A84B" stop-opacity="0.05"/>
+          <radialGradient id="bloom-left" cx="22%" cy="50%" r="38%">
+            <stop offset="0%"   stop-color="#C8A84B" stop-opacity="0.14"/>
             <stop offset="100%" stop-color="#C8A84B" stop-opacity="0"/>
           </radialGradient>
-          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stop-color="#E8C96E" stop-opacity="0.12"/>
+          <radialGradient id="glow-left" cx="22%" cy="50%" r="22%">
+            <stop offset="0%"   stop-color="#E8C96E" stop-opacity="0.10"/>
             <stop offset="100%" stop-color="#E8C96E" stop-opacity="0"/>
           </radialGradient>
         </defs>
-        <!-- Full area radial bloom -->
-        <rect width="560" height="700" fill="url(#bloom)"/>
-        <!-- Soft central glow -->
-        <ellipse cx="340" cy="350" rx="180" ry="200" fill="url(#glow)"/>
-        <!-- Concentric rings — clearly visible -->
+        <!-- Soft left bloom -->
+        <rect width="1400" height="700" fill="url(#bloom-left)"/>
+        <rect width="1400" height="700" fill="url(#glow-left)"/>
+        <!-- Concentric rings centred on left dark area -->
         <g fill="none" stroke="#C8A84B">
-          <ellipse cx="340" cy="350" rx="48"  ry="48"  stroke-opacity="0.55" stroke-width="1.5"/>
-          <ellipse cx="340" cy="350" rx="90"  ry="90"  stroke-opacity="0.40" stroke-width="1.2"/>
-          <ellipse cx="340" cy="350" rx="140" ry="140" stroke-opacity="0.28" stroke-width="1"/>
-          <ellipse cx="340" cy="350" rx="200" ry="200" stroke-opacity="0.18" stroke-width="0.8"/>
-          <ellipse cx="340" cy="350" rx="268" ry="268" stroke-opacity="0.11" stroke-width="0.7"/>
-          <ellipse cx="340" cy="350" rx="345" ry="345" stroke-opacity="0.06" stroke-width="0.6"/>
+          <circle cx="310" cy="350" r="48"  stroke-opacity="0.45" stroke-width="1.4"/>
+          <circle cx="310" cy="350" r="90"  stroke-opacity="0.30" stroke-width="1.1"/>
+          <circle cx="310" cy="350" r="145" stroke-opacity="0.20" stroke-width="0.9"/>
+          <circle cx="310" cy="350" r="210" stroke-opacity="0.13" stroke-width="0.7"/>
+          <circle cx="310" cy="350" r="285" stroke-opacity="0.07" stroke-width="0.6"/>
+          <circle cx="310" cy="350" r="370" stroke-opacity="0.04" stroke-width="0.5"/>
         </g>
-        <!-- Vertical string lines (tanpura-inspired) -->
-        <g stroke="#C8A84B" fill="none" stroke-opacity="0.22" stroke-width="1">
-          <line x1="240" y1="0" x2="240" y2="700"/>
-          <line x1="280" y1="0" x2="280" y2="700"/>
-          <line x1="320" y1="0" x2="320" y2="700"/>
-          <line x1="360" y1="0" x2="360" y2="700"/>
-          <line x1="400" y1="0" x2="400" y2="700"/>
-          <line x1="440" y1="0" x2="440" y2="700"/>
-          <line x1="480" y1="0" x2="480" y2="700"/>
-          <line x1="520" y1="0" x2="520" y2="700"/>
+        <!-- Centre pulse dot -->
+        <circle cx="310" cy="350" r="5" fill="#E8C96E" fill-opacity="0.55"/>
+        <circle cx="310" cy="350" r="2" fill="#fff"    fill-opacity="0.85"/>
+        <!-- Sound waves radiating left-to-right across the dark zone -->
+        <g stroke="#C8A84B" fill="none" stroke-opacity="0.16" stroke-width="1.1">
+          <path d="M0,160 Q80,136 160,160 Q240,184 320,160 Q400,136 480,160 Q560,184 640,160"/>
+          <path d="M0,230 Q80,206 160,230 Q240,254 320,230 Q400,206 480,230 Q560,254 640,230"/>
+          <path d="M0,300 Q80,276 160,300 Q240,324 320,300 Q400,276 480,300 Q560,324 640,300"/>
+          <path d="M0,370 Q80,346 160,370 Q240,394 320,370 Q400,346 480,370 Q560,394 640,370"/>
+          <path d="M0,440 Q80,416 160,440 Q240,464 320,440 Q400,416 480,440 Q560,464 640,440"/>
+          <path d="M0,510 Q80,486 160,510 Q240,534 320,510 Q400,486 480,510 Q560,534 640,510"/>
         </g>
-        <!-- Sinusoidal sound waves -->
-        <g stroke="#C8A84B" fill="none" stroke-opacity="0.20" stroke-width="1.1">
-          <path d="M180,140 Q260,116 340,140 Q420,164 500,140 Q540,128 560,132"/>
-          <path d="M180,200 Q260,176 340,200 Q420,224 500,200 Q540,188 560,192"/>
-          <path d="M180,260 Q260,236 340,260 Q420,284 500,260 Q540,248 560,252"/>
-          <path d="M180,320 Q260,296 340,320 Q420,344 500,320 Q540,308 560,312"/>
-          <path d="M180,380 Q260,356 340,380 Q420,404 500,380 Q540,368 560,372"/>
-          <path d="M180,440 Q260,416 340,440 Q420,464 500,440 Q540,428 560,432"/>
-          <path d="M180,500 Q260,476 340,500 Q420,524 500,500 Q540,488 560,492"/>
-          <path d="M180,560 Q260,536 340,560 Q420,584 500,560 Q540,548 560,552"/>
-          <path d="M180,620 Q260,596 340,620 Q420,644 500,620 Q540,608 560,612"/>
+        <!-- Subtle tala beat markers -->
+        <g fill="#C8A84B" fill-opacity="0.35">
+          <circle cx="310" cy="200" r="2.5"/>
+          <circle cx="360" cy="220" r="2"/>
+          <circle cx="380" cy="350" r="2.5"/>
+          <circle cx="260" cy="480" r="2"/>
+          <circle cx="310" cy="500" r="2.5"/>
+          <circle cx="240" cy="350" r="2"/>
         </g>
-        <!-- Bright centre dot -->
-        <circle cx="340" cy="350" r="5"   fill="#E8C96E" fill-opacity="0.6"/>
-        <circle cx="340" cy="350" r="2"   fill="#FFFFFF"  fill-opacity="0.9"/>
       </svg>
     </div>
-    <svg class="hero-circles" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="300" cy="300" r="280" />
-      <circle cx="300" cy="300" r="220" />
-      <circle cx="300" cy="300" r="160" />
-      <circle cx="300" cy="300" r="100" />
-      <circle cx="300" cy="300" r="48" />
-    </svg>
     <div class="hero-content">
       <div class="hero-eyebrow reveal">India's Premier Arts Learning Platform</div>
       <h1 class="hero-h1 reveal reveal-delay-1">

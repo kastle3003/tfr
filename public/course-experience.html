@@ -1181,6 +1181,8 @@
     {
       title: 'Basic Foundation Course',
       subtitle: 'New to Djembe? New to a rhythm instrument?',
+      btnText: 'Start Training',
+      link: '/djembe-hero.html',
       highlights: [
         'Designed for anybody who wishes to start playing a rhythm instrument',
         'Train on any instrument — Djembe, Cajon, Darbuka, Duff',
@@ -1294,9 +1296,10 @@
             <ul class="tier-list">
               ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + esc(f) + '</li>').join('')}
             </ul>
-            <button class="tier-notify-btn" onclick="notifyTier(this, '${esc(t.title)}')">
-              ${featured ? 'Notify me' : 'Notify to pre-enrol'}
-            </button>
+            ${t.link
+              ? `<a href="${t.link}" class="tier-notify-btn" style="text-decoration:none;display:block;text-align:center;">${esc(t.btnText || 'Start Training')}</a>`
+              : `<button class="tier-notify-btn" onclick="notifyTier(this, '${esc(t.title)}')">${featured ? 'Notify me' : 'Notify to pre-enrol'}</button>`
+            }
           </div>
         </div>`;
     }).join('');
@@ -1393,7 +1396,9 @@
       document.getElementById('hero-pretitle').textContent = preTitle;
       document.getElementById('hero-title').innerHTML = esc(mainTitle);
 
-      document.getElementById('hero-eyebrow').textContent = (course.instrument || 'Course') + ' · ' + (course.level || 'All levels');
+      document.getElementById('hero-eyebrow').textContent = slug === 'djembe-world-percussions'
+        ? 'Djembe · Rhythm'
+        : (course.instrument || 'Course') + ' · ' + (course.level || 'All levels');
       document.getElementById('hero-sub').textContent = overrides?.heroSub || course.subtitle || 'Begin your journey';
       document.getElementById('hero-sub-note').textContent = 'Mentor-led course';
       const trainUrl = '/courses/' + encodeURIComponent(course.slug || course.id);
@@ -1435,7 +1440,12 @@
         const initials = (course.instructor_name || '').split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase() || '??';
         document.getElementById('instructor-initials').textContent = initials;
       }
-      document.getElementById('instructor-bio-title').innerHTML = 'Meet <em>' + esc(firstName) + '</em>';
+      if (slug === 'djembe-world-percussions') {
+        document.getElementById('instructor-bio-sub-label').textContent = 'Train and Learn the Instrument, world grooves, indian rhythms and the Tabla repertoire on the Djembe.';
+        document.getElementById('instructor-bio-title').innerHTML = 'Djembe with <em>Taufiq Qureshi</em>';
+      } else {
+        document.getElementById('instructor-bio-title').innerHTML = 'Meet <em>' + esc(firstName) + '</em>';
+      }
       document.getElementById('upcoming-instructor-name').textContent = firstName;
 
       if (slug === 'djembe-world-percussions') {
