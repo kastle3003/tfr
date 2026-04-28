@@ -75,18 +75,27 @@ router.get('/:id', (req, res) => {
 // GET /api/courses/:id/chapters
 router.get('/:id/chapters', (req, res) => {
   try {
-    const chapters = db.prepare('SELECT * FROM chapters WHERE course_id = ? ORDER BY order_index').all(req.params.id);
-    const lessonsAll = db.prepare('SELECT * FROM lessons WHERE course_id = ? ORDER BY order_index').all(req.params.id);
+    const courseId = Number(req.params.id);
+    const chapters = db.prepare('SELECT * FROM chapters WHERE course_id = ? ORDER BY order_index').all(courseId);
+    const lessonsAll = db.prepare('SELECT * FROM lessons WHERE course_id = ? ORDER BY order_index').all(courseId);
 
-    // If student, also get their progress
+    // Progress map for students
     const progressMap = {};
     if (req.user.role === 'student') {
       const progress = db.prepare('SELECT lesson_id, completed FROM lesson_progress WHERE student_id = ?').all(req.user.id);
       progress.forEach(p => { progressMap[p.lesson_id] = p.completed; });
     }
 
+    // Determine purchase-based access per chapter so the client can unlock without
+    // requiring sequential completion when the student has already paid.
+    const isStaff = req.user.role === 'admin' || req.user.role === 'instructor';
+    const hasBundlePurchase = !isStaff && access.ownsBundle(req.user.id, courseId);
+    const enrolled = !isStaff && access.isEnrolled(req.user.id, courseId);
+
     const result = chapters.map(ch => ({
       ...ch,
+      // accessible=true means the student owns this content (bundle, individual, or enrolled)
+      accessible: isStaff || hasBundlePurchase || enrolled || access.ownsFoundation(req.user.id, ch.id),
       lessons: lessonsAll
         .filter(l => l.chapter_id === ch.id)
         .map(l => ({ ...l, completed: progressMap[l.id] ? true : false }))

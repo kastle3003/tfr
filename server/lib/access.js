@@ -74,6 +74,12 @@ function ownsFoundation(userId, foundationId) {
   ).get(userId, foundationId);
   return !!row;
 }
+function isEnrolled(userId, courseId) {
+  if (!userId || !courseId) return false;
+  return !!db.prepare(
+    'SELECT 1 FROM enrollments WHERE student_id = ? AND course_id = ? LIMIT 1'
+  ).get(userId, courseId);
+}
 // True if the user owns the parent course bundle OR the specific foundation.
 function hasFoundationAccess(userId, foundationId) {
   const f = getFoundation(foundationId);
@@ -133,12 +139,14 @@ function canAccessLecture(user, lessonId) {
     return { allowed: true, reason: 'first_lesson_free' };
   }
 
-  // Must own the foundation OR the course bundle.
-  if (!hasFoundationAccess(user.id, lesson.chapter_id)) {
-    return { allowed: false, reason: 'not_purchased', course_id: lesson.course_id };
+  // Must own the foundation, the course bundle, or be enrolled (admin-granted access).
+  if (hasFoundationAccess(user.id, lesson.chapter_id)) {
+    return { allowed: true, reason: 'owned' };
   }
-
-  return { allowed: true, reason: 'owned' };
+  if (isEnrolled(user.id, lesson.course_id)) {
+    return { allowed: true, reason: 'enrolled' };
+  }
+  return { allowed: false, reason: 'not_purchased', course_id: lesson.course_id };
 }
 
 // ── Foundation purchase eligibility ────────────────────────────────────────
@@ -178,7 +186,7 @@ module.exports = {
   getLesson, getFoundation, getCourse,
   getLessonProgress,
   foundationLessons, courseFoundations,
-  ownsBundle, ownsFoundation,
+  ownsBundle, ownsFoundation, isEnrolled,
   hasFoundationAccess, hasCourseAccess,
   isLessonCompleted, isFoundationCompleted,
   isFirstLessonOfCourse,

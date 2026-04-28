@@ -166,7 +166,7 @@
               <div style="font-size:11px; color:rgba(255,255,255,0.65); margin-top:2px;">${e.instructor_name || ''} · ${e.level || ''}</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:20px; font-weight:700; color:var(--gold-bright);">${e.progress_pct || 0}%</div>
+              <div class="course-progress-pct" style="font-size:20px; font-weight:700; color:var(--gold-bright);">${e.progress_pct || 0}%</div>
               <div class="progress-bar" style="width:80px; background:rgba(255,255,255,0.15); margin-top:4px;">
                 <div class="progress-fill" style="background:var(--gold); width:${e.progress_pct || 0}%;"></div>
               </div>
@@ -209,34 +209,27 @@
         return;
       }
 
-      // Chapter is complete when every non-preview lesson is completed.
-      const isChapterComplete = (ch) => {
-        const gated = (ch.lessons || []).filter(l => !l.is_preview);
-        if (!gated.length) return false;
-        return gated.every(l => l.completed);
-      };
-
-      // Sequential unlock: first chapter always open; later chapters locked until
-      // the previous chapter is 100% complete. Applies even to bundle owners.
-      const unlockedFlags = chapters.map((ch, i) => i === 0 || isChapterComplete(chapters[i - 1]));
-
       body.innerHTML = chapters.map((ch, i) => {
-        const unlocked = unlockedFlags[i];
-        const prev = chapters[i - 1];
-        const lockBanner = unlocked ? '' : `
+        // Chapter is visually dimmed only if not purchased and not the first chapter
+        const chOpen = i === 0 || !!ch.accessible;
+        const lockBanner = chOpen ? '' : `
           <div style="padding:10px 16px; background:rgba(200,168,75,0.05); border-left:3px solid var(--gold-dim); font-size:12px; color:var(--text-3);">
-            🔒 Finish <strong style="color:var(--text-2);">${prev ? prev.title : 'the previous chapter'}</strong> to unlock these lessons.
+            🔒 Purchase <strong style="color:var(--text-2);">${ch.title}</strong> to unlock all lessons.
           </div>`;
 
         return `
-        <div style="${unlocked ? '' : 'opacity:.55;'}">
+        <div style="${chOpen ? '' : 'opacity:.55;'}">
           <div class="chapter-header">
             ${ch.order_index}. ${ch.title}
           </div>
           ${lockBanner}
-          ${(ch.lessons || []).map(l => `
-            <div class="lesson-row section-block" style="${unlocked ? 'cursor:pointer;' : 'pointer-events:none;'}" ${unlocked ? `onclick="openLessonPlayer(${l.id}, ${courseId})"` : ''}>
-              <div class="lesson-check ${l.completed ? 'done' : ''}" id="check-${l.id}" ${unlocked ? `onclick="event.stopPropagation(); toggleLesson(${l.id}, ${courseId}, this)"` : ''}>
+          ${(ch.lessons || []).map((l, j) => {
+            // A lesson is clickable when: chapter is purchased/enrolled, OR it's a
+            // preview lesson, OR it's the very first lesson of the first chapter (always free).
+            const clickable = !!ch.accessible || !!l.is_preview || (i === 0 && j === 0);
+            return `
+            <div class="lesson-row section-block" style="${clickable ? 'cursor:pointer;' : 'pointer-events:none;'}" ${clickable ? `onclick="openLessonPlayer(${l.id}, ${courseId})"` : ''}>
+              <div class="lesson-check ${l.completed ? 'done' : ''}" id="check-${l.id}" ${clickable ? `onclick="event.stopPropagation(); toggleLesson(${l.id}, ${courseId}, this)"` : ''}>
                 ${l.completed ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
               </div>
               <div class="lesson-type-icon type-${l.type}">
@@ -246,12 +239,12 @@
                 <div style="font-size:13px; font-weight:${l.completed ? '400' : '600'}; color:${l.completed ? 'var(--text-3)' : 'var(--text)'}; ${l.completed ? 'text-decoration:line-through;' : ''}">${l.title}</div>
                 <div style="font-size:11px; color:var(--text-3); margin-top:1px;">${l.duration_minutes ? l.duration_minutes + ' min' : ''}</div>
               </div>
-              ${unlocked
+              ${clickable
                 ? `<span style="flex-shrink:0; font-size:11px; padding:3px 10px; border-radius:4px; background:rgba(200,168,75,0.12); color:var(--gold); font-weight:600; letter-spacing:.04em;">▶ Play</span>`
-                : `<span class="badge ${l.type === 'video' ? 'badge-crimson' : l.type === 'reading' ? 'badge-green' : 'badge-gold'}" style="font-size:11px;">${l.type}</span>`}
+                : `<span style="flex-shrink:0; font-size:11px; padding:3px 8px; border-radius:4px; background:rgba(107,95,80,0.15); color:var(--text-3); letter-spacing:.04em;">🔒</span>`}
             </div>
-            <div id="lv-${l.id}" style="display:none; background:var(--bg-2); border-top:1px solid rgba(200,168,75,0.08);"></div>
-          `).join('')}
+            <div id="lv-${l.id}" style="display:none; background:var(--bg-2); border-top:1px solid rgba(200,168,75,0.08);"></div>`;
+          }).join('')}
         </div>`;
       }).join('');
     } catch (err) {
@@ -348,15 +341,18 @@
       }).catch(() => {});
     });
 
-    // After video ends on a free-preview lesson, show purchase gate overlay
-    if (lesson.is_first_free || lesson.is_preview) {
-      mats.forEach(m => {
-        if (m.type !== 'video' || /youtube\.com|youtu\.be/i.test(m.url || '')) return;
-        const vid = panel.querySelector('#vid-' + m.id);
-        const wrap = panel.querySelector('#vwrap-' + m.id);
-        if (!vid || !wrap) return;
-        vid.addEventListener('ended', () => {
-          if (wrap.querySelector('.purchase-gate')) return;
+    // When any video in this lesson ends: auto-mark complete, then show purchase gate
+    // for free/preview lessons so students know what to buy next.
+    mats.forEach(m => {
+      if (m.type !== 'video' || /youtube\.com|youtu\.be/i.test(m.url || '')) return;
+      const vid = panel.querySelector('#vid-' + m.id);
+      const wrap = panel.querySelector('#vwrap-' + m.id);
+      if (!vid) return;
+      vid.addEventListener('ended', () => {
+        // Always mark complete when the video finishes
+        autoCompleteLesson(lessonId, lesson._courseId);
+        // For free / preview lessons, overlay the purchase prompt
+        if ((lesson.is_first_free || lesson.is_preview) && wrap && !wrap.querySelector('.purchase-gate')) {
           const gate = document.createElement('div');
           gate.className = 'purchase-gate';
           gate.style.cssText = 'position:absolute;inset:0;background:rgba(8,7,6,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:32px;text-align:center;';
@@ -369,9 +365,43 @@
             <a href="/student-courses.html" style="display:inline-block;padding:12px 36px;background:linear-gradient(180deg,#E8C96E,#C8A84B);border-radius:3px;color:#080706;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;">View Course Options</a>
           `;
           wrap.appendChild(gate);
-        });
+        }
       });
-    }
+    });
+  }
+
+  async function autoCompleteLesson(lessonId, courseId) {
+    const checkEl = document.getElementById('check-' + lessonId);
+    if (checkEl && checkEl.classList.contains('done')) return;
+    try {
+      const data = await api.post('/api/lessons/' + lessonId + '/complete', {});
+      if (checkEl) {
+        checkEl.classList.add('done');
+        checkEl.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+        const lessonRow = checkEl.closest('.lesson-row');
+        if (lessonRow) {
+          const titleEl = lessonRow.querySelector('div[style*="font-weight"]');
+          if (titleEl) {
+            titleEl.style.textDecoration = 'line-through';
+            titleEl.style.color = 'var(--text-3)';
+            titleEl.style.fontWeight = '400';
+          }
+        }
+      }
+      if (data.progress_pct !== undefined) updateCourseProgress(courseId, data.progress_pct);
+      loadedCourses.delete(courseId);
+    } catch (_) {}
+  }
+
+  function updateCourseProgress(courseId, pct) {
+    const body = document.getElementById('course-chapters-' + courseId);
+    if (!body) return;
+    const card = body.closest('.card');
+    if (!card) return;
+    const pctEl = card.querySelector('.course-progress-pct');
+    if (pctEl) pctEl.textContent = pct + '%';
+    const fillEl = card.querySelector('.progress-fill');
+    if (fillEl) fillEl.style.width = pct + '%';
   }
 
   function extractYtId(url) {
