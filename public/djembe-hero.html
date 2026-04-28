@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Djembe with Taufiq Qureshi — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site-chrome.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #080706;
+      color: #fff;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── NAV ─── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 74px;
+      display: flex; align-items: center;
+      padding: 0 36px;
+      background: rgba(5, 4, 3, 0.55);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      gap: 0;
+    }
+
+    .nav-logo-box {
+      display: flex; align-items: center;
+      flex-shrink: 0;
+      margin-right: 44px;
+    }
+    .nav-logo-box img { height: 38px; width: auto; display: block; }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 34px;
+      flex: 1;
+    }
+    .nav-link {
+      font-size: 14px; font-weight: 400;
+      color: rgba(255, 255, 255, 0.80);
+      letter-spacing: 0.01em;
+      transition: color 0.18s;
+      white-space: nowrap;
+    }
+    .nav-link:hover { color: #fff; }
+
+    .nav-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+    .nav-search {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      border-radius: 4px;
+      padding: 8px 16px;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      width: 186px;
+      transition: border-color 0.2s;
+    }
+    .nav-search::placeholder { color: rgba(255, 255, 255, 0.30); }
+    .nav-search:focus { border-color: rgba(255, 255, 255, 0.40); }
+
+    .nav-cta {
+      display: inline-block;
+      background: #C8A84B;
+      color: #080706;
+      font-size: 13px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 10px 26px; border-radius: 4px;
+      border: none; cursor: pointer;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+    .nav-cta:hover { background: #E2C26A; }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 600px;
+      background: #080706;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Artist photo — left side, full height, portrait image contained */
+    .hero-artist {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 54%;
+      background-image: url('/assets/tfr-play/taufiq-practice.jpg');
+      background-size: auto 98%;
+      background-repeat: no-repeat;
+      background-position: bottom center;
+    }
+
+    /* Fade edges: right (hard fade to black), top+bottom (soft vignette) */
+    .hero-artist::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to right,
+          rgba(8,7,6,0.08) 0%,
+          rgba(8,7,6,0.08) 35%,
+          rgba(8,7,6,0.50) 58%,
+          rgba(8,7,6,0.82) 75%,
+          #080706 92%
+        ),
+        linear-gradient(to bottom,
+          rgba(8,7,6,0.55) 0%,
+          transparent 18%,
+          transparent 76%,
+          rgba(8,7,6,0.55) 100%
+        );
+    }
+
+    /* Right-side bleed so dark bg extends cleanly past 54% */
+    .hero::after {
+      content: '';
+      position: absolute; top: 0; right: 0; bottom: 0;
+      width: 48%;
+      background: #080706;
+      z-index: 0;
+    }
+
+    /* Text content */
+    .hero-content {
+      position: relative; z-index: 2;
+      width: 100%;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0 80px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .hero-text {
+      width: 570px;
+      text-align: center;
+      padding-top: 64px;
+    }
+
+    em, i { font-style: normal; }
+
+    .hero-eyebrow {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(22px, 2.2vw, 30px);
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      color: #C8A84B;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      line-height: 1.3;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(66px, 7.5vw, 104px);
+      font-weight: 700;
+      color: #C8362A;
+      line-height: 0.90;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(14px, 1.3vw, 17px);
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.65;
+      margin-bottom: 14px;
+      letter-spacing: 0.01em;
+    }
+
+    .hero-badge {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.44);
+      letter-spacing: 0.06em;
+      font-style: normal;
+      margin-bottom: 46px;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      background: #E8A020;
+      color: #000;
+      font-size: clamp(13px, 1.1vw, 15px);
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 18px 46px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .hero-cta:hover {
+      background: #F5B530;
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(232, 160, 32, 0.32);
+    }
+    .hero-cta-play {
+      width: 0; height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 11px solid #000;
+      flex-shrink: 0;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1100px) {
+      .hero-title { font-size: clamp(56px, 7vw, 90px); }
+      .hero-text { width: 480px; }
+      .hero-content { padding: 0 48px; }
+    }
+
+    @media (max-width: 860px) {
+      .nav-links { display: none; }
+      .nav-search { display: none; }
+      .hero-artist {
+        width: 100%;
+        background-size: auto 92%;
+        opacity: 0.25;
+      }
+      .hero::after { display: none; }
+      .hero-content { justify-content: center; padding: 0 28px; }
+      .hero-text { width: 100%; max-width: 520px; }
+    }
+
+    @media (max-width: 540px) {
+      .nav { padding: 0 18px; }
+      .nav-logo-box { margin-right: 0; }
+      .hero-title { font-size: clamp(48px, 12vw, 72px); }
+      .hero-eyebrow { font-size: clamp(18px, 5vw, 24px); }
+      .hero-subtitle { font-size: 14px; }
+      .hero-cta { padding: 15px 30px; }
+      .hero-content { padding: 0 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION (shared) -->
+<div data-site-nav data-active="courses"></div>
+
+<!-- Shared site chrome -->
+<script src="/assets/js/site-chrome.js"></script>
+
+<!-- HERO SECTION -->
+<section class="hero">
+
+  <!-- Artist photo, left side -->
+  <div class="hero-artist" role="img" aria-label="Taufiq Qureshi with djembe"></div>
+
+  <!-- Text overlay, right side -->
+  <div class="hero-content">
+    <div class="hero-text">
+      <p class="hero-eyebrow">Djembe With</p>
+      <h1 class="hero-title">Taufiq<br>Qureshi</h1>
+      <p class="hero-subtitle">
+        One of the most comprehensive Indian rhythm,<br>
+        grooves and percussion courses
+      </p>
+      <p class="hero-badge">Mentor-led course</p>
+      <a href="/course-landing.html?id=djembe-taufiq-qureshi" class="hero-cta">
+        <span class="hero-cta-play"></span>
+        Train Now
+      </a>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  // Auth-aware nav: swap Sign In for avatar when logged in
+  (function () {
+    const token = localStorage.getItem('archive_token');
+    if (!token) return;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload) return;
+      const cta = document.querySelector('.nav-cta');
+      if (!cta) return;
+      const initial = (payload.name || payload.email || '?')[0].toUpperCase();
+      cta.outerHTML = `
+        <a href="/student-courses.html" style="
+          display:inline-flex;align-items:center;gap:9px;
+          background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);
+          border-radius:40px;padding:6px 16px 6px 6px;font-size:13px;color:#fff;
+        ">
+          <span style="
+            width:30px;height:30px;border-radius:50%;background:#C8362A;
+            display:flex;align-items:center;justify-content:center;
+            font-size:12px;font-weight:700;
+          ">${initial}</span>
+          My Courses
+        </a>`;
+    } catch {}
+  })();
+</script>
+
+</body>
+</html>

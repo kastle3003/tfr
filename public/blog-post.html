@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site-chrome.css">
   <style>
     :root {
       --bg:          #080706;
@@ -60,7 +61,7 @@
     }
     .nav-logo-main {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 28px;
       font-weight: 600;
       color: var(--gold);
@@ -221,7 +222,7 @@
 
     .article-title {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: clamp(36px, 5vw, 52px);
       font-weight: 500;
       color: var(--text);
@@ -308,7 +309,7 @@
       border-left: 3px solid var(--gold);
       padding: 16px 24px;
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 22px;
       color: var(--text);
       margin: 32px 0;
@@ -416,7 +417,7 @@
     }
     .error-title {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 36px;
       color: var(--text);
       margin-bottom: 12px;
@@ -445,7 +446,7 @@
     }
     .more-articles-heading {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 32px;
       font-weight: 500;
       color: var(--text);
@@ -516,7 +517,7 @@
     }
     .card-title {
       font-family: var(--serif);
-      font-style: italic;
+      font-style: normal;
       font-size: 19px;
       font-weight: 500;
       color: var(--text);
@@ -582,7 +583,7 @@
       margin: 0 auto 48px;
     }
     .footer-brand-logo-main {
-      font-family: var(--serif); font-style: italic; font-size: 26px;
+      font-family: var(--serif); font-style: normal; font-size: 26px;
       font-weight: 600; color: var(--gold); line-height: 1; margin-bottom: 2px;
     }
     .footer-brand-logo-sub {
@@ -590,7 +591,7 @@
       color: var(--text-3); text-transform: uppercase; margin-bottom: 16px;
     }
     .footer-tagline {
-      font-family: var(--serif); font-style: italic; font-size: 14px;
+      font-family: var(--serif); font-style: normal; font-size: 14px;
       color: var(--text-2); line-height: 1.6; margin-bottom: 20px;
     }
     .footer-socials { display: flex; gap: 12px; }
@@ -645,22 +646,8 @@
 </head>
 <body>
 
-  <!-- NAVIGATION -->
-  <nav class="nav" id="main-nav">
-    <a href="/" class="nav-logo">
-      <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;">
-    </a>
-    <ul class="nav-links">
-      <li><a href="/#experience">Experience</a></li>
-      <li><a href="/#explore">Courses</a></li>
-      <li><a href="/#community">Community</a></li>
-      <li><a href="/blog.html" class="active">Journal</a></li>
-    </ul>
-    <div class="nav-actions">
-      <a href="/login" class="btn-ghost">Log In</a>
-      <a href="/login#panel-register" class="btn-gold">Sign Up</a>
-    </div>
-  </nav>
+  <!-- NAVIGATION (shared) -->
+  <div data-site-nav data-active="journal"></div>
 
   <!-- ARTICLE WRAPPER -->
   <div class="article-wrap" id="article-wrap">
@@ -754,70 +741,13 @@
 
   </div><!-- /article-wrap -->
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-grid">
-      <div>
-        <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;display:block;margin-bottom:6px;">
-        <p class="footer-tagline">Training is a Science.<br>Performing is an Art.</p>
-        <div class="footer-socials">
-          <a href="https://instagram.com/thisistfr" class="footer-social" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-          </a>
-          <a href="https://facebook.com/thefoundationroom" class="footer-social" target="_blank" rel="noopener" aria-label="Facebook">
-            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          </a>
-        </div>
-      </div>
-      <div>
-        <p class="footer-col-title">Courses</p>
-        <ul class="footer-links">
-          <li><a href="/login">Sitar with Niladri Kumar</a></li>
-          <li><a href="/login">Djembe &amp; Percussions — Taufiq Qureshi</a></li>
-          <li><a href="/login">Hindustani Vocals — Sveta Kilpady</a></li>
-          <li><a href="/login">Kathak — Guruma Sangeeta Sinha</a></li>
-          <li><a href="/login">Film Songs — Milind Singh</a></li>
-          <li><a href="/login">Acting — Makarand Deshpande</a></li>
-        </ul>
-      </div>
-      <div>
-        <p class="footer-col-title">Platform</p>
-        <ul class="footer-links">
-          <li><a href="/">Experience TFR</a></li>
-          <li><a href="/login">TFR Play</a></li>
-          <li><a href="/blog.html">Journal</a></li>
-          <li><a href="/#courses">Instructors</a></li>
-        </ul>
-      </div>
-      <div>
-        <p class="footer-col-title">Connect</p>
-        <div class="footer-connect-item">
-          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
-          <span class="footer-connect-text"><a href="tel:+919920615500">+91 99206 15500</a></span>
-        </div>
-        <div class="footer-connect-item">
-          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <span class="footer-connect-text"><a href="mailto:join@thefoundationroom.in">join@thefoundationroom.in</a></span>
-        </div>
-        <div class="footer-connect-item">
-          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span class="footer-connect-text">403 Windermere, North Avenue,<br>Santacruz West, Mumbai 400054</span>
-        </div>
-        <div class="footer-connect-item">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
-          <span class="footer-connect-text">@thisistfr on Instagram</span>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bar">
-      <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved. &nbsp;&middot;&nbsp; Designed and developed by Techinfinity</p>
-      <div class="footer-legal">
-        <a href="/privacy">Privacy Policy</a>
-        <a href="/refund-policy">Refund Policy</a>
-        <a href="/terms">Terms</a>
-      </div>
-    </div>
-  </footer>
+  <!-- FOOTER (shared) -->
+  <div data-site-footer></div>
+
+  <!-- Shared site chrome (must run before public-nav-auth) -->
+  <script src="/assets/js/site-chrome.js"></script>
+  <!-- Auth-aware nav -->
+  <script src="/assets/js/public-nav-auth.js"></script>
 
   <!-- GSAP -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>

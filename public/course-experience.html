@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loading… · The Foundation Room</title>
-<link rel="icon" type="image/png" href="/assets/tfr-play/tfr-logo.png">
+<link rel="icon" type="image/svg+xml" href="/assets/tfr-play/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site-chrome.css">
 <style>
   :root {
     --ink:         #080706;
@@ -35,6 +36,7 @@
     --radius: 8px;
     --max: 1280px;
   }
+  em, i { font-style: normal; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; overflow-x: clip; }
   body {
@@ -53,10 +55,10 @@
     display: flex; align-items: center; gap: 28px;
     padding: 0 40px;
     height: 76px;
-    background: rgba(240, 228, 196, 0.22);
+    background: rgba(8,7,6,0.55);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(240, 228, 196, 0.12);
-    position: sticky; top: 0; z-index: 20;
+    border-bottom: 1px solid rgba(240,228,196,0.08);
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   }
   .nav-logo-link { display: inline-flex; align-items: center; gap: 10px; }
   .nav-logo-img { height: 42px; width: auto; }
@@ -86,58 +88,74 @@
   }
   .nav-ghost { border: 1px solid var(--border-hi); color: var(--cream); }
   .nav-ghost:hover { border-color: var(--gold); color: var(--gold); }
-  .nav-red { background: var(--accent-red); color: #fff; }
-  .nav-red:hover { background: var(--accent-red-bright); }
+  .nav-red { background: var(--gold); color: var(--ink); border: none; }
+  .nav-red:hover { background: var(--gold-bright); }
 
   /* ─────────── Hero ─────────── */
   .hero {
     position: relative;
-    min-height: 640px;
-    display: flex; align-items: flex-end; justify-content: center;
-    padding: 80px 40px 90px;
+    min-height: 100vh;
+    display: flex; align-items: flex-end; justify-content: flex-end;
+    padding: 100px 8% 100px 40px;
     overflow: hidden;
     text-align: center;
   }
   .hero-bg {
     position: absolute; inset: 0; z-index: 0;
-    background-size: cover; background-position: center 22%;
-    transform: scale(1.02);
+    background-size: cover; background-position: 35% center;
   }
   .hero-bg::after {
     content: ''; position: absolute; inset: 0;
     background:
-      linear-gradient(180deg, rgba(8,7,6,0.55) 0%, rgba(8,7,6,0.25) 40%, rgba(8,7,6,0.92) 100%),
-      radial-gradient(ellipse at center, transparent 30%, rgba(8,7,6,0.65) 100%);
+      linear-gradient(180deg, rgba(8,7,6,0.15) 0%, transparent 22%, transparent 70%, rgba(8,7,6,0.65) 100%),
+      linear-gradient(to left, rgba(8,7,6,0.78) 0%, rgba(8,7,6,0.35) 32%, transparent 60%),
+      radial-gradient(ellipse at 72% 55%, transparent 30%, rgba(8,7,6,0.2) 100%);
   }
-  .hero-content { position: relative; z-index: 1; max-width: 820px; }
+  .hero-content { position: relative; z-index: 1; max-width: 580px; text-align: center; }
   .hero-eyebrow {
-    font-size: 12px; font-weight: 500; letter-spacing: .3em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 22px;
+    font-size: 11px; font-weight: 500; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .hero-eyebrow::before,
+  .hero-eyebrow::after {
+    content: ''; display: block; width: 28px; height: 1px; background: var(--gold-dim);
+  }
+  .hero-pretitle {
+    font-family: var(--font-display);
+    font-size: clamp(15px, 2.2vw, 24px);
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    opacity: 0.9;
   }
   .hero-title {
     font-family: var(--font-display);
-    font-size: clamp(36px, 6vw, 72px);
-    font-weight: 600; line-height: 1.04;
-    color: var(--cream); margin-bottom: 18px;
-    letter-spacing: .005em;
+    font-size: clamp(44px, 7.5vw, 96px);
+    font-weight: 700; line-height: 1.0;
+    color: #fff; margin-bottom: 22px;
+    letter-spacing: .025em;
     text-transform: uppercase;
   }
+  .title-red { color: var(--accent-red); }
   .hero-sub {
-    font-family: var(--font-display); font-style: italic;
-    font-size: clamp(17px, 1.9vw, 22px);
-    color: var(--cream); opacity: .9;
-    margin-bottom: 12px; max-width: 620px;
+    font-family: var(--font-display);
+    font-size: clamp(16px, 1.8vw, 21px);
+    color: #fff; opacity: .85;
+    margin-bottom: 10px; max-width: 580px;
     margin-left: auto; margin-right: auto;
   }
   .hero-sub-note {
-    font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
-    color: var(--cream-dim); margin-bottom: 34px;
+    font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.5); margin-bottom: 36px;
   }
   .train-btn {
     display: inline-flex; align-items: center; gap: 12px;
-    padding: 16px 40px;
-    background: var(--accent-red);
-    color: #fff;
+    padding: 17px 44px;
+    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+    color: var(--ink);
     border: 0; border-radius: 4px;
     font-family: inherit;
     font-size: 14px; font-weight: 700;
@@ -146,17 +164,84 @@
     transition: background .2s, transform .1s, box-shadow .2s;
     text-decoration: none;
   }
-  .train-btn:hover { background: var(--accent-red-bright); box-shadow: 0 12px 32px rgba(226,74,63,.3); }
+  .train-btn:hover { background: linear-gradient(180deg, #F0D277 0%, var(--gold-bright) 100%); box-shadow: 0 12px 32px rgba(200,168,75,.4); }
   .train-btn:active { transform: translateY(1px); }
   .train-btn svg { width: 13px; height: 13px; fill: currentColor; }
 
-  /* Djembe decorative accent in hero bottom */
+  /* Hero bottom accent */
   .hero-drum-accent {
     position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
     width: 120px; height: 14px;
     background: linear-gradient(90deg, transparent, var(--gold) 40%, var(--gold) 60%, transparent);
-    opacity: .3;
-    z-index: 2;
+    opacity: .3; z-index: 2;
+  }
+
+  /* Artist panel — absolute-positioned left portrait for courses that need it */
+  .hero-artist-panel {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 56%;
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    z-index: 0;
+  }
+  .hero-artist-panel::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to right,
+        transparent 0%,
+        transparent 38%,
+        rgba(8,7,6,0.55) 62%,
+        rgba(8,7,6,0.88) 80%,
+        #080706 97%
+      ),
+      linear-gradient(to bottom,
+        rgba(8,7,6,0.45) 0%,
+        transparent 15%,
+        transparent 80%,
+        rgba(8,7,6,0.55) 100%
+      );
+  }
+  /* When artist panel is active, reset the bg element to a plain dark fill */
+  .hero.has-artist-panel .hero-bg {
+    background-image: none !important;
+    background: linear-gradient(160deg, #100e0b 0%, #080706 100%);
+  }
+
+  /* Upcoming card — features block fills the blank top-left area */
+  .upcoming-card-features {
+    grid-column: 1; grid-row: 1;
+    align-self: start;
+    padding: 52px 0 0 56px;
+    position: relative; z-index: 2;
+  }
+  .upcoming-feat-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .18em; text-transform: uppercase;
+    padding: 5px 14px; border-radius: 3px;
+    margin-bottom: 28px;
+  }
+  .upcoming-feat-list {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 16px;
+    max-width: 360px;
+  }
+  .upcoming-feat-list li {
+    font-size: 14px; color: var(--cream-dim);
+    padding-left: 22px; position: relative;
+    line-height: 1.5;
+  }
+  .upcoming-feat-list li::before {
+    content: '';
+    position: absolute; left: 0; top: 7px;
+    width: 7px; height: 7px;
+    background: var(--gold); border-radius: 50%;
+    flex-shrink: 0;
   }
 
   /* ─────────── Section shell ─────────── */
@@ -167,16 +252,15 @@
   }
   .section-eyebrow {
     font-size: 11px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase;
-    color: var(--accent-red); margin-bottom: 14px;
+    color: var(--gold); margin-bottom: 14px;
   }
-  .section-eyebrow .play-mark { color: var(--gold); }
   .section-title {
     font-family: var(--font-display);
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 600; line-height: 1.1;
-    color: var(--cream); margin-bottom: 30px;
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 600; line-height: 1.15;
+    color: #fff; margin-bottom: 30px;
   }
-  .section-title em { color: var(--accent-red); font-style: italic; font-weight: 500; }
+  .section-title em { color: var(--accent-red); font-weight: 600; }
   .section-divider {
     max-width: var(--max);
     margin: 0 auto;
@@ -184,34 +268,96 @@
     background: linear-gradient(90deg, transparent, var(--border-hi), transparent);
   }
 
+  /* ─────────── Golden border animation ─────────── */
+  @keyframes gb-spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+  .gb-wrap {
+    position: relative;
+    overflow: hidden;
+    padding: 2px;
+    border-radius: calc(var(--radius) + 2px);
+  }
+  .gb-wrap::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 260%; height: 260%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    background: conic-gradient(
+      #1e0f00 0deg, #c8880a 48deg, #ffda4a 62deg, #fff8a0 72deg, #ffda4a 82deg, #c8880a 96deg, #1e0f00 144deg,
+      #1e0f00 180deg, #c8880a 228deg, #ffda4a 242deg, #fff8a0 252deg, #ffda4a 262deg, #c8880a 276deg, #1e0f00 324deg, #1e0f00 360deg
+    );
+    animation: gb-spin 5s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .gb-wrap > * {
+    position: relative;
+    z-index: 1;
+    border-radius: var(--radius);
+  }
+  /* Smaller spin-border for buttons (4px radius) */
+  .gb-wrap-sm {
+    display: inline-flex;
+    position: relative;
+    overflow: hidden;
+    padding: 2px;
+    border-radius: 6px;
+  }
+  .gb-wrap-sm::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 260%; height: 260%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    background: conic-gradient(
+      #1e0f00 0deg, #c8880a 48deg, #ffda4a 62deg, #fff8a0 72deg, #ffda4a 82deg, #c8880a 96deg, #1e0f00 144deg,
+      #1e0f00 180deg, #c8880a 228deg, #ffda4a 242deg, #fff8a0 252deg, #ffda4a 262deg, #c8880a 276deg, #1e0f00 324deg, #1e0f00 360deg
+    );
+    animation: gb-spin 5s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .gb-wrap-sm > * {
+    position: relative;
+    z-index: 1;
+    border-radius: 4px;
+    border: none !important;
+  }
+
   /* ─────────── TFR Play intro ─────────── */
   .play-intro {
     display: grid;
     grid-template-columns: 1.35fr 1fr;
     gap: 56px;
-    align-items: center;
+    align-items: stretch;
   }
-  .play-intro p {
+  .play-intro-text { display: flex; flex-direction: column; justify-content: center; }
+  .play-intro-text p {
     color: var(--cream-dim); font-size: 15px; margin-bottom: 14px;
   }
-  .play-intro p strong { color: var(--cream); font-weight: 600; }
-  .play-intro .play-brand-mark {
+  .play-intro-text p strong { color: var(--cream); font-weight: 600; }
+  .play-intro-text .play-brand-mark {
     font-family: var(--font-display); color: var(--gold);
     font-size: 18px; font-weight: 600;
     display: inline-flex; align-items: center; gap: 6px;
   }
-  .play-intro .play-brand-mark svg { width: 11px; height: 11px; fill: var(--accent-red); }
+  .play-intro-text .play-brand-mark svg { width: 11px; height: 11px; fill: var(--accent-red); }
+  .play-card-wrap {
+    min-height: 300px;
+    display: flex; flex-direction: column;
+  }
   .play-card {
     position: relative;
     background: var(--ink-mid);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
     overflow: hidden;
-    aspect-ratio: 16 / 10;
     display: flex; align-items: center; justify-content: center;
-    transition: border-color .2s, transform .3s, box-shadow .3s;
+    flex: 1;
+    min-height: 280px;
+    transition: transform .3s, box-shadow .3s;
   }
-  .play-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 20px 48px rgba(0,0,0,.5); }
+  .play-card:hover { transform: translateY(-2px); box-shadow: 0 20px 48px rgba(0,0,0,.5); }
   .play-card-img {
     position: absolute; inset: 0;
     background-size: cover; background-position: center;
@@ -223,6 +369,11 @@
     content: ''; position: absolute; inset: 0;
     background: linear-gradient(135deg, rgba(8,7,6,.35) 0%, rgba(8,7,6,.8) 100%);
   }
+  .play-card-img.play-card-img-branded {
+    opacity: 1;
+  }
+  .play-card-img.play-card-img-branded::after { background: transparent; }
+  .play-card:hover .play-card-img.play-card-img-branded { opacity: 1; }
   .play-card-inner {
     position: relative; z-index: 1;
     display: flex; flex-direction: column; align-items: center; gap: 14px;
@@ -236,7 +387,7 @@
     width: 66px; height: 66px; border-radius: 50%;
     background: var(--accent-red);
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 10px 32px rgba(226,74,63,.4);
+    box-shadow: 0 10px 32px rgba(226,74,63,.45);
     transition: transform .2s;
   }
   .play-card:hover .play-card-play { transform: scale(1.1); }
@@ -252,22 +403,25 @@
     gap: 64px;
     align-items: start;
   }
+  .instructor-photo-wrap {
+    align-self: start;
+  }
   .instructor-photo {
     position: relative;
-    border-radius: var(--radius);
+    border-radius: calc(var(--radius) - 2px);
     overflow: hidden;
     aspect-ratio: 4/5;
-    border: 1px solid var(--border);
+    border: none;
     background: var(--ink-mid);
   }
   .instructor-photo img {
-    width: 100%; height: 100%; object-fit: cover; object-position: center 20%;
+    width: 100%; height: 100%; object-fit: cover; object-position: center 15%;
     transition: transform .6s;
   }
   .instructor-photo:hover img { transform: scale(1.03); }
   .instructor-photo::after {
     content: ''; position: absolute; inset: 0;
-    background: linear-gradient(180deg, transparent 50%, rgba(8,7,6,.55) 100%);
+    background: linear-gradient(180deg, transparent 55%, rgba(8,7,6,.55) 100%);
     pointer-events: none;
   }
   .instructor-initials {
@@ -280,9 +434,19 @@
     font-family: var(--font-display);
     font-size: clamp(28px, 3vw, 38px);
     font-weight: 600; line-height: 1.15;
-    color: var(--cream); margin-bottom: 10px;
+    color: #fff; margin-bottom: 10px;
   }
-  .instructor-bio-title em { color: var(--accent-red); font-style: italic; font-weight: 500; }
+  .upcoming-strip h3,
+  .series-block h3,
+  .pr-card-title,
+  .pr-promo-banner {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3vw, 38px) !important;
+    font-weight: 600 !important;
+    line-height: 1.15;
+    color: #fff;
+  }
+  .instructor-bio-title em { color: var(--accent-red); }
   .instructor-bio-sub {
     font-size: 14px; color: var(--gold); margin-bottom: 24px;
     font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
@@ -296,38 +460,25 @@
   .pr-promo-banner {
     text-align: center;
     font-family: var(--font-display); font-size: clamp(30px, 3.5vw, 44px);
-    color: var(--cream); font-weight: 500;
+    color: #fff; font-weight: 500;
     margin-bottom: 48px;
   }
-  .pr-promo-banner em { color: var(--accent-red); font-style: italic; font-weight: 600; }
+  .pr-promo-banner em { color: var(--accent-red); font-weight: 600; }
+  .pr-card-wrap { margin-top: 0; }
   .pr-card {
     position: relative;
     background: linear-gradient(135deg, var(--ink-mid) 0%, var(--ink-deep) 100%);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
     overflow: hidden;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0;
   }
-  .pr-ribbon {
-    position: absolute;
-    top: 26px; left: -42px;
-    width: 170px;
-    transform: rotate(-42deg);
-    background: var(--gold);
-    color: var(--ink);
-    font-size: 10px; font-weight: 700;
-    letter-spacing: .14em; text-transform: uppercase;
-    padding: 6px 0;
-    text-align: center;
-    z-index: 3;
-  }
   .pr-card-body { padding: 48px 44px; }
   .pr-card-title {
     font-family: var(--font-display); font-size: 32px; font-weight: 600;
-    color: var(--cream); margin-bottom: 16px;
+    color: #fff; margin-bottom: 16px;
   }
+  .pr-card-title .title-red { color: var(--accent-red); }
   .pr-card-body p {
     color: var(--cream-dim); font-size: 14px; margin-bottom: 10px;
   }
@@ -341,14 +492,14 @@
   }
   .pr-card-visual::before {
     content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(226,74,63,.22) 0%, rgba(8,7,6,.75) 100%);
+    background: linear-gradient(135deg, rgba(8,7,6,.65) 0%, rgba(8,7,6,.4) 100%);
   }
   .pr-card-visual-inner {
     position: relative; z-index: 1; text-align: center;
   }
   .pr-card-visual .pr-card-play {
     width: 76px; height: 76px; border-radius: 50%;
-    background: rgba(226,74,63,.95);
+    background: var(--accent-red);
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 16px 40px rgba(226,74,63,.45);
     margin: 0 auto;
@@ -391,6 +542,26 @@
   .pr-locked-btn:hover::after, .pr-locked-btn.tapped::after { opacity: 1; }
   .pr-locked-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
+  /* ─────────── Rainbow gradient bar ─────────── */
+  .tier-rainbow-bar {
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg,
+      #F8C726 0%, #F58430 12%,
+      #9CD63C 25%, #2DA84F 37%,
+      #5CADFD 50%, #B946D8 62%,
+      #E62F75 75%, #321456 87%,
+      #DD9036 100%
+    );
+    display: block;
+    border: none;
+    outline: none;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    font-size: 0;
+  }
+
   /* ─────────── Tier cards ─────────── */
   .tiers-grid {
     display: grid;
@@ -419,18 +590,12 @@
     display: flex; flex-direction: column;
   }
   .tier-title {
-    font-family: var(--font-display); font-size: 22px; font-weight: 600;
-    color: var(--cream); margin-bottom: 4px; line-height: 1.2;
+    font-family: var(--font-display); font-size: 18px; font-weight: 600;
+    color: #fff; margin-bottom: 4px; line-height: 1.2;
   }
   .tier-subtitle {
     font-size: 11px; color: var(--cream-dim);
-    font-style: italic; margin-bottom: 16px;
-  }
-  .tier-featured-ribbon {
-    position: absolute; top: 22px; right: -36px;
-    background: var(--accent-red); color: #fff;
-    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-    padding: 5px 42px; transform: rotate(35deg); z-index: 2;
+    font-style: normal; margin-bottom: 16px;
   }
   .tier-section-label {
     font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
@@ -467,11 +632,18 @@
     cursor: pointer;
     transition: all .18s;
   }
-  .tier-notify-btn:hover { border-color: var(--gold); color: var(--gold); }
-  .tier-card.featured .tier-notify-btn {
-    background: var(--gold); color: var(--ink); border-color: var(--gold);
+  .tier-notify-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(200,168,75,0.07);
+    box-shadow: 0 0 14px rgba(200,168,75,0.18), inset 0 0 8px rgba(200,168,75,0.06);
+    transform: translateY(-1px);
   }
-  .tier-card.featured .tier-notify-btn:hover { background: var(--gold-bright); border-color: var(--gold-bright); }
+  .tier-card.featured .tier-notify-btn {
+    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+    color: var(--ink); border-color: var(--gold);
+  }
+  .tier-card.featured .tier-notify-btn:hover { background: linear-gradient(180deg, #F0D277 0%, var(--gold-bright) 100%); border-color: var(--gold-bright); }
 
   /* ─────────── Upcoming strip ─────────── */
   .upcoming-strip {
@@ -480,36 +652,62 @@
     padding: 0 40px 70px;
   }
   .upcoming-strip h3 {
-    font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); color: var(--cream); font-weight: 500;
+    font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); color: #fff; font-weight: 500;
     margin-bottom: 24px;
   }
-  .upcoming-strip h3 em { color: var(--accent-red); font-style: italic; }
+  .play-mark { color: var(--accent-red) !important; font-style: normal; }
+  .section-eyebrow span { color: #fff; }
+  .upcoming-strip h3 em { color: #fff; }
+  .upcoming-strip h3 .play-mark, .series-block h3 .play-mark { color: var(--accent-red) !important; }
   .upcoming-card {
     position: relative;
-    background: linear-gradient(90deg, var(--ink-mid), var(--ink-deep));
+    background: linear-gradient(135deg, #1a1714 0%, var(--ink-deep) 100%);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 36px 44px;
     overflow: hidden;
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 36px;
-    align-items: center;
+    grid-template-columns: 1.15fr .85fr;
+    grid-template-rows: 1fr auto auto;
+    gap: 0 48px;
+    min-height: 460px;
+  }
+  .upcoming-text {
+    position: relative; z-index: 2;
+    grid-column: 1; grid-row: 2;
+    text-align: left;
+    padding: 24px 0 0 56px;
+    align-self: end;
+  }
+  .upcoming-text h4 {
+    font-family: var(--font-display); font-size: clamp(26px, 2.6vw, 34px);
+    color: #fff; font-weight: 500; margin-bottom: 10px; line-height: 1.2;
+  }
+  .upcoming-text h4 .mentor-red { color: var(--accent-red); font-weight: 600; display: block; }
+  .upcoming-text p { font-size: 14px; color: var(--cream-dim); max-width: 460px; }
+  .upcoming-card .signup-form {
+    position: relative; z-index: 2;
+    grid-column: 1; grid-row: 3;
+    max-width: 460px;
+    padding: 16px 0 56px 56px;
+    align-self: start;
   }
   .upcoming-card-img {
-    position: absolute; right: 0; top: 0; bottom: 0; width: 50%;
-    background-size: cover; background-position: center; opacity: .45;
+    position: relative;
+    grid-column: 2; grid-row: 1 / span 3;
+    align-self: stretch;
+    background-color: #000;
+    background-size: cover;
+    background-position: center 15%;
+    background-repeat: no-repeat;
+    overflow: hidden;
   }
   .upcoming-card-img::after {
     content: ''; position: absolute; inset: 0;
-    background: linear-gradient(90deg, var(--ink-mid) 0%, transparent 75%);
+    background:
+      linear-gradient(90deg, rgba(8,7,6,0.92) 0%, rgba(8,7,6,0.45) 14%, transparent 38%, transparent 100%),
+      linear-gradient(180deg, rgba(8,7,6,0.25) 0%, transparent 25%, transparent 75%, rgba(8,7,6,0.45) 100%);
+    pointer-events: none;
   }
-  .upcoming-text { position: relative; z-index: 1; }
-  .upcoming-text h4 {
-    font-family: var(--font-display); font-size: 26px; color: var(--cream); font-weight: 500; margin-bottom: 4px;
-  }
-  .upcoming-text h4 strong { color: var(--gold); font-weight: 600; }
-  .upcoming-text p { font-size: 13px; color: var(--cream-dim); }
   .signup-form {
     position: relative; z-index: 1;
     display: flex; gap: 10px;
@@ -528,22 +726,23 @@
   .signup-form input:focus { border-color: var(--gold); }
   .signup-form button {
     padding: 13px 24px;
-    background: var(--accent-red); color: #fff;
+    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+    color: var(--ink);
     border: 0; border-radius: 4px;
     font-family: inherit; font-size: 12px; font-weight: 700;
     letter-spacing: .12em; text-transform: uppercase;
     cursor: pointer;
-    transition: background .15s;
+    transition: background .15s, box-shadow .15s;
   }
-  .signup-form button:hover { background: var(--accent-red-bright); }
+  .signup-form button:hover { background: linear-gradient(180deg, #F0D277 0%, var(--gold-bright) 100%); box-shadow: 0 6px 20px rgba(200,168,75,.35); }
 
   /* ─────────── Legacy / next up cards ─────────── */
   .series-block { max-width: var(--max); margin: 0 auto; padding: 40px 40px 80px; }
   .series-block h3 {
-    font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); color: var(--cream); font-weight: 500;
+    font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); color: #fff; font-weight: 500;
     margin-bottom: 24px;
   }
-  .series-block h3 em { color: var(--accent-red); font-style: italic; }
+  .series-block h3 em { color: #fff; }
   .series-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -552,18 +751,41 @@
   .series-card {
     position: relative;
     background: var(--ink-mid);
-    border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
-    transition: transform .25s, border-color .25s;
+    transition: transform .25s;
   }
-  .series-card:hover { transform: translateY(-4px); border-color: var(--gold); }
-  .series-ribbon {
-    position: absolute; top: 18px; left: -36px;
-    background: var(--gold); color: var(--ink);
-    font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
-    padding: 4px 42px; transform: rotate(-38deg); z-index: 2;
+  .gb-wrap .series-card { border-radius: calc(var(--radius) - 2px); }
+  .series-card:hover { transform: translateY(-4px); }
+  .ribbon-shell {
+    position: relative;
+    display: flex; flex-direction: column;
+    width: 100%;
   }
+  .ribbon-shell > .gb-wrap,
+  .ribbon-shell > .tier-card { flex: 1; width: 100%; }
+  .series-ribbon,
+  .pr-ribbon,
+  .tier-featured-ribbon {
+    position: absolute;
+    width: 148px; padding: 7px 0;
+    text-align: center;
+    background: linear-gradient(180deg, #ffe680 0%, #d4a818 55%, #b88810 100%);
+    color: #1a0e00;
+    font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    border-radius: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55);
+    pointer-events: none;
+    z-index: 6;
+  }
+  /* top-left corner: ribbon spans from left edge to top edge */
+  .series-ribbon { top: 24px; left: -40px; transform: rotate(-45deg); transform-origin: center; }
+  .pr-ribbon     { top: 24px; left: -40px; transform: rotate(-45deg); transform-origin: center; }
+  /* top-right corner */
+  .tier-featured-ribbon { top: 24px; right: -40px; transform: rotate(45deg); transform-origin: center; }
+  .series-ribbon::before, .series-ribbon::after,
+  .pr-ribbon::before, .pr-ribbon::after,
+  .tier-featured-ribbon::before, .tier-featured-ribbon::after { content: none; }
   .series-img {
     aspect-ratio: 4/3;
     background-size: cover; background-position: center top;
@@ -582,14 +804,23 @@
     gap: 22px;
     align-items: stretch;
   }
+  .kids-row .gb-wrap,
+  .kids-row .ribbon-shell > .gb-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+  .kids-row .gb-wrap > * {
+    flex: 1;
+  }
+  .kids-row .ribbon-shell { height: 100%; }
   .kids-card {
     background: linear-gradient(135deg, #1a1830 0%, #090715 100%);
-    border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 48px 36px;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     text-align: center; gap: 14px;
   }
+  .gb-wrap .kids-card { border-radius: calc(var(--radius) - 2px); }
   .kids-logo {
     font-family: var(--font-display);
     font-size: 56px; font-weight: 700;
@@ -599,7 +830,7 @@
   .kids-logo .r2 { color: #E24A3F; }
   .kids-logo .r3 { color: #F2C14E; }
   .kids-logo .kids-word {
-    font-size: 32px; color: var(--cream); font-style: italic; font-weight: 500;
+    font-size: 32px; color: var(--cream); font-weight: 500;
     margin-left: 8px;
   }
   .kids-logo-sub {
@@ -607,7 +838,7 @@
     color: var(--cream-dim); margin-top: -2px;
   }
   .kids-card h4 {
-    font-family: var(--font-display); font-size: 22px; color: var(--cream); font-weight: 500;
+    font-family: var(--font-display); font-size: 22px; color: #fff; font-weight: 500;
     margin-top: 10px;
   }
 
@@ -621,7 +852,7 @@
     display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
     gap: 48px; max-width: 1200px; margin: 0 auto 48px;
   }
-  .footer-tagline { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
+  .footer-tagline { font-family: var(--serif); font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
   .footer-socials { display: flex; gap: 12px; }
   .footer-social { width: 34px; height: 34px; border: 1px solid rgba(200,168,75,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s, background 0.2s; text-decoration: none; }
   .footer-social:hover { border-color: var(--gold); background: rgba(200,168,75,0.08); }
@@ -646,9 +877,10 @@
     nav { padding: 0 20px; gap: 14px; }
     .nav-links { display: none; }
     .nav-logo-text { font-size: 16px; } .nav-logo-text span { font-size: 8px; }
-    .hero { padding: 50px 22px 70px; min-height: 460px; }
+    .hero { padding: 100px 22px 70px; min-height: 80vh; }
     .section { padding: 60px 24px; }
-    .play-intro { grid-template-columns: 1fr; gap: 32px; }
+    .play-intro { grid-template-columns: 1fr; gap: 0; }
+    .play-card-wrap { min-height: 280px; }
     .instructor-block { grid-template-columns: 1fr; gap: 28px; }
     .instructor-photo { max-width: 320px; margin: 0 auto; aspect-ratio: 1/1; }
     .pr-card { grid-template-columns: 1fr; }
@@ -656,7 +888,10 @@
     .pr-card-visual { min-height: 240px; }
     .tiers-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
     .upcoming-strip { padding: 0 24px 48px; }
-    .upcoming-card { padding: 28px 24px; grid-template-columns: 1fr; }
+    .upcoming-card { padding: 28px 24px; grid-template-columns: 1fr; grid-template-rows: auto auto auto; gap: 18px; min-height: 0; }
+    .upcoming-card-features { padding: 0; grid-column: 1; grid-row: 1; }
+    .upcoming-text { padding: 0; grid-column: 1; grid-row: 2; }
+    .upcoming-card .signup-form { padding: 0; grid-column: 1; grid-row: 3; }
     .upcoming-card-img { display: none; }
     .signup-form { flex-direction: column; }
     .series-block { padding: 24px 24px 60px; }
@@ -672,7 +907,7 @@
     .nav-btn { padding: 7px 14px; font-size: 11px; letter-spacing: .06em; }
     .nav-logo-text span { display: none; }
     .train-btn { padding: 14px 28px; font-size: 12px; }
-    .hero { min-height: 420px; }
+    .hero { min-height: 75vh; }
     .pr-card-body { padding: 24px 18px; }
     .tier-body { padding: 20px 16px; }
   }
@@ -682,28 +917,18 @@
   .reveal.visible { opacity: 1; transform: none; }
 
   /* Loading/error */
-  .loading-state { min-height: 60vh; display: flex; align-items: center; justify-content: center; padding: 40px; }
+  .loading-state { min-height: 60vh; display: flex; align-items: center; justify-content: center; padding: 40px; margin-top: 76px; }
   .loading-state p { font-family: var(--font-display); font-size: 24px; color: var(--cream-dim); }
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<nav>
-  <a class="nav-logo-link" href="/">
-    <img class="nav-logo-img" src="/assets/tfr-play/tfr-logo.png" alt="TFR">
-  </a>
-  <div class="nav-links">
-    <a class="nav-link" href="/">Experience TFR</a>
-    <a class="nav-link active" href="/courses">Courses</a>
-    <a class="nav-link" href="/">TFR Play</a>
-    <a class="nav-link" href="/">Community</a>
-    <a class="nav-link" href="/">Connect</a>
-  </div>
-  <div class="nav-spacer"></div>
-  <a class="nav-btn nav-ghost" href="/login">Log In</a>
-  <a class="nav-btn nav-red" href="/login#panel-register">Sign Up</a>
-</nav>
+<!-- NAVIGATION (shared) -->
+<div data-site-nav data-active="courses"></div>
+
+<!-- Shared site chrome (must run before public-nav-auth) -->
+<script src="/assets/js/site-chrome.js"></script>
 
 <!-- Loading placeholder -->
 <div class="loading-state" id="loading-state">
@@ -718,6 +943,7 @@
     <div class="hero-bg" id="hero-bg"></div>
     <div class="hero-content reveal">
       <p class="hero-eyebrow" id="hero-eyebrow">Course</p>
+      <p class="hero-pretitle" id="hero-pretitle"></p>
       <h1 class="hero-title" id="hero-title">Course title</h1>
       <p class="hero-sub" id="hero-sub">Subtitle</p>
       <p class="hero-sub-note" id="hero-sub-note">Mentor-led course</p>
@@ -732,7 +958,7 @@
   <!-- TFR PLAY INTRO -->
   <section class="section">
     <div class="play-intro">
-      <div class="reveal">
+      <div class="play-intro-text reveal">
         <p class="section-eyebrow">
           <span>TFR PL</span><span class="play-mark">▶</span><span>Y</span>
         </p>
@@ -747,20 +973,22 @@
           them, and be in an environment of music?
         </p>
         <p>
-          A subset of The Foundation Room, <strong>TFR PL▶Y</strong> is a platform for you to take a better step
+          A subset of The Foundation Room, <strong>TFR PL<span class="play-mark">▶</span>Y</strong> is a platform for you to take a better step
           towards learning and enter the amazing world of Indian music, in a way you haven't before.
         </p>
       </div>
-      <a class="play-card reveal" id="play-card-link" href="#">
-        <div class="play-card-img" id="play-card-img"></div>
-        <div class="play-card-inner">
-          <img class="play-card-logo" src="/assets/tfr-play/tfr-play-logo.png" alt="TFR PLAY" onerror="this.style.display='none'">
-          <div class="play-card-play">
-            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21"/></svg>
+      <div class="gb-wrap play-card-wrap reveal">
+        <a class="play-card" id="play-card-link" href="#">
+          <div class="play-card-img" id="play-card-img"></div>
+          <div class="play-card-inner">
+            <img class="play-card-logo" src="/assets/tfr-play/tfr-play-logo.png" alt="TFR PLAY" onerror="this.style.display='none'">
+            <div class="play-card-play">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21"/></svg>
+            </div>
+            <div class="play-card-label" id="play-card-label">Watch preview →</div>
           </div>
-          <div class="play-card-label" id="play-card-label">Watch preview →</div>
-        </div>
-      </a>
+        </a>
+      </div>
     </div>
   </section>
 
@@ -769,8 +997,10 @@
   <!-- INSTRUCTOR -->
   <section class="section" style="padding-top:70px;">
     <div class="instructor-block">
-      <div class="instructor-photo reveal" id="instructor-photo">
-        <span class="instructor-initials" id="instructor-initials">??</span>
+      <div class="gb-wrap instructor-photo-wrap reveal">
+        <div class="instructor-photo" id="instructor-photo">
+          <span class="instructor-initials" id="instructor-initials">??</span>
+        </div>
       </div>
       <div class="reveal">
         <p class="instructor-bio-sub" id="instructor-bio-sub-label">Your Instructor</p>
@@ -787,29 +1017,31 @@
   <!-- PRACTICE ROOM PROMO -->
   <section class="section">
     <p class="pr-promo-banner reveal">Don't just press play. <em>PLAY</em></p>
-    <div class="pr-card reveal">
-      <div class="pr-ribbon">Special Feature</div>
-      <div class="pr-card-body">
-        <h3 class="pr-card-title">The Practice Room</h3>
-        <p id="pr-card-intro">
-          Prepare to practise in the coolest feature of your training at TFR PL▶Y. Get inside, get ready for
-          drills, thrills, and experience the power and effect of what practise can really do.
-        </p>
-        <p><strong>What to practise? When to practise?</strong></p>
-        <p><strong>How much time to practise? Need company to practise?</strong></p>
-        <p>Just enter this room and start practising.</p>
-        <button class="pr-locked-btn" type="button" onclick="_practiceRoomTap(this)">
-          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          Practise Now
-        </button>
-      </div>
-      <div class="pr-card-visual" id="pr-card-visual">
-        <div class="pr-card-visual-inner">
-          <div class="pr-card-play">
-            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21"/></svg>
+    <div class="gb-wrap pr-card-wrap reveal">
+      <div class="pr-card">
+        <div class="pr-ribbon">Special Feature</div>
+        <div class="pr-card-body">
+          <h3 class="pr-card-title">The Practice <span class="title-red">Room</span></h3>
+          <p id="pr-card-intro">
+            Prepare to practise in the coolest feature of your training at TFR PL<span class="play-mark">▶</span>Y. Get inside, get ready for
+            drills, thrills, and experience the power and effect of what practise can really do.
+          </p>
+          <p><strong>What to practise? When to practise?</strong></p>
+          <p><strong>How much time to practise? Need company to practise?</strong></p>
+          <p>Just enter this room and start practising.</p>
+          <button class="pr-locked-btn" type="button" onclick="_practiceRoomTap(this)">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Practise Now
+          </button>
+        </div>
+        <div class="pr-card-visual" id="pr-card-visual">
+          <div class="pr-card-visual-inner">
+            <div class="pr-card-play">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21"/></svg>
+            </div>
+            <div class="pr-card-visual-label">The Practice Room</div>
+            <div class="pr-card-visual-sublabel" id="pr-card-visual-sublabel">Get ready to practise</div>
           </div>
-          <div class="pr-card-visual-label">The Practice Room</div>
-          <div class="pr-card-visual-sublabel" id="pr-card-visual-sublabel">Get ready to practise</div>
         </div>
       </div>
     </div>
@@ -824,11 +1056,20 @@
 
   <!-- UPCOMING -->
   <div class="upcoming-strip reveal">
-    <h3>Upcoming at <em>TFR PL▶Y</em></h3>
+    <h3>Upcoming at <em>TFR PL<span class="play-mark">▶</span>Y</em></h3>
     <div class="upcoming-card">
       <div class="upcoming-card-img" id="upcoming-card-img"></div>
+      <div class="upcoming-card-features">
+        <div class="upcoming-feat-badge">Coming Soon</div>
+        <ul class="upcoming-feat-list">
+          <li>Live practice sessions directly with the Maestro</li>
+          <li>Exclusive exercises not found in the main course</li>
+          <li>Real-time feedback and guided revision</li>
+          <li>Session recordings to review and improve at your pace</li>
+        </ul>
+      </div>
       <div class="upcoming-text">
-        <h4>Enter The Practice Room with <strong id="upcoming-instructor-name">your mentor</strong></h4>
+        <h4>Enter The Practice Room with <strong class="mentor-red" id="upcoming-instructor-name">your mentor</strong></h4>
         <p id="upcoming-tagline">Exclusive practise sessions directly with the Maestro.</p>
       </div>
       <form class="signup-form" onsubmit="return _submitNotify(event)">
@@ -840,22 +1081,26 @@
 
   <!-- LEGACY SERIES -->
   <div class="series-block reveal">
-    <h3>TFR PL▶Y <em>Legacy Series</em></h3>
+    <h3>TFR PL<span class="play-mark">▶</span>Y <em>Legacy Series</em></h3>
     <div class="series-grid">
-      <div class="series-card">
-        <div class="series-ribbon">Coming Soon</div>
-        <div class="series-img" style="background-image:url('/assets/tfr-play/kartick-kumar.jpg');"></div>
-        <div class="series-body">
-          <div class="series-name">Pandit Kartick Kumar</div>
-          <div class="series-desc">Play Sitar — an ultimate guide from basics to advanced performer training.</div>
+      <div class="gb-wrap">
+        <div class="series-card">
+          <div class="series-ribbon">Coming Soon</div>
+          <div class="series-img" style="background-image:url('/assets/tfr-play/kartick-kumar.jpg');"></div>
+          <div class="series-body">
+            <div class="series-name">Pandit Kartick Kumar</div>
+            <div class="series-desc">Play Sitar — an ultimate guide from basics to advanced performer training.</div>
+          </div>
         </div>
       </div>
-      <div class="series-card">
-        <div class="series-ribbon">Coming Soon</div>
-        <div class="series-img" style="background-image:url('/assets/tfr-play/ustad-allarakha.jpg');"></div>
-        <div class="series-body">
-          <div class="series-name">Ustad Allarakha</div>
-          <div class="series-desc">Learn some of his popular and select evergreen compositions.</div>
+      <div class="gb-wrap">
+        <div class="series-card">
+          <div class="series-ribbon">Coming Soon</div>
+          <div class="series-img" style="background-image:url('/assets/tfr-play/ustad-allarakha.jpg');"></div>
+          <div class="series-body">
+            <div class="series-name">Ustad Allarakha</div>
+            <div class="series-desc">Learn some of his popular and select evergreen compositions.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -863,90 +1108,33 @@
 
   <!-- NEXT UP + TFR KIDS -->
   <div class="series-block reveal" style="padding-top:0;">
-    <h3>Next up at <em>TFR PL▶Y</em></h3>
+    <h3>Next up at <em>TFR PL<span class="play-mark">▶</span>Y</em></h3>
     <div class="kids-row">
-      <div class="series-card">
-        <div class="series-ribbon">Coming Soon</div>
-        <div class="series-img" style="background:linear-gradient(135deg,#3a1a3a,#1a0b1a); aspect-ratio:16/11;"></div>
-        <div class="series-body">
-          <div class="series-name" style="color:var(--accent-red);">Start Singing</div>
-          <div class="series-desc">Hindustani Vocals with Saylee Talwalkar</div>
+      <div class="gb-wrap">
+        <div class="series-card">
+          <div class="series-ribbon">Coming Soon</div>
+          <div class="series-img" style="background-image:url('/assets/tfr-play/saylee-talwalkar-full.jpg'); background-position: center 15%;"></div>
+          <div class="series-body">
+            <div class="series-name" style="color:var(--accent-red);">Start Singing</div>
+            <div class="series-desc">Hindustani Vocals with Saylee Talwalkar</div>
+          </div>
         </div>
       </div>
-      <div class="kids-card">
-        <div class="kids-logo">
-          <span class="r1">T</span><span class="r2">F</span><span class="r3">R</span><span class="kids-word">Kids</span>
+      <div class="gb-wrap">
+        <div class="kids-card">
+          <div class="kids-logo">
+            <span class="r1">T</span><span class="r2">F</span><span class="r3">R</span><span class="kids-word">Kids</span>
+          </div>
+          <div class="kids-logo-sub">The Foundation Room</div>
+          <h4>Step into the world of music,<br>made just for kids.</h4>
         </div>
-        <div class="kids-logo-sub">The Foundation Room</div>
-        <h4>Step into the world of music,<br>made just for kids.</h4>
       </div>
     </div>
   </div>
 </div>
 
-<footer id="connect">
-  <div class="footer-grid">
-    <div>
-      <img src="/assets/tfr-play/tfr-logo.png" alt="TFR" style="height:40px;width:auto;display:block;margin-bottom:6px;">
-      <p class="footer-tagline">Training is a Science.<br>Performing is an Art.</p>
-      <div class="footer-socials">
-        <a href="https://instagram.com/thisistfr" class="footer-social" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-        </a>
-        <a href="https://facebook.com/thefoundationroom" class="footer-social" target="_blank" rel="noopener" aria-label="Facebook">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        </a>
-      </div>
-    </div>
-    <div>
-      <p class="footer-col-title">Courses</p>
-      <ul class="footer-links">
-        <li><a href="/experience/sitar-the-complete-foundation">Sitar with Niladri Kumar</a></li>
-        <li><a href="/experience/djembe-world-percussions">Djembe &amp; Percussions — Taufiq Qureshi</a></li>
-        <li><a href="/experience/hindustani-vocals-kirana-gharana">Hindustani Vocals — Sveta Kilpady</a></li>
-        <li><a href="/experience/kathak-lucknow-gharana">Kathak — Guruma Sangeeta Sinha</a></li>
-        <li><span style="opacity:0.5;font-size:13px;color:var(--cream-dim);">Film Songs — Milind Singh <em>(soon)</em></span></li>
-        <li><span style="opacity:0.5;font-size:13px;color:var(--cream-dim);">Acting — Makarand Deshpande <em>(soon)</em></span></li>
-      </ul>
-    </div>
-    <div>
-      <p class="footer-col-title">Platform</p>
-      <ul class="footer-links">
-        <li><a href="/#experience">Experience TFR</a></li>
-        <li><a href="/login">TFR Play</a></li>
-        <li><a href="/#community">Community</a></li>
-        <li><a href="/#courses">Instructors</a></li>
-      </ul>
-    </div>
-    <div>
-      <p class="footer-col-title">Connect</p>
-      <div class="footer-connect-item">
-        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
-        <span class="footer-connect-text"><a href="tel:+919920615500">+91 99206 15500</a></span>
-      </div>
-      <div class="footer-connect-item">
-        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        <span class="footer-connect-text"><a href="mailto:join@thefoundationroom.in">join@thefoundationroom.in</a></span>
-      </div>
-      <div class="footer-connect-item">
-        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span class="footer-connect-text">403 Windermere, North Avenue,<br>Santacruz West, Mumbai 400054</span>
-      </div>
-      <div class="footer-connect-item">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
-        <span class="footer-connect-text">@thisistfr on Instagram</span>
-      </div>
-    </div>
-  </div>
-  <div class="footer-bar">
-    <p class="footer-copy">&copy; 2026 The Foundation Room. All rights reserved. &nbsp;&middot;&nbsp; Designed and developed by Techinfinity</p>
-    <div class="footer-legal">
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/refund-policy">Refund Policy</a>
-      <a href="/terms">Terms</a>
-    </div>
-  </div>
-</footer>
+<!-- FOOTER (shared) -->
+<div data-site-footer></div>
 
 <!-- Auth-aware nav (swaps Login/Join Now for an avatar pill when signed in) -->
 <script src="/assets/js/public-nav-auth.js"></script>
@@ -958,28 +1146,37 @@
     btn.classList.add('tapped');
     setTimeout(() => btn.classList.remove('tapped'), 1800);
   }
-  function _submitNotify(e) {
+
+  async function _submitNotify(e) {
     e.preventDefault();
     const input = e.target.querySelector('input');
     const btn = e.target.querySelector('button');
     const email = (input.value || '').trim();
     if (!email) return false;
-    btn.textContent = 'Thanks!';
+    const slug = getSlug();
+    btn.textContent = 'Sending…';
     btn.disabled = true;
-    setTimeout(() => { btn.textContent = 'Notify Me'; btn.disabled = false; input.value = ''; }, 2200);
+    try {
+      await fetch('/api/notify-interest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, course: slug })
+      });
+    } catch (_) {}
+    btn.textContent = 'Notified!';
+    setTimeout(() => { btn.textContent = 'Notify Me'; btn.disabled = false; input.value = ''; }, 2500);
     return false;
   }
 
-  // Tier palette — 5 stripes, last one gold (featured)
+  // Tier palette — 5 stripes matching the rainbow reference
   const TIER_PALETTE = [
-    { start: '#5E89F5', end: '#3D6ACC' },   // A — blue
-    { start: '#19B5A6', end: '#0F7367' },   // B — teal
-    { start: '#9B51E0', end: '#5E2A9E' },   // C — purple
-    { start: '#E24A3F', end: '#A82E28' },   // D — red
-    { start: '#C8A84B', end: '#7A6830' },   // E — gold (featured)
+    { start: '#F8C726', end: '#F58430' },  // yellow → orange
+    { start: '#9CD63C', end: '#2DA84F' },  // lime → green
+    { start: '#5CADFD', end: '#B946D8' },  // blue → purple
+    { start: '#E62F75', end: '#321456' },  // pink → dark purple
+    { start: '#DD9036', end: '#B66C28' },  // gold → dark gold
   ];
 
-  // DJEMBE-SPECIFIC tier copy, straight from the TFR PLAY copy doc.
   const DJEMBE_TIERS = [
     {
       title: 'Basic Foundation Course',
@@ -1038,7 +1235,6 @@
     },
   ];
 
-  // Shared "Features" block (same across all tiers per the doc)
   const TIER_FEATURES = [
     'Step-by-step detailed guidance',
     'Access at your own time',
@@ -1051,7 +1247,6 @@
     'Train at TFR PL▶Y and then practise thoroughly in the Practice Room',
   ];
 
-  // Generic (non-djembe) fallback copy for other courses
   const GENERIC_TIERS = [
     { title: "Foundation 'A'", subtitle: 'New to this discipline?', highlights: [
       'Step-by-step detailed guidance', 'Designed for complete beginners',
@@ -1089,7 +1284,7 @@
       return `
         <div class="tier-card${featured ? ' featured' : ''}" style="--tier-start:${palette.start}; --tier-end:${palette.end};">
           <div class="tier-strip"></div>
-          ${featured ? '<div class="tier-featured-ribbon">Ready to enter the Grind?</div>' : ''}
+          ${featured ? '<div class="tier-featured-ribbon">Ready to Practise?</div>' : ''}
           <div class="tier-body">
             <div class="tier-title">${esc(t.title)}</div>
             <div class="tier-subtitle">${esc(t.subtitle || '')}</div>
@@ -1099,11 +1294,26 @@
             <ul class="tier-list">
               ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + esc(f) + '</li>').join('')}
             </ul>
-            <button class="tier-notify-btn">${featured ? 'Notify me' : 'Notify to pre-enrol'}</button>
+            <button class="tier-notify-btn" onclick="notifyTier(this, '${esc(t.title)}')">
+              ${featured ? 'Notify me' : 'Notify to pre-enrol'}
+            </button>
           </div>
         </div>`;
     }).join('');
     grid.innerHTML = html;
+  }
+
+  function notifyTier(btn, tierTitle) {
+    const slug = getSlug();
+    const email = prompt('Enter your email to be notified about: ' + tierTitle);
+    if (!email || !email.includes('@')) return;
+    fetch('/api/notify-interest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, course: slug, tier: tierTitle })
+    }).catch(() => {});
+    btn.textContent = 'Notified!';
+    setTimeout(() => { btn.textContent = btn.dataset.orig || 'Notify'; }, 2500);
   }
 
   function initReveal() {
@@ -1121,18 +1331,18 @@
     return q || null;
   }
 
-  // Per-course image overrides. For Djembe we ship real photography; other
-  // courses fall back to cover_color gradients until their asset packs land.
   const COURSE_ASSETS = {
     'djembe-world-percussions': {
-      hero:        '/assets/tfr-play/taufiq-hero.jpg',
-      portrait:    '/assets/tfr-play/taufiq-portrait.jpg',
-      previewCard: '/assets/tfr-play/taufiq-practice.jpg',
-      practice:    '/assets/tfr-play/taufiq-practice.jpg',
-      upcoming:    '/assets/tfr-play/taufiq-upcoming.jpg',
-      heroTitle:   'DJEMBE WITH TAUFIQ QURESHI',
-      heroSub:     'One of the most comprehensive Indian rhythm, grooves and percussion courses',
-      tiers:       DJEMBE_TIERS,
+      hero:           '/assets/tfr-play/taufiq-djembe-hero.png',
+      heroArtist:     '/assets/tfr-play/taufiq-djembe-hero.png',
+      portrait:       '/assets/tfr-play/taufiq-portrait.jpg',
+      previewCard:    '/assets/tfr-play/tfr-play-hero.png',
+      previewBranded: true,
+      practice:       '/assets/tfr-play/taufiq-practice.jpg',
+      upcoming:       '/assets/tfr-play/taufiq-portrait.jpg',
+      heroTitle:      'DJEMBE WITH TAUFIQ QURESHI',
+      heroSub:        'One of the most comprehensive Indian rhythm, grooves and percussion courses',
+      tiers:          DJEMBE_TIERS,
     },
   };
 
@@ -1147,22 +1357,43 @@
       if (!r.ok) throw new Error('not found');
       const data = await r.json();
       const course = data.course;
-      const chapters = data.chapters || [];
       const overrides = COURSE_ASSETS[slug] || null;
 
       document.title = (overrides?.heroTitle || course.title) + ' · The Foundation Room';
 
       // Hero
       const heroBg = document.getElementById('hero-bg');
-      if (overrides?.hero) {
+      if (overrides?.heroArtist) {
+        // Use a dedicated left-panel element so the artist is definitively on the left
+        const heroSection = document.querySelector('.hero');
+        heroSection.classList.add('has-artist-panel');
+        const panel = document.createElement('div');
+        panel.className = 'hero-artist-panel';
+        panel.style.backgroundImage = 'url("' + overrides.heroArtist + '")';
+        heroSection.insertBefore(panel, heroSection.firstChild);
+      } else if (overrides?.hero) {
         heroBg.style.backgroundImage = 'url("' + overrides.hero + '")';
       } else if (course.cover_image_url) {
         heroBg.style.backgroundImage = 'url("' + course.cover_image_url + '")';
       } else {
         heroBg.style.background = 'linear-gradient(135deg,' + (course.cover_color || '#1a0d00') + ',#060301)';
       }
+
+      // Parse hero title: "DJEMBE WITH TAUFIQ QURESHI" → pretitle + title with last word red
+      const rawTitle = overrides?.heroTitle || course.title || '';
+      const withMatch = rawTitle.match(/^(.+\s+WITH\s+)(.+)$/i);
+      let preTitle = '', mainTitle = rawTitle;
+      if (withMatch) {
+        preTitle = withMatch[1].trim();
+        mainTitle = withMatch[2].trim();
+      }
+      const titleWords = mainTitle.split(/\s+/);
+      const lastWord = titleWords.pop();
+      const firstWords = titleWords.join(' ');
+      document.getElementById('hero-pretitle').textContent = preTitle;
+      document.getElementById('hero-title').innerHTML = esc(mainTitle);
+
       document.getElementById('hero-eyebrow').textContent = (course.instrument || 'Course') + ' · ' + (course.level || 'All levels');
-      document.getElementById('hero-title').textContent = overrides?.heroTitle || course.title;
       document.getElementById('hero-sub').textContent = overrides?.heroSub || course.subtitle || 'Begin your journey';
       document.getElementById('hero-sub-note').textContent = 'Mentor-led course';
       const trainUrl = '/courses/' + encodeURIComponent(course.slug || course.id);
@@ -1170,10 +1401,18 @@
       document.getElementById('play-card-link').setAttribute('href', trainUrl);
       document.getElementById('play-card-label').textContent = 'Watch preview →';
 
-      // Preview / instructor / practice / upcoming media
+      // Media
       const pcImg = document.getElementById('play-card-img');
       if (overrides?.previewCard) pcImg.style.backgroundImage = 'url("' + overrides.previewCard + '")';
       else if (course.cover_image_url) pcImg.style.backgroundImage = 'url("' + course.cover_image_url + '")';
+      if (overrides?.previewBranded) {
+        const pcLogo = document.querySelector('.play-card-logo');
+        const pcPlay = document.querySelector('.play-card .play-card-play');
+        if (pcLogo) pcLogo.style.display = 'none';
+        if (pcPlay) pcPlay.style.display = 'none';
+        pcImg.style.opacity = '1';
+        pcImg.classList.add('play-card-img-branded');
+      }
 
       const upImg = document.getElementById('upcoming-card-img');
       if (overrides?.upcoming) upImg.style.backgroundImage = 'url("' + overrides.upcoming + '")';
@@ -1184,26 +1423,21 @@
       const firstName = (course.instructor_name || 'the Maestro').split(' ')[0];
       document.getElementById('pr-card-visual-sublabel').textContent = 'Get ready to practise with ' + firstName;
 
-      // TFR Play intro text — keep the generic marketing copy (matches the doc);
-      // only swap if the course has custom description set AND it's not djembe
-      // (djembe already uses the canonical copy).
       if (!overrides && course.description) {
         document.getElementById('play-intro-text').textContent = course.description;
       }
 
       // Instructor block
       const portraitEl = document.getElementById('instructor-photo');
-      const initialsEl = document.getElementById('instructor-initials');
       if (overrides?.portrait) {
         portraitEl.innerHTML = '<img src="' + overrides.portrait + '" alt="' + esc(course.instructor_name || '') + '">';
       } else {
-        const initials = course.instructor_initials || (course.instructor_name || '').split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase() || '??';
-        initialsEl.textContent = initials;
+        const initials = (course.instructor_name || '').split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase() || '??';
+        document.getElementById('instructor-initials').textContent = initials;
       }
       document.getElementById('instructor-bio-title').innerHTML = 'Meet <em>' + esc(firstName) + '</em>';
       document.getElementById('upcoming-instructor-name').textContent = firstName;
 
-      const bioEl = document.getElementById('instructor-bio-text');
       if (slug === 'djembe-world-percussions') {
         document.getElementById('instructor-bio-text-wrap').innerHTML = `
           <p class="instructor-bio-text">
@@ -1225,13 +1459,11 @@
           </p>
         `;
       } else {
-        bioEl.textContent = course.instructor_bio || 'A passionate mentor bringing decades of experience to your practice.';
+        document.getElementById('instructor-bio-text').textContent = course.instructor_bio || 'A passionate mentor bringing decades of experience to your practice.';
       }
 
-      // Tier cards
       renderTierCards(overrides?.tiers || GENERIC_TIERS);
 
-      // Reveal
       document.getElementById('loading-state').classList.add('hidden');
       document.getElementById('page-body').classList.remove('hidden');
       initReveal();

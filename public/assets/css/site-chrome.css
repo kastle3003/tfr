@@ -1,0 +1,271 @@
+/* ─── SHARED SITE CHROME (NAV + FOOTER) ─────────────────────────────
+   Constant navbar and footer used across marketing pages.
+   The dark transparent nav replaces the previous cream/gold tint.
+   The TFR mark is rendered without any pill or background fill. */
+
+:root {
+  --sc-bg: #080706;
+  --sc-fg: #F0E6D3;
+  --sc-fg-2: #B8A898;
+  --sc-fg-3: #6B5F50;
+  --sc-gold: #C8A84B;
+  --sc-gold-bright: #E8C96E;
+  --sc-serif: 'Cormorant Garamond', 'Times New Roman', serif;
+  --sc-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* ─── NAV ─── */
+.site-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 72px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(8, 7, 6, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: var(--sc-sans);
+  transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+.site-nav.scrolled {
+  background: rgba(8, 7, 6, 0.92);
+  box-shadow: 0 3px 20px rgba(0, 0, 0, 0.35);
+}
+
+.site-nav .nav-logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+.site-nav .nav-logo-img {
+  height: 38px;
+  width: auto;
+  display: block;
+  background: transparent;
+}
+
+.site-nav .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.site-nav .nav-links a {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.site-nav .nav-links a:hover,
+.site-nav .nav-links a.active {
+  color: var(--sc-gold);
+}
+
+.site-nav .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.site-nav .btn-ghost {
+  padding: 9px 20px;
+  border: 1px solid rgba(200, 168, 75, 0.32);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.85);
+  background: transparent;
+  font-family: var(--sc-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.site-nav .btn-ghost:hover {
+  border-color: rgba(200, 168, 75, 0.65);
+  background: rgba(200, 168, 75, 0.08);
+  color: #fff;
+}
+.site-nav .btn-gold {
+  padding: 9px 22px;
+  background: linear-gradient(180deg, var(--sc-gold-bright) 0%, var(--sc-gold) 100%);
+  border: 1px solid var(--sc-gold);
+  border-radius: 3px;
+  color: var(--sc-bg);
+  font-family: var(--sc-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.site-nav .btn-gold:hover {
+  background: linear-gradient(180deg, #F0D277 0%, var(--sc-gold-bright) 100%);
+  border-color: var(--sc-gold-bright);
+  box-shadow: 0 6px 20px rgba(200, 168, 75, 0.35);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .site-nav { padding: 0 20px; }
+  .site-nav .nav-links { display: none; }
+}
+
+/* ─── FOOTER ─── */
+.site-footer {
+  background: #0A0908;
+  color: var(--sc-fg-2);
+  padding: 64px 40px 0;
+  font-family: var(--sc-sans);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.site-footer .footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+  gap: 48px;
+  max-width: 1200px;
+  margin: 0 auto 48px;
+}
+.site-footer .footer-brand-logo {
+  display: block;
+  margin-bottom: 14px;
+}
+.site-footer .footer-brand-logo img {
+  height: 44px;
+  width: auto;
+  display: block;
+  background: transparent;
+}
+.site-footer .footer-tagline {
+  font-family: var(--sc-serif);
+  font-size: 15px;
+  color: var(--sc-fg);
+  line-height: 1.55;
+  margin: 0 0 22px;
+  font-style: normal;
+}
+.site-footer .footer-socials {
+  display: flex;
+  gap: 12px;
+}
+.site-footer .footer-social {
+  width: 34px; height: 34px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(200, 168, 75, 0.25);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.site-footer .footer-social:hover {
+  border-color: var(--sc-gold);
+  background: rgba(200, 168, 75, 0.12);
+  color: var(--sc-gold);
+}
+.site-footer .footer-social svg {
+  width: 14px; height: 14px;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 0;
+}
+.site-footer .footer-col-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--sc-gold);
+  text-transform: uppercase;
+  margin: 0 0 18px;
+}
+.site-footer .footer-links {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.site-footer .footer-links a {
+  font-size: 13px;
+  color: var(--sc-fg-2);
+  text-decoration: none;
+  transition: color 0.2s;
+  line-height: 1.4;
+}
+.site-footer .footer-links a:hover { color: #fff; }
+.site-footer .footer-connect-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--sc-fg-2);
+  line-height: 1.5;
+}
+.site-footer .footer-connect-item svg {
+  width: 14px; height: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  fill: none;
+  stroke: var(--sc-gold);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.site-footer .footer-connect-item a {
+  color: var(--sc-fg-2);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.site-footer .footer-connect-item a:hover { color: var(--sc-gold); }
+.site-footer .footer-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 22px 0 26px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+}
+.site-footer .footer-copy {
+  font-size: 12px;
+  color: var(--sc-fg-3);
+  margin: 0;
+}
+.site-footer .footer-legal {
+  display: flex;
+  gap: 22px;
+}
+.site-footer .footer-legal a {
+  font-size: 12px;
+  color: var(--sc-fg-3);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.site-footer .footer-legal a:hover { color: var(--sc-fg); }
+
+@media (max-width: 900px) {
+  .site-footer { padding: 48px 20px 0; }
+  .site-footer .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+@media (max-width: 560px) {
+  .site-footer .footer-grid { grid-template-columns: 1fr; }
+}
