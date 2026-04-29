@@ -1486,17 +1486,12 @@
         : (course.instrument || 'Course') + ' · ' + (course.level || 'All levels');
       document.getElementById('hero-sub').textContent = overrides?.heroSub || course.subtitle || 'Begin your journey';
       document.getElementById('hero-sub-note').textContent = 'Mentor-led course';
-      const trainUrl = '/courses/' + encodeURIComponent(course.slug || course.id);
       const courseId = course.id;
+      const courseVideoUrl = '/student-course-detail.html?id=' + courseId;
       window._xCourseId = courseId;
       const trainBtn = document.getElementById('train-btn-top');
-      trainBtn.removeAttribute('href');
+      trainBtn.setAttribute('href', courseVideoUrl);
       trainBtn.style.cursor = 'pointer';
-      trainBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (typeof openEnrollModal === 'function') openEnrollModal(courseId);
-        else window.location.href = trainUrl;
-      });
 
       // Sizes an iframe inside a .yt-embed-wrap to cover-fill (no black bars).
       function fitYtCover(wrap) {
@@ -1562,7 +1557,7 @@
       } else {
         document.getElementById('instructor-bio-title').innerHTML = 'Meet <em>' + esc(firstName) + '</em>';
       }
-      document.getElementById('upcoming-instructor-name').textContent = firstName;
+      document.getElementById('upcoming-instructor-name').textContent = course.instructor_name || firstName;
 
       if (slug === 'djembe-world-percussions') {
         document.getElementById('instructor-bio-text-wrap').innerHTML = `
