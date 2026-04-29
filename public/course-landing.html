@@ -1106,7 +1106,7 @@ async function renderPage(data) {
         ${course.cover_image_url ? `<img src="${course.cover_image_url}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">` : ''}
       </div>`}
       <div class="hero-left">
-        <p class="hero-eyebrow">${course.category} · ${course.level || 'All Levels'}</p>
+        <p class="hero-eyebrow">${course.slug === 'djembe-world-percussions' ? 'Basic Foundation Course' : `${course.category} · ${course.level || 'All Levels'}`}</p>
         <h1 class="hero-title">${course.title}</h1>
         <p class="hero-subtitle">${
           course.slug === 'djembe-world-percussions'
@@ -1333,7 +1333,7 @@ async function renderPage(data) {
             </div>
             <div class="enroll-card-footer">
               <p class="enroll-cta-price" id="enroll-cta-price">Basic Foundation A &mdash; &#8377;3,999</p>
-              <button class="btn-enroll-big enroll-trigger" id="enroll-btn-main" onclick="${enrollBtnAction}">Enrol Now</button>
+              <button class="btn-enroll-big enroll-trigger" id="enroll-btn-main" onclick="${enrollBtnAction}">Enroll Now</button>
               <p class="enroll-note">Secure payment &middot; Cancel anytime</p>
             </div>
           `}
