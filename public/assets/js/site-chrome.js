@@ -71,7 +71,7 @@
           <p class="footer-col-title">Platform</p>
           <ul class="footer-links">
             <li><a href="/">Home</a></li>
-            <li><span class="footer-link-inactive">TFR Play</span></li>
+            <li><a href="/experience/djembe-world-percussions">TFR Play</a></li>
             <li><span class="footer-link-inactive">TFR Kids</span></li>
           </ul>
         </div>
