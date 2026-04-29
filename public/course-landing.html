@@ -2057,6 +2057,64 @@ function _practiceRoomTap(btn) {
   setTimeout(() => btn.classList.remove('tapped'), 1800);
 }
 
+// ── Floating "Start Training" button ──────────────────────────────────────
+(function () {
+  // Only show when user is NOT enrolled / has no full access
+  const fab = document.createElement('button');
+  fab.id = 'fab-start-training';
+  fab.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Training`;
+  fab.style.cssText = `
+    position: fixed;
+    right: 24px;
+    bottom: 32px;
+    z-index: 9990;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: linear-gradient(180deg, #E8C96E, #C8A84B);
+    color: #080706;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 8px 28px rgba(200,168,75,.45);
+    transition: transform .18s, box-shadow .18s, opacity .3s;
+  `;
+  fab.addEventListener('mouseenter', () => {
+    fab.style.transform = 'translateY(-3px)';
+    fab.style.boxShadow = '0 14px 36px rgba(200,168,75,.55)';
+  });
+  fab.addEventListener('mouseleave', () => {
+    fab.style.transform = '';
+    fab.style.boxShadow = '0 8px 28px rgba(200,168,75,.45)';
+  });
+  fab.addEventListener('click', () => {
+    const sidebar = document.querySelector('.enroll-sidebar');
+    if (sidebar) sidebar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  document.body.appendChild(fab);
+
+  // Show FAB only when the enroll sidebar is scrolled out of view
+  function updateFab() {
+    const sidebar = document.querySelector('.enroll-sidebar');
+    if (!sidebar) return;
+    // Hide if user is already enrolled (sidebar shows "enrolled" state)
+    if (document.querySelector('.enroll-card-enrolled')) { fab.style.display = 'none'; return; }
+    const rect = sidebar.getBoundingClientRect();
+    const outOfView = rect.bottom < 0 || rect.top > window.innerHeight;
+    fab.style.display = outOfView ? 'flex' : 'none';
+  }
+
+  window.addEventListener('scroll', updateFab, { passive: true });
+  // Initial check after page data loads
+  setTimeout(updateFab, 1200);
+})();
+
 </script>
 </body>
 </html>
