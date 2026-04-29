@@ -438,9 +438,9 @@
     border: none; display: block;
   }
   /* Play card — YouTube embed, proper 16:9, no blank space */
-  .play-card-wrap.yt-active { min-height: 0; }
+  .play-card-wrap.yt-active { min-height: 0; display: block; }
   .play-card.yt-card {
-    padding: 0; min-height: 0; height: auto;
+    padding: 0; min-height: 0; height: auto; flex: none;
     display: block; transform: none !important; cursor: default;
   }
   .play-card.yt-card .yt-embed-wrap { position: relative; height: 0; padding-top: 56.25%; overflow: hidden; }
