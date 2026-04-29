@@ -147,7 +147,7 @@
       const navEl = tmp.firstElementChild;
       if (active) navEl.setAttribute('data-active', active);
       markActiveLink(navEl);
-      navMount.replaceWith(navEl);
+      navMount.replaceWith(...Array.from(tmp.children));
     });
 
     document.querySelectorAll('[data-site-footer]').forEach(footerMount => {

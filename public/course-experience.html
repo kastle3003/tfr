@@ -1124,7 +1124,7 @@
     <div class="play-intro">
       <div class="play-intro-text reveal">
         <p class="section-eyebrow">
-          <span>TFR PL</span><span class="play-mark">▶</span><span>Y</span>
+          <span>TFR PL</span><span class="play-mark">▶&#xFE0E;</span><span>Y</span>
         </p>
         <h2 class="section-title">A better step towards <em>learning</em></h2>
         <p id="play-intro-text">
@@ -1137,7 +1137,7 @@
           them, and be in an environment of music?
         </p>
         <p>
-          A subset of The Foundation Room, <strong>TFR PL<span class="play-mark">▶</span>Y</strong> is a platform for you to take a better step
+          A subset of The Foundation Room, <strong>TFR PL<span class="play-mark">▶&#xFE0E;</span>Y</strong> is a platform for you to take a better step
           towards learning and enter the amazing world of Indian music, in a way you haven't before.
         </p>
       </div>
@@ -1221,7 +1221,7 @@
 
   <!-- UPCOMING -->
   <div class="upcoming-strip reveal" id="practise-room-signup">
-    <h3>Upcoming at <em>TFR PL<span class="play-mark">▶</span>Y</em></h3>
+    <h3>Upcoming at <em>TFR PL<span class="play-mark">▶&#xFE0E;</span>Y</em></h3>
     <div class="gb-wrap" style="width:100%;border-radius:calc(var(--radius) + 2px);">
     <div class="upcoming-card" style="border:none;">
       <div class="upcoming-card-img" id="upcoming-card-img"></div>
@@ -1256,7 +1256,7 @@
 
 <script>
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function escF(s) { return esc(s).replace(/▶/g, '<span class="play-mark">▶</span>'); }
+  function escF(s) { return esc(s).replace(/▶/g, '<span class="play-mark">▶&#xFE0E;</span>'); }
 
   function _practiceRoomTap(btn) {
     btn.classList.add('tapped');
@@ -1298,7 +1298,7 @@
       title: 'Basic Foundation Course',
       subtitle: 'New to Djembe? New to a rhythm instrument?',
       btnText: 'Start Training',
-      link: '/courses/djembe-world-percussions',
+      link: '/experience/djembe-world-percussions',
       highlights: [
         'Designed for anybody who wishes to start playing a rhythm instrument',
         'Train on any instrument — Djembe, Cajon, Darbuka, Duff',
@@ -1413,7 +1413,7 @@
               ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + escF(f) + '</li>').join('')}
             </ul>
             <div class="tier-cta-wrap" style="margin-top:auto;display:block;width:100%;">
-              <button type="button" class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="window._xCourseId ? openEnrollModal(window._xCourseId) : scrollToNotify()">
+              <button type="button" class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="${t.link ? `window.location.href='${t.link}'` : `window._xCourseId ? openEnrollModal(window._xCourseId) : scrollToNotify()`}">
                 ${t.link ? esc(t.btnText || 'Start Training') : 'Enrol Now'}
               </button>
             </div>
