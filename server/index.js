@@ -122,6 +122,39 @@ app.post('/api/notify-interest', async (req, res) => {
   }
 });
 
+// ── POST /api/lead — authenticated lead capture (pulls email+phone from DB) ──
+app.post('/api/lead', require('./middleware/auth'), async (req, res) => {
+  try {
+    const db = require('./db');
+    const user = db.prepare('SELECT u.email, u.first_name, u.last_name, up.phone FROM users u LEFT JOIN user_profile up ON up.user_id = u.id WHERE u.id = ?').get(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const { course } = req.body || {};
+    const courseLabel = course || 'Practise Room — Djembe';
+
+    // Save locally
+    const dataDir = path.join(__dirname, '../data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    const file = path.join(dataDir, 'notify-interest.json');
+    const existing = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : [];
+    existing.push({ email: user.email, phone: user.phone || null, course: courseLabel, type: 'lead', at: new Date().toISOString() });
+    fs.writeFileSync(file, JSON.stringify(existing, null, 2));
+
+    // Push to Google Sheet
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyvYH7s7qsQFSh7qF40XIOkabj0Pz4G4cceZ9zIgfeOLfShwsegwSFFwbzh3ghS7LQd/exec';
+    fetch(SHEET_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, phone: user.phone || '', course: courseLabel, type: 'lead', timestamp: new Date().toISOString() })
+    }).catch(e => console.warn('[sheet] lead push failed:', e?.message));
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[/api/lead]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Static files — never cache HTML, so admin-page changes propagate immediately
 app.use(express.static(path.join(__dirname, '../public'), {
   setHeaders: (res, filePath) => {
