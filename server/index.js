@@ -130,7 +130,7 @@ app.post('/api/lead', require('./middleware/auth'), async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const { course } = req.body || {};
-    const courseLabel = course || 'Practise Room — Djembe';
+    const courseLabel = 'Lead';
 
     // Save locally
     const dataDir = path.join(__dirname, '../data');
