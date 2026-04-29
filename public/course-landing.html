@@ -1001,7 +1001,7 @@ async function openLeadModal() {
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ course: 'Practise Room — Djembe' })
     });
-    showLeadToast('Thank you for registering. Team will get in touch with you soon.');
+    showLeadToast('Thank you for registering. Our team will get in touch with you soon.');
   } catch (_) {
     showLeadToast('Something went wrong — please try again.');
   } finally {
