@@ -209,25 +209,52 @@ const FALLBACK_TEMPLATES = {
       <a href="{{frontend_url}}/student-payments.html" style="display:inline-block;background:#8B2E26;color:#F4EBD0;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;">View receipt →</a>`),
   },
   course_unlocked: {
-    subject: "You're enrolled: {{course_name}}",
+    subject: 'Unlocked: {{course_name}} — Thank you for your payment',
     html_body: wrap('Course unlocked', `
-      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;">You're in, {{first_name}}.</h2>
-      <p>Your access to <strong>{{course_name}}</strong> is now live. Begin at any time.</p>
-      <a href="{{course_url}}" style="display:inline-block;background:#8B2E26;color:#F4EBD0;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;">Open course →</a>`),
+      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;">Thank you, {{first_name}}.</h2>
+      <p>Your payment of <strong>₹{{amount_rupees}}</strong> has been received. Full access to <strong>{{course_name}}</strong> is now live.</p>
+      <div style="background:#F4EBD0;border-left:3px solid #D1A14E;padding:14px 18px;margin:18px 0;border-radius:0 6px 6px 0;">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#4A3C28;">Videos now unlocked:</p>
+        {{video_list_html}}
+      </div>
+      <div style="margin:18px 0;padding:12px 18px;background:#FAF7EE;border:1px solid #e8d8b8;border-radius:6px;font-size:12px;color:#9A8A72;">
+        <p style="margin:0;"><strong>Order:</strong> {{order_id}}</p>
+        <p style="margin:4px 0 0;"><strong>Payment:</strong> {{payment_id}}</p>
+        <p style="margin:4px 0 0;"><strong>Amount:</strong> ₹{{amount_rupees}}</p>
+      </div>
+      <a href="{{course_url}}" style="display:inline-block;background:#8B2E26;color:#F4EBD0;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;">Start learning →</a>`),
   },
   course_upgraded: {
-    subject: 'Upgraded to full bundle: {{course_name}}',
+    subject: 'Upgraded: {{course_name}} — All foundations unlocked',
     html_body: wrap('Upgrade complete', `
-      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;">Upgrade complete.</h2>
-      <p>All foundations of <strong>{{course_name}}</strong> are now unlocked. We've credited the foundations you already purchased.</p>
+      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;">Thank you, {{first_name}}.</h2>
+      <p>Your payment of <strong>₹{{amount_rupees}}</strong> has been received. All foundations of <strong>{{course_name}}</strong> are now unlocked, with credit for foundations you already purchased.</p>
+      <div style="background:#F4EBD0;border-left:3px solid #D1A14E;padding:14px 18px;margin:18px 0;border-radius:0 6px 6px 0;">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#4A3C28;">Videos now unlocked:</p>
+        {{video_list_html}}
+      </div>
+      <div style="margin:18px 0;padding:12px 18px;background:#FAF7EE;border:1px solid #e8d8b8;border-radius:6px;font-size:12px;color:#9A8A72;">
+        <p style="margin:0;"><strong>Order:</strong> {{order_id}}</p>
+        <p style="margin:4px 0 0;"><strong>Payment:</strong> {{payment_id}}</p>
+        <p style="margin:4px 0 0;"><strong>Amount:</strong> ₹{{amount_rupees}}</p>
+      </div>
       <a href="{{course_url}}" style="display:inline-block;background:#8B2E26;color:#F4EBD0;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;">Continue learning →</a>`),
   },
   foundation_unlocked: {
-    subject: 'Foundation unlocked: {{foundation_name}}',
+    subject: 'Unlocked: {{foundation_name}} — Thank you for your payment',
     html_body: wrap('Foundation unlocked', `
-      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;">{{foundation_name}} is yours.</h2>
-      <p>Dive in whenever you're ready.</p>
-      <a href="{{frontend_url}}/student-courses.html" style="display:inline-block;background:#8B2E26;color:#F4EBD0;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;">Start practising →</a>`),
+      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;">Thank you, {{first_name}}.</h2>
+      <p>Your payment of <strong>₹{{amount_rupees}}</strong> has been received. <strong>{{foundation_name}}</strong> is now fully unlocked and ready to practise.</p>
+      <div style="background:#F4EBD0;border-left:3px solid #D1A14E;padding:14px 18px;margin:18px 0;border-radius:0 6px 6px 0;">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#4A3C28;">Videos now unlocked:</p>
+        {{video_list_html}}
+      </div>
+      <div style="margin:18px 0;padding:12px 18px;background:#FAF7EE;border:1px solid #e8d8b8;border-radius:6px;font-size:12px;color:#9A8A72;">
+        <p style="margin:0;"><strong>Order:</strong> {{order_id}}</p>
+        <p style="margin:4px 0 0;"><strong>Payment:</strong> {{payment_id}}</p>
+        <p style="margin:4px 0 0;"><strong>Amount:</strong> ₹{{amount_rupees}}</p>
+      </div>
+      <a href="{{course_url}}" style="display:inline-block;background:#8B2E26;color:#F4EBD0;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;">Start practising →</a>`),
   },
   lecture_completed: {
     subject: 'Lecture completed: {{title}}',

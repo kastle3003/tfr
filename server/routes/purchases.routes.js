@@ -169,6 +169,11 @@ router.post('/', async (req, res) => {
       currency: 'INR',
       key_id: rzpGuard.publicKeyId(),
       auto_completed: finalAmount === 0,
+      unlocked: finalAmount === 0 ? {
+        type: storedType,
+        foundation_id: foundation?.id || null,
+        course_id: course?.id || null,
+      } : null,
     });
   } catch (err) {
     // Razorpay SDK errors don't always set .message — surface whatever we can.
@@ -217,7 +222,17 @@ router.post('/verify', (req, res) => {
 
     finalizePurchase(purchase.id);
 
-    res.json({ message: 'Payment verified', purchase_id: purchase.id });
+    // Return unlocked item info so the client can show a confirmation without a reload.
+    const updated = db.prepare('SELECT * FROM purchases WHERE id = ?').get(purchase.id);
+    res.json({
+      message: 'Payment verified',
+      purchase_id: purchase.id,
+      unlocked: {
+        type: updated.type,
+        foundation_id: updated.foundation_id || null,
+        course_id: updated.course_id || null,
+      },
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -253,6 +268,34 @@ router.get('/eligibility', (req, res) => {
   }
 });
 
+// ── Build an HTML bullet list of video lessons unlocked by a purchase ──────
+function buildVideoListHtml(courseId, foundationId) {
+  try {
+    let rows;
+    if (foundationId) {
+      rows = db.prepare(`
+        SELECT DISTINCT l.title FROM lessons l
+        INNER JOIN lesson_materials m ON m.lesson_id = l.id
+        WHERE l.chapter_id = ? AND m.type = 'video'
+        ORDER BY l.sort_order
+      `).all(foundationId);
+    } else if (courseId) {
+      rows = db.prepare(`
+        SELECT DISTINCT l.title FROM lessons l
+        INNER JOIN lesson_materials m ON m.lesson_id = l.id
+        INNER JOIN chapters ch ON ch.id = l.chapter_id
+        WHERE ch.course_id = ? AND m.type = 'video'
+        ORDER BY ch.sort_order, l.sort_order
+      `).all(courseId);
+    }
+    if (!rows || !rows.length) return '';
+    const items = rows.map(l =>
+      `<li style="margin:5px 0;color:#4A3C28;font-size:14px;">▸ ${l.title}</li>`
+    ).join('');
+    return `<ul style="margin:10px 0;padding-left:0;list-style:none;">${items}</ul>`;
+  } catch (_) { return ''; }
+}
+
 // ── Post-payment side effects ──────────────────────────────────────────────
 function finalizePurchase(purchaseId) {
   const p = db.prepare('SELECT * FROM purchases WHERE id = ?').get(purchaseId);
@@ -282,27 +325,27 @@ function finalizePurchase(purchaseId) {
       .run(p.user_id, courseId);
   }
 
-  // Friendly item name for the receipt email.
-  let itemName = 'your purchase';
-  if (p.type === 'bundle' && courseId) {
-    const c = db.prepare('SELECT title FROM courses WHERE id = ?').get(courseId);
-    itemName = c ? `${c.title} — full bundle` : itemName;
-  } else if (p.type === 'individual' && p.foundation_id) {
-    const f = db.prepare('SELECT title FROM chapters WHERE id = ?').get(p.foundation_id);
-    itemName = f ? `${f.title}` : itemName;
-  }
-
-  emitEmail(p.user_id, 'payment_success', {
-    purchase_id: p.id,
+  // Common payment metadata for the email.
+  const paymentData = {
     amount_paise: p.amount_paise,
     order_id: p.razorpay_order_id || '',
     payment_id: p.razorpay_payment_id || '',
-    item_name: itemName,
-  });
+  };
+
+  // Fire ONE combined email: payment receipt + what's now unlocked + video list.
   if (p.type === 'bundle') {
-    emitEmail(p.user_id, p.is_upgrade ? 'course_upgraded' : 'course_unlocked', { course_id: courseId });
+    emitEmail(p.user_id, p.is_upgrade ? 'course_upgraded' : 'course_unlocked', {
+      ...paymentData,
+      course_id: courseId,
+      video_list_html: buildVideoListHtml(courseId, null),
+    });
   } else if (p.type === 'individual') {
-    emitEmail(p.user_id, 'foundation_unlocked', { foundation_id: p.foundation_id });
+    emitEmail(p.user_id, 'foundation_unlocked', {
+      ...paymentData,
+      foundation_id: p.foundation_id,
+      course_id: courseId,
+      video_list_html: buildVideoListHtml(null, p.foundation_id),
+    });
   }
 }
 
