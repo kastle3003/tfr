@@ -302,7 +302,10 @@
       font-size: 11px; color: var(--cream-dim);
       text-align: center; margin-bottom: 10px;
       font-weight: 500; letter-spacing: .03em;
+      text-decoration: none; display: block;
+      transition: color .15s;
     }
+    a.enroll-cta-price:hover { color: var(--gold); }
     .enroll-note { font-size: 10px; color: rgba(184,173,158,.45); text-align: center; margin-top: 12px; letter-spacing: .04em; }
     .enroll-success {
       display: none;
@@ -325,13 +328,22 @@
     .page-main { padding: 72px 56px 80px 80px; }
     @media (max-width: 1024px) {
       .page-wrap { grid-template-columns: 1fr; }
-      .enroll-sidebar { padding: 0 40px 48px; position: static; order: -1; }
+      .enroll-sidebar { padding: 0 40px 32px; position: static; order: -1; max-height: none; }
       .enroll-card { border-radius: 0; border-left: none; border-right: none; border-top: 3px solid var(--gold); }
+      .enroll-card-scroll { overflow-y: visible; flex: none; }
       .page-main { padding: 56px 40px 80px; }
     }
     @media (max-width: 600px) {
       .page-main { padding: 40px 20px 60px; }
-      .enroll-sidebar { padding: 0 0 40px; }
+      .enroll-sidebar { padding: 0 0 32px; }
+      .enroll-card-inner { padding: 18px 16px 12px; }
+      .enroll-card-footer { padding: 12px 16px 16px; }
+      .enroll-tiers { gap: 6px; }
+      .enroll-tier { padding: 9px 12px; }
+      .enroll-perks li { font-size: 11px; margin-bottom: 7px; }
+      .enroll-value-heading { font-size: 10px; }
+      .enroll-intro-badge { font-size: 9px; padding: 3px 10px; }
+      .btn-enroll-big { padding: 15px 20px; font-size: 12px; }
     }
 
     /* ─── SECTIONS ─── */
@@ -968,14 +980,18 @@ async function checkPurchaseAccess(courseId) {
 // It exposes window.openEnrollModal(courseId) and window.handleEnroll as an alias.
 
 function _selectTier(el) {
-  // Deselect all tiers and bundle
   document.querySelectorAll('.enroll-tier, .enroll-bundle').forEach(t => t.classList.remove('selected'));
   el.classList.add('selected');
   const name = el.dataset.name;
   const price = el.dataset.price;
   const fmt = Number(price).toLocaleString('en-IN');
   const ctaEl = document.getElementById('enroll-cta-price');
-  if (ctaEl) ctaEl.textContent = name + ' — ₹' + fmt;
+  if (ctaEl) {
+    ctaEl.textContent = name + ' — ₹' + fmt;
+    const expUrl = el.dataset.expUrl;
+    if (expUrl) { ctaEl.href = expUrl; ctaEl.style.pointerEvents = ''; }
+    else { ctaEl.removeAttribute('href'); ctaEl.style.pointerEvents = 'none'; }
+  }
 }
 
 // ─── Error screen ────────────────────────────────────────────────────────────
@@ -1291,28 +1307,28 @@ async function renderPage(data) {
 
                 <!-- Tier selection -->
                 <div class="enroll-tiers" id="enroll-tiers">
-                  <div class="enroll-tier selected" data-price="3999" data-name="Basic Foundation A" onclick="_selectTier(this)">
+                  <div class="enroll-tier selected" data-price="3999" data-name="Basic Foundation A" data-exp-url="/experience/${course.slug}" onclick="_selectTier(this)">
                     <div class="enroll-tier-dot"></div>
                     <div class="enroll-tier-info">
                       <div class="enroll-tier-name">Basic Foundation A</div>
                       <div class="enroll-tier-price">&#8377;3,999</div>
                     </div>
                   </div>
-                  <div class="enroll-tier" data-price="3999" data-name="Foundation B" onclick="_selectTier(this)">
+                  <div class="enroll-tier" data-price="3999" data-name="Foundation B" data-exp-url="/experience/${course.slug}" onclick="_selectTier(this)">
                     <div class="enroll-tier-dot"></div>
                     <div class="enroll-tier-info">
                       <div class="enroll-tier-name">Foundation B</div>
                       <div class="enroll-tier-price">&#8377;3,999</div>
                     </div>
                   </div>
-                  <div class="enroll-tier" data-price="3999" data-name="Foundation C" onclick="_selectTier(this)">
+                  <div class="enroll-tier" data-price="3999" data-name="Foundation C" data-exp-url="/experience/${course.slug}" onclick="_selectTier(this)">
                     <div class="enroll-tier-dot"></div>
                     <div class="enroll-tier-info">
                       <div class="enroll-tier-name">Foundation C</div>
                       <div class="enroll-tier-price">&#8377;3,999</div>
                     </div>
                   </div>
-                  <div class="enroll-tier" data-price="4999" data-name="Foundation D" onclick="_selectTier(this)">
+                  <div class="enroll-tier" data-price="4999" data-name="Foundation D" data-exp-url="/experience/${course.slug}" onclick="_selectTier(this)">
                     <div class="enroll-tier-dot"></div>
                     <div class="enroll-tier-info">
                       <div class="enroll-tier-name">Foundation D</div>
@@ -1347,7 +1363,7 @@ async function renderPage(data) {
               </div>
             </div>
             <div class="enroll-card-footer">
-              <p class="enroll-cta-price" id="enroll-cta-price">Basic Foundation A &mdash; &#8377;3,999</p>
+              <a class="enroll-cta-price" id="enroll-cta-price" href="/experience/${course.slug}">Basic Foundation A &mdash; &#8377;3,999</a>
               <button class="btn-enroll-big enroll-trigger" id="enroll-btn-main" onclick="${enrollBtnAction}">Enroll Now</button>
               <p class="enroll-note">Secure payment &middot; Cancel anytime</p>
             </div>
