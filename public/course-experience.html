@@ -374,16 +374,16 @@
   }
   .play-intro-text .play-brand-mark svg { width: 11px; height: 11px; fill: var(--accent-red); }
   .play-card-wrap {
-    min-height: 300px;
-    display: flex; flex-direction: column;
+    display: block;
+    align-self: center;
   }
   .play-card {
     position: relative;
     background: var(--ink-mid);
     overflow: hidden;
     display: flex; align-items: center; justify-content: center;
-    flex: 1;
-    min-height: 280px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
     transition: transform .3s, box-shadow .3s;
   }
   .play-card:hover { transform: translateY(-2px); box-shadow: 0 20px 48px rgba(0,0,0,.5); }
@@ -1029,7 +1029,7 @@
     .hero-pretitle, .hero-title { text-align: center; }
     .section { padding: 60px 24px; }
     .play-intro { grid-template-columns: 1fr; gap: 0; }
-    .play-card-wrap { min-height: 280px; }
+    .play-card-wrap { aspect-ratio: 16/9; }
     .instructor-block { grid-template-columns: 1fr; gap: 28px; }
     .instructor-photo { max-width: 320px; margin: 0 auto; aspect-ratio: 1/1; }
     .pr-card { grid-template-columns: 1fr; }
@@ -1067,7 +1067,7 @@
     .hero { padding: 80px 16px 60px; }
     .section { padding: 48px 16px; }
     .tiers-grid { grid-template-columns: 1fr; }
-    .play-card-wrap { min-height: 200px; }
+    .play-card-wrap { aspect-ratio: 16/9; }
     .upcoming-strip { padding: 0 16px 40px; }
     .series-block { padding: 16px 16px 48px; }
     .disc-tabs { flex-wrap: wrap; gap: 0; justify-content: flex-start; }

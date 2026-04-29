@@ -1361,7 +1361,7 @@ async function renderPage(data) {
     <div class="bottom-cta reveal">
       <div class="bottom-cta-text">
         <h2>Ready to begin your <em>journey</em>?</h2>
-        <p>Join ${(course.instructor_name || 'our instructor').split(' ')[0]}'s course and transform your relationship with ${course.instrument || 'music'} — for good.</p>
+        <p>Join ${course.instructor_name || 'our instructor'}'s course and transform your relationship with ${course.instrument || 'music'} — for good.</p>
       </div>
       <div class="bottom-cta-action">
         <button class="btn-enroll-bottom enroll-trigger" onclick="${enrollBtnAction}">${enrollBtnLabel}</button>
