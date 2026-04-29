@@ -136,8 +136,8 @@
   }
   .hero-title {
     font-family: var(--font-display);
-    font-size: clamp(32px, 4.5vw, 62px);
-    font-weight: 400; line-height: 0.95;
+    font-size: clamp(44px, 6vw, 80px);
+    font-weight: 700; line-height: 0.95;
     color: #fff; margin-bottom: 28px;
     letter-spacing: .01em;
     text-transform: uppercase;
@@ -441,10 +441,14 @@
     border: none; display: block;
   }
   .play-card.yt-card {
-    padding: 0; min-height: 300px; height: 300px;
+    padding: 0; height: auto;
     display: block; transform: none !important; cursor: default;
   }
+  .play-card.yt-card .yt-embed-wrap { position: relative; height: 0; padding-top: 56.25%; }
+  .play-card.yt-card .yt-embed-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; transform: none; }
   .play-card.yt-card:hover { box-shadow: none; transform: none !important; }
+  /* Remove gradient overlay on practice room card when YouTube is embedded */
+  .pr-card-visual.yt-card::before { display: none; }
   .pr-card-visual.yt-card {
     min-height: 320px; height: 100%;
     border-radius: 0; overflow: hidden;
@@ -1372,7 +1376,7 @@
               ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + esc(f) + '</li>').join('')}
             </ul>
             <div class="tier-cta-wrap" style="margin-top:auto;display:block;width:100%;">
-              <button class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="${featured ? 'scrollToNotify()' : i === 0 ? `window._xCourseId ? openEnrollModal(window._xCourseId) : void(0)` : ''}">
+              <button class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="${featured ? 'scrollToNotify()' : i === 0 ? `window.location.href='/courses/'+encodeURIComponent(getSlug())` : ''}">
                 ${t.link ? esc(t.btnText || 'Start Training') : 'Enrol Now'}
               </button>
             </div>
@@ -1512,8 +1516,7 @@
       if (overrides?.previewVideo) {
         playCardLink.classList.add('yt-card');
         playCardLink.removeAttribute('href');
-        playCardLink.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.previewVideo}?rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-        fitYtCover(playCardLink.querySelector('.yt-embed-wrap'));
+        playCardLink.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.previewVideo}?rel=0&modestbranding=1&autoplay=1&mute=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
       } else {
         playCardLink.setAttribute('href', trainUrl);
         document.getElementById('play-card-label').textContent = 'Watch preview →';
