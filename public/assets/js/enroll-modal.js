@@ -54,15 +54,6 @@
       return;
     }
 
-    // Require complete profile before purchase
-    const profileCheck = await checkProfileComplete();
-    if (!profileCheck.ok) {
-      const fields = profileCheck.missing.join(' & ');
-      emToast(`Please complete your profile before purchasing — ${fields} required.`, 'warn');
-      setTimeout(() => window.location.href = '/student-profile.html', 1800);
-      return;
-    }
-
     let overlay = document.getElementById('em-overlay');
     if (!overlay) {
       overlay = document.createElement('div');
@@ -373,7 +364,40 @@
   function onPurchaseSuccess() {
     closeEnrollModal();
     emToast('Payment successful! Enrolling you now…', 'success');
+
+    // After payment, check if profile is incomplete and nudge — non-blocking
+    checkProfileComplete().then(profileCheck => {
+      if (!profileCheck.ok) {
+        const fields = (profileCheck.missing || []).join(' & ');
+        setTimeout(() => {
+          showProfileNudge(fields);
+        }, 1800);
+      }
+    }).catch(() => {});
+
     setTimeout(() => window.location.reload(), 1200);
+  }
+
+  function showProfileNudge(fields) {
+    const nudge = document.createElement('div');
+    nudge.style.cssText = `
+      position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+      z-index:99999;background:#1C1508;border:1px solid rgba(200,168,75,0.4);
+      border-left:4px solid #C8A84B;border-radius:8px;
+      padding:16px 20px;display:flex;align-items:center;gap:16px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.7);max-width:460px;width:90%;
+    `;
+    nudge.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8A84B" stroke-width="2" stroke-linecap="round" flex-shrink="0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:#F0E6D3;margin-bottom:3px;">Complete your profile</div>
+        <div style="font-size:12px;color:#B8A898;line-height:1.4;">Add your ${fields} to personalise your learning experience.</div>
+      </div>
+      <a href="/student-profile.html" style="flex-shrink:0;padding:8px 14px;background:rgba(200,168,75,0.15);border:1px solid rgba(200,168,75,0.4);border-radius:4px;color:#C8A84B;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;white-space:nowrap;">Update</a>
+      <button onclick="this.parentNode.remove()" style="flex-shrink:0;background:none;border:none;color:#6B5E50;font-size:18px;cursor:pointer;padding:0 0 0 4px;line-height:1;">×</button>
+    `;
+    document.body.appendChild(nudge);
+    setTimeout(() => nudge.remove(), 12000);
   }
 
   // Expose on window so inline onclicks in the modal HTML can call them.
