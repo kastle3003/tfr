@@ -389,10 +389,16 @@ router.delete('/courses/:id', adminOnly, (req, res) => {
     const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
     if (!course) return res.status(404).json({ error: 'Course not found' });
 
-    db.prepare('DELETE FROM enrollments WHERE course_id = ?').run(req.params.id);
-    db.prepare('DELETE FROM lessons WHERE course_id = ?').run(req.params.id);
-    db.prepare('DELETE FROM chapters WHERE course_id = ?').run(req.params.id);
-    db.prepare('DELETE FROM courses WHERE id = ?').run(req.params.id);
+    const cId = req.params.id;
+    db.prepare('DELETE FROM lesson_progress WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId);
+    db.prepare('UPDATE practice_sessions SET lesson_id = NULL WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId);
+    db.prepare('DELETE FROM submissions WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId);
+    db.prepare('UPDATE recordings SET lesson_id = NULL WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId);
+    db.prepare('UPDATE purchases SET foundation_id = NULL WHERE foundation_id IN (SELECT id FROM chapters WHERE course_id = ?)').run(cId);
+    db.prepare('DELETE FROM enrollments WHERE course_id = ?').run(cId);
+    db.prepare('DELETE FROM lessons WHERE course_id = ?').run(cId);
+    db.prepare('DELETE FROM chapters WHERE course_id = ?').run(cId);
+    db.prepare('DELETE FROM courses WHERE id = ?').run(cId);
 
     res.json({ message: 'Course deleted' });
   } catch (err) {

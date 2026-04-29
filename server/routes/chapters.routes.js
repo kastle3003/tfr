@@ -100,8 +100,14 @@ router.delete('/:id', requireRole(['instructor', 'admin']), (req, res) => {
     const g = canEditChapter(req, req.params.id);
     if (!g.ok) return res.status(g.code).json({ error: g.code === 404 ? 'Chapter not found' : 'Not authorized' });
 
-    db.prepare('DELETE FROM lessons WHERE chapter_id = ?').run(req.params.id);
-    db.prepare('DELETE FROM chapters WHERE id = ?').run(req.params.id);
+    const chId = req.params.id;
+    db.prepare('DELETE FROM lesson_progress WHERE lesson_id IN (SELECT id FROM lessons WHERE chapter_id = ?)').run(chId);
+    db.prepare('UPDATE practice_sessions SET lesson_id = NULL WHERE lesson_id IN (SELECT id FROM lessons WHERE chapter_id = ?)').run(chId);
+    db.prepare('DELETE FROM submissions WHERE lesson_id IN (SELECT id FROM lessons WHERE chapter_id = ?)').run(chId);
+    db.prepare('UPDATE recordings SET lesson_id = NULL WHERE lesson_id IN (SELECT id FROM lessons WHERE chapter_id = ?)').run(chId);
+    db.prepare('UPDATE purchases SET foundation_id = NULL WHERE foundation_id = ?').run(chId);
+    db.prepare('DELETE FROM lessons WHERE chapter_id = ?').run(chId);
+    db.prepare('DELETE FROM chapters WHERE id = ?').run(chId);
     db.prepare('UPDATE courses SET lesson_count = (SELECT COUNT(*) FROM lessons WHERE course_id = ?) WHERE id = ?').run(g.course_id, g.course_id);
     res.json({ message: 'Chapter deleted' });
   } catch (err) {

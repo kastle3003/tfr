@@ -186,7 +186,12 @@ router.delete('/:id', requireRole(['instructor', 'admin']), (req, res) => {
     const g = canEditLesson(req, req.params.id);
     if (!g.ok) return res.status(g.code).json({ error: g.code === 404 ? 'Lesson not found' : 'Not authorized' });
 
-    db.prepare('DELETE FROM lessons WHERE id = ?').run(req.params.id);
+    const id = req.params.id;
+    db.prepare('DELETE FROM lesson_progress WHERE lesson_id = ?').run(id);
+    db.prepare('UPDATE practice_sessions SET lesson_id = NULL WHERE lesson_id = ?').run(id);
+    db.prepare('DELETE FROM submissions WHERE lesson_id = ?').run(id);
+    db.prepare('UPDATE recordings SET lesson_id = NULL WHERE lesson_id = ?').run(id);
+    db.prepare('DELETE FROM lessons WHERE id = ?').run(id);
     db.prepare('UPDATE courses SET lesson_count = (SELECT COUNT(*) FROM lessons WHERE course_id = ?) WHERE id = ?').run(g.course_id, g.course_id);
     res.json({ message: 'Lesson deleted' });
   } catch (err) {
