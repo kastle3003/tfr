@@ -115,6 +115,14 @@
       background: linear-gradient(to top, var(--ink) 0%, rgba(8,7,6,.65) 40%, rgba(8,7,6,.25) 100%);
       z-index: 1;
     }
+    /* Mask the YouTube title overlay that appears top-left */
+    .hero-yt-wrap::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 320px; height: 72px;
+      background: linear-gradient(to bottom right, rgba(8,7,6,.9) 0%, transparent 100%);
+      z-index: 2;
+    }
     .hero-yt-wrap iframe {
       position: absolute;
       top: 50%; left: 50%;
@@ -993,7 +1001,7 @@ async function openLeadModal() {
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ course: 'Practise Room — Djembe' })
     });
-    showLeadToast('Thank you for registering. Team will get in touch.');
+    showLeadToast('Thank you for registering. Team will get in touch with you soon.');
   } catch (_) {
     showLeadToast('Something went wrong — please try again.');
   } finally {
@@ -1004,9 +1012,9 @@ async function openLeadModal() {
 function showLeadToast(msg) {
   const t = document.createElement('div');
   t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#C8A84B;color:#0F0D0B;padding:14px 28px;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:.04em;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.45);';
+  t.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#C8A84B;color:#0F0D0B;padding:22px 40px;border-radius:10px;font-size:16px;font-weight:700;letter-spacing:.04em;z-index:99999;box-shadow:0 16px 64px rgba(0,0,0,.7);text-align:center;max-width:88vw;line-height:1.5;';
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3500);
+  setTimeout(() => t.remove(), 4000);
 }
 
 function _selectTier(el) {
@@ -1695,7 +1703,8 @@ function renderLessonList(chId) {
         }).join('')}</div>`
       : '';
 
-    const badge = isFreeSlot && !hasAccess
+    const isFirstChapter = (_landingData.chapters || [])[0]?.id === ch.id;
+    const badge = isFreeSlot && !hasAccess && isFirstChapter
       ? ' <span style="font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-left:4px;">Free Preview</span>'
       : '';
 
