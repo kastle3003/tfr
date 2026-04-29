@@ -1060,6 +1060,19 @@
     .pr-card-body { padding: 24px 18px; }
     .tier-body { padding: 20px 16px; }
   }
+  @media (max-width: 960px) {
+    .hero-content { max-width: 100%; }
+  }
+  @media (max-width: 480px) {
+    .hero { padding: 80px 16px 60px; }
+    .section { padding: 48px 16px; }
+    .tiers-grid { grid-template-columns: 1fr; }
+    .play-card-wrap { min-height: 200px; }
+    .upcoming-strip { padding: 0 16px 40px; }
+    .series-block { padding: 16px 16px 48px; }
+    .disc-tabs { flex-wrap: wrap; gap: 0; justify-content: flex-start; }
+    .disc-tab { padding: 10px 14px 12px; font-size: 9px; }
+  }
 
   /* Reveal on scroll */
   .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }

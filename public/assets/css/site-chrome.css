@@ -153,9 +153,93 @@
   transform: translateY(-1px);
 }
 
+/* ─── HAMBURGER BUTTON ─── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 4px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 2px;
+  transition: transform .25s ease, opacity .2s ease;
+  transform-origin: center;
+}
+.nav-hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ─── MOBILE MENU OVERLAY ─── */
+.mobile-nav-menu {
+  display: none;
+  position: fixed;
+  top: 72px; left: 0; right: 0; bottom: 0;
+  background: rgba(8,7,6,0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 98;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 32px 24px 48px;
+  overflow-y: auto;
+}
+.mobile-nav-menu.open { display: flex; }
+
+.mobile-nav-links {
+  list-style: none;
+  margin: 0 0 40px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.mobile-nav-links a {
+  display: block;
+  font-family: var(--sc-serif);
+  font-size: 32px;
+  font-weight: 400;
+  color: rgba(240,230,211,0.85);
+  text-decoration: none;
+  letter-spacing: .02em;
+  padding: 12px 0;
+  text-align: center;
+  width: 100%;
+  border-bottom: 1px solid rgba(200,168,75,0.1);
+  transition: color .2s;
+}
+.mobile-nav-links li:last-child a { border-bottom: none; }
+.mobile-nav-links a:hover { color: var(--sc-gold); }
+
+.mobile-nav-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.mobile-nav-actions .btn-ghost,
+.mobile-nav-actions .btn-gold {
+  font-family: var(--sc-sans);
+}
+
 @media (max-width: 900px) {
   .site-nav { padding: 0 20px; }
   .site-nav .nav-links { display: none; }
+  .site-nav .nav-actions { display: none; }
+  .nav-hamburger { display: flex; }
 }
 
 /* ─── FOOTER ─── */

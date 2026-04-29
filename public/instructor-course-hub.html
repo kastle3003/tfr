@@ -216,6 +216,15 @@
     /* Progress bar */
     .progress-bar-wrap { flex:1; }
     .progress-ring { display:flex; align-items:center; gap:10px; }
+
+    @media (max-width: 700px) {
+      .hub-stats { grid-template-columns: 1fr 1fr !important; }
+      .mat-item { grid-template-columns: 40px 1fr auto !important; }
+      .mat-item > *:nth-child(3) { display: none; }
+    }
+    @media (max-width: 480px) {
+      .hub-stats { grid-template-columns: 1fr !important; }
+    }
   </style>
 </head>
 <body>

@@ -111,6 +111,14 @@
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     .mb-28 { margin-bottom: 28px; }
     .mb-16 { margin-bottom: 16px; }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>

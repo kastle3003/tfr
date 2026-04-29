@@ -1462,6 +1462,36 @@ img { display: block; max-width: 100%; }
   50%       { opacity: 0.5; transform: scale(0.75); }
 }
 
+/* ─── Sidebar mobile toggle button ─── */
+.sidebar-toggle-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: 1px solid rgba(200,168,75,0.18);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  color: var(--text-2);
+  flex-shrink: 0;
+  transition: background var(--transition), color var(--transition);
+}
+.sidebar-toggle-btn:hover { background: var(--bg-elevated); color: var(--gold); }
+.sidebar-toggle-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+/* ─── Sidebar overlay (mobile) ─── */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+  display: none;
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 900px) {
   .grid-3 { grid-template-columns: repeat(2, 1fr); }
@@ -1472,10 +1502,15 @@ img { display: block; max-width: 100%; }
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
-    transition: transform var(--transition);
+    transition: transform .25s ease;
+    z-index: 200;
   }
-
   .sidebar.open { transform: translateX(0); }
+
+  .sidebar-overlay { display: block; }
+  .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+  .sidebar-toggle-btn { display: flex; }
 
   .main-wrap { margin-left: 0; }
 
@@ -1487,4 +1522,63 @@ img { display: block; max-width: 100%; }
   .main-content { padding: 20px 16px; }
   .topbar-search { display: none; }
   .welcome-banner { flex-direction: column; }
+
+  .card-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .section-header { flex-wrap: wrap; gap: 8px; }
+}
+
+@media (max-width: 480px) {
+  .grid-4 { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .main-content { padding: 16px 12px; }
+  .topbar-title { font-size: 17px; }
+  .card { padding: 16px; }
+  .page-header { padding: 20px 0 16px; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 500px; }
+}
+
+/* ─── Global mobile fixes for inner app pages ─── */
+@media (max-width: 768px) {
+  /* Any inline grid with minmax(300px+) collapses to single col */
+  [style*="minmax(3"] { grid-template-columns: 1fr !important; }
+
+  /* Common two-column layouts used in inner pages */
+  .two-col,
+  .split-layout,
+  .form-row { flex-direction: column !important; }
+
+  /* Modals / panels that may overflow */
+  .modal-body,
+  .panel-body { padding: 16px !important; }
+
+  /* Horizontal scrollable tables (fallback) */
+  .table-wrap,
+  .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Prevent fixed-width inputs from overflowing */
+  input, select, textarea { max-width: 100%; box-sizing: border-box; }
+
+  /* Full-width primary action buttons on small screens */
+  .btn-block-mobile { width: 100% !important; }
+}
+
+@media (max-width: 480px) {
+  /* Topbar avatar shrinks */
+  .topbar-avatar { width: 30px; height: 30px; font-size: 11px; }
+
+  /* Card padding */
+  .card, .panel { padding: 14px 12px !important; }
+
+  /* Section headers stack */
+  .section-header,
+  .page-header-row { flex-direction: column; align-items: flex-start !important; gap: 8px !important; }
+
+  /* Tables always scroll */
+  table { min-width: 480px; }
+  th, td { padding: 8px 10px !important; font-size: 12px !important; }
+
+  /* Badge/pill font */
+  .badge, .pill, .chip { font-size: 10px !important; }
 }

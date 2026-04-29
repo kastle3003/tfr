@@ -1098,6 +1098,14 @@
       animation: spin 0.7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      .cm-layout { grid-template-columns: 1fr; height: auto; }
+    }
+    @media (max-width: 480px) {
+      .lesson-row { grid-template-columns: 40px 1fr auto !important; }
+      .lesson-row > *:nth-child(3) { display: none; }
+    }
   </style>
 </head>
 <body>

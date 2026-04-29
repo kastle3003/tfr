@@ -280,6 +280,13 @@
     .empty-state { text-align: center; padding: 40px; }
     .empty-state h3 { font-family: var(--serif); font-style: normal; font-size: 20px; color: var(--text-2); margin-bottom: 8px; }
     .empty-state p { color: var(--text-3); font-size: 13px; }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>

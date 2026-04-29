@@ -137,6 +137,13 @@
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
     .btn-ghost { background: transparent; border: 1px solid rgba(200,168,75,0.15); color: var(--text-2); }
     .btn-ghost:hover { border-color: rgba(200,168,75,0.3); color: var(--text); }
+
+    @media (max-width: 600px) {
+      .qt-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    }
+    @media (max-width: 400px) {
+      .qt-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    }
   </style>
 </head>
 <body>

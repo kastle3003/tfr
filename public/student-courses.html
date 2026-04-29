@@ -265,6 +265,29 @@
       100% { background-position: -200% 0; }
     }
 
+    @media (max-width: 600px) {
+      .course-grid,
+      .skeleton-grid {
+        grid-template-columns: 1fr;
+      }
+      .page-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .page-stats {
+        grid-template-columns: 1fr;
+      }
+      .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filter-search {
+        min-width: 0;
+      }
+    }
+
     .page-stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

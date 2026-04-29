@@ -857,6 +857,21 @@
       .hero-stat { min-width: 60px; }
     }
 
+    /* ─── Mobile-specific overrides ─── */
+    @media (max-width: 480px) {
+      .hero-left { padding: 28px 16px 24px; }
+      .hero-meta { flex-wrap: wrap; gap: 12px 20px; }
+      .foundation-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+      .foundation-tab { scroll-snap-align: start; flex-shrink: 0; }
+      .video-slot { border-radius: 0; }
+      .video-title-row { font-size: 11px; }
+      .lesson-item .l-dur { display: none; }
+      .enroll-card-inner, .enroll-card-scroll { padding: 20px 16px; }
+      .outcomes-grid { grid-template-columns: 1fr; }
+      .page-main { padding: 28px 14px 48px; }
+      .section { margin-bottom: 48px; }
+    }
+
     /* ─── REVEAL ANIM ─── */
     .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
     .reveal.visible { opacity: 1; transform: none; }
@@ -1473,6 +1488,10 @@ let _hasBundlePurchase = false;
 let _purchasedChapterIds = new Set();
 let _completedLessons = new Set();
 let _syncHtTimer;
+function _isAdminUser() {
+  const u = window.archiveAuth && window.archiveAuth.getUser();
+  return u && (u.role === 'admin' || u.role === 'instructor');
+}
 
 function _syncFoundationHeight() {
   const section = document.querySelector('.curriculum-section');
@@ -1493,7 +1512,7 @@ renderPage = async function patched(data) {
   const out = await _origRenderForFoundations.call(this, data);
   // After original renderPage: _isEnrolled, _hasBundlePurchase, _purchasedChapterIds are set.
   // Fetch full video materials for accessible chapters so they can be played.
-  if (isLoggedIn() && (_isEnrolled || _hasBundlePurchase || _purchasedChapterIds.size > 0)) {
+  if (isLoggedIn() && (_isAdminUser() || _isEnrolled || _hasBundlePurchase || _purchasedChapterIds.size > 0)) {
     try {
       const mr = await fetch(`/api/courses/${data.course.id}/full-materials`, {
         headers: { Authorization: 'Bearer ' + getToken() }
@@ -1541,6 +1560,7 @@ function selectFoundation(chId, autoLoadVideo) {
 }
 
 function _chapterAccessible(chId) {
+  if (_isAdminUser()) return true;
   if (_hasBundlePurchase) return true;
   if (_purchasedChapterIds.has(String(chId))) return true;
   // fallback: enrolled with no purchase record = admin-enrolled, grant full access

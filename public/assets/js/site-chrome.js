@@ -21,7 +21,21 @@
         <a href="/login" class="btn-ghost">Log In</a>
         <a href="/login#panel-register" class="btn-gold">Sign Up</a>
       </div>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </nav>
+    <div class="mobile-nav-menu" id="mobile-nav-menu" aria-hidden="true">
+      <ul class="mobile-nav-links">
+        <li><a href="/#experience" data-nav-key="experience">Experience</a></li>
+        <li><a href="/#courses" data-nav-key="courses">Courses</a></li>
+        <li><a href="/#connect" data-nav-key="connect">Connect</a></li>
+      </ul>
+      <div class="mobile-nav-actions">
+        <a href="/login" class="btn-ghost">Log In</a>
+        <a href="/login#panel-register" class="btn-gold">Join Now</a>
+      </div>
+    </div>
   `;
 
   const FOOTER_HTML = `
@@ -170,6 +184,29 @@
         const rect = nav.getBoundingClientRect();
         nav.style.setProperty('--nav-glow-x', ((e.clientX - rect.left) / rect.width * 100).toFixed(1) + '%');
       });
+
+      // Mobile hamburger toggle
+      const ham = document.getElementById('nav-hamburger');
+      const mobileMenu = document.getElementById('mobile-nav-menu');
+      if (ham && mobileMenu) {
+        const openMenu = () => {
+          ham.setAttribute('aria-expanded', 'true');
+          mobileMenu.classList.add('open');
+          mobileMenu.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+        };
+        const closeMenu = () => {
+          ham.setAttribute('aria-expanded', 'false');
+          mobileMenu.classList.remove('open');
+          mobileMenu.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        };
+        ham.addEventListener('click', () => {
+          ham.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
+        });
+        mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+      }
     }
   }
 

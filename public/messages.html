@@ -107,6 +107,10 @@
     .btn-primary:hover { background: var(--gold-bright); }
     .btn-ghost { background: transparent; border: 1px solid rgba(200,168,75,0.2); color: var(--text-2); font-family: var(--sans); }
     .btn-ghost:hover { border-color: rgba(200,168,75,0.4); color: var(--text); }
+
+    @media (max-width: 768px) {
+      .msg-layout { grid-template-columns: 1fr !important; height: auto !important; overflow: visible !important; }
+    }
   </style>
 </head>
 <body>

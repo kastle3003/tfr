@@ -101,6 +101,10 @@
     .empty-icon { width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.3; }
     .no-results { font-style: normal; font-size: 16px; color: var(--text-2); }
     .featured-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+
+    @media (max-width: 540px) {
+      .featured-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>

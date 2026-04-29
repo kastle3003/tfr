@@ -869,6 +869,16 @@
       .grid-2 { grid-template-columns: 1fr; }
       .grid-3 { grid-template-columns: 1fr; }
     }
+    @media (max-width: 768px) {
+      .sidebar { width: var(--sidebar-w, 240px); }
+      .main-wrap { margin-left: 0; }
+      .stats-row { grid-template-columns: 1fr 1fr !important; }
+      .stats-row-5 { grid-template-columns: 1fr 1fr !important; }
+    }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr !important; }
+      .stats-row-5 { grid-template-columns: 1fr !important; }
+    }
 
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 6px; }

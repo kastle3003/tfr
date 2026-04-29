@@ -787,6 +787,13 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(200,168,75,0.1); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(200,168,75,0.2); }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr !important; }
+    }
   </style>
 </head>
 <body>
