@@ -452,10 +452,12 @@
   }
   .play-card.yt-card:hover { box-shadow: none; transform: none !important; }
   .pr-card-visual.yt-card {
-    min-height: 300px; height: 300px;
-    border-radius: var(--radius); overflow: hidden;
+    min-height: 320px; height: 100%;
+    border-radius: 0; overflow: hidden;
     padding: 0; cursor: default;
+    align-self: stretch;
   }
+  .pr-card-visual.yt-card .yt-embed-wrap { height: 100%; min-height: 320px; }
 
   /* ─────────── Instructor ─────────── */
   .instructor-block {
