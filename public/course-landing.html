@@ -1569,13 +1569,9 @@ function _findFirstPlayable(chId) {
   if (!videoLessons.length) return null;
   // First video of Foundation A is free for everyone — guests included
   if (!hasAccess) return _isFirstFreeLesson(chId, videoLessons[0].id) ? videoLessons[0] : null;
-  // Find first uncompleted lesson that is sequentially unlocked
-  for (let i = 0; i < videoLessons.length; i++) {
-    const unlocked = i === 0 || _completedLessons.has(videoLessons[i - 1].id);
-    if (unlocked && !_completedLessons.has(videoLessons[i].id)) return videoLessons[i];
-  }
-  // All unlocked lessons completed: return the last one
-  return videoLessons[videoLessons.length - 1];
+  // All lessons unlocked once purchased — find first uncompleted
+  const first = videoLessons.find(l => !_completedLessons.has(l.id));
+  return first || videoLessons[videoLessons.length - 1];
 }
 
 function renderLessonList(chId) {
@@ -1588,17 +1584,6 @@ function renderLessonList(chId) {
   }
   const hasAccess = _chapterAccessible(ch.id);
 
-  // Build ordered list of video lessons for sequential unlock
-  const videoLessonsSeq = (ch.lessons || []).filter(l =>
-    (l.materials || []).some(m => m.type === 'video' && m.url)
-  );
-  function seqUnlocked(lessonId) {
-    const idx = videoLessonsSeq.findIndex(l => l.id == lessonId);
-    if (idx < 0) return false;
-    if (idx === 0) return true;
-    return _completedLessons.has(videoLessonsSeq[idx - 1].id);
-  }
-
   let firstVideoMarked = false;
 
   list.innerHTML = (ch.lessons || []).map((l, i) => {
@@ -1607,10 +1592,9 @@ function renderLessonList(chId) {
     if (video) firstVideoMarked = true;
 
     const isCompleted = _completedLessons.has(l.id);
-    const unlocked = hasAccess && seqUnlocked(l.id);
     const isGuestFree = isFreeSlot && !isLoggedIn() && _isFirstFreeLesson(ch.id, l.id);
-    const canPlay = (unlocked || isCompleted) || (isFreeSlot && isLoggedIn() && !hasAccess) || isGuestFree;
-    const isSeqLocked = hasAccess && !!video && !unlocked && !isCompleted;
+    const canPlay = hasAccess || isCompleted || (isFreeSlot && isLoggedIn() && !hasAccess) || isGuestFree;
+    const isSeqLocked = false;
 
     let click, extraClass;
     if (canPlay) {

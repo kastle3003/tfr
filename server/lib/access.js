@@ -22,7 +22,7 @@
 
 const db = require('../db');
 
-const COMPLETION_THRESHOLD = 90;   // % — "≥ 90% video watched"
+const COMPLETION_THRESHOLD = 100;  // % — must watch complete video
 
 function isStaff(user) {
   return user && (user.role === 'admin' || user.role === 'instructor');

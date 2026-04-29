@@ -1900,7 +1900,7 @@
         const pct = (video.currentTime / video.duration) * 100;
         if (progFill) progFill.style.width = pct + '%';
         if (timeEl)   timeEl.textContent   = fmtViewerTime(video.currentTime) + ' / ' + fmtViewerTime(video.duration);
-        if (pct >= 90 && !_completedSet.has(lessonId)) autoCompleteLesson(lessonId);
+        if (pct >= 100 && !_completedSet.has(lessonId)) autoCompleteLesson(lessonId);
       });
       // Click-to-seek on progress bar
       if (progBar) {
