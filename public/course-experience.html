@@ -546,6 +546,15 @@
   }
   .pr-promo-banner em { color: var(--accent-red); font-weight: 600; }
   .pr-card-wrap { margin-top: 0; }
+  .pr-intro-layout { align-items: center; }
+  .pr-ribbon-inline {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 100%);
+    color: var(--ink);
+    font-size: 8px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 3px;
+    margin-bottom: 18px;
+  }
   .pr-card {
     position: relative;
     background: linear-gradient(135deg, var(--ink-mid) 0%, var(--ink-deep) 100%);
@@ -1059,9 +1068,38 @@
     .nav-btn { padding: 7px 14px; font-size: 11px; letter-spacing: .06em; }
     .nav-logo-text span { display: none; }
     .train-btn { padding: 14px 28px; font-size: 12px; }
-    .hero { min-height: 75vh; }
     .pr-card-body { padding: 24px 18px; }
     .tier-body { padding: 20px 16px; }
+
+    /* Stack image above text — no overlap on mobile */
+    .hero.has-artist-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      min-height: auto;
+      padding: 0;
+      justify-content: flex-start;
+    }
+    .hero.has-artist-panel .hero-artist-panel {
+      position: relative;
+      height: 72vw;
+      min-height: 260px;
+      flex-shrink: 0;
+    }
+    .hero.has-artist-panel .hero-artist-panel::after {
+      background: linear-gradient(to bottom, rgba(8,7,6,0.15) 0%, transparent 40%, rgba(8,7,6,0.4) 100%);
+    }
+    .hero.has-artist-panel .hero-bg { display: none; }
+    .hero.has-artist-panel .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 36px 20px 52px;
+      background: #0F0D0B;
+      width: 100%;
+      max-width: 100%;
+      text-align: center;
+    }
+    .hero.has-artist-panel .hero-drum-accent { display: none; }
   }
   @media (max-width: 960px) {
     .hero-content { max-width: 100%; }
@@ -1181,26 +1219,26 @@
   <!-- PRACTICE ROOM PROMO -->
   <section class="section">
     <p class="pr-promo-banner reveal">Don't just press play. <em>PLAY</em></p>
-    <div class="gb-wrap pr-card-wrap reveal">
-      <div class="pr-card">
-        <div class="pr-ribbon">Special Feature</div>
-        <div class="pr-card-body">
-          <h3 class="pr-card-title">The Practice <span class="title-red">Room</span></h3>
-          <p id="pr-card-intro">
-            <strong style="color:var(--cream);">Prepare to practice in the coolest feature of your training at TFR PL<span class="play-mark" style="color:var(--accent-red);">▶</span>Y.</strong> Get inside, get ready for
-            drills, thrills, and experience the power and effect of what practice can really do.
-          </p>
-          <p><strong>What to practice? When to practice?</strong></p>
-          <p><strong>How much time to practice? Need company to practice?</strong></p>
-          <p>Just enter this room and start practising.</p>
-          <button class="pr-locked-btn" type="button" onclick="window._xCourseId ? openEnrollModal(window._xCourseId) : _practiceRoomTap(this)">
-            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-            Enrol to Unlock
-          </button>
-        </div>
-        <div class="pr-card-visual" id="pr-card-visual">
-          <img class="pr-card-visual-img" id="pr-card-visual-img" src="" alt="" style="display:none;">
-          <div class="pr-card-visual-inner">
+    <div class="play-intro pr-intro-layout reveal">
+      <div class="play-intro-text">
+        <div class="pr-ribbon-inline">Special Feature</div>
+        <h3 class="pr-card-title">The Practice <span class="title-red">Room</span></h3>
+        <p id="pr-card-intro">
+          <strong style="color:var(--cream);">Prepare to practice in the coolest feature of your training at TFR PL<span class="play-mark" style="color:var(--accent-red);">▶&#xFE0E;</span>Y.</strong> Get inside, get ready for
+          drills, thrills, and experience the power and effect of what practice can really do.
+        </p>
+        <p><strong>What to practice? When to practice?</strong></p>
+        <p><strong>How much time to practice? Need company to practice?</strong></p>
+        <p>Just enter this room and start practising.</p>
+        <button class="pr-locked-btn" type="button" onclick="window._xCourseId ? openEnrollModal(window._xCourseId) : _practiceRoomTap(this)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Enrol to Unlock
+        </button>
+      </div>
+      <div class="gb-wrap play-card-wrap" style="align-self:center;">
+        <div class="play-card pr-card-visual" id="pr-card-visual" style="aspect-ratio:16/9; min-height:0; cursor:default;">
+          <img class="pr-card-visual-img" id="pr-card-visual-img" src="" alt="" style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+          <div class="pr-card-visual-inner" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding:0 24px 24px; z-index:2;">
             <div class="pr-card-play">
               <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             </div>
