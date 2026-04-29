@@ -773,7 +773,7 @@ if (userCount.count === 0) {
   );
 
   const course2 = courseInsert.run(
-    'Djembe & World Percussions',
+    'Djembe and Indian Percussion',
     'djembe-world-percussions',
     'Rhythm as a universal language',
     'Taufiq Qureshi opens the world of rhythm in this extraordinary course blending Djembe, tabla bols, and world percussion traditions. Students learn polyrhythmic patterns, groove construction, and the meditative quality of deep listening. Suitable for complete beginners and practising musicians alike who want to awaken their inner rhythm.',
@@ -871,7 +871,7 @@ if (userCount.count === 0) {
     ]},
   ]);
 
-  // ── Djembe & World Percussions ──
+  // ── Djembe and Indian Percussion ──
   seedFoundations(c2, [
     { desc: 'Taufiq\'s philosophy, percussion families and deep listening practice', lessons: [
       { title: 'Welcome: Why Rhythm Heals', type: 'video', min: 12 },
@@ -1273,7 +1273,7 @@ function defaultCoverForLevel(level) {
         ],
       },
       {
-        title: 'Djembe & World Percussions',
+        title: 'Djembe and Indian Percussion',
         slug: 'djembe-world-percussions',
         subtitle: 'Rhythm as a universal language',
         description: 'Taufiq Qureshi opens the world of rhythm — blending Djembe, tabla bols, and world percussion. Polyrhythms, groove construction and deep listening, for beginners and practising musicians.',
@@ -1532,5 +1532,17 @@ try { db.exec(`ALTER TABLE chapters ADD COLUMN created_at TEXT DEFAULT (datetime
     console.warn('[seed] Saylee Talwalkar insert skipped:', e.message);
   }
 }
+
+// ── Runtime title correction (idempotent) ─────────────────────────────────
+// Ensures the VPS live database always carries the canonical display title
+// regardless of when it was seeded.
+try {
+  db.prepare(`
+    UPDATE courses
+       SET title = 'Djembe and Indian Percussion', updated_at = datetime('now')
+     WHERE slug = 'djembe-world-percussions'
+       AND title != 'Djembe and Indian Percussion'
+  `).run();
+} catch (_) {}
 
 module.exports = db;

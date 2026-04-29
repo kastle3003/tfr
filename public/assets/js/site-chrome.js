@@ -60,7 +60,7 @@
           <p class="footer-col-title">Courses</p>
           <ul class="footer-links">
             <li><span class="footer-link-inactive">Sitara&#8482; — Niladri Kumaar's Signature Sitar Program</span></li>
-            <li><a href="/experience/djembe-world-percussions">Djembe and Indian Percussions — Taufiq Qureshi</a></li>
+            <li><a href="/experience/djembe-world-percussions">Djembe and Indian Percussion — Taufiq Qureshi</a></li>
             <li><span class="footer-link-inactive">Vocals — Saylee Talwalkar</span></li>
             <li><span class="footer-link-inactive">Kathak — Guruma Sangita Sinha</span></li>
             <li><span class="footer-link-inactive">All Courses</span></li>
