@@ -1660,26 +1660,27 @@ function selectLesson(chId, lessonId) {
   _loadLessonIntoPlayer(lesson, /*autoplay*/ true);
 }
 
-function _loadLessonIntoPlayer(lesson, autoplay) {
+async function _loadLessonIntoPlayer(lesson, autoplay) {
   const slot    = document.getElementById('video-slot');
   const ctrlBar = document.getElementById('video-ctrl-bar');
   const titleEl = document.getElementById('video-title');
-  const vid = (lesson.materials || []).find(m => m.type === 'video' && m.url);
+  const vid = (lesson.materials || []).find(m => m.type === 'video' && (m.url || m.secure_stream));
   if (!vid) { _showLockedPlayer(lesson.title); return; }
 
   slot.classList.remove('playing');
   if (ctrlBar) ctrlBar.innerHTML = '';
-
-  const url = vid.url;
-  const isIframeHost = /youtube\.com|youtu\.be|vimeo\.com/i.test(url);
 
   const PLAY_ICON  = '<svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/></svg>';
   const PAUSE_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
   const VOL_ICON   = `<svg class="vol-hi" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
     <svg class="vol-mute" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
 
+  const rawUrl = vid.url || '';
+  const isIframeHost = /youtube\.com|youtu\.be|vimeo\.com/i.test(rawUrl);
+  const isWasabi = vid.secure_stream || rawUrl.startsWith('/api/files/');
+
   if (isIframeHost) {
-    const embed = _toEmbed(url);
+    const embed = _toEmbed(rawUrl);
     const sep   = embed.includes('?') ? '&' : '?';
     slot.innerHTML = `<iframe src="${embed}${sep}enablejsapi=1${autoplay ? '&autoplay=1' : ''}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
 
@@ -1706,8 +1707,23 @@ function _loadLessonIntoPlayer(lesson, autoplay) {
       });
     }
   } else {
+    // For Wasabi-hosted videos, fetch a short-lived signed stream URL first.
+    let videoSrc = rawUrl;
+    if (isWasabi && isLoggedIn()) {
+      slot.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--cream-dim);font-size:13px;">Loading video…</div>`;
+      try {
+        const tok = await fetch(`/api/video/${vid.id}/token`, {
+          headers: { Authorization: 'Bearer ' + getToken() }
+        });
+        if (tok.ok) {
+          const { stream_url } = await tok.json();
+          if (stream_url) videoSrc = stream_url;
+        }
+      } catch (_) {}
+    }
+
     slot.innerHTML = `
-      <video preload="auto" playsinline oncontextmenu="return false;" src="${url}"></video>
+      <video preload="auto" playsinline oncontextmenu="return false;" src="${videoSrc}"></video>
       <div class="video-overlay">
         <button class="video-play-btn" type="button" aria-label="Play">${_playIconSvg()}</button>
       </div>
@@ -1770,7 +1786,7 @@ function _loadLessonIntoPlayer(lesson, autoplay) {
       });
     }
 
-    // Block only deliberate large seeks (keyboard shortcuts); allow buffering
+    // Block only deliberate large seeks; allow buffering
     let _lastT = 0;
     v.addEventListener('timeupdate', () => { _lastT = v.currentTime; });
     v.addEventListener('seeking', () => {
