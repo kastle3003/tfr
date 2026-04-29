@@ -1489,10 +1489,9 @@
       document.getElementById('hero-sub').textContent = overrides?.heroSub || course.subtitle || 'Begin your journey';
       document.getElementById('hero-sub-note').textContent = 'Mentor-led course';
       const courseId = course.id;
-      const courseVideoUrl = '/student-course-detail.html?id=' + courseId;
       window._xCourseId = courseId;
       const trainBtn = document.getElementById('train-btn-top');
-      trainBtn.setAttribute('href', courseVideoUrl);
+      trainBtn.setAttribute('href', '/courses/' + encodeURIComponent(course.slug || slug));
       trainBtn.style.cursor = 'pointer';
 
       // Sizes an iframe inside a .yt-embed-wrap to cover-fill (no black bars).
