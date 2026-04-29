@@ -573,6 +573,11 @@
     .lesson-drag-handle { padding: 0 4px; color: var(--text-3); cursor: grab; flex-shrink: 0; opacity: 0.4; transition: opacity 0.15s; display: flex; align-items: center; }
     .lesson-drag-handle:hover { opacity: 1; }
     .lesson-drag-handle:active { cursor: grabbing; }
+    .lesson-order-btns { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
+    .lesson-order-btn { width: 18px; height: 14px; background: none; border: 1px solid rgba(200,168,75,0.2); border-radius: 3px; color: var(--text-3); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 9px; line-height: 1; transition: background .12s, color .12s; }
+    .lesson-order-btn:hover { background: rgba(200,168,75,0.12); color: var(--gold); border-color: var(--gold); }
+    .lesson-order-btn:disabled { opacity: 0.2; cursor: default; }
+    .lesson-ts { font-size: 10px; color: var(--text-3); white-space: nowrap; flex-shrink: 0; opacity: 0.6; }
     .chapter-wrap.drag-over > .chapter-header { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(200,168,75,0.35); }
     .lesson-row.drag-over-lesson { border-top: 2px solid var(--gold); }
     .chapter-toggle-btn {
@@ -1825,14 +1830,20 @@
   }
 
   function renderLessonRow(l) {
+    const ts = l.created_at ? l.created_at.slice(0, 16).replace('T', ' ') : '';
     return `
       <div class="lesson-row" id="les-${l.id}" draggable="true" data-lesson-id="${l.id}" data-chapter-id="${l.chapter_id}">
         <span class="lesson-drag-handle" title="Drag to reorder">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1.2" fill="currentColor"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="19" r="1.2" fill="currentColor"/><circle cx="15" cy="5" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="19" r="1.2" fill="currentColor"/></svg>
         </span>
+        <span class="lesson-order-btns">
+          <button class="lesson-order-btn" title="Move up" onclick="moveLessonUp(${l.id})">▲</button>
+          <button class="lesson-order-btn" title="Move down" onclick="moveLessonDown(${l.id})">▼</button>
+        </span>
         <span class="lesson-type-icon">${typeIcon(l.type)}</span>
         <input class="lesson-title-input" value="${escHtml(l.title)}" id="les-title-${l.id}"
           onblur="updateLesson(${l.id}, ${l.chapter_id})" onkeydown="if(event.key==='Enter')this.blur()">
+        ${ts ? `<span class="lesson-ts" title="Created">${ts}</span>` : ''}
         <select class="lesson-type-select" id="les-type-${l.id}" onchange="updateLesson(${l.id}, ${l.chapter_id})">
           <option value="video" ${l.type==='video'?'selected':''}>Video</option>
           <option value="reading" ${l.type==='reading'?'selected':''}>Reading</option>
@@ -2250,6 +2261,36 @@
     // Keep chaptersData.lessons sorted so renderChapters() preserves this order
     if (targetCh) targetCh.lessons.sort((a, b) => a.order_index - b.order_index);
     toast('Lesson order saved');
+  }
+
+  function moveLessonUp(lessonId) {
+    const row = document.getElementById('les-' + lessonId);
+    const mat = document.getElementById('les-mat-panel-' + lessonId);
+    const list = row.parentElement;
+    const allRows = [...list.querySelectorAll('.lesson-row')];
+    const idx = allRows.indexOf(row);
+    if (idx <= 0) return;
+    const prevRow = allRows[idx - 1];
+    const prevMat = document.getElementById('les-mat-panel-' + prevRow.dataset.lessonId);
+    list.insertBefore(row, prevRow);
+    if (mat && prevMat) list.insertBefore(mat, prevMat);
+    else if (mat) list.insertBefore(mat, prevRow);
+    saveLessonOrder(list);
+  }
+
+  function moveLessonDown(lessonId) {
+    const row = document.getElementById('les-' + lessonId);
+    const mat = document.getElementById('les-mat-panel-' + lessonId);
+    const list = row.parentElement;
+    const allRows = [...list.querySelectorAll('.lesson-row')];
+    const idx = allRows.indexOf(row);
+    if (idx >= allRows.length - 1) return;
+    const nextRow = allRows[idx + 1];
+    const nextMat = document.getElementById('les-mat-panel-' + nextRow.dataset.lessonId);
+    list.insertBefore(nextRow, row);
+    if (nextMat && mat) list.insertBefore(nextMat, mat);
+    else if (nextMat) list.insertBefore(nextMat, row);
+    saveLessonOrder(list);
   }
 
   async function confirmDeleteLesson(id, chapterId) {

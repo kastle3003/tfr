@@ -1395,6 +1395,7 @@ db.defaultCoverForLevel = defaultCoverForLevel;
 try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_url TEXT`); } catch (_) {}
 try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_duration_seconds INTEGER`); } catch (_) {}
 try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_title TEXT`); } catch (_) {}
+try { db.exec(`ALTER TABLE chapters ADD COLUMN created_at TEXT DEFAULT (datetime('now'))`); } catch (_) {}
 
 // ── Dummy bundle + foundation pricing (Razorpay TEST mode only) ──
 // Any course with a zero/null bundle_price_paise and any chapter with a zero

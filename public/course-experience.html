@@ -437,22 +437,44 @@
     transform: translate(-50%, -50%);
     border: none; display: block;
   }
+  /* Play card — YouTube embed, proper 16:9, no blank space */
+  .play-card-wrap.yt-active { min-height: 0; }
   .play-card.yt-card {
-    padding: 0; height: auto;
+    padding: 0; min-height: 0; height: auto;
     display: block; transform: none !important; cursor: default;
   }
-  .play-card.yt-card .yt-embed-wrap { position: relative; height: 0; padding-top: 56.25%; }
-  .play-card.yt-card .yt-embed-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; transform: none; }
+  .play-card.yt-card .yt-embed-wrap { position: relative; height: 0; padding-top: 56.25%; overflow: hidden; }
+  .play-card.yt-card .yt-embed-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; transform: none; border: none; }
   .play-card.yt-card:hover { box-shadow: none; transform: none !important; }
-  /* Remove gradient overlay on practice room card when YouTube is embedded */
+  /* Card tag overlay (Watch Preview / Practice Today) */
+  .yt-card-tag {
+    position: absolute; z-index: 12;
+    bottom: 14px; left: 14px;
+    background: rgba(8,7,6,0.72); backdrop-filter: blur(4px);
+    color: var(--cream); font-size: 10px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    padding: 5px 12px; border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.14);
+    pointer-events: none;
+  }
+  /* Practice room — fill entire visual column */
   .pr-card-visual.yt-card::before { display: none; }
   .pr-card-visual.yt-card {
-    min-height: 320px; height: 100%;
+    position: relative; min-height: 320px; height: 100%;
     border-radius: 0; overflow: hidden;
-    padding: 0; cursor: default;
-    align-self: stretch;
+    padding: 0; cursor: default; align-self: stretch;
   }
-  .pr-card-visual.yt-card .yt-embed-wrap { height: 100%; min-height: 320px; }
+  .pr-card-visual.yt-card .yt-embed-wrap {
+    position: absolute; inset: 0;
+    height: 100%; min-height: 0; overflow: hidden;
+  }
+  .pr-card-visual.yt-card .yt-embed-wrap iframe {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border: none; min-width: 100%; min-height: 100%;
+  }
+  /* Ensure Special Feature ribbon sits above the iframe */
+  .pr-ribbon { z-index: 20; }
 
   /* ─────────── Instructor ─────────── */
   .instructor-block {
@@ -892,21 +914,22 @@
   .pr-ribbon,
   .tier-featured-ribbon {
     position: absolute;
-    width: 148px; padding: 7px 0;
+    width: 180px; padding: 7px 0;
     text-align: center;
+    white-space: nowrap;
     background: linear-gradient(180deg, #ffe680 0%, #d4a818 55%, #b88810 100%);
     color: #1a0e00;
-    font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
     border-radius: 0;
     box-shadow: 0 2px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55);
     pointer-events: none;
     z-index: 6;
   }
-  /* top-left corner: ribbon spans from left edge to top edge */
-  .series-ribbon { top: 24px; left: -40px; transform: rotate(-45deg); transform-origin: center; }
-  .pr-ribbon     { top: 24px; left: -40px; transform: rotate(-45deg); transform-origin: center; }
+  /* top-left corner */
+  .series-ribbon { top: 30px; left: -48px; transform: rotate(-45deg); transform-origin: center; }
+  .pr-ribbon     { top: 30px; left: -48px; transform: rotate(-45deg); transform-origin: center; }
   /* top-right corner */
-  .tier-featured-ribbon { top: 24px; right: -40px; transform: rotate(45deg); transform-origin: center; }
+  .tier-featured-ribbon { top: 30px; right: -48px; transform: rotate(45deg); transform-origin: center; }
   .series-ribbon::before, .series-ribbon::after,
   .pr-ribbon::before, .pr-ribbon::after,
   .tier-featured-ribbon::before, .tier-featured-ribbon::after { content: none; }
@@ -1513,7 +1536,8 @@
       if (overrides?.previewVideo) {
         playCardLink.classList.add('yt-card');
         playCardLink.removeAttribute('href');
-        playCardLink.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.previewVideo}?rel=0&modestbranding=1&autoplay=1&mute=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        playCardLink.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.previewVideo}?rel=0&modestbranding=1&autoplay=1&mute=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><div class="yt-card-tag">Watch Preview</div>`;
+        playCardLink.closest('.play-card-wrap')?.classList.add('yt-active');
       } else {
         playCardLink.setAttribute('href', trainUrl);
         document.getElementById('play-card-label').textContent = 'Watch preview →';
@@ -1527,7 +1551,7 @@
       const prVisual = document.getElementById('pr-card-visual');
       if (overrides?.practiceVideo) {
         prVisual.classList.add('yt-card');
-        prVisual.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.practiceVideo}?rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        prVisual.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.practiceVideo}?rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><div class="yt-card-tag">Practice Today</div>`;
         fitYtCover(prVisual.querySelector('.yt-embed-wrap'));
       }
       const firstName = (course.instructor_name || 'the Maestro').split(' ')[0];

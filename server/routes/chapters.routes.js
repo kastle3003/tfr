@@ -60,9 +60,10 @@ router.post('/', requireRole(['instructor', 'admin']), (req, res) => {
       : (db.prepare('SELECT COALESCE(MAX(order_index),-1)+1 AS n FROM chapters WHERE course_id = ?').get(course_id).n);
 
     const result = db.prepare(
-      'INSERT INTO chapters (course_id, title, order_index, description) VALUES (?, ?, ?, ?)'
+      "INSERT INTO chapters (course_id, title, order_index, description, created_at) VALUES (?, ?, ?, ?, datetime('now'))"
     ).run(course_id, title, nextOrder, description || '');
-    res.status(201).json({ id: result.lastInsertRowid, course_id, title, order_index: nextOrder, description: description || '', lessons: [] });
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    res.status(201).json({ id: result.lastInsertRowid, course_id, title, order_index: nextOrder, description: description || '', created_at: now, lessons: [] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
