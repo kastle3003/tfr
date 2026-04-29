@@ -753,6 +753,25 @@
     cursor: default;
     pointer-events: none;
   }
+  /* Practice Room button — interactive, shows Coming Soon on hover */
+  .tier-pr-btn {
+    opacity: 0.55;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .tier-pr-btn .pr-btn-label { transition: opacity .15s; }
+  .tier-pr-btn::after {
+    content: 'Coming Soon';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity .15s;
+    font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .tier-pr-btn:hover { opacity: 1; border-color: var(--gold); color: transparent; }
+  .tier-pr-btn:hover::after { opacity: 1; }
 
   /* ─────────── Upcoming strip ─────────── */
   .upcoming-strip {
@@ -1184,7 +1203,7 @@
         <h4>Enter The Practice Room with <strong class="mentor-red" id="upcoming-instructor-name">your mentor</strong></h4>
         <p id="upcoming-tagline">Exclusive practice sessions directly with the Maestro.</p>
       </div>
-      <form class="signup-form" onsubmit="return _submitNotify(event)">
+      <form class="signup-form" id="notify-signup" onsubmit="return _submitNotify(event)">
         <input type="email" placeholder="Enter your email id" required>
         <button type="submit">Notify Me</button>
       </form>
@@ -1358,7 +1377,7 @@
               ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + esc(f) + '</li>').join('')}
             </ul>
             <div class="tier-cta-wrap" style="margin-top:auto;display:block;width:100%;">
-              <button class="tier-notify-btn${i === 0 ? ' tier-start-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="window._xCourseId ? openEnrollModal(window._xCourseId) : notifyTier(this, '${esc(t.title)}')">
+              <button class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="${featured ? 'scrollToNotify()' : i === 0 ? `window._xCourseId ? openEnrollModal(window._xCourseId) : void(0)` : ''}">
                 ${t.link ? esc(t.btnText || 'Start Training') : 'Enrol Now'}
               </button>
             </div>
@@ -1366,6 +1385,11 @@
         </div>`;
     }).join('');
     grid.innerHTML = html;
+  }
+
+  function scrollToNotify() {
+    const el = document.getElementById('notify-signup');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   function notifyTier(btn, tierTitle) {
@@ -1483,15 +1507,14 @@
           const W = wrap.offsetWidth, H = wrap.offsetHeight;
           if (!W || !H) return;
           const ratio = 16 / 9;
-          // If container is wider relative to height → fill height, overflow sides
-          // If container is taller relative to width  → fill width, overflow top/bottom
           let iW, iH;
           if (W / H > ratio) { iW = W; iH = W / ratio; }
           else                { iH = H; iW = H * ratio; }
           iframe.style.width  = iW + 'px';
           iframe.style.height = iH + 'px';
         };
-        apply();
+        // Delay until after paint so offsetWidth/Height are real layout values
+        requestAnimationFrame(() => requestAnimationFrame(apply));
         window.addEventListener('resize', apply);
       }
 
