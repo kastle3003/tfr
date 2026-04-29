@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const storage = require('../lib/storage');
 
 // ── Blog: public read ─────────────────────────────────────────────────────────
 
@@ -73,7 +74,7 @@ router.get('/courses', (req, res) => {
 });
 
 // GET /api/public/courses/:slugOrId  — single course by slug (preferred) or numeric id
-router.get('/courses/:slugOrId', (req, res) => {
+router.get('/courses/:slugOrId', async (req, res) => {
   try {
     const { slugOrId } = req.params;
     // Try slug first, fall back to numeric id for backward compat
@@ -99,29 +100,56 @@ router.get('/courses/:slugOrId', (req, res) => {
       'SELECT id, chapter_id, title, order_index, type, duration_minutes, duration_seconds, is_preview FROM lessons WHERE course_id = ? ORDER BY order_index'
     ).all(course.id);
 
-    // Attach materials + timestamps only for preview lessons so anonymous
-    // visitors can play the Free Preview video without signing in.
+    // First lesson of the first chapter is always free — include its materials
+    // for anonymous visitors so they can play without signing in.
+    const firstChapter = chapters[0];
+    const firstChapterLessons = firstChapter
+      ? lessons.filter(l => l.chapter_id === firstChapter.id).sort((a, b) => a.order_index - b.order_index)
+      : [];
+    const firstFreeLesson = firstChapterLessons[0] || null;
+    if (firstFreeLesson) firstFreeLesson.is_first_free = true;
+
+    // Collect lesson IDs that get materials: preview lessons + first free lesson
     const previewIds = lessons.filter(l => l.is_preview).map(l => l.id);
+    const freeLessonIds = firstFreeLesson ? [firstFreeLesson.id] : [];
+    const materialLessonIds = [...new Set([...previewIds, ...freeLessonIds])];
+
     let previewMatById = {};
-    if (previewIds.length) {
-      const placeholders = previewIds.map(() => '?').join(',');
+    if (materialLessonIds.length) {
+      const placeholders = materialLessonIds.map(() => '?').join(',');
       const mats = db.prepare(
         `SELECT * FROM lesson_materials WHERE lesson_id IN (${placeholders}) ORDER BY order_index, id`
-      ).all(...previewIds);
+      ).all(...materialLessonIds);
       const ts = db.prepare(`
         SELECT t.* FROM video_timestamps t
         JOIN lesson_materials m ON t.material_id = m.id
         WHERE m.lesson_id IN (${placeholders})
         ORDER BY t.material_id, t.time_seconds
-      `).all(...previewIds);
+      `).all(...materialLessonIds);
       const tsByMat = {};
       ts.forEach(x => { (tsByMat[x.material_id] = tsByMat[x.material_id] || []).push(x); });
+
+      // Generate presigned URLs for Wasabi-hosted free lesson videos so guests
+      // can play them directly without authentication.
+      const presignedCache = {};
+      for (const m of mats) {
+        if (m.type === 'video' && m.url && m.url.startsWith('/api/files/') && storage.wasabiEnabled()) {
+          try {
+            const key = m.url.replace(/^\/api\/files\//, '');
+            presignedCache[m.id] = await storage.presignedUrl(key, 3600); // 1-hour TTL for guests
+          } catch (_) {}
+        }
+      }
+
       mats.forEach(m => {
-        (previewMatById[m.lesson_id] = previewMatById[m.lesson_id] || [])
-          .push({ ...m, timestamps: tsByMat[m.id] || [] });
+        const mat = { ...m, timestamps: tsByMat[m.id] || [] };
+        if (presignedCache[m.id]) mat.url = presignedCache[m.id];
+        (previewMatById[m.lesson_id] = previewMatById[m.lesson_id] || []).push(mat);
       });
     }
-    lessons.forEach(l => { l.materials = l.is_preview ? (previewMatById[l.id] || []) : []; });
+    lessons.forEach(l => {
+      l.materials = materialLessonIds.includes(l.id) ? (previewMatById[l.id] || []) : [];
+    });
 
     const chaptersWithLessons = chapters.map(ch => ({
       ...ch,

@@ -1164,7 +1164,7 @@ async function renderPage(data) {
           </div>
           ${!isLoggedIn() ? `<div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cream-dim);background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.15);border-radius:4px;padding:8px 12px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold);flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-            <span><a href="/signin.html" style="color:var(--gold);text-decoration:none;font-weight:500;">Sign in</a> to watch free preview lessons — all foundations are locked until you log in.</span>
+            <span>First lesson is free — no sign in needed. <a href="/signin.html" style="color:var(--gold);text-decoration:none;font-weight:500;">Sign in</a> to unlock all other lessons after purchase.</span>
           </div>` : ''}
           <h2 class="section-heading">${course.slug === 'djembe-world-percussions' ? 'Course <em>topics</em>' : 'Course <em>structure</em>'}</h2>
           <div class="curriculum-summary">
@@ -1528,8 +1528,18 @@ function _chapterAccessible(chId) {
   return false;
 }
 
+function _isFirstFreeLesson(chId, lessonId) {
+  const chapters = _landingData.chapters || [];
+  if (!chapters.length) return false;
+  const firstCh = chapters[0];
+  if (String(firstCh.id) !== String(chId)) return false;
+  const lessons = (firstCh.lessons || []).filter(l =>
+    (l.materials || []).some(m => m.type === 'video' && m.url)
+  );
+  return lessons.length > 0 && lessons[0].id === lessonId;
+}
+
 function _findFirstPlayable(chId) {
-  if (!isLoggedIn()) return null;
   const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
   if (!ch) return null;
   const hasAccess = _chapterAccessible(ch.id);
@@ -1537,7 +1547,8 @@ function _findFirstPlayable(chId) {
     (l.materials || []).some(m => m.type === 'video' && m.url)
   );
   if (!videoLessons.length) return null;
-  if (!hasAccess) return videoLessons[0]; // free preview: always first
+  // First video of Foundation A is free for everyone — guests included
+  if (!hasAccess) return _isFirstFreeLesson(chId, videoLessons[0].id) ? videoLessons[0] : null;
   // Find first uncompleted lesson that is sequentially unlocked
   for (let i = 0; i < videoLessons.length; i++) {
     const unlocked = i === 0 || _completedLessons.has(videoLessons[i - 1].id);
@@ -1577,17 +1588,14 @@ function renderLessonList(chId) {
 
     const isCompleted = _completedLessons.has(l.id);
     const unlocked = hasAccess && seqUnlocked(l.id);
-    const canPlay = (unlocked || isCompleted) || (isFreeSlot && isLoggedIn() && !hasAccess);
-    const isGuestPreview = isFreeSlot && !isLoggedIn();
+    const isGuestFree = isFreeSlot && !isLoggedIn() && _isFirstFreeLesson(ch.id, l.id);
+    const canPlay = (unlocked || isCompleted) || (isFreeSlot && isLoggedIn() && !hasAccess) || isGuestFree;
     const isSeqLocked = hasAccess && !!video && !unlocked && !isCompleted;
 
     let click, extraClass;
     if (canPlay) {
       click = `onclick="selectLesson('${ch.id}', ${l.id})"`;
       extraClass = isCompleted ? ' completed' : '';
-    } else if (isGuestPreview) {
-      click = `onclick="window.location.href='/signin.html'"`;
-      extraClass = ' guest-preview';
     } else if (!hasAccess && isLoggedIn()) {
       click = `onclick="openEnrollModal(${_landingData.course.id})"`;
       extraClass = ' locked';
