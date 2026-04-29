@@ -88,21 +88,21 @@ app.use('/api/public', require('./routes/public.routes'));
 
 // ── Notify-interest (course waitlist signup from landing pages) ──
 app.post('/api/notify-interest', async (req, res) => {
-  const { email, course, tier } = req.body || {};
+  const { email, course, tier, phone, type } = req.body || {};
   if (!email || !email.includes('@')) return res.status(400).json({ error: 'Invalid email' });
   try {
     const dataDir = path.join(__dirname, '../data');
     if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
     const file = path.join(dataDir, 'notify-interest.json');
     const existing = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : [];
-    existing.push({ email, course: course || 'unknown', tier: tier || null, at: new Date().toISOString() });
+    existing.push({ email, phone: phone || null, course: course || 'unknown', tier: tier || null, type: type || 'waitlist', at: new Date().toISOString() });
     fs.writeFileSync(file, JSON.stringify(existing, null, 2));
     // Push to Google Sheet
     const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyvYH7s7qsQFSh7qF40XIOkabj0Pz4G4cceZ9zIgfeOLfShwsegwSFFwbzh3ghS7LQd/exec';
     fetch(SHEET_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, course: course || 'unknown', tier: tier || '', timestamp: new Date().toISOString() })
+      body: JSON.stringify({ email, phone: phone || '', course: course || 'unknown', tier: tier || '', type: type || 'waitlist', timestamp: new Date().toISOString() })
     }).catch(e => console.warn('[sheet] Google Sheet push failed:', e?.message));
 
     // Try to send admin notification email
@@ -111,8 +111,8 @@ app.post('/api/notify-interest', async (req, res) => {
       const adminEmail = process.env.ADMIN_EMAIL || 'developers@techinfinity.io';
       await mailer.send({
         to: adminEmail,
-        subject: `TFR Interest: ${course || 'unknown'}${tier ? ' — ' + tier : ''}`,
-        html: `<p><strong>${email}</strong> signed up for notifications about <strong>${course || 'a course'}</strong>${tier ? `, tier: <em>${tier}</em>` : ''}.</p><p>Time: ${new Date().toLocaleString()}</p>`
+        subject: `TFR ${type === 'lead' ? 'Lead' : 'Interest'}: ${course || 'unknown'}${tier ? ' — ' + tier : ''}`,
+        html: `<p><strong>${email}</strong>${phone ? ` / ${phone}` : ''} — <strong>${type === 'lead' ? 'Lead' : 'Waitlist'}</strong> for <strong>${course || 'a course'}</strong>${tier ? `, tier: <em>${tier}</em>` : ''}.</p><p>Time: ${new Date().toLocaleString()}</p>`
       });
     } catch (_) { /* mailer optional */ }
     res.json({ ok: true });

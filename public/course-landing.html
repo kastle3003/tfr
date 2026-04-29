@@ -979,6 +979,40 @@ async function checkPurchaseAccess(courseId) {
 // Enroll/Buy modal logic lives in /assets/js/enroll-modal.js (loaded via <script>).
 // It exposes window.openEnrollModal(courseId) and window.handleEnroll as an alias.
 
+// ─── Lead capture modal ──────────────────────────────────────────────────────
+function openLeadModal() {
+  const m = document.getElementById('lead-modal');
+  m.style.display = 'flex';
+  document.getElementById('lead-modal-form').style.display = 'block';
+  document.getElementById('lead-modal-thanks').style.display = 'none';
+  document.body.style.overflow = 'hidden';
+}
+function closeLeadModal() {
+  document.getElementById('lead-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function submitLeadModal(e) {
+  e.preventDefault();
+  const form = e.target;
+  const email = form.querySelector('[name=email]').value.trim();
+  const phone = form.querySelector('[name=phone]').value.trim();
+  const btn = form.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    await fetch('/api/notify-interest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, phone, course: 'Practise Room — Djembe', type: 'lead' })
+    });
+    document.getElementById('lead-modal-form').style.display = 'none';
+    document.getElementById('lead-modal-thanks').style.display = 'block';
+    setTimeout(closeLeadModal, 2800);
+  } catch (_) {
+    btn.disabled = false; btn.textContent = 'Notify Me';
+  }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLeadModal(); });
+
 function _selectTier(el) {
   document.querySelectorAll('.enroll-tier, .enroll-bundle').forEach(t => t.classList.remove('selected'));
   el.classList.add('selected');
@@ -1108,7 +1142,7 @@ async function renderPage(data) {
   const enrollBtnLabel = enrolled ? 'Start Learning →' : 'Enroll Now';
   const enrollBtnAction = enrolled
     ? `document.getElementById('foundation-tabs')?.scrollIntoView({behavior:'smooth',block:'start'})`
-    : `openEnrollModal(${course.id})`;
+    : `openLeadModal()`;
 
   const enrollSuccessHTML = enrolled ? `
     <div class="enroll-success" style="display:flex">
@@ -2171,6 +2205,38 @@ function _practiceRoomTap(btn) {
   setTimeout(updateFab, 1200);
 })();
 
+</script>
+
+<!-- LEAD CAPTURE MODAL -->
+<div id="lead-modal" style="display:none;position:fixed;inset:0;z-index:2000;align-items:center;justify-content:center;background:rgba(0,0,0,0.72);backdrop-filter:blur(6px);">
+  <div style="background:linear-gradient(160deg,#1C1508 0%,#121008 100%);border:1px solid rgba(200,168,75,0.35);border-top:3px solid #C8A84B;border-radius:8px;padding:36px 32px 28px;max-width:440px;width:90%;position:relative;">
+    <button onclick="closeLeadModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(240,230,211,0.5);font-size:20px;cursor:pointer;line-height:1;">&#x2715;</button>
+    <p style="font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#C8A84B;margin-bottom:10px;opacity:.8;">Enrol &amp; Start Training</p>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:#F0E6D3;margin-bottom:6px;">Reserve Your Spot</h2>
+    <p style="font-size:13px;color:rgba(240,230,211,0.6);margin-bottom:24px;">Leave your details and our team will reach out to get you started.</p>
+    <div id="lead-modal-form">
+      <form onsubmit="submitLeadModal(event)" style="display:flex;flex-direction:column;gap:14px;">
+        <input name="email" type="email" required placeholder="Email address"
+          style="background:rgba(255,255,255,0.05);border:1px solid rgba(200,168,75,0.25);border-radius:4px;padding:12px 14px;color:#F0E6D3;font-size:14px;font-family:inherit;outline:none;width:100%;box-sizing:border-box;">
+        <input name="phone" type="tel" placeholder="Phone number (optional)"
+          style="background:rgba(255,255,255,0.05);border:1px solid rgba(200,168,75,0.25);border-radius:4px;padding:12px 14px;color:#F0E6D3;font-size:14px;font-family:inherit;outline:none;width:100%;box-sizing:border-box;">
+        <button type="submit"
+          style="width:100%;padding:16px;background:#C8A84B;color:#0F0D0B;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:none;border-radius:4px;cursor:pointer;transition:background .2s;">
+          Notify Me
+        </button>
+      </form>
+    </div>
+    <div id="lead-modal-thanks" style="display:none;text-align:center;padding:16px 0;">
+      <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:#C8A84B;fill:none;stroke-width:2;margin-bottom:12px;"><polyline points="20 6 9 17 4 12"/></svg>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:20px;color:#F0E6D3;font-weight:600;">We'll be in touch!</p>
+      <p style="font-size:13px;color:rgba(240,230,211,0.6);margin-top:6px;">Our team will reach out to you shortly.</p>
+    </div>
+  </div>
+</div>
+<script>
+  document.getElementById('lead-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('lead-modal')) closeLeadModal();
+  });
 </script>
 </body>
 </html>
