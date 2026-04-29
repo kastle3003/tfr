@@ -155,6 +155,8 @@ router.post('/', async (req, res) => {
 
     // A zero-price purchase is auto-completed (full coupon discount, free bundle, etc.)
     if (finalAmount === 0) {
+      db.prepare("UPDATE purchases SET status = 'completed', updated_at = datetime('now') WHERE id = ?")
+        .run(ins.lastInsertRowid);
       finalizePurchase(ins.lastInsertRowid);
     }
 
@@ -194,8 +196,9 @@ router.post('/verify', (req, res) => {
     if (!purchase) return res.status(404).json({ error: 'Purchase not found' });
     if (purchase.status === 'completed') return res.json({ message: 'Already completed', purchase_id: purchase.id });
 
-    // Real verification (only when secret is configured)
-    if (process.env.RAZORPAY_KEY_SECRET && razorpay_payment_id && razorpay_signature) {
+    // Real verification (only when secret is configured and this is not a mock order)
+    const isMock = razorpay_order_id.startsWith('order_mock_');
+    if (!isMock && process.env.RAZORPAY_KEY_SECRET && razorpay_payment_id && razorpay_signature) {
       const expected = crypto
         .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
         .update(`${razorpay_order_id}|${razorpay_payment_id}`)

@@ -1574,7 +1574,7 @@ function _isFirstFreeLesson(chId, lessonId) {
   const firstCh = chapters[0];
   if (String(firstCh.id) !== String(chId)) return false;
   const lessons = (firstCh.lessons || []).filter(l =>
-    (l.materials || []).some(m => m.type === 'video' && m.url)
+    (l.materials || []).some(m => m.type === 'video' && (m.url || m.secure_stream))
   );
   return lessons.length > 0 && lessons[0].id === lessonId;
 }
@@ -1584,7 +1584,7 @@ function _findFirstPlayable(chId) {
   if (!ch) return null;
   const hasAccess = _chapterAccessible(ch.id);
   const videoLessons = (ch.lessons || []).filter(l =>
-    (l.materials || []).some(m => m.type === 'video' && m.url)
+    (l.materials || []).some(m => m.type === 'video' && (m.url || m.secure_stream))
   );
   if (!videoLessons.length) return null;
   // First video of Foundation A is free for everyone — guests included
@@ -1607,7 +1607,7 @@ function renderLessonList(chId) {
   let firstVideoMarked = false;
 
   list.innerHTML = (ch.lessons || []).map((l, i) => {
-    const video = (l.materials || []).find(m => m.type === 'video' && m.url);
+    const video = (l.materials || []).find(m => m.type === 'video' && (m.url || m.secure_stream));
     const isFreeSlot = video && !firstVideoMarked;
     if (video) firstVideoMarked = true;
 
