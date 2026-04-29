@@ -139,10 +139,11 @@ function canAccessLecture(user, lessonId) {
     return { allowed: true, reason: 'first_lesson_free' };
   }
 
-  // Must own the foundation, the course bundle, or be enrolled (admin-granted access).
+  // Own the foundation or bundle → all lessons inside unlock immediately, no sequential gate.
   if (hasFoundationAccess(user.id, lesson.chapter_id)) {
     return { allowed: true, reason: 'owned' };
   }
+  // Admin-granted enrollment also unlocks all lessons immediately.
   if (isEnrolled(user.id, lesson.course_id)) {
     return { allowed: true, reason: 'enrolled' };
   }
