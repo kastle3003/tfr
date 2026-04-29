@@ -304,9 +304,9 @@
           const ytId = extractYtId(m.url);
           player = `<iframe src="https://www.youtube.com/embed/${ytId}" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
         } else if (m.secure_stream) {
-          player = `<video id="vid-${m.id}" controls preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;background:#000;"></video>`;
+          player = `<video id="vid-${m.id}" controls controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;background:#000;"></video>`;
         } else if (m.url) {
-          player = `<video id="vid-${m.id}" src="${m.url}" controls preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;background:#000;"></video>`;
+          player = `<video id="vid-${m.id}" src="${m.url}" controls controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;background:#000;"></video>`;
         } else {
           player = `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:13px;">Video unavailable</div>`;
         }
@@ -322,7 +322,11 @@
             </div>
           </div>` : '';
         return `<div>
-          <div style="position:relative; aspect-ratio:16/9; background:#000;" id="vwrap-${m.id}">${player}</div>
+          <div style="position:relative; aspect-ratio:16/9; background:#000;" id="vwrap-${m.id}">
+            ${player}
+            <canvas id="wm-${m.id}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;" aria-hidden="true"></canvas>
+            <div id="overlay-${m.id}" style="position:absolute;inset:0;z-index:4;" oncontextmenu="return false;"></div>
+          </div>
           ${tsBar}
         </div>`;
       }
@@ -331,14 +335,92 @@
       return '';
     }).join('');
 
-    // For Wasabi-hosted videos, fetch a short-lived stream token and set the video src
+    // Draw a repeating diagonal watermark on the canvas overlay for a given material
+    function drawWatermark(materialId) {
+      const canvas = panel.querySelector('#wm-' + materialId);
+      if (!canvas) return;
+      const wrap = panel.querySelector('#vwrap-' + materialId);
+      if (!wrap) return;
+      canvas.width  = wrap.offsetWidth  || 640;
+      canvas.height = wrap.offsetHeight || 360;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const u = (() => { try { return JSON.parse(localStorage.getItem('archive_user') || 'null'); } catch { return null; } })();
+      const label = (u && u.email) ? u.email : 'tfrplay.com';
+
+      ctx.save();
+      ctx.font = 'bold 13px DM Sans, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.09)';
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(-Math.PI / 6);
+      const stepX = 220, stepY = 90;
+      const cols = Math.ceil(canvas.width  / stepX) + 2;
+      const rows = Math.ceil(canvas.height / stepY) + 2;
+      for (let r = -rows; r <= rows; r++) {
+        for (let c = -cols; c <= cols; c++) {
+          ctx.fillText(label, c * stepX, r * stepY);
+        }
+      }
+      ctx.restore();
+    }
+
+    // Decode JWT exp without verifying signature (client-side only for timing)
+    function jwtExp(token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+        return payload.exp || 0;
+      } catch { return 0; }
+    }
+
+    // For Wasabi-hosted videos, fetch a short-lived stream token and set the video src.
+    // Auto-refreshes the token 2 minutes before expiry so long lessons never cut out.
     mats.forEach(m => {
       if (m.type !== 'video' || !m.secure_stream) return;
       const vid = panel.querySelector('#vid-' + m.id);
       if (!vid) return;
-      api.get('/api/video/' + m.id + '/token').then(data => {
-        if (data.stream_url) vid.src = data.stream_url;
-      }).catch(() => {});
+
+      let _refreshTimer = null;
+
+      function loadToken() {
+        api.get('/api/video/' + m.id + '/token').then(data => {
+          if (!data.stream_url) return;
+
+          // Extract the bare JWT from the stream URL path
+          const token = data.stream_url.split('/').pop();
+          const exp = jwtExp(token);
+          const msUntilRefresh = (exp - Math.floor(Date.now() / 1000) - 120) * 1000;
+
+          const wasPlaying = !vid.paused;
+          const currentTime = vid.currentTime;
+
+          vid.src = data.stream_url;
+          // Restore playback position after src swap (only if already playing)
+          if (currentTime > 0) {
+            vid.addEventListener('loadedmetadata', () => {
+              vid.currentTime = currentTime;
+              if (wasPlaying) vid.play().catch(() => {});
+            }, { once: true });
+          } else {
+            vid.addEventListener('loadedmetadata', () => drawWatermark(m.id), { once: true });
+            drawWatermark(m.id);
+          }
+
+          // Schedule silent refresh before token expires
+          clearTimeout(_refreshTimer);
+          if (msUntilRefresh > 0) {
+            _refreshTimer = setTimeout(loadToken, msUntilRefresh);
+          }
+        }).catch(() => {});
+      }
+
+      loadToken();
+    });
+
+    // Also watermark non-secure (direct-src) videos
+    mats.forEach(m => {
+      if (m.type !== 'video' || m.secure_stream || !m.url || /youtube\.com|youtu\.be/i.test(m.url)) return;
+      drawWatermark(m.id);
     });
 
     // When any video in this lesson ends: auto-mark complete, then show purchase gate
