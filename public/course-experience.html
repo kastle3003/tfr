@@ -1276,7 +1276,7 @@
       await fetch('/api/notify-interest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, course: slug })
+        body: JSON.stringify({ email, course: (COURSE_ASSETS[slug]?.sheetLabel || slug) })
       });
     } catch (_) {}
     btn.textContent = 'Notified!';
@@ -1468,6 +1468,7 @@
       heroTitle:      'DJEMBE WITH TAUFIQ QURESHI',
       heroSub:        'One of the most comprehensive Indian rhythm, grooves and percussion courses',
       tiers:          DJEMBE_TIERS,
+      sheetLabel:     'Practise Room — Djembe',
     },
   };
 

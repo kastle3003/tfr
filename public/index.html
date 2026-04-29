@@ -714,13 +714,18 @@
     @media (max-width: 768px) {
       .disc-section-wrap { padding: 60px 16px; }
       .disc-row {
-        grid-template-columns: 1fr 110px;
+        grid-template-columns: 1fr 120px;
         height: auto; min-height: 0;
       }
       .disc-row-right {
         display: block;
         height: 100%;
-        min-height: 130px;
+        min-height: 140px;
+      }
+      /* Remove desktop left-fade gradient — wrong direction for thumbnail */
+      .disc-row-right::before { display: none; }
+      .disc-row-right img {
+        object-position: center 20%;
       }
       .disc-row-left {
         padding: 18px 16px;
