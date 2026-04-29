@@ -1409,7 +1409,7 @@
               ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + esc(f) + '</li>').join('')}
             </ul>
             <div class="tier-cta-wrap" style="margin-top:auto;display:block;width:100%;">
-              <button class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="${featured ? 'scrollToNotify()' : i === 0 ? `window.location.href='/courses/'+encodeURIComponent(getSlug())` : ''}">
+              <button type="button" class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="${featured ? 'scrollToNotify()' : i === 0 ? `window.location.href='/courses/'+encodeURIComponent(getSlug())` : 'scrollToNotify()'}">
                 ${t.link ? esc(t.btnText || 'Start Training') : 'Enrol Now'}
               </button>
             </div>
@@ -1549,7 +1549,7 @@
       if (overrides?.previewVideo) {
         playCardLink.classList.add('yt-card');
         playCardLink.removeAttribute('href');
-        playCardLink.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.previewVideo}?rel=0&modestbranding=1&autoplay=1&mute=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><div class="yt-card-tag">Watch Preview</div>`;
+        playCardLink.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.previewVideo}?rel=0&modestbranding=1&autoplay=1&mute=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
         playCardLink.closest('.play-card-wrap')?.classList.add('yt-active');
       } else {
         playCardLink.setAttribute('href', trainUrl);
