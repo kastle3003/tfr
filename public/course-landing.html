@@ -140,17 +140,29 @@
       border-top: 3px solid var(--gold);
       border-radius: 6px;
       box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(200,168,75,0.08), inset 0 1px 0 rgba(200,168,75,0.06);
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .enroll-card-scroll {
+      flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      flex: 1;
       scrollbar-width: thin;
       scrollbar-color: rgba(200,168,75,.2) transparent;
     }
-    .enroll-card::-webkit-scrollbar { width: 4px; }
-    .enroll-card::-webkit-scrollbar-thumb { background: rgba(200,168,75,.2); border-radius: 4px; }
+    .enroll-card-scroll::-webkit-scrollbar { width: 4px; }
+    .enroll-card-scroll::-webkit-scrollbar-thumb { background: rgba(200,168,75,.2); border-radius: 4px; }
     .enroll-card-inner {
-      padding: 28px 24px 24px;
+      padding: 28px 24px 16px;
       display: flex; flex-direction: column; align-items: stretch;
+    }
+    .enroll-card-footer {
+      padding: 16px 24px 20px;
+      border-top: 1px solid rgba(200,168,75,0.12);
+      background: linear-gradient(160deg, #1C1508 0%, #121008 100%);
+      flex-shrink: 0;
     }
     .enroll-card-label {
       font-size: 10px; font-weight: 600; letter-spacing: .22em;
@@ -1237,86 +1249,94 @@ async function renderPage(data) {
       <!-- ENROLL SIDEBAR -->
       <aside class="enroll-sidebar">
         <div class="enroll-card">
-          <div class="enroll-card-inner">
-            ${enrolled ? `
-              <p class="enroll-card-label">Your Access</p>
-              <div class="enroll-card-enrolled">
-                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                You're enrolled
+          ${enrolled ? `
+            <div class="enroll-card-scroll">
+              <div class="enroll-card-inner">
+                <p class="enroll-card-label">Your Access</p>
+                <div class="enroll-card-enrolled">
+                  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                  You're enrolled
+                </div>
+                <hr class="enroll-divider">
+                <ul class="enroll-perks">
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${course.lesson_count || totalLessons} on-demand lessons</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${chapters.length} structured chapters</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</li>
+                </ul>
               </div>
+            </div>
+            <div class="enroll-card-footer">
               <button class="btn-enroll-big" onclick="document.getElementById('foundation-tabs')?.scrollIntoView({behavior:'smooth',block:'start'})">Start Learning &rarr;</button>
-              <hr class="enroll-divider">
-              <ul class="enroll-perks">
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${course.lesson_count || totalLessons} on-demand lessons</li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${chapters.length} structured chapters</li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</li>
-              </ul>
-            ` : `
-              <p class="enroll-card-label">Enrol &amp; Start Training</p>
-              <div class="enroll-intro-badge">&#x2728; Introductory Offers</div>
+            </div>
+          ` : `
+            <div class="enroll-card-scroll">
+              <div class="enroll-card-inner">
+                <p class="enroll-card-label">Enrol &amp; Start Training</p>
+                <div class="enroll-intro-badge">&#x2728; Introductory Offers</div>
 
-              <!-- Tier selection -->
-              <div class="enroll-tiers" id="enroll-tiers">
-                <div class="enroll-tier selected" data-price="3999" data-name="Basic Foundation A" onclick="_selectTier(this)">
-                  <div class="enroll-tier-dot"></div>
-                  <div class="enroll-tier-info">
-                    <div class="enroll-tier-name">Basic Foundation A</div>
-                    <div class="enroll-tier-price">&#8377;3,999</div>
+                <!-- Tier selection -->
+                <div class="enroll-tiers" id="enroll-tiers">
+                  <div class="enroll-tier selected" data-price="3999" data-name="Basic Foundation A" onclick="_selectTier(this)">
+                    <div class="enroll-tier-dot"></div>
+                    <div class="enroll-tier-info">
+                      <div class="enroll-tier-name">Basic Foundation A</div>
+                      <div class="enroll-tier-price">&#8377;3,999</div>
+                    </div>
+                  </div>
+                  <div class="enroll-tier" data-price="3999" data-name="Foundation B" onclick="_selectTier(this)">
+                    <div class="enroll-tier-dot"></div>
+                    <div class="enroll-tier-info">
+                      <div class="enroll-tier-name">Foundation B</div>
+                      <div class="enroll-tier-price">&#8377;3,999</div>
+                    </div>
+                  </div>
+                  <div class="enroll-tier" data-price="3999" data-name="Foundation C" onclick="_selectTier(this)">
+                    <div class="enroll-tier-dot"></div>
+                    <div class="enroll-tier-info">
+                      <div class="enroll-tier-name">Foundation C</div>
+                      <div class="enroll-tier-price">&#8377;3,999</div>
+                    </div>
+                  </div>
+                  <div class="enroll-tier" data-price="4999" data-name="Foundation D" onclick="_selectTier(this)">
+                    <div class="enroll-tier-dot"></div>
+                    <div class="enroll-tier-info">
+                      <div class="enroll-tier-name">Foundation D</div>
+                      <div class="enroll-tier-price">&#8377;4,999</div>
+                    </div>
                   </div>
                 </div>
-                <div class="enroll-tier" data-price="3999" data-name="Foundation B" onclick="_selectTier(this)">
-                  <div class="enroll-tier-dot"></div>
-                  <div class="enroll-tier-info">
-                    <div class="enroll-tier-name">Foundation B</div>
-                    <div class="enroll-tier-price">&#8377;3,999</div>
+
+                <!-- Full bundle -->
+                <div class="enroll-bundle" data-price="11999" data-name="Complete Rhythm Journey" onclick="_selectTier(this)">
+                  <div class="enroll-bundle-badge">Best Value</div>
+                  <div class="enroll-bundle-row">
+                    <span class="enroll-bundle-title">Complete Rhythm Journey</span>
+                    <span class="enroll-bundle-price">&#8377;11,999</span>
                   </div>
+                  <div class="enroll-bundle-desc">All courses. One path. Learn it right, from the foundation.</div>
                 </div>
-                <div class="enroll-tier" data-price="3999" data-name="Foundation C" onclick="_selectTier(this)">
-                  <div class="enroll-tier-dot"></div>
-                  <div class="enroll-tier-info">
-                    <div class="enroll-tier-name">Foundation C</div>
-                    <div class="enroll-tier-price">&#8377;3,999</div>
-                  </div>
-                </div>
-                <div class="enroll-tier" data-price="4999" data-name="Foundation D" onclick="_selectTier(this)">
-                  <div class="enroll-tier-dot"></div>
-                  <div class="enroll-tier-info">
-                    <div class="enroll-tier-name">Foundation D</div>
-                    <div class="enroll-tier-price">&#8377;4,999</div>
-                  </div>
-                </div>
+
+                <hr class="enroll-divider">
+
+                <p class="enroll-value-heading">Your First Step into the World of Rhythm</p>
+                <ul class="enroll-perks">
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>4 structured chapters designed for clear progression</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Begin from absolute basics, guided by a Master</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Build a strong foundation step by step</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Bite-sized learning modules for focused, effective learning</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>A musical environment at your access</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Certificate of completion</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Join the Worldwide Rhythm Community</li>
+                </ul>
               </div>
-
-              <!-- Full bundle -->
-              <div class="enroll-bundle" data-price="11999" data-name="Complete Rhythm Journey" onclick="_selectTier(this)">
-                <div class="enroll-bundle-badge">Best Value</div>
-                <div class="enroll-bundle-row">
-                  <span class="enroll-bundle-title">Complete Rhythm Journey</span>
-                  <span class="enroll-bundle-price">&#8377;11,999</span>
-                </div>
-                <div class="enroll-bundle-desc">All courses. One path. Learn it right, from the foundation.</div>
-              </div>
-
-              <hr class="enroll-divider">
-
-              <p class="enroll-value-heading">Your First Step into the World of Rhythm</p>
-              <ul class="enroll-perks">
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>4 structured chapters designed for clear progression</li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Begin from absolute basics, guided by a Master</li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Build a strong foundation step by step</li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Bite-sized learning modules for focused, effective learning</li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>A musical environment at your access</li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Certificate of completion</li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</li>
-                <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Join the Worldwide Rhythm Community</li>
-              </ul>
-
-              <hr class="enroll-divider">
+            </div>
+            <div class="enroll-card-footer">
               <p class="enroll-cta-price" id="enroll-cta-price">Basic Foundation A &mdash; &#8377;3,999</p>
               <button class="btn-enroll-big enroll-trigger" id="enroll-btn-main" onclick="${enrollBtnAction}">Enrol Now</button>
               <p class="enroll-note">Secure payment &middot; Cancel anytime</p>
-            `}
-          </div>
+            </div>
+          `}
         </div>
       </aside>
     </div>
