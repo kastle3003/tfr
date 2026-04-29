@@ -306,6 +306,7 @@
     overflow: hidden;
     padding: 2px;
     border-radius: calc(var(--radius) + 2px);
+    clip-path: inset(0 round calc(var(--radius) + 2px));
   }
   .gb-wrap::before {
     content: '';
@@ -1253,6 +1254,7 @@
 
 <script>
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function escF(s) { return esc(s).replace(/▶/g, '<span class="play-mark">▶</span>'); }
 
   function _practiceRoomTap(btn) {
     btn.classList.add('tapped');
@@ -1392,7 +1394,7 @@
       const palette = TIER_PALETTE[i] || TIER_PALETTE[TIER_PALETTE.length - 1];
       const featured = t.featured || (i === 4);
       const highlights = (t.highlights || []).map(h => {
-        if (typeof h === 'string') return `<li>${esc(h)}</li>`;
+        if (typeof h === 'string') return `<li>${escF(h)}</li>`;
         return `<li class="${h.special ? 'special' : ''}">${esc(h.text || '')}</li>`;
       }).join('');
       return `
@@ -1406,10 +1408,10 @@
             <ul class="tier-list">${highlights}</ul>
             <div class="tier-section-label">Features</div>
             <ul class="tier-list">
-              ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + esc(f) + '</li>').join('')}
+              ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + escF(f) + '</li>').join('')}
             </ul>
             <div class="tier-cta-wrap" style="margin-top:auto;display:block;width:100%;">
-              <button type="button" class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="${featured ? 'scrollToNotify()' : i === 0 ? `window.location.href='/courses/'+encodeURIComponent(getSlug())` : 'scrollToNotify()'}">
+              <button type="button" class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="window._xCourseId ? openEnrollModal(window._xCourseId) : scrollToNotify()">
                 ${t.link ? esc(t.btnText || 'Start Training') : 'Enrol Now'}
               </button>
             </div>
@@ -1564,7 +1566,7 @@
       const prVisual = document.getElementById('pr-card-visual');
       if (overrides?.practiceVideo) {
         prVisual.classList.add('yt-card');
-        prVisual.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.practiceVideo}?rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><div class="yt-card-tag">Practice Today</div>`;
+        prVisual.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.practiceVideo}?rel=0&modestbranding=1&autoplay=1&mute=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><div class="yt-card-tag">Practice Today</div>`;
         fitYtCover(prVisual.querySelector('.yt-embed-wrap'));
       }
       const firstName = (course.instructor_name || 'the Maestro').split(' ')[0];
