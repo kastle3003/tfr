@@ -45,11 +45,11 @@
         <div>
           <p class="footer-col-title">Courses</p>
           <ul class="footer-links">
-            <li><a href="/experience/sitar-the-complete-foundation">Sitara — Niladri Kumar's Signature Sitar Program</a></li>
+            <li><span class="footer-link-inactive">Sitara — Niladri Kumar's Signature Sitar Program</span></li>
             <li><a href="/experience/djembe-world-percussions">Djembe &amp; Indian Percussions — Taufiq Qureshi</a></li>
-            <li><a href="/experience/hindustani-vocals-kirana-gharana">Vocals — Saylee Talwalkar</a></li>
-            <li><a href="/experience/kathak-lucknow-gharana">Kathak — Guruma Sangeeta Sinha</a></li>
-            <li><a href="/#courses">All Courses</a></li>
+            <li><span class="footer-link-inactive">Vocals — Saylee Talwalkar</span></li>
+            <li><span class="footer-link-inactive">Kathak — Guruma Sangeeta Sinha</span></li>
+            <li><span class="footer-link-inactive">All Courses</span></li>
           </ul>
         </div>
 
@@ -57,8 +57,8 @@
           <p class="footer-col-title">Platform</p>
           <ul class="footer-links">
             <li><a href="/">Home</a></li>
-            <li><a href="/login">TFR Play</a></li>
-            <li><a href="/tfr-kids">TFR Kids</a></li>
+            <li><span class="footer-link-inactive">TFR Play</span></li>
+            <li><span class="footer-link-inactive">TFR Kids</span></li>
           </ul>
         </div>
 
@@ -87,9 +87,9 @@
       <div class="footer-bar">
         <p class="footer-copy">&copy; 2026 THE FOUNDATION ROOM. ALL RIGHTS RESERVED. &nbsp;&middot;&nbsp; Designed &amp; Developed by Techinfinity</p>
         <div class="footer-legal">
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/refund-policy">Refund Policy</a>
-          <a href="/terms">Terms</a>
+          <span class="footer-link-inactive">Privacy Policy</span>
+          <span class="footer-link-inactive">Refund Policy</span>
+          <span class="footer-link-inactive">Terms</span>
         </div>
       </div>
     </footer>

@@ -27,9 +27,12 @@ function signToken(user) {
 // POST /api/auth/register
 router.post('/register', (req, res) => {
   try {
-    const { email, password, first_name, last_name, instrument } = req.body;
+    const { email, password, first_name, last_name, instrument, phone } = req.body;
     if (!email || !password || !first_name || !last_name) {
       return res.status(400).json({ error: 'Email, password, first_name, and last_name are required' });
+    }
+    if (!phone || !/^[0-9]{10}$/.test(phone)) {
+      return res.status(400).json({ error: 'A valid 10-digit mobile number is required' });
     }
     // Public self-registration is student-only. Instructor/admin accounts are created
     // via the admin CMS (POST /api/cms/instructors, POST /api/admin/users).
@@ -46,6 +49,8 @@ router.post('/register', (req, res) => {
       INSERT INTO users (email, password_hash, first_name, last_name, role, instrument, avatar_initials, otp_code, otp_expires_at, verified)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
     `).run(email, password_hash, first_name, last_name, role, instrument || null, avatar_initials, otp, otp_expires_at);
+
+    db.prepare('INSERT OR IGNORE INTO user_profile (user_id, phone) VALUES (?, ?)').run(result.lastInsertRowid, phone);
 
     mailer.sendTemplate('otp_verification', email, { first_name, otp })
       .catch(e => console.warn('[auth] OTP send error:', e?.message || e));

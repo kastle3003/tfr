@@ -314,6 +314,20 @@
 }
 .site-footer .footer-legal a:hover { color: var(--sc-fg); }
 
+.site-footer .footer-link-inactive {
+  font-size: 13px;
+  color: var(--sc-fg-2);
+  line-height: 1.4;
+  cursor: default;
+  opacity: 0.5;
+}
+.site-footer .footer-legal .footer-link-inactive {
+  font-size: 12px;
+  color: var(--sc-fg-3);
+  cursor: default;
+  opacity: 0.5;
+}
+
 @media (max-width: 900px) {
   .site-footer { padding: 48px 20px 0; }
   .site-footer .footer-grid {

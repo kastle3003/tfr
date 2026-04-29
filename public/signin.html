@@ -675,6 +675,10 @@
             <input class="form-input" type="email" id="reg-email" placeholder="you@example.com" autocomplete="email" required>
           </div>
           <div class="form-group">
+            <label class="form-label" for="reg-mobile">Mobile Number <span style="color:var(--accent-red,#e24a3f)">*</span></label>
+            <input class="form-input" type="tel" id="reg-mobile" placeholder="10-digit mobile number" autocomplete="tel" maxlength="10" pattern="[0-9]{10}" required>
+          </div>
+          <div class="form-group">
             <label class="form-label" for="reg-password">Password</label>
             <div class="pw-wrap">
               <input class="form-input" type="password" id="reg-password" placeholder="Min. 8 characters" autocomplete="new-password" style="padding-right: 44px;" oninput="strength(this.value)" required>
@@ -1012,12 +1016,19 @@
       hideMessages('register-error');
       setLoading('btn-register', true);
       try {
+        const mobile = document.getElementById('reg-mobile').value.trim();
+        if (!/^[0-9]{10}$/.test(mobile)) {
+          showError('register-error', 'Mobile number must be exactly 10 digits.');
+          setLoading('btn-register', false);
+          return;
+        }
         const data = await apiFetch('/api/auth/register', {
           email:      document.getElementById('reg-email').value,
           password:   document.getElementById('reg-password').value,
           first_name: document.getElementById('reg-first').value,
           last_name:  document.getElementById('reg-last').value,
-          role:       document.getElementById('reg-role').value
+          role:       document.getElementById('reg-role').value,
+          phone:      mobile
         });
         pendingEmail = data.email || document.getElementById('reg-email').value;
         if (data.otp) {

@@ -504,6 +504,10 @@
       toast('First Name and Last Name are required.', 'error');
       return;
     }
+    if (!phone || !/^[0-9]{10}$/.test(phone)) {
+      toast('Mobile number must be exactly 10 digits and cannot be removed.', 'error');
+      return;
+    }
     try {
       const body = {
         first_name: firstName,

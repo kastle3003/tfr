@@ -56,7 +56,16 @@ router.put('/', (req, res) => {
 
     // Update user_profile table
     const profileUpdates = {};
-    if (phone !== undefined) profileUpdates.phone = phone;
+    if (phone !== undefined) {
+      if (!/^[0-9]{10}$/.test(phone)) {
+        return res.status(400).json({ error: 'Mobile number must be exactly 10 digits' });
+      }
+      const existing = db.prepare('SELECT phone FROM user_profile WHERE user_id = ?').get(req.user.id);
+      if (existing?.phone && !phone) {
+        return res.status(400).json({ error: 'Mobile number cannot be removed once set' });
+      }
+      profileUpdates.phone = phone;
+    }
     if (location !== undefined) profileUpdates.location = location;
     if (social_links !== undefined) profileUpdates.social_links = JSON.stringify(social_links);
     if (practice_goal_minutes !== undefined) profileUpdates.practice_goal_minutes = practice_goal_minutes;

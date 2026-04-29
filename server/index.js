@@ -97,6 +97,14 @@ app.post('/api/notify-interest', async (req, res) => {
     const existing = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : [];
     existing.push({ email, course: course || 'unknown', tier: tier || null, at: new Date().toISOString() });
     fs.writeFileSync(file, JSON.stringify(existing, null, 2));
+    // Push to Google Sheet
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyvYH7s7qsQFSh7qF40XIOkabj0Pz4G4cceZ9zIgfeOLfShwsegwSFFwbzh3ghS7LQd/exec';
+    fetch(SHEET_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, course: course || 'unknown', tier: tier || '', timestamp: new Date().toISOString() })
+    }).catch(e => console.warn('[sheet] Google Sheet push failed:', e?.message));
+
     // Try to send admin notification email
     try {
       const mailer = require('./lib/mailer');

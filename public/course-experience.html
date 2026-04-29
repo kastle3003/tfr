@@ -435,6 +435,25 @@
     font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,0.65);
     padding: 6px 16px; background: rgba(8,7,6,0.45); border-radius: 3px;
   }
+  .yt-embed-wrap {
+    position: relative; width: 100%; height: 100%;
+    background: #000; border-radius: inherit; overflow: hidden;
+  }
+  .yt-embed-wrap iframe {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: none; display: block;
+  }
+  .play-card.yt-card {
+    padding: 0; min-height: 300px; height: 300px;
+    display: block; transform: none !important; cursor: default;
+  }
+  .play-card.yt-card:hover { box-shadow: none; transform: none !important; }
+  .pr-card-visual.yt-card {
+    min-height: 300px; height: 300px;
+    border-radius: var(--radius); overflow: hidden;
+    padding: 0; cursor: default;
+  }
 
   /* ─────────── Instructor ─────────── */
   .instructor-block {
@@ -1110,8 +1129,8 @@
         <div class="pr-card-body">
           <h3 class="pr-card-title">The Practice <span class="title-red">Room</span></h3>
           <p id="pr-card-intro">
-            Prepare to practise in the coolest feature of your training at TFR PL<span class="play-mark">▶</span>Y. Get inside, get ready for
-            drills, thrills, and experience the power and effect of what practise can really do.
+            <strong style="color:var(--cream);">Prepare to practice in the coolest feature of your training at TFR PL<span class="play-mark" style="color:var(--accent-red);">▶</span>Y.</strong> Get inside, get ready for
+            drills, thrills, and experience the power and effect of what practice can really do.
           </p>
           <p><strong>What to practise? When to practise?</strong></p>
           <p><strong>How much time to practise? Need company to practise?</strong></p>
@@ -1151,9 +1170,9 @@
       <div class="upcoming-card-features">
         <div class="upcoming-feat-badge">Coming Soon</div>
         <ul class="upcoming-feat-list">
-          <li>Live practice sessions directly with the Maestro</li>
+          <li>Practice sessions directly with the Master</li>
           <li>Exclusive exercises not found in the main course</li>
-          <li>Real-time feedback and guided revision</li>
+          <li>Real feedback</li>
           <li>Session recordings to review and improve at your pace</li>
         </ul>
       </div>
@@ -1376,12 +1395,10 @@
     'djembe-world-percussions': {
       hero:           '/assets/tfr-play/taufiq-hero-wide.png',
       portrait:       '/assets/tfr-play/taufiq-portrait.jpg',
-      previewCard:    '/assets/tfr-play/tfr-play-thumbnail.png',
-      previewBranded: true,
-      previewVideo:   'En8fsz2uQ7kn',
+      previewCard:    'https://img.youtube.com/vi/En8fsz2uQ7k/maxresdefault.jpg',
+      previewVideo:   'En8fsz2uQ7k',
       practiceVideo:  'u8tbx8-KOdM',
-      hidePlayBtn:    true,
-      practice:       '/assets/tfr-play/taufiq-practice.jpg',
+      practice:       'https://img.youtube.com/vi/u8tbx8-KOdM/maxresdefault.jpg',
       upcoming:       '/assets/tfr-play/taufiq-portrait.jpg',
       heroTitle:      'DJEMBE WITH TAUFIQ QURESHI',
       heroSub:        'One of the most comprehensive Indian rhythm, grooves and percussion courses',
@@ -1444,57 +1461,30 @@
       const trainUrl = '/courses/' + encodeURIComponent(course.slug || course.id);
       document.getElementById('train-btn-top').setAttribute('href', trainUrl);
 
-      // Play card — video modal or course link
+      // Play card — embed YouTube iframe directly for djembe
       const playCardLink = document.getElementById('play-card-link');
       if (overrides?.previewVideo) {
+        playCardLink.classList.add('yt-card');
         playCardLink.removeAttribute('href');
-        playCardLink.style.cursor = 'pointer';
-        playCardLink.addEventListener('click', function(e){
-          e.preventDefault();
-          const v = overrides.previewVideo;
-          if (v.startsWith('http')) {
-            window.open(v, '_blank', 'noopener');
-          } else {
-            window.__openVideoModal(v);
-          }
-        });
-        document.getElementById('play-card-label').textContent = 'Watch Preview ▶';
+        playCardLink.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.previewVideo}?rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
       } else {
         playCardLink.setAttribute('href', trainUrl);
         document.getElementById('play-card-label').textContent = 'Watch preview →';
-      }
-
-      // Media
-      const pcImg = document.getElementById('play-card-img');
-      if (overrides?.previewCard) pcImg.style.backgroundImage = 'url("' + overrides.previewCard + '")';
-      else if (course.cover_image_url) pcImg.style.backgroundImage = 'url("' + course.cover_image_url + '")';
-      if (overrides?.previewBranded) {
-        const pcLogo = document.querySelector('.play-card-logo');
-        if (pcLogo) pcLogo.style.display = 'none';
-        pcImg.style.opacity = '1';
-        pcImg.classList.add('play-card-img-branded');
-        const pcPlay = document.querySelector('.play-card .play-card-play');
-        if (pcPlay) pcPlay.style.display = 'none';
       }
 
       const upImg = document.getElementById('upcoming-card-img');
       if (overrides?.upcoming) upImg.style.backgroundImage = 'url("' + overrides.upcoming + '")';
       else if (course.cover_image_url) upImg.style.backgroundImage = 'url("' + course.cover_image_url + '")';
 
+      // Practice room card — embed YouTube iframe directly
       const prVisual = document.getElementById('pr-card-visual');
-      const prVisualImg = document.getElementById('pr-card-visual-img');
-      if (overrides?.practice && prVisualImg) {
-        prVisualImg.src = overrides.practice;
-        prVisualImg.style.display = '';
-      }
       if (overrides?.practiceVideo) {
-        prVisual.style.cursor = 'pointer';
-        prVisual.addEventListener('click', function() {
-          window.__openVideoModal(overrides.practiceVideo);
-        });
+        prVisual.classList.add('yt-card');
+        prVisual.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.practiceVideo}?rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
       }
       const firstName = (course.instructor_name || 'the Maestro').split(' ')[0];
-      document.getElementById('pr-card-visual-sublabel').textContent = 'Get ready to practise with ' + firstName;
+      const sublabel = document.getElementById('pr-card-visual-sublabel');
+      if (sublabel) sublabel.textContent = 'Get ready to practise with ' + firstName;
 
       if (!overrides && course.description) {
         document.getElementById('play-intro-text').textContent = course.description;
