@@ -1146,7 +1146,7 @@ async function renderPage(data) {
   const enrollBtnLabel = enrolled ? 'Start Learning →' : 'Enroll Now';
   const enrollBtnAction = enrolled
     ? `document.getElementById('foundation-tabs')?.scrollIntoView({behavior:'smooth',block:'start'})`
-    : `openLeadModal()`;
+    : `openEnrollModal(${course.id})`;
 
   const enrollSuccessHTML = enrolled ? `
     <div class="enroll-success" style="display:flex">
