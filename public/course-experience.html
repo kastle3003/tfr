@@ -663,7 +663,8 @@
     transition: transform .25s, border-color .25s, box-shadow .25s;
   }
   .tier-card:hover { transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 12px 32px rgba(200,168,75,.15); }
-  .tier-card.featured { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+  .tier-card.featured { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; overflow: visible; }
+  .tier-card.featured .tier-strip { border-top-left-radius: var(--radius); border-top-right-radius: var(--radius); overflow: hidden; }
   .tier-strip {
     height: 12px;
     background: linear-gradient(90deg, var(--tier-start, #5B8DEF), var(--tier-end, #9B51E0));
@@ -733,7 +734,7 @@
     box-shadow: 0 0 14px rgba(200,168,75,0.18), inset 0 0 8px rgba(200,168,75,0.06);
     transform: translateY(-1px);
   }
-  /* Filled gold — Start Training (first tier with a live link) */
+  /* Filled gold — Start Training (first tier only) */
   .tier-start-btn {
     background: linear-gradient(180deg, var(--gold-bright) 0%, #a87224 100%);
     color: #0d0900;
@@ -746,11 +747,12 @@
     box-shadow: 0 6px 24px rgba(200,168,75,0.35);
     transform: translateY(-2px);
   }
-  .tier-card.featured .tier-notify-btn {
-    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
-    color: var(--ink); border-color: var(--gold);
+  /* Dimmed ghost — Enrol Now on locked tiers */
+  .tier-dim-btn {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
   }
-  .tier-card.featured .tier-notify-btn:hover { background: linear-gradient(180deg, #F0D277 0%, var(--gold-bright) 100%); border-color: var(--gold-bright); }
 
   /* ─────────── Upcoming strip ─────────── */
   .upcoming-strip {
@@ -1356,7 +1358,7 @@
               ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + esc(f) + '</li>').join('')}
             </ul>
             <div class="tier-cta-wrap" style="margin-top:auto;display:block;width:100%;">
-              <button class="tier-notify-btn tier-start-btn" style="width:100%;" onclick="window._xCourseId ? openEnrollModal(window._xCourseId) : notifyTier(this, '${esc(t.title)}')">
+              <button class="tier-notify-btn${i === 0 ? ' tier-start-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="window._xCourseId ? openEnrollModal(window._xCourseId) : notifyTier(this, '${esc(t.title)}')">
                 ${t.link ? esc(t.btnText || 'Start Training') : 'Enrol Now'}
               </button>
             </div>
