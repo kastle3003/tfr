@@ -1152,6 +1152,41 @@ try {
   } catch (_) { /* optional tables */ }
 }
 
+// ── Djembe Foundation A–D: seed lesson material durations + chapter timestamps ──
+// Idempotent: only inserts timestamps when the table is empty for those materials.
+{
+  try {
+    const DJEMBE_TIMESTAMPS = [
+      { lessonId: 16, dur: 720,  ts: [[0,'Introduction'],[120,'Why Rhythm Connects Us'],[300,'The Healing Power of Sound'],[540,'Your Journey Begins']] },
+      { lessonId: 17, dur: 900,  ts: [[0,'Origins in West Africa'],[180,'Anatomy of the Djembe'],[480,'Skin, Shell & Rope'],[720,'Caring for Your Drum']] },
+      { lessonId: 18, dur: 1200, ts: [[0,'Why Listen Actively?'],[200,'African Polyrhythms'],[500,'Indian Taals & Cycles'],[900,'World Groove Study']] },
+      { lessonId: 19, dur: 840,  ts: [[0,'Overview'],[90,'Seated Position — Chair & Floor'],[300,'Hand & Arm Placement'],[600,'Common Mistakes to Avoid']] },
+      { lessonId: 20, dur: 1800, ts: [[0,'Overview'],[120,'The Bass Tone'],[420,'The Open Tone'],[900,'The Slap — Snap & Ring'],[1320,'Combining All Three']] },
+      { lessonId: 21, dur: 1500, ts: [[0,'Overview'],[180,'Right–Left Basics'],[480,'Speed Drill Series 1'],[900,'Speed Drill Series 2'],[1200,'Full Pattern Practice']] },
+      { lessonId: 22, dur: 1320, ts: [[0,'What is Taal?'],[240,'The 16-Beat Teentaal'],[600,'Sam & Vibhag Explained'],[1000,'Counting with the Djembe']] },
+      { lessonId: 23, dur: 1680, ts: [[0,'Review: Teentaal Structure'],[240,'Playing the Theka'],[720,'Variations & Ornaments'],[1320,'Full Cycle Performance']] },
+      { lessonId: 24, dur: 1200, ts: [[0,'Dadra — 6-Beat Cycle'],[180,'The Basic Theka'],[500,'Groove Variations'],[900,'Practice Loop — Full Speed']] },
+      { lessonId: 25, dur: 1500, ts: [[0,'What is Polyrhythm?'],[180,'3 Against 4 — Clapped'],[540,'3 Against 4 on Djembe'],[1000,'Building Independence'],[1300,'Performance Loop']] },
+      { lessonId: 26, dur: 1320, ts: [[0,'Bell Patterns — Overview'],[180,'The Gankogui Bell Pattern'],[540,'Mapping to Indian Taals'],[960,'Combined Groove Exercise']] },
+      { lessonId: 27, dur: 1800, ts: [[0,'What Makes a Groove?'],[200,'Layer 1 — Bass Foundation'],[600,'Layer 2 — Tone Melody'],[1100,'Layer 3 — Slap Accents'],[1500,'Full Groove Performance']] },
+    ];
+    const updDur = db.prepare('UPDATE lesson_materials SET duration_seconds = ? WHERE lesson_id = ? AND duration_seconds IS NULL');
+    const insTsStmt = db.prepare('INSERT INTO video_timestamps (material_id, time_seconds, label, order_index) VALUES (?, ?, ?, ?)');
+    const getMat = db.prepare('SELECT id FROM lesson_materials WHERE lesson_id = ? AND type = ? ORDER BY order_index, id LIMIT 1');
+    const countTs = db.prepare('SELECT COUNT(*) AS c FROM video_timestamps WHERE material_id = ?');
+    const seedTs = db.transaction(() => {
+      for (const row of DJEMBE_TIMESTAMPS) {
+        updDur.run(row.dur, row.lessonId);
+        const mat = getMat.get(row.lessonId, 'video');
+        if (!mat) continue;
+        if (countTs.get(mat.id).c > 0) continue;
+        row.ts.forEach(([sec, label], idx) => insTsStmt.run(mat.id, sec, label, idx));
+      }
+    });
+    seedTs();
+  } catch (e) { console.warn('[timestamps] seed skipped:', e.message); }
+}
+
 // ── Level → default cover image (stable Unsplash URLs, no auth) ──
 const LEVEL_COVER_IMAGES = {
   Foundation:   'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1200&q=75&auto=format&fit=crop',
