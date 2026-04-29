@@ -92,13 +92,20 @@ router.get('/:id/chapters', (req, res) => {
     const hasBundlePurchase = !isStaff && access.ownsBundle(req.user.id, courseId);
     const enrolled = !isStaff && access.isEnrolled(req.user.id, courseId);
 
+    // First lesson of the first chapter is always free for any authenticated user
+    const firstChapterId = chapters.length ? chapters[0].id : null;
+    const firstChapterLessons = firstChapterId
+      ? lessonsAll.filter(l => l.chapter_id === firstChapterId).sort((a, b) => a.order_index - b.order_index)
+      : [];
+    const freeLesonId = firstChapterLessons.length ? firstChapterLessons[0].id : null;
+
     const result = chapters.map(ch => ({
       ...ch,
       // accessible=true means the student owns this content (bundle, individual, or enrolled)
       accessible: isStaff || hasBundlePurchase || enrolled || access.ownsFoundation(req.user.id, ch.id),
       lessons: lessonsAll
         .filter(l => l.chapter_id === ch.id)
-        .map(l => ({ ...l, completed: progressMap[l.id] ? true : false }))
+        .map(l => ({ ...l, completed: progressMap[l.id] ? true : false, is_first_free: l.id === freeLesonId }))
     }));
 
     res.json({ chapters: result });

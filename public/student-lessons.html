@@ -224,12 +224,11 @@
           </div>
           ${lockBanner}
           ${(ch.lessons || []).map((l, j) => {
-            // A lesson is clickable when: chapter is purchased/enrolled, OR it's a
-            // preview lesson, OR it's the very first lesson of the first chapter (always free).
-            const clickable = !!ch.accessible || !!l.is_preview || (i === 0 && j === 0);
+            const isFree = !!l.is_first_free || !!l.is_preview;
+            const clickable = !!ch.accessible || isFree;
             return `
-            <div class="lesson-row section-block" style="${clickable ? 'cursor:pointer;' : 'pointer-events:none;'}" ${clickable ? `onclick="openLessonPlayer(${l.id}, ${courseId})"` : ''}>
-              <div class="lesson-check ${l.completed ? 'done' : ''}" id="check-${l.id}" ${clickable ? `onclick="event.stopPropagation(); toggleLesson(${l.id}, ${courseId}, this)"` : ''}>
+            <div class="lesson-row section-block" style="cursor:pointer;" onclick="${clickable ? `openLessonPlayer(${l.id}, ${courseId})` : `showPurchasePrompt(event, '${ch.title.replace(/'/g,"\\'")}', ${courseId})`}">
+              <div class="lesson-check ${l.completed ? 'done' : ''}" id="check-${l.id}" ${clickable ? `onclick="event.stopPropagation(); toggleLesson(${l.id}, ${courseId}, this)"` : 'onclick="event.stopPropagation();"'}>
                 ${l.completed ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
               </div>
               <div class="lesson-type-icon type-${l.type}">
@@ -239,9 +238,11 @@
                 <div style="font-size:13px; font-weight:${l.completed ? '400' : '600'}; color:${l.completed ? 'var(--text-3)' : 'var(--text)'}; ${l.completed ? 'text-decoration:line-through;' : ''}">${l.title}</div>
                 <div style="font-size:11px; color:var(--text-3); margin-top:1px;">${l.duration_minutes ? l.duration_minutes + ' min' : ''}</div>
               </div>
-              ${clickable
-                ? `<span style="flex-shrink:0; font-size:11px; padding:3px 10px; border-radius:4px; background:rgba(200,168,75,0.12); color:var(--gold); font-weight:600; letter-spacing:.04em;">▶ Play</span>`
-                : `<span style="flex-shrink:0; font-size:11px; padding:3px 8px; border-radius:4px; background:rgba(107,95,80,0.15); color:var(--text-3); letter-spacing:.04em;">🔒</span>`}
+              ${isFree
+                ? `<span style="flex-shrink:0; font-size:10px; padding:3px 8px; border-radius:4px; background:rgba(200,168,75,0.15); color:var(--gold-bright); font-weight:700; letter-spacing:.06em; border:1px solid rgba(200,168,75,0.3);">FREE</span>`
+                : clickable
+                  ? `<span style="flex-shrink:0; font-size:11px; padding:3px 10px; border-radius:4px; background:rgba(200,168,75,0.12); color:var(--gold); font-weight:600; letter-spacing:.04em;">▶ Play</span>`
+                  : `<span style="flex-shrink:0; font-size:11px; padding:3px 8px; border-radius:4px; background:rgba(107,95,80,0.15); color:var(--text-3); letter-spacing:.04em;">🔒 Buy</span>`}
             </div>
             <div id="lv-${l.id}" style="display:none; background:var(--bg-2); border-top:1px solid rgba(200,168,75,0.08);"></div>`;
           }).join('')}
@@ -250,6 +251,28 @@
     } catch (err) {
       document.getElementById(`chapters-loading-${courseId}`).innerHTML = `<p style="font-size:13px; color:var(--gold); padding:16px 20px;">${err.message}</p>`;
     }
+  }
+
+  /* ── Purchase prompt for locked lessons ── */
+  function showPurchasePrompt(e, chapterTitle, courseId) {
+    e.stopPropagation();
+    const existing = document.getElementById('purchase-prompt-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.id = 'purchase-prompt-toast';
+    toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:9999;background:#1E1B17;border:1px solid rgba(200,168,75,0.3);border-radius:8px;padding:16px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 8px 32px rgba(0,0,0,0.6);max-width:420px;width:90%;';
+    toast.innerHTML = `
+      <div style="width:36px;height:36px;flex-shrink:0;background:rgba(200,168,75,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(200,168,75,0.9)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:#F0E6D3;margin-bottom:3px;">Purchase to unlock</div>
+        <div style="font-size:12px;color:#B8A898;line-height:1.4;">${chapterTitle} and all other lessons require a purchase.</div>
+      </div>
+      <a href="/student-courses.html" style="flex-shrink:0;padding:8px 16px;background:linear-gradient(180deg,#E8C96E,#C8A84B);border-radius:4px;color:#080706;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;">Buy</a>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
   }
 
   /* ── Inline lesson video player ── */
