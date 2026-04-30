@@ -957,4 +957,46 @@ router.delete('/subscriptions/:id', adminOnly, (req, res) => {
   }
 });
 
+// ── POST /api/admin/users/:id/grant-bundle ────────────────────────────────
+// Manually grant a user full bundle access for a course (free/comp grant).
+// Body: { course_id }
+router.post('/users/:id/grant-bundle', adminOnly, (req, res) => {
+  try {
+    const { finalizePurchase } = require('./purchases.routes');
+    const access = require('../lib/access');
+
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const { course_id } = req.body || {};
+    if (!course_id) return res.status(400).json({ error: 'course_id is required' });
+
+    const course = access.getCourse(course_id);
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+
+    // Check if already owns it
+    if (access.ownsBundle(user.id, course_id)) {
+      return res.status(409).json({ error: 'User already owns this bundle' });
+    }
+
+    const ins = db.prepare(`
+      INSERT INTO purchases (user_id, course_id, foundation_id, type, status,
+                             amount_paise, currency, razorpay_order_id,
+                             coupon_id, discount_paise, is_upgrade)
+      VALUES (?, ?, NULL, 'bundle', 'completed', 0, 'INR', ?, NULL, 0, 0)
+    `).run(user.id, course.id, `order_admin_grant_${Date.now()}`);
+
+    finalizePurchase(ins.lastInsertRowid);
+
+    res.json({
+      message: `Bundle access granted to ${user.email} for course "${course.title}"`,
+      purchase_id: ins.lastInsertRowid,
+      user_id: user.id,
+      course_id: course.id,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
