@@ -42,9 +42,6 @@ jobs:
             echo "==> Reloading PM2 process 'tfr'"
             pm2 reload tfr --update-env
 
-            echo "==> Granting bundle access (one-shot)"
-            node scripts/grant-bundle-once.js || true
-
             echo "==> PM2 status"
             pm2 list
 
