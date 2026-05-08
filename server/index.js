@@ -22,6 +22,9 @@ require('./lib/razorpay-guard').assertTestOnly();
 
 const app = express();
 
+// Trust Nginx reverse proxy — required for express-rate-limit to read X-Forwarded-For correctly
+app.set('trust proxy', 1);
+
 // Ensure data dirs exist
 const uploadDir = process.env.UPLOAD_DIR || './data/uploads';
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
