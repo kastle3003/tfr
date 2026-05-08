@@ -50,13 +50,14 @@ router.post(
       const purchase = db.prepare('SELECT * FROM purchases WHERE razorpay_order_id = ?').get(orderId);
       if (!purchase) return res.json({ ignored: true, reason: 'order_not_found' });
 
-      // Idempotency: if we've already completed this purchase via /verify, skip.
+      // Idempotency: only the writer that flips status to 'completed' fires side effects.
+      // The conditional WHERE clause makes the update atomic w.r.t. /verify route.
       if (event === 'payment.captured' && purchase.status !== 'completed') {
-        db.prepare(`
+        const upd = db.prepare(`
           UPDATE purchases SET status = 'completed', razorpay_payment_id = ?, updated_at = datetime('now')
-          WHERE id = ?
+          WHERE id = ? AND status != 'completed'
         `).run(paymentId || null, purchase.id);
-        finalizePurchase(purchase.id);
+        if (upd.changes > 0) finalizePurchase(purchase.id);
       } else if (event === 'payment.failed' && purchase.status === 'pending') {
         db.prepare("UPDATE purchases SET status = 'failed', updated_at = datetime('now') WHERE id = ?")
           .run(purchase.id);

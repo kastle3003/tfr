@@ -4,6 +4,7 @@ const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const db = require('../db');
 const { persistUpload } = require('../lib/storage');
+const { verifyFileType } = require('../lib/file-type-check');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -92,7 +93,7 @@ router.put('/', (req, res) => {
 });
 
 // POST /api/profile/avatar
-router.post('/avatar', upload.single('avatar'), async (req, res) => {
+router.post('/avatar', upload.single('avatar'), verifyFileType(['image']), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     ensureProfile(req.user.id);

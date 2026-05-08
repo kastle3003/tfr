@@ -65,7 +65,7 @@ router.get('/:id', (req, res) => {
 });
 
 // POST /api/live-sessions  (instructor)
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     if (!['instructor', 'admin'].includes(req.user.role)) {
       return res.status(403).json({ error: 'Instructor access required' });
@@ -74,8 +74,35 @@ router.post('/', (req, res) => {
     const { title, description, course_id, masterclass_id, scheduled_at, duration_minutes, max_participants } = req.body;
     if (!title || !scheduled_at) return res.status(400).json({ error: 'title and scheduled_at are required' });
 
-    const meetingId = uuidv4().slice(0, 8);
-    const meetingUrl = `https://meet.archive.edu/room/${meetingId}`;
+    let meetingUrl;
+    let meetingId;
+
+    // If the instructor has connected Google Calendar, create a real Meet
+    // event. Any failure falls back to the legacy placeholder so a broken
+    // OAuth token never blocks scheduling.
+    try {
+      const calendarLib = require('../lib/google-calendar');
+      if (calendarLib.isConnected(req.user.id)) {
+        const ev = await calendarLib.createMeetEvent(req.user.id, {
+          title,
+          description: description || '',
+          startISO: scheduled_at,
+          durationMinutes: duration_minutes || 60,
+          attendees: [],
+        });
+        if (ev && ev.meetUrl) {
+          meetingUrl = ev.meetUrl;
+          meetingId = ev.eventId;
+        }
+      }
+    } catch (e) {
+      console.warn('[live-sessions] Google Meet creation failed, falling back to placeholder:', e.message);
+    }
+
+    if (!meetingUrl) {
+      meetingId = uuidv4().slice(0, 8);
+      meetingUrl = `https://meet.archive.edu/room/${meetingId}`;
+    }
 
     const result = db.prepare(`
       INSERT INTO live_sessions (instructor_id, title, description, course_id, masterclass_id, scheduled_at, duration_minutes, meeting_url, meeting_id, max_participants, status)

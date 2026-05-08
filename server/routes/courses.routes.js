@@ -295,7 +295,7 @@ router.delete('/:id', requireRole(['instructor', 'admin']), (req, res) => {
     }
     if (!course) return res.status(404).json({ error: 'Course not found or not authorized' });
 
-    db.prepare('DELETE FROM courses WHERE id = ?').run(req.params.id);
+    db.prepare("UPDATE courses SET status = 'archived', updated_at = datetime('now') WHERE id = ?").run(req.params.id);
     res.json({ message: 'Course deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });

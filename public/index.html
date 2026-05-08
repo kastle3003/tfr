@@ -2537,7 +2537,15 @@
             </div>
           </div>
           <div class="disc-row-right" style="background:linear-gradient(135deg,#1a0a00 0%,#3D2600 100%);">
-            <img src="/assets/tfr-play/niladri-sitar-hero.png" alt="Niladri Kumaar — Sitara" style="object-position:center top;">
+            <picture>
+              <!-- WebP source: drop /assets/tfr-play/niladri-sitar-hero.webp at ~1600w next to the PNG to enable. PNG is the safe fallback. -->
+              <source srcset="/assets/tfr-play/niladri-sitar-hero.webp" type="image/webp">
+              <img src="/assets/tfr-play/niladri-sitar-hero.png"
+                   alt="Niladri Kumaar — Sitara"
+                   width="5400" height="3600"
+                   loading="lazy" decoding="async"
+                   style="object-position:center top;width:100%;height:auto;">
+            </picture>
           </div>
         </div>
 

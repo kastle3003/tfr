@@ -253,7 +253,9 @@
   }
 
   function discountStr(c) {
-    return c.discount_type === 'pct' ? `${c.discount_value}%` : `₹${c.discount_value}`;
+    if (c.discount_type === 'pct') return `${c.discount_value}%`;
+    const n = Number(c.discount_value || 0);
+    return '₹' + n.toLocaleString('en-IN');
   }
 
   async function loadCourses() {

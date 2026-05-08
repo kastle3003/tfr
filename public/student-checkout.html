@@ -19,16 +19,18 @@
       --gold-bright: #E8C96E;
       --gold-dim:    #7A6530;
       --gold-glow:   rgba(200,168,75,0.12);
+      --gold-glow2:  rgba(200,168,75,0.06);
       --text:        #F0E6D3;
       --text-2:      #B8A898;
       --text-3:      #6B5E50;
       --ruby:        #bf0000;
-      --forest:      #3D5A3D;
+      --success:     #3a7a3a;
+      --success-bg:  rgba(58,122,58,0.12);
       --serif:       'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
       --sans:        'DM Sans', sans-serif;
       --sidebar-w:   240px;
       --topbar-h:    60px;
-      --radius:      6px;
+      --radius:      8px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,7 +40,7 @@
 
     .shell { display: flex; height: 100vh; overflow: hidden; }
 
-    /* Sidebar */
+    /* ── Sidebar ── */
     .sidebar {
       width: var(--sidebar-w); min-width: var(--sidebar-w);
       background: var(--bg-card); display: flex; flex-direction: column;
@@ -55,24 +57,16 @@
       transition: background 0.15s, color 0.15s; margin-bottom: 2px; cursor: pointer;
     }
     .nav-item:hover { background: var(--bg-elevated); color: var(--text-2); }
-    .nav-item.active {
-      background: var(--gold-glow); color: var(--gold);
-      border-left: 3px solid var(--gold); padding-left: 9px;
-    }
+    .nav-item.active { background: var(--gold-glow); color: var(--gold); border-left: 3px solid var(--gold); padding-left: 9px; }
     .nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
     .sidebar-footer { padding: 14px 10px 18px; border-top: 1px solid rgba(200,168,75,0.06); }
     .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
     .sidebar-user:hover { background: var(--bg-elevated); }
-    .sidebar-avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 600; color: var(--gold); flex-shrink: 0;
-    }
+    .sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--gold); flex-shrink: 0; }
     .sidebar-user-info .user-name { font-size: 12px; font-weight: 600; color: var(--text-2); }
     .sidebar-user-info .user-role { font-size: 10px; color: var(--text-3); }
 
-    /* Main */
+    /* ── Main ── */
     .main-wrap { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
     .topbar {
       height: var(--topbar-h); background: var(--bg-2);
@@ -80,149 +74,286 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 28px; position: sticky; top: 0; z-index: 50; flex-shrink: 0;
     }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
     .topbar-title { font-family: var(--serif); font-style: normal; font-size: 20px; font-weight: 600; color: var(--gold); }
+    .topbar-step {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .topbar-step-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); opacity: 0.6; }
     .topbar-actions { display: flex; align-items: center; gap: 12px; }
     .icon-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; color: var(--text-3); transition: background 0.15s, color 0.15s; cursor: pointer; text-decoration: none; }
     .icon-btn:hover { background: var(--bg-elevated); color: var(--text-2); }
-    .topbar-avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25);
+    .topbar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--gold); cursor: pointer; text-decoration: none; }
+    .main-content { flex: 1; overflow-y: auto; background: var(--bg); }
+
+    /* ── Checkout layout ── */
+    .checkout-wrap { max-width: 1040px; margin: 0 auto; padding: 36px 28px 60px; }
+
+    /* ── Page header ── */
+    .page-header { margin-bottom: 32px; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .page-header-left {}
+    .page-step-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--gold); background: var(--gold-glow); padding: 4px 10px; border-radius: 20px;
+      border: 1px solid rgba(200,168,75,0.2); margin-bottom: 10px;
+    }
+    .checkout-title { font-family: var(--serif); font-size: 34px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; line-height: 1.15; }
+    .checkout-sub { font-size: 14px; color: var(--text-3); margin-top: 6px; line-height: 1.5; }
+    .secure-topline {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--text-3); padding: 6px 12px;
+      border: 1px solid rgba(200,168,75,0.1); border-radius: 20px;
+      background: rgba(200,168,75,0.03);
+      align-self: flex-start;
+    }
+    .secure-topline svg { color: var(--success); flex-shrink: 0; }
+
+    /* ── Test mode banner ── */
+    #test-mode-banner {
+      display: none; margin-bottom: 20px; padding: 14px 18px;
+      border-radius: var(--radius); background: rgba(200,168,75,0.06);
+      border: 1px solid rgba(200,168,75,0.22); color: #C8A84B; font-size: 12px; line-height: 1.7;
+    }
+
+    /* ── Two-column grid ── */
+    .checkout-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 860px) { .checkout-grid { grid-template-columns: 1fr; } }
+
+    /* ── Left — course card ── */
+    .course-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Course hero image area */
+    .course-hero {
+      position: relative; height: 180px;
+      background: linear-gradient(135deg, #1d1000 0%, #2a1a00 50%, #1a1200 100%);
+      display: flex; align-items: flex-end;
+      overflow: hidden;
+    }
+    .course-hero-img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; opacity: 0.55;
+    }
+    .course-hero-monogram {
+      position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 600; color: var(--gold); cursor: pointer;
-      text-decoration: none;
+      font-family: var(--serif); font-size: 72px; font-weight: 700;
+      color: rgba(200,168,75,0.15); letter-spacing: -0.04em;
+      user-select: none;
     }
-    .main-content { flex: 1; overflow-y: auto; background: var(--bg); padding: 40px 28px; }
-
-    /* Layout */
-    .checkout-wrap { max-width: 1080px; margin: 0 auto; }
-    .checkout-header { margin-bottom: 28px; }
-    .checkout-title {
-      font-family: var(--serif); font-style: normal; font-size: 38px;
-      font-weight: 600; color: var(--text); letter-spacing: -0.01em;
+    .course-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(8,7,6,0.9) 0%, rgba(8,7,6,0.2) 60%, transparent 100%);
     }
-    .checkout-sub { font-size: 14px; color: var(--text-3); margin-top: 6px; }
-
-    .checkout-grid {
-      display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px;
+    .course-hero-badge {
+      position: absolute; top: 14px; right: 14px;
+      background: rgba(200,168,75,0.9); color: #080706;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 20px;
     }
-    @media (max-width: 900px) {
-      .checkout-grid { grid-template-columns: 1fr; }
+    .course-hero-content {
+      position: relative; z-index: 2; padding: 16px 22px;
+      width: 100%;
     }
-
-    /* Cards */
-    .card {
-      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.08);
-      border-radius: var(--radius); padding: 24px;
+    .course-hero-title {
+      font-family: var(--serif); font-size: 21px; font-weight: 700;
+      color: var(--text); line-height: 1.2; margin-bottom: 4px;
     }
-    .card-title {
-      font-size: 11px; font-weight: 700; letter-spacing: 1.4px;
-      text-transform: uppercase; color: var(--text-3); margin-bottom: 18px;
+    .course-hero-instructor {
+      font-size: 13px; color: var(--gold); font-weight: 500;
     }
 
-    /* Course summary card */
-    .course-preview {
-      display: flex; gap: 18px; padding-bottom: 20px;
-      border-bottom: 1px solid rgba(200,168,75,0.06); margin-bottom: 20px;
+    /* Course body */
+    .course-body { padding: 20px 22px 22px; }
+    .course-meta-row {
+      display: flex; flex-wrap: wrap; gap: 8px 20px;
+      font-size: 12px; color: var(--text-3); margin-bottom: 20px;
+      padding-bottom: 18px; border-bottom: 1px solid rgba(200,168,75,0.07);
     }
-    .course-cover {
-      width: 120px; height: 120px; border-radius: var(--radius);
-      background: linear-gradient(135deg, #2d2417 0%, #1a1510 100%);
+    .course-meta-item { display: flex; align-items: center; gap: 5px; }
+    .course-meta-item svg { opacity: 0.5; }
+
+    .includes-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;
+    }
+    .includes-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .includes-item {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 13px; color: var(--text-2); line-height: 1.4;
+    }
+    .includes-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.15);
       display: flex; align-items: center; justify-content: center;
-      font-family: var(--serif); font-size: 42px; font-weight: 600;
-      color: var(--gold); flex-shrink: 0; border: 1px solid rgba(200,168,75,0.12);
+      flex-shrink: 0; color: var(--gold);
     }
-    .course-info { flex: 1; min-width: 0; }
-    .course-title {
-      font-family: var(--serif); font-size: 22px; font-weight: 600;
-      color: var(--text); line-height: 1.25; margin-bottom: 6px;
-    }
-    .course-instructor { font-size: 13px; color: var(--gold); margin-bottom: 10px; }
-    .course-meta {
-      display: flex; flex-wrap: wrap; gap: 6px 14px;
-      font-size: 12px; color: var(--text-3);
-    }
-    .course-meta span { display: inline-flex; align-items: center; gap: 5px; }
-    .course-meta span::before {
-      content: ''; width: 3px; height: 3px; border-radius: 50%;
-      background: var(--text-3); display: inline-block;
-    }
-    .course-meta span:first-child::before { display: none; }
 
-    .feature-list { list-style: none; }
-    .feature-list li {
-      display: flex; align-items: flex-start; gap: 10px;
-      font-size: 13px; color: var(--text-2); padding: 6px 0;
+    /* ── Right — payment card ── */
+    .payment-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 12px;
+      padding: 26px 24px 24px;
+      position: sticky; top: 20px;
     }
-    .feature-list svg { flex-shrink: 0; color: var(--gold); margin-top: 2px; }
+    .payment-card-title {
+      font-family: var(--serif); font-size: 17px; font-weight: 600;
+      color: var(--text); margin-bottom: 20px;
+    }
 
-    /* Payment summary */
-    .summary-row {
+    /* Price rows */
+    .price-row {
       display: flex; justify-content: space-between; align-items: baseline;
-      padding: 10px 0; font-size: 13px; color: var(--text-2);
+      padding: 9px 0; font-size: 13px; color: var(--text-2);
+      border-bottom: 1px solid rgba(200,168,75,0.05);
     }
-    .summary-row.divider { border-top: 1px solid rgba(200,168,75,0.08); margin-top: 6px; padding-top: 16px; }
-    .summary-row.total {
-      font-size: 14px; font-weight: 600; color: var(--text);
+    .price-row:last-of-type { border-bottom: none; }
+    .price-val { font-weight: 500; color: var(--text); }
+    .price-val.discount { color: #5a9e5a; }
+
+    /* Coupon */
+    .coupon-wrap { margin: 18px 0; }
+    .coupon-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 7px;
+      display: flex; align-items: center; gap: 6px;
     }
-    .summary-row.total .amount {
-      font-family: var(--serif); font-size: 32px; font-weight: 600;
-      color: var(--gold); letter-spacing: -0.01em;
+    .coupon-row { display: flex; gap: 6px; }
+    .coupon-input {
+      flex: 1; padding: 10px 12px;
+      background: var(--bg-elevated); border: 1px solid rgba(200,168,75,0.14);
+      border-radius: 6px; color: var(--text); font-family: var(--sans);
+      font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+      transition: border-color 0.15s;
     }
-    .summary-amount { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--text); }
+    .coupon-input:focus { outline: none; border-color: rgba(200,168,75,0.4); }
+    .coupon-btn {
+      background: transparent; border: 1px solid rgba(200,168,75,0.28);
+      color: var(--gold); padding: 0 16px; border-radius: 6px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .coupon-btn:hover { background: var(--gold-glow); border-color: rgba(200,168,75,0.5); }
+    .coupon-msg { font-size: 11px; margin-top: 5px; color: var(--text-3); min-height: 14px; }
+
+    /* Total */
+    .total-block {
+      border-top: 1px solid rgba(200,168,75,0.12);
+      margin-top: 6px; padding-top: 18px; margin-bottom: 20px;
+      display: flex; align-items: baseline; justify-content: space-between;
+    }
+    .total-label { font-size: 13px; color: var(--text-2); font-weight: 500; }
+    .total-amount {
+      font-family: var(--serif); font-size: 36px; font-weight: 700;
+      color: var(--gold); letter-spacing: -0.02em; line-height: 1;
+    }
+    .total-note { font-size: 10px; color: var(--text-3); margin-top: 3px; }
 
     /* Pay button */
     .pay-btn {
-      width: 100%; margin-top: 22px; padding: 14px 18px;
-      background: var(--gold); color: #080706;
-      border-radius: var(--radius); font-family: var(--sans);
-      font-size: 14px; font-weight: 700; letter-spacing: 0.02em;
+      width: 100%; padding: 15px 18px;
+      background: linear-gradient(135deg, #C8A84B 0%, #E8C96E 50%, #C8A84B 100%);
+      background-size: 200% auto;
+      color: #080706; border-radius: var(--radius);
+      font-family: var(--sans); font-size: 15px; font-weight: 700;
+      letter-spacing: 0.03em;
       display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: background 0.15s, transform 0.1s;
+      transition: background-position 0.4s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(200,168,75,0.3);
+      position: relative; overflow: hidden;
     }
-    .pay-btn:hover { background: var(--gold-bright); }
+    .pay-btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+    .pay-btn:hover { background-position: right center; box-shadow: 0 6px 28px rgba(200,168,75,0.45); }
+    .pay-btn:hover::after { transform: translateX(100%); }
     .pay-btn:active { transform: translateY(1px); }
-    .pay-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .pay-btn:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+    .pay-btn:disabled::after { display: none; }
 
-    .secure-note {
-      margin-top: 14px; display: flex; align-items: center; justify-content: center;
-      gap: 6px; font-size: 11px; color: var(--text-3);
+    /* Trust badges */
+    .trust-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 18px; margin-top: 16px; flex-wrap: wrap;
     }
-    .secure-note svg { color: var(--forest); }
+    .trust-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10px; color: var(--text-3); letter-spacing: 0.03em;
+    }
+    .trust-badge svg { color: var(--text-3); opacity: 0.6; }
 
-    /* Modal (mock payment) */
+    .guarantee-block {
+      margin-top: 16px; padding: 12px 14px;
+      background: var(--success-bg); border: 1px solid rgba(58,122,58,0.25);
+      border-radius: 8px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .guarantee-icon { color: #6abf6a; flex-shrink: 0; margin-top: 1px; }
+    .guarantee-text { font-size: 11px; color: #7fc47f; line-height: 1.5; }
+    .guarantee-text strong { display: block; font-size: 12px; margin-bottom: 2px; }
+
+    .terms-note {
+      margin-top: 14px; font-size: 10px; color: rgba(255,255,255,0.3);
+      text-align: center; line-height: 1.6;
+    }
+    .terms-note a { color: rgba(200,168,75,0.6); }
+    .terms-note a:hover { color: var(--gold); }
+
+    /* Spinner */
+    .spinner {
+      width: 15px; height: 15px; border-radius: 50%;
+      border: 2px solid rgba(8,7,6,0.25); border-top-color: #080706;
+      animation: spin 0.6s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Modal */
     .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(8,7,6,0.78);
-      backdrop-filter: blur(6px); display: none;
+      position: fixed; inset: 0; background: rgba(8,7,6,0.82);
+      backdrop-filter: blur(8px); display: none;
       align-items: center; justify-content: center; z-index: 1500;
-      opacity: 0; transition: opacity 0.2s;
+      opacity: 0; transition: opacity 0.25s;
     }
     .modal-backdrop.open { display: flex; opacity: 1; }
     .modal {
-      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12);
-      border-radius: 10px; padding: 32px; width: 100%; max-width: 440px;
-      transform: translateY(8px); transition: transform 0.2s;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.15);
+      border-radius: 14px; padding: 32px; width: 100%; max-width: 440px;
+      transform: translateY(10px); transition: transform 0.25s;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
     }
     .modal-backdrop.open .modal { transform: translateY(0); }
-    .modal-header {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
-    }
+    .modal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
     .mock-logo {
-      width: 36px; height: 36px; border-radius: 8px;
+      width: 38px; height: 38px; border-radius: 10px;
       background: linear-gradient(135deg, #3d75f5 0%, #1e4bc6 100%);
       display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 700; font-size: 14px;
+      color: #fff; font-weight: 700; font-size: 15px;
     }
     .modal-title { font-size: 15px; font-weight: 600; color: var(--text); }
     .modal-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+    .mock-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 10px;
+      background: rgba(61,90,61,0.15); color: #8fb48f;
+      font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-left: auto;
+    }
     .modal-amount {
       padding: 16px 0; border-top: 1px solid rgba(200,168,75,0.08);
       border-bottom: 1px solid rgba(200,168,75,0.08); margin-bottom: 20px;
       display: flex; justify-content: space-between; align-items: baseline;
     }
     .modal-amount-label { font-size: 12px; color: var(--text-3); }
-    .modal-amount-val { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--gold); }
-
+    .modal-amount-val { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--gold); }
     .form-group { margin-bottom: 14px; }
     .form-label { display: block; font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
     .form-input {
@@ -233,42 +364,21 @@
     }
     .form-input:focus { outline: none; border-color: var(--gold-dim); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
     .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
-    .btn-modal {
-      flex: 1; padding: 11px 14px; border-radius: 6px;
-      font-size: 13px; font-weight: 600; font-family: var(--sans);
-      transition: background 0.15s;
-    }
+    .btn-modal { flex: 1; padding: 11px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: var(--sans); transition: background 0.15s; }
     .btn-cancel { background: var(--bg-elevated); color: var(--text-2); }
     .btn-cancel:hover { background: var(--bg-hover); }
     .btn-confirm { background: var(--gold); color: #080706; }
     .btn-confirm:hover { background: var(--gold-bright); }
     .btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    .mock-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 8px; border-radius: 10px;
-      background: rgba(61,90,61,0.15); color: #8fb48f;
-      font-size: 10px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.5px; margin-left: auto;
-    }
-
-    /* Success modal */
-    .success-screen {
-      text-align: center; padding: 20px 0;
-    }
+    .success-screen { text-align: center; padding: 20px 0; }
     .success-ring {
       width: 72px; height: 72px; margin: 0 auto 20px;
-      border-radius: 50%; background: rgba(61,90,61,0.15);
-      display: flex; align-items: center; justify-content: center;
-      color: #8fb48f;
+      border-radius: 50%; background: var(--success-bg);
+      display: flex; align-items: center; justify-content: center; color: #6abf6a;
     }
     .success-title { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
     .success-sub { font-size: 13px; color: var(--text-3); }
-
-    /* Skeleton */
-    .skeleton { color: var(--text-3); }
 
     /* Toast */
     .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 2000; }
@@ -279,19 +389,13 @@
       min-width: 240px; animation: toastIn 0.2s ease;
     }
     .toast.error { border-left-color: var(--ruby); }
-    .toast.success { border-left-color: var(--forest); }
+    .toast.success { border-left-color: #3a7a3a; }
     @keyframes toastIn { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    /* Spinner */
-    .spinner {
-      width: 14px; height: 14px; border-radius: 50%;
-      border: 2px solid rgba(8,7,6,0.2); border-top-color: #080706;
-      animation: spin 0.6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 480px) {
       .form-row { grid-template-columns: 1fr !important; }
+      .checkout-title { font-size: 26px; }
+      .trust-row { gap: 12px; }
     }
   </style>
 </head>
@@ -301,9 +405,15 @@
 
   <div class="main-wrap">
     <header class="topbar">
-      <div class="topbar-title">Checkout</div>
+      <div class="topbar-left">
+        <div class="topbar-title">Checkout</div>
+        <div class="topbar-step">
+          <div class="topbar-step-dot"></div>
+          Secure Enrollment
+        </div>
+      </div>
       <div class="topbar-actions">
-        <a href="/" class="icon-btn" title="View public website" style="font-size:15px; line-height:1;">
+        <a href="/" class="icon-btn" title="Browse courses">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         </a>
         <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar" title="Profile">—</a>
@@ -312,100 +422,169 @@
 
     <main class="main-content">
       <div class="checkout-wrap">
-        <div class="checkout-header">
-          <h1 class="checkout-title" id="checkout-title">Complete your enrollment</h1>
-          <p class="checkout-sub" id="checkout-sub">You're one step away from lifetime access to this course.</p>
-          <div id="test-mode-banner" style="display:none;margin-top:12px;padding:12px 16px;border-radius:6px;background:rgba(200,168,75,0.08);border:1px solid rgba(200,168,75,0.30);color:#C8A84B;font-size:12px;line-height:1.7;">
-            <div style="font-weight:700;letter-spacing:0.08em;margin-bottom:8px;">TEST MODE — NO REAL CARD IS EVER CHARGED</div>
-            <div style="color:#e0d2a8;">
-              <strong style="color:#C8A84B;">Netbanking (most reliable):</strong> in the Razorpay modal → <em>Show All Options</em> → <em>Netbanking</em> → pick any bank → click <strong>Success</strong> on the simulator page.
-              <hr style="border:none;border-top:1px solid rgba(200,168,75,0.15);margin:8px 0;">
-              <strong style="color:#C8A84B;">UPI:</strong> <em>Show All Options</em> → <em>UPI</em> → <em>Enter UPI ID</em> tab → <code style="background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:3px;">success@razorpay</code>.
-              <hr style="border:none;border-top:1px solid rgba(200,168,75,0.15);margin:8px 0;">
-              <strong style="color:#C8A84B;">Avoid cards</strong> unless you've enabled International Payments on your Razorpay account — the classic <code>4111 1111 1111 1111</code> test card is flagged "International" and blocked by Razorpay's risk engine (<code>payment_risk_check_failed</code>) even in test mode.
+
+        <!-- Page header -->
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-step-tag">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Final Step
             </div>
+            <h1 class="checkout-title" id="checkout-title">Complete your enrollment</h1>
+            <p class="checkout-sub" id="checkout-sub">You're one step away from lifetime access.</p>
+          </div>
+          <div class="secure-topline">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            256-bit encrypted · Razorpay secured
           </div>
         </div>
 
-        <div class="checkout-grid">
-          <!-- Left: course summary -->
-          <div class="card">
-            <div class="card-title">Course Summary</div>
+        <!-- Test mode banner -->
+        <div id="test-mode-banner">
+          <div style="font-weight:700;letter-spacing:0.08em;margin-bottom:8px;color:#C8A84B;">TEST MODE — NO REAL CARD IS EVER CHARGED</div>
+          <div style="color:#e0d2a8;">
+            <strong style="color:#C8A84B;">Netbanking (most reliable):</strong> Razorpay modal → <em>Show All Options</em> → <em>Netbanking</em> → any bank → click <strong>Success</strong>.
+            <span style="margin:0 6px;opacity:0.4;">|</span>
+            <strong style="color:#C8A84B;">UPI:</strong> <em>Show All Options</em> → <em>UPI</em> → Enter UPI ID → <code style="background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:3px;">success@razorpay</code>
+          </div>
+        </div>
 
-            <div class="course-preview">
-              <div class="course-cover" id="course-cover">—</div>
-              <div class="course-info">
-                <div class="course-title skeleton" id="course-title">Loading course…</div>
-                <div class="course-instructor" id="course-instructor"></div>
-                <div class="course-meta" id="course-meta"></div>
+        <!-- Grid -->
+        <div class="checkout-grid">
+
+          <!-- Left: Course card -->
+          <div class="course-card">
+            <div class="course-hero" id="course-hero">
+              <img id="course-hero-img" class="course-hero-img" src="" alt="" style="display:none;">
+              <div class="course-hero-monogram" id="course-hero-monogram">—</div>
+              <div class="course-hero-overlay"></div>
+              <div class="course-hero-badge" id="course-type-badge">Full Course</div>
+              <div class="course-hero-content">
+                <div class="course-hero-title" id="course-title">Loading…</div>
+                <div class="course-hero-instructor" id="course-instructor"></div>
               </div>
             </div>
 
-            <ul class="feature-list">
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Lifetime access to all course content
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Downloadable sheet music and resources
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Certificate of completion
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Direct instructor Q&amp;A access
-              </li>
-            </ul>
+            <div class="course-body">
+              <div class="course-meta-row" id="course-meta"></div>
+
+              <div class="includes-title">What's included</div>
+              <ul class="includes-list">
+                <li class="includes-item">
+                  <div class="includes-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                  </div>
+                  <div>Lifetime access to all lessons &amp; recordings</div>
+                </li>
+                <li class="includes-item">
+                  <div class="includes-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  </div>
+                  <div>Sheet music, notes &amp; practice materials</div>
+                </li>
+                <li class="includes-item">
+                  <div class="includes-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </div>
+                  <div>Direct instructor Q&amp;A access</div>
+                </li>
+                <li class="includes-item">
+                  <div class="includes-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+                  </div>
+                  <div>Certificate of completion</div>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <!-- Right: payment summary -->
-          <div class="card">
-            <div class="card-title">Payment Details</div>
+          <!-- Right: Payment card -->
+          <div class="payment-card">
+            <div class="payment-card-title">Order Summary</div>
 
-            <div class="summary-row">
+            <div class="price-row">
               <span id="sum-price-label">Course price</span>
-              <span class="summary-amount" id="sum-price">—</span>
+              <span class="price-val" id="sum-price">—</span>
             </div>
-            <div class="summary-row" id="sum-discount-row" style="display:none;">
-              <span id="sum-discount-label" style="color:var(--forest);">Discount</span>
-              <span class="summary-amount" id="sum-discount" style="color:var(--forest);">—</span>
+            <div class="price-row" id="sum-discount-row" style="display:none;">
+              <span id="sum-discount-label">Coupon discount</span>
+              <span class="price-val discount" id="sum-discount">—</span>
             </div>
-            <div class="summary-row">
+            <div class="price-row">
               <span>Platform fee</span>
-              <span class="summary-amount">₹0</span>
+              <span class="price-val">₹0</span>
             </div>
-            <div class="summary-row">
-              <span>Tax</span>
-              <span class="summary-amount">Included</span>
+            <div class="price-row">
+              <span>GST / Tax</span>
+              <span class="price-val">Included</span>
             </div>
 
-            <div style="margin:16px 0 4px;">
-              <label class="form-label" style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);margin-bottom:6px;">Have a coupon?</label>
-              <div style="display:flex;gap:6px;">
-                <input class="form-input" id="coupon-input" type="text" placeholder="ENTER CODE" style="flex:1;background:var(--bg-elevated);border:1px solid rgba(200,168,75,0.18);color:var(--text);padding:9px 12px;border-radius:5px;font-family:inherit;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;">
-                <button type="button" id="coupon-btn" onclick="applyCoupon()" style="background:transparent;border:1px solid rgba(200,168,75,0.30);color:var(--gold);padding:0 14px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;">Apply</button>
+            <!-- Coupon -->
+            <div class="coupon-wrap">
+              <div class="coupon-label">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                Have a coupon?
               </div>
-              <div id="coupon-msg" style="font-size:11px;margin-top:6px;color:var(--text-3);min-height:14px;"></div>
+              <div class="coupon-row">
+                <input class="coupon-input" id="coupon-input" type="text" placeholder="ENTER CODE">
+                <button type="button" class="coupon-btn" id="coupon-btn" onclick="applyCoupon()">Apply</button>
+              </div>
+              <div class="coupon-msg" id="coupon-msg"></div>
             </div>
 
-            <div class="summary-row divider total">
-              <span>Total</span>
-              <span class="amount" id="sum-total">—</span>
+            <!-- Total -->
+            <div class="total-block">
+              <div>
+                <div class="total-label">Total payable</div>
+                <div class="total-note">All taxes included</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="total-amount" id="sum-total">—</div>
+              </div>
             </div>
 
+            <!-- Pay button -->
             <button class="pay-btn" id="pay-btn" onclick="startPayment()" disabled>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               <span id="pay-btn-label">Pay Now</span>
             </button>
 
-            <div class="secure-note">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Secure payment · encrypted end-to-end
+            <!-- Trust row -->
+            <div class="trust-row">
+              <div class="trust-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                SSL Secured
+              </div>
+              <div class="trust-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Razorpay
+              </div>
+              <div class="trust-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Instant access
+              </div>
+            </div>
+
+            <!-- Guarantee -->
+            <div class="guarantee-block">
+              <div class="guarantee-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              </div>
+              <div class="guarantee-text">
+                <strong>Satisfaction Guaranteed</strong>
+                Not happy within 7 days? We'll make it right — no questions asked.
+              </div>
+            </div>
+
+            <!-- Terms -->
+            <div class="terms-note">
+              By proceeding you agree to our
+              <a href="/terms" target="_blank">Terms</a>,
+              <a href="/refund-policy" target="_blank">Refund Policy</a>
+              and <a href="/privacy" target="_blank">Privacy Policy</a>.
             </div>
           </div>
+
         </div>
       </div>
     </main>
@@ -429,7 +608,6 @@
         <div class="modal-amount-label">Amount to pay</div>
         <div class="modal-amount-val" id="modal-amount">—</div>
       </div>
-
       <div class="form-group">
         <label class="form-label">Card Number</label>
         <input class="form-input" id="mock-card" value="4111 1111 1111 1111" maxlength="19">
@@ -448,7 +626,6 @@
         <label class="form-label">Name on Card</label>
         <input class="form-input" id="mock-name" value="" placeholder="Cardholder name">
       </div>
-
       <div class="modal-actions">
         <button class="btn-modal btn-cancel" onclick="closeMockModal()">Cancel</button>
         <button class="btn-modal btn-confirm" id="mock-confirm" onclick="confirmMockPayment()">Pay ₹<span id="mock-amount-btn">0</span></button>
@@ -476,22 +653,16 @@
 <script>
   if (window.requireRole) requireRole(['student']);
 
-  // ── URL params ──
-  // Supported:
-  //   ?course_id=X                       (legacy — bundle)
-  //   ?type=bundle&course_id=X
-  //   ?type=individual&foundation_id=Y
-  //   ?type=upgrade&course_id=X
   const params = new URLSearchParams(window.location.search);
   const courseId      = params.get('course_id') ? parseInt(params.get('course_id')) : null;
   const foundationId  = params.get('foundation_id') ? parseInt(params.get('foundation_id')) : null;
   const purchaseType  = (params.get('type') || (foundationId ? 'individual' : 'bundle')).toLowerCase();
   let courseData = null;
   let foundationData = null;
-  let priceData  = null;        // { basePaise, discountPaise, finalPaise, title, subtitle, keyId }
+  let priceData  = null;
   let orderData  = null;
   let currentUser = null;
-  let appliedCoupon = null;      // coupon code string, when Apply returns success
+  let appliedCoupon = null;
 
   function toast(msg, type = 'success') {
     const el = document.createElement('div');
@@ -533,16 +704,13 @@
 
   async function loadCheckout() {
     try {
-      // Fetch course (always — we always need it for labels)
       const targetCourseId = courseId || (await fetchFoundationCourseId());
       if (!targetCourseId) throw new Error('Could not resolve course');
       const courseRes = await api.get(`/api/courses/${targetCourseId}`);
       courseData = courseRes.course;
 
-      // Build headline + pricing preview via a dry-run order. The server is the
-      // single source of truth for price — we never trust client-side numbers.
       const dry = await createPurchase();
-      if (!dry) return;  // createPurchase handled redirect / toast on error
+      if (!dry) return;
 
       orderData = dry;
       priceData = {
@@ -554,7 +722,6 @@
         keyId:         dry.key_id,
       };
 
-      // If the server auto-completed a ₹0 purchase (free bundle / full coupon), jump straight in.
       if (dry.auto_completed) {
         toast('Enrolled — welcome!', 'success');
         setTimeout(() => window.location.href = `/student-course-detail.html?id=${targetCourseId}`, 1000);
@@ -586,14 +753,11 @@
     return courseData ? `Foundation in ${courseData.title}` : 'Individual foundation';
   }
 
-  // Create (or re-create) a purchase order. Called once for the initial dry
-  // run, and again when the coupon is applied/cleared so the server re-prices.
   async function createPurchase() {
     const body = { type: purchaseType };
     if (courseId)     body.course_id = courseId;
     if (foundationId) body.foundation_id = foundationId;
     if (appliedCoupon) body.coupon_code = appliedCoupon;
-
     try {
       return await api.post('/api/purchases', body);
     } catch (err) {
@@ -623,21 +787,35 @@
       purchaseType === 'individual' ? 'Foundation price' :
       'Course price';
 
-    document.getElementById('course-cover').textContent = (priceData.title || '?').charAt(0).toUpperCase();
+    // Badge
+    document.getElementById('course-type-badge').textContent =
+      purchaseType === 'individual' ? 'Foundation' :
+      purchaseType === 'upgrade' ? 'Upgrade' : 'Full Course';
+
+    // Hero monogram + image
+    const monogram = (priceData.title || '?').charAt(0).toUpperCase();
+    document.getElementById('course-hero-monogram').textContent = monogram;
+    if (courseData.cover_image_url) {
+      const img = document.getElementById('course-hero-img');
+      img.src = courseData.cover_image_url;
+      img.alt = priceData.title;
+      img.style.display = 'block';
+    }
+
     document.getElementById('course-title').textContent = priceData.title;
-    document.getElementById('course-title').classList.remove('skeleton');
     document.getElementById('course-instructor').textContent = courseData.instructor_name || 'TFR Faculty';
 
     const meta = [];
-    if (courseData.level)          meta.push(courseData.level);
-    if (courseData.duration_weeks) meta.push(`${courseData.duration_weeks} weeks`);
-    if (courseData.lesson_count)   meta.push(`${courseData.lesson_count} lessons`);
-    if (courseData.instrument)     meta.push(courseData.instrument);
-    document.getElementById('course-meta').innerHTML = meta.map(m => `<span>${m}</span>`).join('');
+    if (courseData.level)          meta.push({ icon: '◈', text: courseData.level });
+    if (courseData.duration_weeks) meta.push({ icon: '◷', text: `${courseData.duration_weeks} weeks` });
+    if (courseData.lesson_count)   meta.push({ icon: '▶', text: `${courseData.lesson_count} lessons` });
+    if (courseData.instrument)     meta.push({ icon: '♪', text: courseData.instrument });
+    document.getElementById('course-meta').innerHTML = meta.map(m =>
+      `<div class="course-meta-item"><span style="opacity:0.4;font-size:10px;">${m.icon}</span> ${m.text}</div>`
+    ).join('');
 
     renderAmounts();
 
-    // Show TEST MODE banner when the server handed us a test key or when we're in mock mode.
     const isTest = !priceData.keyId || priceData.keyId === 'rzp_test_placeholder' || (typeof priceData.keyId === 'string' && priceData.keyId.startsWith('rzp_test_'));
     if (isTest) document.getElementById('test-mode-banner').style.display = 'block';
 
@@ -650,7 +828,7 @@
     const tot  = priceData.finalPaise;
     document.getElementById('sum-price').textContent = formatINR(base);
     document.getElementById('sum-total').textContent = formatINR(tot);
-    document.getElementById('pay-btn-label').textContent = tot > 0 ? `Pay ${formatINR(tot)}` : 'Unlock now';
+    document.getElementById('pay-btn-label').textContent = tot > 0 ? `Pay ${formatINR(tot)}` : 'Unlock now — Free';
     document.getElementById('modal-amount').textContent = formatINR(tot);
     document.getElementById('mock-amount-btn').textContent = (tot / 100).toLocaleString('en-IN');
 
@@ -669,7 +847,6 @@
     const msg = document.getElementById('coupon-msg');
     const code = input.value.trim().toUpperCase();
     if (!code) {
-      // clear existing coupon
       appliedCoupon = null;
       msg.textContent = '';
       msg.style.color = 'var(--text-3)';
@@ -683,7 +860,7 @@
     btn.disabled = false;
     if (!fresh) {
       appliedCoupon = null;
-      msg.textContent = 'Coupon rejected';
+      msg.textContent = 'Coupon not valid for this item';
       msg.style.color = 'var(--ruby)';
       btn.textContent = 'Apply';
       return;
@@ -694,8 +871,8 @@
     priceData.finalPaise    = fresh.amount_paise;
     renderAmounts();
     if (priceData.discountPaise > 0) {
-      msg.textContent = `Applied — you save ${formatINR(priceData.discountPaise)}`;
-      msg.style.color = 'var(--forest)';
+      msg.textContent = `✓ Applied — you save ${formatINR(priceData.discountPaise)}`;
+      msg.style.color = '#5a9e5a';
       btn.textContent = 'Clear';
     } else {
       msg.textContent = 'Coupon accepted (no discount on this item)';
@@ -704,7 +881,6 @@
     }
   }
 
-  // Re-create the order without the coupon (used by "Clear")
   async function reprice() {
     const fresh = await createPurchase();
     if (!fresh) return;
@@ -721,13 +897,12 @@
     btn.innerHTML = '<span class="spinner"></span> Preparing…';
 
     try {
-      // We already have orderData from loadCheckout/applyCoupon — just open the gateway.
       const isMock = !orderData.order_id || orderData.order_id.startsWith('order_mock_');
 
       if (isMock) {
         openMockModal();
         btn.disabled = false;
-        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span id="pay-btn-label">Pay ${formatINR(priceData.finalPaise)}</span>`;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span id="pay-btn-label">Pay ${formatINR(priceData.finalPaise)}</span>`;
         return;
       }
 
@@ -747,13 +922,28 @@
         modal: {
           ondismiss: () => {
             btn.disabled = false;
-            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span id="pay-btn-label">Pay ${formatINR(priceData.finalPaise)}</span>`;
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span id="pay-btn-label">Pay ${formatINR(priceData.finalPaise)}</span>`;
+            toast('Payment cancelled. Your order is saved — try again any time.', 'info');
           }
         }
       };
 
       if (typeof Razorpay !== 'undefined') {
-        new Razorpay(options).open();
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', (resp) => {
+          const e = (resp && resp.error) || {};
+          const reason = e.description || e.reason || e.code || 'Payment failed at the gateway';
+          const human = ({
+            'BAD_REQUEST_ERROR': 'Your card or UPI was declined. Please retry or pick another payment method.',
+            'GATEWAY_ERROR': 'The bank declined the transaction. Try again in a moment.',
+            'invalid_card': 'Card details look wrong — please re-enter and retry.',
+            'payment_failed': 'The payment did not complete. Try a different method.',
+          }[e.code] || reason);
+          toast(human, 'error');
+          btn.disabled = false;
+          btn.innerHTML = `Retry Payment`;
+        });
+        rzp.open();
       } else {
         toast('Payment gateway unavailable.', 'error');
         btn.disabled = false;
@@ -765,12 +955,8 @@
     }
   }
 
-  function openMockModal() {
-    document.getElementById('mock-modal').classList.add('open');
-  }
-  function closeMockModal() {
-    document.getElementById('mock-modal').classList.remove('open');
-  }
+  function openMockModal()  { document.getElementById('mock-modal').classList.add('open'); }
+  function closeMockModal() { document.getElementById('mock-modal').classList.remove('open'); }
 
   async function confirmMockPayment() {
     const card = document.getElementById('mock-card').value.replace(/\s/g, '');
@@ -786,7 +972,6 @@
     confirmBtn.disabled = true;
     confirmBtn.innerHTML = '<span class="spinner"></span> Processing…';
 
-    // Simulate gateway latency
     await new Promise(r => setTimeout(r, 1200));
 
     const mockPaymentId = 'pay_mock_' + Date.now();
@@ -801,8 +986,6 @@
         razorpay_signature:  signature
       });
 
-      // Purchase is completed whenever the response carries a purchase_id (server sends
-      // "Payment verified" on fresh completion, "Already completed" on idempotent replay).
       if (res.purchase_id) {
         document.getElementById('mock-pay-form').style.display = 'none';
         document.getElementById('mock-success').style.display  = 'block';

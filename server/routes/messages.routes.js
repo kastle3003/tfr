@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const db = require('../db');
 const { persistUpload } = require('../lib/storage');
+const { verifyFileType } = require('../lib/file-type-check');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
 
@@ -140,7 +141,7 @@ router.post('/threads', (req, res) => {
 });
 
 // POST /api/messages/threads/:id/reply
-router.post('/threads/:id/reply', upload.single('attachment'), async (req, res) => {
+router.post('/threads/:id/reply', upload.single('attachment'), verifyFileType(['image', 'video', 'audio', 'pdf'], { required: false }), async (req, res) => {
   try {
     const participation = db.prepare(
       'SELECT * FROM thread_participants WHERE thread_id = ? AND user_id = ?'

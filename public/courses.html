@@ -942,7 +942,7 @@
       return `
         <a href="${href}" class="course-card" data-cat="${catKey}" data-id="${course.id}" style="text-decoration:none;color:inherit;">
           <div class="course-cover" style="${coverStyle}">
-            ${course.cover_image_url ? `<img src="${course.cover_image_url}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">` : ''}
+            ${course.cover_image_url ? `<img src="${course.cover_image_url}" alt="${(course.title || 'Course').replace(/"/g, '&quot;')}${course.instructor_name ? ' — ' + course.instructor_name.replace(/"/g, '&quot;') : ''}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">` : ''}
             <span class="course-watermark" style="position:relative;z-index:2;">${initials}</span>
             <div class="course-overlay" style="z-index:1;"></div>
             <span class="course-level-tag" style="z-index:3;">${levelText}</span>

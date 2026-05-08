@@ -1432,6 +1432,127 @@ try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_duration_seconds I
 try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_title TEXT`); } catch (_) {}
 try { db.exec(`ALTER TABLE chapters ADD COLUMN created_at TEXT DEFAULT (datetime('now'))`); } catch (_) {}
 
+// ── Sitar batch-flow + integrations migrations (idempotent) ──
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS support_links (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      url TEXT NOT NULL,
+      category TEXT,
+      order_index INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_support_links_course ON support_links(course_id)`);
+} catch (_) {}
+
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS instructor_google_tokens (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      access_token TEXT NOT NULL,
+      refresh_token TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      calendar_id TEXT DEFAULT 'primary',
+      connected_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+} catch (_) {}
+
+try { db.exec(`ALTER TABLE courses ADD COLUMN batch_mode INTEGER DEFAULT 0`); } catch (_) {}
+
+// Defensive index — payment finalize race is already eliminated via conditional
+// status-update SQL, but a UNIQUE constraint catches any future regression.
+try { db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS uniq_coupon_redemption_per_purchase ON coupon_redemptions(purchase_id)`); } catch (_) {}
+
+// ── notify_interest: structured replacement for /data/notify-interest.json ──
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS notify_interest (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL,
+      phone TEXT,
+      course TEXT,
+      tier TEXT,
+      type TEXT DEFAULT 'waitlist',
+      source_ip TEXT,
+      user_agent TEXT,
+      responded_at TEXT,
+      admin_notified_at TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_notify_interest_email ON notify_interest(email)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_notify_interest_created ON notify_interest(created_at)`);
+} catch (_) {}
+
+// ── live_sessions.reminder_sent — tracks 30-min pre-class email ──
+try { db.exec(`ALTER TABLE live_sessions ADD COLUMN reminder_sent TEXT`); } catch (_) {}
+
+// ── Seed live_class_reminder email template ──
+try {
+  db.prepare(`
+    INSERT OR IGNORE INTO email_templates (name, subject, html_body)
+    VALUES (
+      'live_class_reminder',
+      'Your class starts in 30 minutes — The Foundation Room',
+      '<!DOCTYPE html><html><body style="font-family:DM Sans,sans-serif;background:#080706;color:#F0E6D3;padding:40px 20px;max-width:540px;margin:0 auto;">
+<div style="text-align:center;margin-bottom:32px;">
+  <div style="font-family:Georgia,serif;font-size:26px;font-weight:700;color:#C8A84B;">The Foundation Room</div>
+  <div style="font-size:11px;color:#6B5E50;letter-spacing:0.2em;text-transform:uppercase;margin-top:4px;">Live Class Reminder</div>
+</div>
+<div style="background:#0F0D0B;border:1px solid rgba(200,168,75,0.2);border-radius:8px;padding:32px 28px;">
+  <h1 style="font-family:Georgia,serif;font-size:20px;color:#C8A84B;margin:0 0 12px;">Your class starts in 30 minutes</h1>
+  <p style="font-size:15px;line-height:1.65;color:#B8A898;margin:0 0 8px;">Hi {{first_name}},</p>
+  <p style="font-size:15px;line-height:1.65;color:#B8A898;margin:0 0 20px;">
+    <strong style="color:#F0E6D3;">{{session_title}}</strong> is starting soon.<br>
+    Time: <strong style="color:#F0E6D3;">{{time}}</strong> &nbsp;&middot;&nbsp; Duration: {{duration}} min
+  </p>
+  <a href="{{join_url}}" style="display:inline-block;background:#C8A84B;color:#080706;font-weight:700;font-size:14px;padding:14px 32px;border-radius:4px;text-decoration:none;letter-spacing:0.06em;">Join Class →</a>
+  <p style="font-size:12px;color:#6B5E50;margin-top:20px;">If the button does not work, copy this link: <a href="{{join_url}}" style="color:#C8A84B;">{{join_url}}</a></p>
+</div>
+<div style="text-align:center;margin-top:28px;font-size:11px;color:#6B5E50;">
+  &copy; The Foundation Room &mdash; <a href="https://tfrplay.com" style="color:#6B5E50;">tfrplay.com</a>
+</div>
+</body></html>'
+    )
+  `).run();
+} catch (_) {}
+
+// ── Seed waitlist_welcome email template (placeholder; editable via admin email-automation UI) ──
+try {
+  db.prepare(`
+    INSERT OR IGNORE INTO email_templates (name, subject, html_body)
+    VALUES (
+      'waitlist_welcome',
+      'You''re on the list — The Foundation Room',
+      '<!DOCTYPE html><html><body style="font-family:DM Sans,sans-serif;background:#080706;color:#F0E6D3;padding:40px 20px;max-width:540px;margin:0 auto;">
+<div style="text-align:center;margin-bottom:32px;">
+  <div style="font-family:Georgia,serif;font-size:26px;font-weight:700;color:#C8A84B;letter-spacing:0.04em;">The Foundation Room</div>
+  <div style="font-size:11px;color:#6B5E50;letter-spacing:0.2em;text-transform:uppercase;margin-top:4px;">Masterclass Platform</div>
+</div>
+<div style="background:#0F0D0B;border:1px solid rgba(200,168,75,0.2);border-radius:8px;padding:32px 28px;">
+  <h1 style="font-family:Georgia,serif;font-size:22px;color:#C8A84B;margin:0 0 16px;">You''re on the list.</h1>
+  <p style="font-size:15px;line-height:1.65;color:#B8A898;margin:0 0 16px;">
+    Thank you for your interest in <strong style="color:#F0E6D3;">{{course}}</strong>.<br>
+    We''ll notify you as soon as enrollment opens.
+  </p>
+  <p style="font-size:14px;line-height:1.65;color:#6B5E50;">
+    In the meantime, explore our other programs at
+    <a href="https://tfrplay.com" style="color:#C8A84B;text-decoration:none;">tfrplay.com</a>.
+  </p>
+</div>
+<div style="text-align:center;margin-top:28px;font-size:11px;color:#6B5E50;">
+  &copy; The Foundation Room &mdash; <a href="https://tfrplay.com/unsubscribe" style="color:#6B5E50;">Unsubscribe</a>
+</div>
+</body></html>'
+    )
+  `).run();
+} catch (_) {}
+
 // ── Dummy bundle + foundation pricing (Razorpay TEST mode only) ──
 // Any course with a zero/null bundle_price_paise and any chapter with a zero
 // price_individual_paise gets a dummy amount by level. Existing non-zero

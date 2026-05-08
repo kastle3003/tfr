@@ -214,11 +214,15 @@ router.post('/verify', (req, res) => {
       }
     }
 
-    db.prepare(`
+    const upd = db.prepare(`
       UPDATE purchases
          SET status = 'completed', razorpay_payment_id = ?, updated_at = datetime('now')
-       WHERE id = ?
+       WHERE id = ? AND status != 'completed'
     `).run(razorpay_payment_id || null, purchase.id);
+
+    if (upd.changes === 0) {
+      return res.json({ message: 'Already completed', purchase_id: purchase.id });
+    }
 
     finalizePurchase(purchase.id);
 
