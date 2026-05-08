@@ -1169,6 +1169,8 @@
               <button class="editor-tab" onclick="switchEditorTab('chapters', this)">Chapters &amp; Lessons</button>
               <button class="editor-tab" onclick="switchEditorTab('assignments', this)">Assignments</button>
               <button class="editor-tab" onclick="switchEditorTab('support-links', this)">Support Links</button>
+              <button class="editor-tab" onclick="switchEditorTab('practice-materials', this)">Practice Materials</button>
+              <button class="editor-tab" onclick="switchEditorTab('submissions', this)">Submissions</button>
             </div>
 
             <div class="editor-body">
@@ -1332,6 +1334,73 @@
                 </div>
                 <div id="support-links-list"></div>
               </div>
+
+              <!-- ── Practice Materials Tab ── -->
+              <div class="editor-tab-panel" id="etab-practice-materials">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                  <div style="font-size:13px;color:var(--text-3);">PDFs and videos students view in-browser — not downloadable.</div>
+                </div>
+
+                <!-- Upload form -->
+                <div style="background:var(--bg-elevated);border:1px solid rgba(200,168,75,0.12);border-radius:8px;padding:20px;margin-bottom:20px;">
+                  <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:14px;">Add Practice Material</div>
+                  <div class="grid-2" style="gap:12px;">
+                    <div class="form-group" style="grid-column:1/-1;">
+                      <label class="form-label">Title *</label>
+                      <input class="form-input" id="pm-title" type="text" placeholder="e.g. Raag Yaman — Scale Chart">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Type</label>
+                      <select class="form-select" id="pm-type" onchange="togglePmSource()">
+                        <option value="pdf">PDF</option>
+                        <option value="video">Video</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Order</label>
+                      <input class="form-input" id="pm-order" type="number" value="0" min="0" style="width:80px;">
+                    </div>
+                    <div class="form-group" id="pm-file-group" style="grid-column:1/-1;">
+                      <label class="form-label">Upload File <span style="font-weight:400;color:var(--text-3);">(PDF ≤ 50 MB)</span></label>
+                      <input class="form-input" id="pm-file" type="file" accept=".pdf,video/*" style="padding:6px;">
+                      <div style="font-size:11px;color:var(--text-3);margin-top:4px;">— or paste an external URL below instead —</div>
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                      <label class="form-label">External URL <span style="font-weight:400;color:var(--text-3);">(optional if uploading a file)</span></label>
+                      <input class="form-input" id="pm-url" type="url" placeholder="https://drive.google.com/…">
+                    </div>
+                  </div>
+                  <div style="margin-top:4px;display:flex;gap:8px;align-items:center;">
+                    <button class="btn btn-primary btn-sm" id="pm-add-btn" onclick="addPracticeMaterial()">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      Add Material
+                    </button>
+                    <div id="pm-upload-progress" style="font-size:12px;color:var(--text-3);display:none;">Uploading…</div>
+                  </div>
+                </div>
+
+                <!-- Materials list -->
+                <div id="pm-list" style="display:flex;flex-direction:column;gap:8px;">
+                  <div style="font-size:12px;color:var(--text-3);padding:8px 0;">Loading materials…</div>
+                </div>
+              </div>
+
+              <!-- ── Submissions Tab ── -->
+              <div class="editor-tab-panel" id="etab-submissions">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                  <div style="font-size:13px;color:var(--text-3);">Exercise video submissions from students. Review and give text feedback.</div>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <select class="form-select" id="sub-filter-status" onchange="loadSubmissionsTab()" style="font-size:12px;padding:5px 10px;height:32px;">
+                      <option value="">All</option>
+                      <option value="pending">Pending</option>
+                      <option value="reviewed">Reviewed</option>
+                      <option value="graded">Graded</option>
+                    </select>
+                  </div>
+                </div>
+                <div id="sub-list"></div>
+              </div>
+
             </div>
           </div>
 
@@ -1688,6 +1757,8 @@
     panel.classList.add('active');
     gsap.from(panel, { opacity: 0, y: 10, duration: 0.3, ease: 'power2.out' });
     if (name === 'support-links' && selectedCourseId) loadSupportLinks(selectedCourseId);
+    if (name === 'practice-materials' && selectedCourseId) loadPracticeMaterials(selectedCourseId);
+    if (name === 'submissions' && selectedCourseId) loadSubmissionsTab(selectedCourseId);
   }
 
   // ────────── Support Links ──────────
@@ -2688,6 +2759,204 @@
       await api.del(`/api/materials/${materialId}/timestamps/${tsId}`);
       await loadMaterials(lessonId);
     } catch (e) { toast(e.message, 'error'); }
+  }
+
+  // ────────── Practice Materials ──────────
+  let pmData = [];
+
+  function pmEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function togglePmSource() {
+    // type dropdown currently not changing layout, but can show/hide hint
+  }
+
+  async function loadPracticeMaterials(courseId) {
+    const el = document.getElementById('pm-list');
+    if (!courseId) { el.innerHTML = '<div style="font-size:12px;color:var(--text-3);">Select a course first.</div>'; return; }
+    try {
+      const data = await api.get('/api/practice-materials?course_id=' + courseId);
+      pmData = data.materials || [];
+      renderPracticeMaterials();
+    } catch (e) {
+      el.innerHTML = '<div style="font-size:12px;color:var(--text-3);">Failed to load: ' + pmEsc(e.message) + '</div>';
+    }
+  }
+
+  function renderPracticeMaterials() {
+    const el = document.getElementById('pm-list');
+    if (!pmData.length) {
+      el.innerHTML = '<div style="font-size:12px;color:var(--text-3);padding:16px 0;text-align:center;">No practice materials yet. Add a PDF or video URL above.</div>';
+      return;
+    }
+    el.innerHTML = pmData.map(m => `
+      <div style="display:flex;align-items:center;gap:12px;background:var(--bg-elevated);border:1px solid rgba(200,168,75,0.1);border-radius:8px;padding:12px 14px;">
+        <div style="width:32px;height:32px;border-radius:6px;background:rgba(200,168,75,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          ${m.type === 'pdf'
+            ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`
+            : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:600;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${pmEsc(m.title)}</div>
+          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;">${m.type} · order ${m.order_index}</div>
+        </div>
+        <a href="${pmEsc(m.view_url)}" target="_blank" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(200,168,75,0.25);padding:4px 10px;border-radius:5px;white-space:nowrap;">Preview ↗</a>
+        <button onclick="deletePracticeMaterial(${m.id})" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:4px;" title="Delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </button>
+      </div>`).join('');
+  }
+
+  async function addPracticeMaterial() {
+    if (!selectedCourseId) { toast('Select a course first', 'error'); return; }
+    const title = document.getElementById('pm-title').value.trim();
+    if (!title) { toast('Title is required', 'error'); return; }
+    const type = document.getElementById('pm-type').value;
+    const order_index = parseInt(document.getElementById('pm-order').value) || 0;
+    const fileInput = document.getElementById('pm-file');
+    const url = document.getElementById('pm-url').value.trim();
+
+    const btn = document.getElementById('pm-add-btn');
+    const prog = document.getElementById('pm-upload-progress');
+    btn.disabled = true;
+
+    try {
+      const fd = new FormData();
+      fd.append('course_id', selectedCourseId);
+      fd.append('title', title);
+      fd.append('type', type);
+      fd.append('order_index', order_index);
+      if (fileInput.files && fileInput.files[0]) {
+        fd.append('file', fileInput.files[0]);
+        prog.style.display = '';
+      } else if (url) {
+        fd.append('url', url);
+      } else {
+        toast('Provide a file or URL', 'error');
+        btn.disabled = false;
+        return;
+      }
+
+      await api.upload('/api/practice-materials', fd);
+      toast('Material added!', 'success');
+      document.getElementById('pm-title').value = '';
+      document.getElementById('pm-url').value = '';
+      fileInput.value = '';
+      loadPracticeMaterials(selectedCourseId);
+    } catch (e) {
+      toast(e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      prog.style.display = 'none';
+    }
+  }
+
+  async function deletePracticeMaterial(id) {
+    if (!confirm('Delete this material?')) return;
+    try {
+      await api.del('/api/practice-materials/' + id);
+      toast('Deleted', 'success');
+      loadPracticeMaterials(selectedCourseId);
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  // ────────── Submissions (review tab) ──────────
+  let submissionsData = [];
+
+  async function loadSubmissionsTab(courseId) {
+    const cid = courseId || selectedCourseId;
+    const el = document.getElementById('sub-list');
+    if (!cid) { el.innerHTML = '<div style="font-size:12px;color:var(--text-3);">Select a course first.</div>'; return; }
+    const status = document.getElementById('sub-filter-status').value;
+    try {
+      const params = new URLSearchParams({ course_id: cid });
+      if (status) params.set('status', status);
+      const data = await api.get('/api/submissions/review?' + params.toString());
+      submissionsData = data.submissions || [];
+      renderSubmissionsTab();
+    } catch (e) {
+      el.innerHTML = '<div style="font-size:12px;color:var(--text-3);">Failed to load submissions: ' + pmEsc(e.message) + '</div>';
+    }
+  }
+
+  function subStatusBadge(status) {
+    const map = {
+      pending:  { color: '#C8A84B', bg: 'rgba(200,168,75,0.12)', label: 'Pending' },
+      reviewed: { color: '#6abf7a', bg: 'rgba(106,191,122,0.12)', label: 'Reviewed' },
+      graded:   { color: '#6abf7a', bg: 'rgba(106,191,122,0.12)', label: 'Graded' },
+    };
+    const s = map[status] || { color: 'var(--text-3)', bg: 'transparent', label: status };
+    return `<span style="font-size:11px;font-weight:600;color:${s.color};background:${s.bg};padding:2px 8px;border-radius:99px;">${s.label}</span>`;
+  }
+
+  function renderSubmissionsTab() {
+    const el = document.getElementById('sub-list');
+    if (!submissionsData.length) {
+      el.innerHTML = '<div style="text-align:center;padding:40px 0;font-size:13px;color:var(--text-3);">No submissions yet.</div>';
+      return;
+    }
+    el.innerHTML = submissionsData.map((s, i) => `
+      <div style="background:var(--bg-elevated);border:1px solid rgba(200,168,75,0.1);border-radius:8px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;" onclick="toggleSubRow(${i})">
+          <div style="width:34px;height:34px;border-radius:50%;background:rgba(200,168,75,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--gold);flex-shrink:0;">
+            ${pmEsc(s.student_initials || (s.student_name || '?').charAt(0))}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:600;color:var(--text-2);">${pmEsc(s.student_name || 'Unknown')}</div>
+            <div style="font-size:11px;color:var(--text-3);">${pmEsc(s.lesson_title || 'General')} · ${new Date(s.submitted_at || s.created_at).toLocaleDateString()}</div>
+          </div>
+          ${s.title ? `<div style="font-size:12px;color:var(--text-2);">${pmEsc(s.title)}</div>` : ''}
+          ${subStatusBadge(s.status)}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" class="sub-chevron-${i}"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="sub-body-${i}" style="display:none;padding:0 16px 16px;border-top:1px solid rgba(200,168,75,0.08);">
+          ${s.notes ? `<div style="font-size:13px;color:var(--text-2);margin-top:12px;margin-bottom:8px;"><strong>Student note:</strong> ${pmEsc(s.notes)}</div>` : ''}
+          ${(s.video_url || s.file_path) ? `
+            <div style="margin:12px 0;">
+              <a href="${pmEsc(s.video_url || s.file_path)}" target="_blank" style="font-size:13px;color:var(--gold);text-decoration:none;border:1px solid rgba(200,168,75,0.25);padding:6px 14px;border-radius:6px;display:inline-flex;align-items:center;gap:6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Watch Student Video
+              </a>
+            </div>` : ''}
+          ${s.feedback_text ? `
+            <div style="background:rgba(200,168,75,0.06);border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:12px;">
+              <div style="font-size:11px;font-weight:600;color:var(--text-3);margin-bottom:4px;">Your feedback:</div>
+              <div style="font-size:13px;color:var(--text-2);">${pmEsc(s.feedback_text)}</div>
+            </div>` : ''}
+          <div style="margin-top:10px;">
+            <label style="font-size:12px;font-weight:600;color:var(--text-3);display:block;margin-bottom:6px;">Feedback to student</label>
+            <textarea id="sub-fb-${i}" rows="3" style="width:100%;background:var(--bg-card);color:var(--text);border:1px solid rgba(200,168,75,0.2);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--sans);resize:vertical;box-sizing:border-box;">${pmEsc(s.feedback_text || '')}</textarea>
+            <div style="margin-top:8px;display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" onclick="submitFeedback(${s.id}, ${i})">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Mark Reviewed
+              </button>
+              <span style="font-size:11px;color:var(--text-3);align-self:center;">${s.status === 'reviewed' ? 'Last reviewed ' + new Date(s.feedback_at || '').toLocaleDateString() : ''}</span>
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function toggleSubRow(i) {
+    const body = document.getElementById('sub-body-' + i);
+    const chevron = document.querySelector('.sub-chevron-' + i);
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+  }
+
+  async function submitFeedback(submissionId, rowIdx) {
+    const text = document.getElementById(`sub-fb-${rowIdx}`).value.trim();
+    if (!text) { toast('Write some feedback first', 'error'); return; }
+    try {
+      await api.put(`/api/submissions/${submissionId}/feedback`, { feedback_text: text });
+      toast('Feedback saved!', 'success');
+      loadSubmissionsTab(selectedCourseId);
+    } catch (e) {
+      toast(e.message, 'error');
+    }
   }
 
   // ────────── Assignments ──────────

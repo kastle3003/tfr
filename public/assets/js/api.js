@@ -22,6 +22,7 @@ const api = {
   get: (path) => fetch(API_BASE + path, { headers: api._headers() }).then(api._handle),
   post: (path, body) => fetch(API_BASE + path, { method: 'POST', headers: api._headers(), body: JSON.stringify(body) }).then(api._handle),
   put: (path, body) => fetch(API_BASE + path, { method: 'PUT', headers: api._headers(), body: JSON.stringify(body) }).then(api._handle),
+  patch: (path, body) => fetch(API_BASE + path, { method: 'PATCH', headers: api._headers(), body: JSON.stringify(body) }).then(api._handle),
   del: (path) => fetch(API_BASE + path, { method: 'DELETE', headers: api._headers() }).then(api._handle),
   upload: (path, formData) => fetch(API_BASE + path, { method: 'POST', headers: { ...(api._token() ? { Authorization: `Bearer ${api._token()}` } : {}) }, body: formData }).then(api._handle),
 };

@@ -243,4 +243,79 @@ router.put('/:id/status', (req, res) => {
   }
 });
 
+// PATCH /api/live-sessions/:id/recording — instructor/admin saves recording URL, marks completed
+router.patch('/:id/recording', (req, res) => {
+  try {
+    if (!['instructor', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Instructor access required' });
+    }
+
+    const { recording_url } = req.body;
+    if (!recording_url || !recording_url.trim()) {
+      return res.status(400).json({ error: 'recording_url is required' });
+    }
+
+    const session = db.prepare('SELECT * FROM live_sessions WHERE id = ?').get(req.params.id);
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (session.instructor_id !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Not your session' });
+    }
+
+    db.prepare(`UPDATE live_sessions SET recording_url = ?, status = 'completed' WHERE id = ?`)
+      .run(recording_url.trim(), req.params.id);
+
+    const updated = db.prepare('SELECT * FROM live_sessions WHERE id = ?').get(req.params.id);
+    res.json({ session: updated });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/live-sessions/:id/convert-to-lesson — create a course lesson from the recording
+router.post('/:id/convert-to-lesson', (req, res) => {
+  try {
+    if (!['instructor', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Instructor access required' });
+    }
+
+    const session = db.prepare('SELECT * FROM live_sessions WHERE id = ?').get(req.params.id);
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    if (!session.recording_url) return res.status(400).json({ error: 'No recording URL set on this session' });
+    if (!session.course_id) return res.status(400).json({ error: 'Session is not linked to a course' });
+    if (session.instructor_id !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Not your session' });
+    }
+
+    const { chapter_id, title } = req.body;
+    const lessonTitle = (title || '').trim() || `${session.title} (Recording)`;
+
+    // Pick order_index — append after existing lessons in the chapter (or course if no chapter)
+    let maxOrder = 0;
+    if (chapter_id) {
+      const row = db.prepare('SELECT MAX(order_index) AS m FROM lessons WHERE chapter_id = ?').get(chapter_id);
+      maxOrder = (row && row.m != null) ? row.m + 1 : 0;
+    } else {
+      const row = db.prepare('SELECT MAX(order_index) AS m FROM lessons WHERE course_id = ? AND chapter_id IS NULL').get(session.course_id);
+      maxOrder = (row && row.m != null) ? row.m + 1 : 0;
+    }
+
+    const result = db.prepare(`
+      INSERT INTO lessons (chapter_id, course_id, title, order_index, type, content_url, duration_minutes)
+      VALUES (?, ?, ?, ?, 'video', ?, ?)
+    `).run(
+      chapter_id || null,
+      session.course_id,
+      lessonTitle,
+      maxOrder,
+      session.recording_url,
+      session.duration_minutes || null
+    );
+
+    const lesson = db.prepare('SELECT * FROM lessons WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json({ lesson });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

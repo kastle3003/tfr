@@ -1209,6 +1209,26 @@
               </div>
               <div id="sd-support-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:14px;"></div>
             </div>
+
+            <!-- Practice Materials — inline PDF/video viewer, no download -->
+            <div id="sd-pm-section" style="display:none;margin-top:28px;padding-top:24px;border-top:1px solid rgba(200,168,75,0.15);">
+              <div class="curriculum-header">
+                <h2 class="curriculum-title">Practice Materials</h2>
+                <span class="lesson-count-badge" id="sd-pm-count">—</span>
+              </div>
+              <div id="sd-pm-list" style="display:flex;flex-direction:column;gap:8px;margin-top:14px;"></div>
+            </div>
+
+            <!-- My Submissions — collapsible -->
+            <div id="sd-sub-section" style="display:none;margin-top:28px;padding-top:24px;border-top:1px solid rgba(200,168,75,0.15);">
+              <div class="curriculum-header" style="cursor:pointer;" onclick="toggleSubSection()">
+                <h2 class="curriculum-title">My Submissions</h2>
+                <svg id="sd-sub-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div id="sd-sub-inner" style="display:none;margin-top:14px;">
+                <div id="sd-sub-list"></div>
+              </div>
+            </div>
           </div>
 
           <!-- Right: Info card -->
@@ -1290,6 +1310,54 @@
       </div><!-- /page-content -->
 
     </main>
+  </div>
+</div>
+
+<!-- Practice Material Viewer Modal -->
+<div id="pm-viewer-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;align-items:center;justify-content:center;animation:fadeIn .15s ease;" onclick="if(event.target===this)closePMViewer()">
+  <div style="background:#0a0807;border:1px solid rgba(200,168,75,0.2);border-radius:12px;padding:20px;width:92vw;max-width:860px;height:80vh;display:flex;flex-direction:column;gap:12px;box-shadow:0 24px 64px rgba(0,0,0,0.7);">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div id="pm-viewer-title" style="font-family:var(--serif);font-size:17px;font-weight:600;color:var(--text);"></div>
+      <button onclick="closePMViewer()" style="background:none;border:none;cursor:pointer;color:var(--text-3);padding:4px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="pm-viewer-body" style="flex:1;border-radius:8px;overflow:hidden;background:#000;" oncontextmenu="return false;"></div>
+    <div style="font-size:11px;color:var(--text-3);text-align:center;user-select:none;">This material is for enrolled students only. Downloading is not permitted.</div>
+  </div>
+</div>
+
+<!-- Submit Exercise Modal -->
+<div id="submit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:400;align-items:center;justify-content:center;animation:fadeIn .14s ease;" onclick="if(event.target===this)closeSubmitModal()">
+  <div style="background:var(--bg-card);border:1px solid rgba(200,168,75,0.18);border-radius:12px;padding:28px;width:92vw;max-width:520px;box-shadow:var(--shadow-lg);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-family:var(--serif);font-size:19px;font-weight:600;color:var(--text);">Submit Exercise</div>
+      <button onclick="closeSubmitModal()" style="background:none;border:none;cursor:pointer;color:var(--text-3);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="font-size:12px;color:var(--text-3);margin-bottom:18px;">For: <strong id="submit-modal-lesson" style="color:var(--text-2);"></strong></div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--text-3);display:block;margin-bottom:6px;">Title (optional)</label>
+        <input id="submit-modal-title-input" type="text" placeholder="e.g. Week 3 Practice Recording" style="width:100%;background:var(--bg-elevated);color:var(--text);border:1px solid rgba(200,168,75,0.2);border-radius:6px;padding:8px 12px;font-size:13px;font-family:var(--sans);box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--text-3);display:block;margin-bottom:6px;">Option A — Upload Video File <span style="font-weight:400;">(max 500 MB)</span></label>
+        <input id="submit-modal-file" type="file" accept="video/*" style="width:100%;background:var(--bg-elevated);color:var(--text);border:1px solid rgba(200,168,75,0.2);border-radius:6px;padding:7px;font-size:12px;box-sizing:border-box;">
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--text-3);">— or —</div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--text-3);display:block;margin-bottom:6px;">Option B — Paste YouTube / Google Drive Link</label>
+        <input id="submit-modal-url" type="url" placeholder="https://youtube.com/…" style="width:100%;background:var(--bg-elevated);color:var(--text);border:1px solid rgba(200,168,75,0.2);border-radius:6px;padding:8px 12px;font-size:13px;font-family:var(--sans);box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--text-3);display:block;margin-bottom:6px;">Message to instructor <span style="font-weight:400;">(optional)</span></label>
+        <textarea id="submit-modal-notes" rows="3" placeholder="What did you work on? Any questions?" style="width:100%;background:var(--bg-elevated);color:var(--text);border:1px solid rgba(200,168,75,0.2);border-radius:6px;padding:8px 12px;font-size:13px;font-family:var(--sans);resize:vertical;box-sizing:border-box;"></textarea>
+      </div>
+      <div id="submit-modal-progress" style="display:none;font-size:12px;color:var(--text-3);text-align:center;">Uploading… please wait</div>
+      <button id="submit-modal-btn" onclick="doSubmitExercise()" style="background:#C8A84B;color:#080706;border:none;border-radius:6px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background .15s;" onmouseover="this.style.background='#d4b55a'" onmouseout="this.style.background='#C8A84B'">Submit Exercise</button>
+    </div>
   </div>
 </div>
 
@@ -1428,6 +1496,194 @@
     } catch (_) { /* silent */ }
   }
 
+  /* ── Practice Materials: inline viewer ── */
+  async function loadPracticeMaterialsSection(courseId) {
+    const r = await fetch('/api/practice-materials?course_id=' + courseId, {
+      headers: { Authorization: 'Bearer ' + (localStorage.getItem('archive_token') || '') }
+    });
+    if (!r.ok) return;
+    const { materials } = await r.json();
+    if (!Array.isArray(materials) || !materials.length) return;
+
+    const section = document.getElementById('sd-pm-section');
+    const list    = document.getElementById('sd-pm-list');
+    const cnt     = document.getElementById('sd-pm-count');
+    if (!section || !list) return;
+
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    list.innerHTML = materials.map(m => `
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(200,168,75,0.04);border:1px solid rgba(200,168,75,0.14);border-radius:8px;transition:all .15s;"
+           onmouseover="this.style.background='rgba(200,168,75,0.08)'" onmouseout="this.style.background='rgba(200,168,75,0.04)'">
+        <div style="width:32px;height:32px;border-radius:6px;background:rgba(200,168,75,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          ${m.type === 'pdf'
+            ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8A84B" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`
+            : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8A84B" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`}
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:600;color:var(--text-2);">${esc(m.title)}</div>
+          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.06em;">${m.type}</div>
+        </div>
+        <button onclick="openPMViewer('${esc(m.view_url)}','${esc(m.title)}','${m.type}')"
+          style="display:inline-flex;align-items:center;gap:6px;background:rgba(200,168,75,0.1);color:#C8A84B;border:1px solid rgba(200,168,75,0.25);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;"
+          onmouseover="this.style.background='rgba(200,168,75,0.2)'" onmouseout="this.style.background='rgba(200,168,75,0.1)'">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          View
+        </button>
+      </div>`).join('');
+
+    if (cnt) cnt.textContent = materials.length + (materials.length === 1 ? ' file' : ' files');
+    section.style.display = 'block';
+  }
+
+  /* ── Practice Material Viewer Modal ── */
+  function openPMViewer(url, title, type) {
+    const overlay = document.getElementById('pm-viewer-overlay');
+    document.getElementById('pm-viewer-title').textContent = title;
+    const body = document.getElementById('pm-viewer-body');
+    if (type === 'pdf' || url.includes('/view')) {
+      body.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;display:block;" oncontextmenu="return false;"></iframe>`;
+    } else if (/youtube\.com|youtu\.be/.test(url)) {
+      const vid = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1];
+      body.innerHTML = vid
+        ? `<iframe src="https://www.youtube.com/embed/${vid}?autoplay=1" allow="autoplay;fullscreen" allowfullscreen style="width:100%;height:100%;border:none;" oncontextmenu="return false;"></iframe>`
+        : `<video src="${url}" controls style="width:100%;height:100%;" oncontextmenu="return false;"></video>`;
+    } else {
+      body.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;" oncontextmenu="return false;"></iframe>`;
+    }
+    overlay.style.display = 'flex';
+  }
+
+  function closePMViewer() {
+    document.getElementById('pm-viewer-overlay').style.display = 'none';
+    document.getElementById('pm-viewer-body').innerHTML = '';
+  }
+
+  /* ── My Submissions ── */
+  async function loadMySubmissions(courseId) {
+    const r = await fetch('/api/submissions/me', {
+      headers: { Authorization: 'Bearer ' + (localStorage.getItem('archive_token') || '') }
+    });
+    if (!r.ok) return;
+    const { submissions } = await r.json();
+    const mine = (submissions || []).filter(s => String(s.course_id) === String(courseId));
+    if (!mine.length) return;
+
+    const section = document.getElementById('sd-sub-section');
+    const list    = document.getElementById('sd-sub-list');
+    if (!section || !list) return;
+
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const badge = (status) => {
+      const m = { pending: ['#C8A84B','rgba(200,168,75,0.12)'], reviewed: ['#6abf7a','rgba(106,191,122,0.12)'], graded: ['#6abf7a','rgba(106,191,122,0.12)'] };
+      const [col, bg] = m[status] || ['var(--text-3)','transparent'];
+      return `<span style="font-size:11px;font-weight:600;color:${col};background:${bg};padding:2px 8px;border-radius:99px;">${status}</span>`;
+    };
+
+    list.innerHTML = mine.map(s => `
+      <div style="padding:12px 14px;background:var(--bg-elevated);border:1px solid rgba(200,168,75,0.1);border-radius:8px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:var(--text-2);">${esc(s.title || s.lesson_title || 'Submission')}</div>
+            <div style="font-size:11px;color:var(--text-3);">${new Date(s.submitted_at || s.created_at).toLocaleDateString()}</div>
+          </div>
+          ${badge(s.status)}
+        </div>
+        ${s.feedback_text ? `
+          <div style="margin-top:10px;padding:10px 14px;background:rgba(200,168,75,0.05);border-left:3px solid #C8A84B;border-radius:0 6px 6px 0;">
+            <div style="font-size:11px;font-weight:600;color:var(--text-3);margin-bottom:4px;">Instructor feedback:</div>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.6;">${esc(s.feedback_text)}</div>
+          </div>` : ''}
+      </div>`).join('');
+
+    section.style.display = 'block';
+  }
+
+  function toggleSubSection() {
+    const inner = document.getElementById('sd-sub-inner');
+    const chev  = document.getElementById('sd-sub-chevron');
+    const open = inner.style.display !== 'none';
+    inner.style.display = open ? 'none' : 'block';
+    if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+  }
+
+  /* ── Submit Exercise Modal ── */
+  let _submitLessonId = null;
+  let _submitCourseId = null;
+
+  function openSubmitModal(lessonId, lessonTitle) {
+    _submitLessonId = lessonId;
+    _submitCourseId = currentCourse ? currentCourse.id : null;
+    document.getElementById('submit-modal-lesson').textContent = lessonTitle || 'Exercise';
+    document.getElementById('submit-modal-title-input').value = '';
+    document.getElementById('submit-modal-notes').value = '';
+    document.getElementById('submit-modal-url').value = '';
+    document.getElementById('submit-modal-file').value = '';
+    document.getElementById('submit-modal-progress').style.display = 'none';
+    document.getElementById('submit-modal').style.display = 'flex';
+  }
+
+  function closeSubmitModal() {
+    document.getElementById('submit-modal').style.display = 'none';
+  }
+
+  async function doSubmitExercise() {
+    const urlVal   = document.getElementById('submit-modal-url').value.trim();
+    const fileInput = document.getElementById('submit-modal-file');
+    const notes    = document.getElementById('submit-modal-notes').value.trim();
+    const title    = document.getElementById('submit-modal-title-input').value.trim();
+    const prog     = document.getElementById('submit-modal-progress');
+    const btn      = document.getElementById('submit-modal-btn');
+
+    if (!urlVal && (!fileInput.files || !fileInput.files[0])) {
+      showSdToast('Please provide a file or a video URL', 'error'); return;
+    }
+
+    btn.disabled = true;
+    prog.style.display = '';
+
+    try {
+      const fd = new FormData();
+      if (_submitLessonId) fd.append('lesson_id', _submitLessonId);
+      if (_submitCourseId) fd.append('course_id', _submitCourseId);
+      if (title) fd.append('title', title);
+      if (notes) fd.append('notes', notes);
+      if (fileInput.files && fileInput.files[0]) {
+        fd.append('file', fileInput.files[0]);
+      } else {
+        fd.append('video_url', urlVal);
+      }
+
+      const r = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + (localStorage.getItem('archive_token') || '') },
+        body: fd
+      });
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}));
+        throw new Error(d.error || 'Upload failed');
+      }
+      showSdToast('Exercise submitted!', 'success');
+      closeSubmitModal();
+      if (_submitCourseId) loadMySubmissions(_submitCourseId).catch(() => {});
+    } catch (e) {
+      showSdToast(e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      prog.style.display = 'none';
+    }
+  }
+
+  function showSdToast(msg, type) {
+    const el = document.querySelector('.toast-container');
+    if (!el) return;
+    const t = document.createElement('div');
+    t.className = 'toast' + (type === 'error' ? ' error' : '');
+    t.textContent = msg;
+    el.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
   /* ── Render course ── */
   function renderCourse(course, chapters) {
     document.getElementById('page-skeleton').style.display = 'none';
@@ -1435,6 +1691,11 @@
 
     // Trigger support links fetch in parallel — non-blocking
     loadCourseSupportLinks(course.id).catch(() => {});
+    // Practice materials and submissions — only for enrolled students
+    if (isEnrolled) {
+      loadPracticeMaterialsSection(course.id).catch(() => {});
+      loadMySubmissions(course.id).catch(() => {});
+    }
 
     document.title = course.title + ' — The Foundation Room';
 
@@ -1614,11 +1875,19 @@
           </div>`;
       }
 
+      const submitBtn = isEnrolled ? `
+        <button onclick="event.stopPropagation(); openSubmitModal(${l.id}, '${l.title.replace(/'/g, "\\'")}')"
+          title="Submit Exercise" style="background:none;border:1px solid rgba(200,168,75,0.18);color:var(--text-3);border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;font-family:var(--sans);"
+          onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(200,168,75,0.18)';this.style.color='var(--text-3)'">
+          Submit
+        </button>` : '';
+
       return `
         <div class="${rowClass}" id="row-${l.id}" ${clickAttr}>
           <div class="${typeClass}">${typeIcon}</div>
           <div class="lesson-title">${l.title}</div>
           <div class="lesson-duration">${duration}</div>
+          ${isEnrolled ? submitBtn : ''}
           ${rightEl}
         </div>
         <div class="lesson-viewer" id="viewer-${l.id}"></div>`;

@@ -147,6 +147,65 @@
 
     /* Course tag chip */
     .course-chip { background: rgba(200,168,75,0.08); color: var(--gold); border-radius: 99px; padding: 2px 8px; font-size: 11px; font-weight: 600; border: 1px solid rgba(200,168,75,0.18); }
+
+    /* Recording management row (instructor) */
+    .recording-mgmt {
+      margin-top: 10px; padding: 10px 12px;
+      background: rgba(200,168,75,0.05);
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 8px;
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    }
+    .recording-mgmt input {
+      flex: 1; min-width: 180px;
+      background: var(--bg-card); color: var(--text);
+      border: 1px solid rgba(200,168,75,0.20);
+      border-radius: 6px; padding: 6px 10px; font-size: 12px;
+      font-family: var(--sans);
+    }
+    .recording-mgmt input:focus { outline: none; border-color: var(--gold); }
+    .btn-rec-save {
+      background: var(--gold); color: #080706; border: none;
+      font-size: 12px; font-weight: 700; padding: 6px 14px;
+      border-radius: 6px; cursor: pointer; white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-rec-save:hover { background: var(--gold-bright); }
+    .btn-convert {
+      background: transparent; color: var(--text-2);
+      border: 1px solid rgba(200,168,75,0.25);
+      font-size: 12px; font-weight: 600; padding: 6px 12px;
+      border-radius: 6px; cursor: pointer; white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-convert:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Video recording modal */
+    .video-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 400; animation: fadeIn 0.14s ease;
+    }
+    .video-modal-box {
+      background: #0a0807;
+      border: 1px solid rgba(200,168,75,0.18);
+      border-radius: 12px; padding: 24px;
+      width: 100%; max-width: 760px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+      animation: scaleIn 0.16s ease;
+    }
+    .video-modal-title {
+      font-family: var(--serif); font-size: 18px; font-weight: 600;
+      color: var(--text); margin-bottom: 16px;
+    }
+    .video-modal-player {
+      width: 100%; aspect-ratio: 16/9;
+      background: #000; border-radius: 8px; overflow: hidden;
+    }
+    .video-modal-player iframe,
+    .video-modal-player video {
+      width: 100%; height: 100%; border: none; display: block;
+    }
   </style>
 </head>
 <body>
@@ -255,6 +314,24 @@
         Create Session
       </button>
       <button class="btn btn-ghost" onclick="closeScheduleModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Recording Playback Modal -->
+<div class="video-modal-overlay" id="recording-modal" style="display:none;" onclick="if(event.target===this)closeRecordingModal()">
+  <div class="video-modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="video-modal-title" id="recording-modal-title">Session Recording</div>
+      <button style="background:none;border:none;cursor:pointer;color:var(--text-3);" onclick="closeRecordingModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="video-modal-player" id="recording-modal-player"></div>
+    <div style="margin-top:12px;text-align:right;">
+      <a id="recording-modal-ext-link" href="#" target="_blank" style="font-size:12px;color:var(--text-3);text-decoration:none;">
+        Open in new tab ↗
+      </a>
     </div>
   </div>
 </div>
@@ -416,24 +493,113 @@
       el.innerHTML = `<div style="color:var(--text-3);font-style:italic;font-size:13px;padding:8px 0;">No past sessions yet.</div>`;
       return;
     }
+    const isInstructor = currentUser && ['instructor', 'admin'].includes(currentUser.role);
     el.innerHTML = `<div class="past-list">${sessions.map(s => {
       const d = new Date(s.scheduled_at);
+      const isMine = isInstructor && s.instructor_id === currentUser.id;
+
+      // Student: watch recording button (opens modal)
+      // Instructor: recording URL management + convert to lesson
+      let recordingSection = '';
+      if (isMine) {
+        recordingSection = `
+          <div class="recording-mgmt" id="rec-mgmt-${s.id}">
+            <input type="url" id="rec-url-${s.id}" placeholder="Recording URL (YouTube, Google Meet, Drive…)"
+              value="${s.recording_url ? escHtml(s.recording_url) : ''}" />
+            <button class="btn-rec-save" onclick="saveRecording(${s.id})">Save</button>
+            ${s.recording_url ? `
+              <button class="btn-convert" onclick="openConvertModal(${s.id}, '${escHtml(s.title).replace(/'/g,"\\'")}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                Add to Course Lessons
+              </button>
+              <button class="btn-playback" onclick="openRecording('${escHtml(s.recording_url)}','${escHtml(s.title)}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Preview
+              </button>` : ''}
+          </div>`;
+      } else if (s.recording_url) {
+        recordingSection = `
+          <button class="btn-playback" onclick="openRecording('${escHtml(s.recording_url)}','${escHtml(s.title)}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Watch Recording
+          </button>`;
+      } else {
+        recordingSection = `<span style="font-size:12px;color:var(--text-3);">No recording yet</span>`;
+      }
+
       return `
-        <div class="past-item list-item">
-          <div class="past-date-badge">
-            <div class="past-date-d">${d.getDate()}</div>
-            <div class="past-date-m">${d.toLocaleString('en', { month: 'short' })}</div>
+        <div class="past-item list-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
+          <div style="display:flex;align-items:center;gap:16px;width:100%;">
+            <div class="past-date-badge">
+              <div class="past-date-d">${d.getDate()}</div>
+              <div class="past-date-m">${d.toLocaleString('en', { month: 'short' })}</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:14px; color:var(--text-2);">${s.title}</div>
+              <div style="font-size:12px; color:var(--text-3);">${s.instructor_name || ''} · ${s.duration_minutes || 60} min · ${formatDate(s.scheduled_at)}</div>
+            </div>
+            ${!isMine ? recordingSection : ''}
           </div>
-          <div style="flex:1;">
-            <div style="font-weight:600; font-size:14px; color:var(--text-2);">${s.title}</div>
-            <div style="font-size:12px; color:var(--text-3);">${s.instructor_name || ''} · ${s.duration_minutes || 60} min · ${formatDate(s.scheduled_at)}</div>
-          </div>
-          ${s.recording_url ? `<a href="${s.recording_url}" target="_blank" class="btn-playback">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-            Recording
-          </a>` : '<span style="font-size:12px;color:var(--text-3);">No recording</span>'}
+          ${isMine ? recordingSection : ''}
         </div>`;
     }).join('')}</div>`;
+  }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function openRecording(url, title) {
+    document.getElementById('recording-modal-title').textContent = title || 'Session Recording';
+    document.getElementById('recording-modal-ext-link').href = url;
+    const player = document.getElementById('recording-modal-player');
+    // Embed YouTube / Google Meet / Drive, else use video tag
+    let embed = '';
+    if (/youtube\.com|youtu\.be/.test(url)) {
+      const vid = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1];
+      embed = vid ? `<iframe src="https://www.youtube.com/embed/${vid}?autoplay=1" allow="autoplay;fullscreen" allowfullscreen></iframe>` : '';
+    } else if (/drive\.google\.com/.test(url)) {
+      // Google Drive preview embed
+      const fid = url.match(/\/d\/([^/]+)/)?.[1];
+      embed = fid ? `<iframe src="https://drive.google.com/file/d/${fid}/preview" allowfullscreen></iframe>` : '';
+    }
+    player.innerHTML = embed || `<video src="${url}" controls autoplay style="width:100%;height:100%;border-radius:8px;"></video>`;
+    document.getElementById('recording-modal').style.display = 'flex';
+  }
+
+  function closeRecordingModal() {
+    document.getElementById('recording-modal').style.display = 'none';
+    document.getElementById('recording-modal-player').innerHTML = '';
+  }
+
+  async function saveRecording(id) {
+    const url = document.getElementById(`rec-url-${id}`).value.trim();
+    if (!url) { toast('Enter a recording URL', 'error'); return; }
+    try {
+      await api.patch(`/api/live-sessions/${id}/recording`, { recording_url: url });
+      toast('Recording URL saved!', 'success');
+      loadSessions();
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  // Convert-to-lesson modal state
+  let _convertSessionId = null;
+  function openConvertModal(sessionId, sessionTitle) {
+    _convertSessionId = sessionId;
+    const title = prompt(`Lesson title (default: "${sessionTitle} (Recording)"):`);
+    if (title === null) return; // cancelled
+    convertToLesson(sessionId, title || '');
+  }
+
+  async function convertToLesson(sessionId, title) {
+    try {
+      const data = await api.post(`/api/live-sessions/${sessionId}/convert-to-lesson`, { title: title || undefined });
+      toast(`Lesson "${data.lesson.title}" added to course!`, 'success');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
   }
 
   async function registerSession(id) {

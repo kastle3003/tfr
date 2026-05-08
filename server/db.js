@@ -1468,6 +1468,38 @@ try { db.exec(`ALTER TABLE courses ADD COLUMN batch_mode INTEGER DEFAULT 0`); } 
 // status-update SQL, but a UNIQUE constraint catches any future regression.
 try { db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS uniq_coupon_redemption_per_purchase ON coupon_redemptions(purchase_id)`); } catch (_) {}
 
+// ── Item 9: Practice Materials — course PDFs/videos viewable inline, not downloadable ──
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS practice_materials (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      type TEXT DEFAULT 'pdf',
+      wasabi_key TEXT,
+      url TEXT,
+      order_index INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_practice_materials_course ON practice_materials(course_id);
+  `);
+} catch (_) {}
+
+// ── Items 10+15: Extend submissions table for video exercise submissions ──
+// Add columns that don't exist in the original schema (idempotent ALTER TABLE)
+try { db.exec(`ALTER TABLE submissions ADD COLUMN title TEXT`); } catch (_) {}
+try { db.exec(`ALTER TABLE submissions ADD COLUMN video_key TEXT`); } catch (_) {}
+try { db.exec(`ALTER TABLE submissions ADD COLUMN video_url TEXT`); } catch (_) {}
+try { db.exec(`ALTER TABLE submissions ADD COLUMN duration_seconds INTEGER`); } catch (_) {}
+try { db.exec(`ALTER TABLE submissions ADD COLUMN instructor_id INTEGER REFERENCES users(id)`); } catch (_) {}
+try { db.exec(`ALTER TABLE submissions ADD COLUMN feedback_text TEXT`); } catch (_) {}
+try { db.exec(`ALTER TABLE submissions ADD COLUMN feedback_video_key TEXT`); } catch (_) {}
+try { db.exec(`ALTER TABLE submissions ADD COLUMN feedback_at TEXT`); } catch (_) {}
+try { db.exec(`CREATE INDEX IF NOT EXISTS idx_submissions_student ON submissions(student_id)`); } catch (_) {}
+try { db.exec(`CREATE INDEX IF NOT EXISTS idx_submissions_course ON submissions(course_id)`); } catch (_) {}
+try { db.exec(`CREATE INDEX IF NOT EXISTS idx_submissions_lesson ON submissions(lesson_id)`); } catch (_) {}
+try { db.exec(`CREATE INDEX IF NOT EXISTS idx_submissions_status ON submissions(status)`); } catch (_) {}
+
 // ── notify_interest: structured replacement for /data/notify-interest.json ──
 try {
   db.exec(`
@@ -1522,35 +1554,65 @@ try {
   `).run();
 } catch (_) {}
 
-// ── Seed waitlist_welcome email template (placeholder; editable via admin email-automation UI) ──
+// ── Seed waitlist_welcome email template — professional copy with {{first_name}} + {{course}} ──
+// Uses INSERT OR IGNORE to create if missing, then UPDATE to always apply latest copy.
 try {
-  db.prepare(`
-    INSERT OR IGNORE INTO email_templates (name, subject, html_body)
-    VALUES (
-      'waitlist_welcome',
-      'You''re on the list — The Foundation Room',
-      '<!DOCTYPE html><html><body style="font-family:DM Sans,sans-serif;background:#080706;color:#F0E6D3;padding:40px 20px;max-width:540px;margin:0 auto;">
+  const _waitlistSubject = `You''re on the list — The Foundation Room`;
+  const _waitlistBody = `<!DOCTYPE html><html><body style="font-family:DM Sans,sans-serif;background:#080706;color:#F0E6D3;padding:40px 20px;max-width:560px;margin:0 auto;">
 <div style="text-align:center;margin-bottom:32px;">
-  <div style="font-family:Georgia,serif;font-size:26px;font-weight:700;color:#C8A84B;letter-spacing:0.04em;">The Foundation Room</div>
-  <div style="font-size:11px;color:#6B5E50;letter-spacing:0.2em;text-transform:uppercase;margin-top:4px;">Masterclass Platform</div>
+  <div style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#C8A84B;letter-spacing:0.04em;">The Foundation Room</div>
+  <div style="font-size:11px;color:#6B5E50;letter-spacing:0.2em;text-transform:uppercase;margin-top:6px;">India''s Premier Online Music School</div>
 </div>
-<div style="background:#0F0D0B;border:1px solid rgba(200,168,75,0.2);border-radius:8px;padding:32px 28px;">
-  <h1 style="font-family:Georgia,serif;font-size:22px;color:#C8A84B;margin:0 0 16px;">You''re on the list.</h1>
-  <p style="font-size:15px;line-height:1.65;color:#B8A898;margin:0 0 16px;">
-    Thank you for your interest in <strong style="color:#F0E6D3;">{{course}}</strong>.<br>
-    We''ll notify you as soon as enrollment opens.
+<div style="background:#0F0D0B;border:1px solid rgba(200,168,75,0.2);border-radius:10px;padding:36px 32px;">
+  <h1 style="font-family:Georgia,serif;font-size:24px;color:#C8A84B;margin:0 0 8px;">You''re on the list, {{first_name}}.</h1>
+  <p style="font-size:15px;line-height:1.7;color:#B8A898;margin:0 0 20px;">
+    Thank you for your interest in <strong style="color:#F0E6D3;">{{course}}</strong>. We''ve saved your spot and will reach out personally as soon as enrollment opens.
   </p>
-  <p style="font-size:14px;line-height:1.65;color:#6B5E50;">
-    In the meantime, explore our other programs at
-    <a href="https://tfrplay.com" style="color:#C8A84B;text-decoration:none;">tfrplay.com</a>.
+  <div style="border-left:3px solid #C8A84B;padding-left:18px;margin:0 0 24px;">
+    <p style="font-size:14px;line-height:1.7;color:#B8A898;margin:0;">
+      The Foundation Room brings together master musicians and dedicated students in an intimate online environment. Our programs are structured, personal, and built to take you from your first note to performing with confidence.
+    </p>
+  </div>
+  <p style="font-size:14px;line-height:1.65;color:#6B5E50;margin:0 0 28px;">
+    In the meantime, explore our other programs and student stories at
+    <a href="https://tfrplay.com" style="color:#C8A84B;text-decoration:none;font-weight:600;">tfrplay.com</a>.
   </p>
+  <div style="text-align:center;">
+    <a href="https://tfrplay.com" style="display:inline-block;background:#C8A84B;color:#080706;font-weight:700;font-size:14px;padding:13px 32px;border-radius:6px;text-decoration:none;letter-spacing:0.04em;">Visit The Foundation Room</a>
+  </div>
+</div>
+<div style="text-align:center;margin-top:28px;font-size:11px;color:#6B5E50;line-height:1.8;">
+  You received this because you signed up at tfrplay.com.<br>
+  &copy; The Foundation Room &mdash;
+  <a href="https://tfrplay.com/unsubscribe" style="color:#6B5E50;">Unsubscribe</a>
+</div>
+</body></html>`;
+  db.prepare(`INSERT OR IGNORE INTO email_templates (name, subject, html_body) VALUES ('waitlist_welcome', ?, ?)`).run(_waitlistSubject, _waitlistBody);
+  db.prepare(`UPDATE email_templates SET subject = ?, html_body = ?, updated_at = datetime('now') WHERE name = 'waitlist_welcome'`).run(_waitlistSubject, _waitlistBody);
+} catch (_) {}
+
+// ── Seed submission_feedback email template (Items 10+15) ──
+try {
+  const _sfSubject = `Feedback on your submission — The Foundation Room`;
+  const _sfBody = `<!DOCTYPE html><html><body style="font-family:DM Sans,sans-serif;background:#080706;color:#F0E6D3;padding:40px 20px;max-width:560px;margin:0 auto;">
+<div style="text-align:center;margin-bottom:32px;">
+  <div style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#C8A84B;letter-spacing:0.04em;">The Foundation Room</div>
+</div>
+<div style="background:#0F0D0B;border:1px solid rgba(200,168,75,0.2);border-radius:10px;padding:36px 32px;">
+  <h1 style="font-family:Georgia,serif;font-size:22px;color:#C8A84B;margin:0 0 12px;">Your instructor left feedback, {{first_name}}.</h1>
+  <p style="font-size:14px;color:#B8A898;margin:0 0 20px;">For your submission in <strong style="color:#F0E6D3;">{{course}}</strong>:</p>
+  <div style="background:#080706;border-left:3px solid #C8A84B;padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+    <p style="font-size:14px;line-height:1.7;color:#D4C5B0;margin:0;">{{feedback}}</p>
+  </div>
+  <div style="text-align:center;">
+    <a href="https://tfrplay.com/student-dashboard.html" style="display:inline-block;background:#C8A84B;color:#080706;font-weight:700;font-size:14px;padding:12px 28px;border-radius:6px;text-decoration:none;">View in Dashboard</a>
+  </div>
 </div>
 <div style="text-align:center;margin-top:28px;font-size:11px;color:#6B5E50;">
   &copy; The Foundation Room &mdash; <a href="https://tfrplay.com/unsubscribe" style="color:#6B5E50;">Unsubscribe</a>
 </div>
-</body></html>'
-    )
-  `).run();
+</body></html>`;
+  db.prepare(`INSERT OR IGNORE INTO email_templates (name, subject, html_body) VALUES ('submission_feedback', ?, ?)`).run(_sfSubject, _sfBody);
 } catch (_) {}
 
 // ── Dummy bundle + foundation pricing (Razorpay TEST mode only) ──

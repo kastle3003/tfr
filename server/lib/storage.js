@@ -107,6 +107,46 @@ async function deleteObject(keyOrUrl) {
   }
 }
 
+/**
+ * Stream a Wasabi object directly to an HTTP response (no presigned URL exposed).
+ * Sets Content-Disposition: inline so browsers display rather than download.
+ * Falls back to local disk if Wasabi not configured.
+ */
+async function streamObject(key, res) {
+  if (s3) {
+    const cmd = new GetObjectCommand({ Bucket: BUCKET, Key: key });
+    const obj = await s3.send(cmd);
+    const mime = obj.ContentType || 'application/octet-stream';
+    res.setHeader('Content-Type', mime);
+    res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    if (obj.ContentLength) res.setHeader('Content-Length', obj.ContentLength);
+    // obj.Body is a ReadableStream (Node.js web stream) — pipe via pipeline
+    const { pipeline } = require('stream');
+    const { Readable } = require('stream');
+    if (typeof obj.Body.pipe === 'function') {
+      obj.Body.pipe(res);
+    } else {
+      // AWS SDK v3 returns a web ReadableStream — convert to Node.js stream
+      const nodeStream = Readable.from(obj.Body);
+      pipeline(nodeStream, res, (err) => { if (err) console.error('[storage] stream pipe error:', err.message); });
+    }
+    return;
+  }
+  // Local fallback
+  const { pipeline } = require('stream');
+  const fs2 = require('fs');
+  const pth = require('path');
+  const diskName = pth.basename(key);
+  const localPath = pth.join(LOCAL_UPLOAD_DIR, diskName);
+  if (!fs2.existsSync(localPath)) throw new Error('File not found');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'inline');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  pipeline(fs2.createReadStream(localPath), res, (err) => { if (err) console.error('[storage] local stream error:', err.message); });
+}
+
 function wasabiEnabled() { return !!s3; }
 
 // Non-secret connection info for the admin UI. Never returns access keys.
@@ -125,4 +165,4 @@ function wasabiConfig() {
   };
 }
 
-module.exports = { persistUpload, presignedUrl, deleteObject, wasabiEnabled, wasabiConfig };
+module.exports = { persistUpload, presignedUrl, deleteObject, streamObject, wasabiEnabled, wasabiConfig };
