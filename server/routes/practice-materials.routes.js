@@ -8,12 +8,13 @@ const { persistUpload, streamObject, wasabiEnabled } = require('../lib/storage')
 const path = require('path');
 const fs = require('fs');
 
+// 500 MB limit — videos can be large (mp4, mov, mkv, avi, webm, etc.)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB max for PDFs
+  limits: { fileSize: 500 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowed = ['application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
-    if (allowed.includes(file.mimetype) || file.mimetype.startsWith('video/')) return cb(null, true);
+    // Accept PDF + all video/* MIME types (mp4, webm, ogg, mov, mkv, avi, wmv, flv, m4v, 3gp…)
+    if (file.mimetype === 'application/pdf' || file.mimetype.startsWith('video/')) return cb(null, true);
     cb(new Error('Only PDF and video files are allowed'));
   }
 });
