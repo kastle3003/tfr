@@ -1524,6 +1524,26 @@ try {
 // ── live_sessions.reminder_sent — tracks 30-min pre-class email ──
 try { db.exec(`ALTER TABLE live_sessions ADD COLUMN reminder_sent TEXT`); } catch (_) {}
 
+// ── Practice Room uploads — student private practice recordings ──
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS practice_uploads (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      course_id INTEGER REFERENCES courses(id) ON DELETE SET NULL,
+      title TEXT NOT NULL,
+      type TEXT DEFAULT 'video',          -- 'video' | 'audio'
+      wasabi_key TEXT,                    -- Wasabi storage key
+      file_size INTEGER,                  -- bytes
+      duration_seconds INTEGER,
+      notes TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_practice_uploads_student ON practice_uploads(student_id);
+    CREATE INDEX IF NOT EXISTS idx_practice_uploads_course  ON practice_uploads(course_id);
+  `);
+} catch (_) {}
+
 // ── Seed live_class_reminder email template ──
 try {
   db.prepare(`

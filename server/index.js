@@ -311,6 +311,7 @@ app.use('/api/recordings', require('./middleware/auth'), require('./routes/recor
 app.use('/api/masterclasses', require('./middleware/auth'), require('./routes/masterclasses.routes'));
 app.use('/api/submissions', require('./middleware/auth'), require('./routes/submissions.routes'));
 app.use('/api/practice-materials', require('./middleware/auth'), require('./routes/practice-materials.routes'));
+app.use('/api/practice-uploads',  require('./middleware/auth'), require('./routes/practice-uploads.routes'));
 app.use('/api/quotes', require('./middleware/auth'), require('./routes/quotes.routes'));
 app.use('/api/admin', require('./middleware/auth'), require('./routes/admin.routes'));
 app.use('/api/chapters', require('./middleware/auth'), require('./routes/chapters.routes'));

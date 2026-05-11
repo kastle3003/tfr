@@ -12,7 +12,7 @@ const TTL = Math.min(
 
 // Course/lesson content requires a valid JWT — these are the sensitive media files.
 // Avatars, thumbnails and other public assets are not under these prefixes.
-const PROTECTED_PREFIXES = /^(courses|lessons|recordings|sheet-music|submissions|practice-materials)\//;
+const PROTECTED_PREFIXES = /^(courses|lessons|recordings|sheet-music|submissions|practice-materials|practice-uploads)\//;
 
 function bearerToken(req) {
   const h = req.headers['authorization'] || '';
