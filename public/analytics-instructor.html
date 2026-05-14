@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12); border-radius: 12px; padding: 20px 22px; }
+    .stat-label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; }
+    .stat-value { font-family: var(--serif); font-size: 32px; color: var(--text); font-weight: 400; }
+    .stat-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+    .stat-highlight .stat-value { color: var(--gold); }
+
+    .section-title { font-family: var(--serif); font-size: 18px; color: var(--text); margin-bottom: 16px; font-weight: 400; }
+
+    .course-selector {
+      background: var(--bg-2); border: 1.5px solid rgba(200,168,75,0.20);
+      border-radius: 8px; color: var(--text); font-family: var(--sans); font-size: 14px;
+      padding: 10px 14px; outline: none; cursor: pointer;
+      margin-bottom: 24px; min-width: 280px;
+    }
+    .course-selector:focus { border-color: var(--gold); }
+    .course-selector option { background: var(--bg-2); }
+
+    .course-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .mini-stat { background: var(--bg-elevated); border-radius: 10px; padding: 16px; }
+    .mini-stat-val { font-size: 26px; font-family: var(--serif); color: var(--gold); }
+    .mini-stat-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+    .chart-card { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12); border-radius: 12px; padding: 22px 24px; margin-bottom: 24px; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 100px; }
+    .bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+    .bar { width: 100%; background: rgba(200,168,75,0.30); border-radius: 3px 3px 0 0; min-height: 2px; }
+    .bar:hover { background: var(--gold); }
+    .bar-label { font-size: 9px; color: var(--text-3); text-align: center; }
+
+    .course-card-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .top-course {
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.10);
+      border-radius: 10px; padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    }
+    .tc-title { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
+    .tc-badge {
+      font-size: 12px; font-weight: 600; color: var(--gold);
+      background: rgba(200,168,75,0.10); border-radius: 6px; padding: 3px 10px;
+      white-space: nowrap;
+    }
+    .tc-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+    .progress-bar-bg { height: 4px; background: rgba(200,168,75,0.10); border-radius: 2px; width: 120px; flex-shrink: 0; }
+    .progress-bar-fill { height: 4px; background: var(--gold); border-radius: 2px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="topbar-title">Analytics</h1>
+      </div>
+      <div class="topbar-right">
+        <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar">—</a>
+      </div>
+    </header>
+
+    <div class="content-area" id="main-content">
+      <p style="color:var(--text-3);text-align:center;padding:40px;">Loading analytics...</p>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/instructor-sidebar.js"></script>
+<script>
+  const token = localStorage.getItem('archive_token');
+  if (!token) location.href = '/signin.html';
+
+  let instructorData = null;
+
+  async function init() {
+    try {
+      const me = await fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+      if (!me.ok) { localStorage.clear(); location.href = '/signin.html'; return; }
+      const user = await me.json();
+      if (!['instructor','admin'].includes(user.role)) { location.href = '/student-dashboard.html'; return; }
+      document.dispatchEvent(new Event('userLoaded'));
+
+      // Use instructor sidebar for instructor, admin sidebar for admin
+      if (user.role === 'admin') {
+        document.querySelectorAll('script[src*="instructor-sidebar"]').forEach(s => s.remove());
+        const sc = document.createElement('script');
+        sc.src = '/assets/js/admin-sidebar.js';
+        document.body.appendChild(sc);
+      }
+
+      loadInstructor();
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadInstructor() {
+    const container = document.getElementById('main-content');
+    try {
+      const res = await fetch('/api/analytics/instructor', { headers: { Authorization: 'Bearer ' + token } });
+      instructorData = await res.json();
+      if (!res.ok) throw new Error(instructorData.error || 'Failed');
+      render(container);
+    } catch(e) {
+      container.innerHTML = `<p style="color:var(--text-3);text-align:center;padding:40px;">${e.message}</p>`;
+    }
+  }
+
+  function render(container) {
+    const d = instructorData;
+    const enrolByMonth = d.enrollments_by_month || [];
+    const maxEnrol = Math.max(...enrolByMonth.map(e => e.count || 0), 1);
+    const topCourses = d.top_courses || [];
+
+    let html = `
+    <div class="stat-grid">
+      <div class="stat-card stat-highlight">
+        <div class="stat-label">Total Students</div>
+        <div class="stat-value">${d.total_students || 0}</div>
+        <div class="stat-sub">across all courses</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Courses Active</div>
+        <div class="stat-value">${d.total_courses || 0}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Completion</div>
+        <div class="stat-value">${d.avg_completion_rate || 0}%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Score</div>
+        <div class="stat-value">${d.avg_score_all || 0}</div>
+        <div class="stat-sub">out of 100</div>
+      </div>
+    </div>`;
+
+    // Enrollments chart
+    if (enrolByMonth.length) {
+      html += `<h2 class="section-title">New Enrollments (Last 6 Months)</h2>
+      <div class="chart-card">
+        <div class="bar-chart">`;
+      enrolByMonth.forEach(e => {
+        const h = Math.max(Math.round(((e.count || 0) / maxEnrol) * 96), 2);
+        html += `<div class="bar-col">
+          <div class="bar" style="height:${h}px;" title="${e.count} enrollments"></div>
+          <span class="bar-label">${(e.month || '').slice(5)}</span>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // Top courses
+    if (topCourses.length) {
+      html += `<h2 class="section-title">Your Courses</h2>
+      <div class="course-card-row">`;
+      topCourses.forEach(c => {
+        const pct = Math.min(Math.round(c.completion_rate || 0), 100);
+        html += `<div class="top-course">
+          <div style="flex:1;">
+            <div class="tc-title">${c.title}</div>
+            <div class="tc-sub">${c.enrolled || 0} students · Avg score: ${Math.round(c.avg_score || 0)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="tc-badge">${pct}%</div>
+            <div class="tc-sub" style="margin-top:4px;">completion</div>
+          </div>
+          <div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    if (!topCourses.length) {
+      html += `<div style="text-align:center;padding:40px;color:var(--text-3);">No course data available yet.</div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -970,6 +970,14 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Integrations
         </button>
+        <button class="tab-btn" onclick="switchTab('blog', this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          Blog
+        </button>
+        <button class="tab-btn" onclick="switchTab('quotes', this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+          Quotes
+        </button>
       </div>
 
       <!-- ═══════════ DASHBOARD TAB ═══════════ -->
@@ -1135,6 +1143,98 @@
             </div>
           </div>
           <div id="announcements-list">
+            <div style="text-align:center;padding:40px;"><div class="spinner" style="margin:0 auto;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ BLOG TAB ═══════════ -->
+      <div class="tab-panel" id="tab-blog">
+        <div class="config-card">
+          <div class="config-card-title">Blog Posts</div>
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <span style="font-size:13px;color:var(--text-3);" id="blog-count-label">Loading…</span>
+            </div>
+            <div class="toolbar-right">
+              <button class="btn btn-primary btn-sm" onclick="openBlogForm()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Post
+              </button>
+            </div>
+          </div>
+          <!-- Blog create/edit form -->
+          <div id="blog-form-wrap" style="display:none;background:var(--bg-elevated);border:1px solid rgba(200,168,75,0.15);border-radius:10px;padding:20px;margin-bottom:20px;">
+            <div class="form-group" style="margin-bottom:12px;">
+              <label class="form-label">Title</label>
+              <input class="form-input" id="blog-f-title" type="text" placeholder="Post title">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+              <label class="form-label">Excerpt</label>
+              <input class="form-input" id="blog-f-excerpt" type="text" placeholder="Short description">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+              <label class="form-label">Body</label>
+              <textarea class="form-input" id="blog-f-body" rows="6" style="resize:vertical;" placeholder="Post content..."></textarea>
+            </div>
+            <div class="grid-2" style="margin-bottom:12px;">
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <input class="form-input" id="blog-f-category" type="text" placeholder="general">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cover Image URL</label>
+                <input class="form-input" id="blog-f-cover" type="text" placeholder="https://...">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="blog-f-status">
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-primary btn-sm" onclick="saveBlog()">Save Post</button>
+              <button class="btn btn-outline btn-sm" onclick="closeBlogForm()">Cancel</button>
+            </div>
+          </div>
+          <div id="blog-list">
+            <div style="text-align:center;padding:40px;"><div class="spinner" style="margin:0 auto;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ QUOTES TAB ═══════════ -->
+      <div class="tab-panel" id="tab-quotes">
+        <div class="config-card">
+          <div class="config-card-title">Daily Quotes</div>
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <span style="font-size:13px;color:var(--text-3);" id="quotes-count-label">Loading…</span>
+            </div>
+            <div class="toolbar-right">
+              <button class="btn btn-primary btn-sm" onclick="toggleQuoteForm()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Quote
+              </button>
+            </div>
+          </div>
+          <div id="quote-add-form" style="display:none;background:var(--bg-elevated);border:1px solid rgba(200,168,75,0.15);border-radius:10px;padding:18px;margin-bottom:18px;">
+            <div class="form-group" style="margin-bottom:12px;">
+              <label class="form-label">Quote Text</label>
+              <textarea class="form-input" id="quote-f-text" rows="3" style="resize:vertical;" placeholder="Enter the quote..."></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Attribution</label>
+              <input class="form-input" id="quote-f-attr" type="text" placeholder="— Author Name">
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-primary btn-sm" onclick="saveQuote()">Save Quote</button>
+              <button class="btn btn-outline btn-sm" onclick="toggleQuoteForm()">Cancel</button>
+            </div>
+          </div>
+          <div id="quotes-list">
             <div style="text-align:center;padding:40px;"><div class="spinner" style="margin:0 auto;"></div></div>
           </div>
         </div>
@@ -1872,16 +1972,28 @@
   }
 
   // ═══════════ Tab switching ═══════════
+  // btn is optional — can be called from URL hash or sidebar sub-items without a button ref
   function switchTab(name, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) {
+      btn.classList.add('active');
+    } else {
+      // find the matching tab button by its onclick attribute
+      const matchBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b =>
+        (b.getAttribute('onclick') || '').includes("'" + name + "'")
+      );
+      if (matchBtn) matchBtn.classList.add('active');
+    }
     const panel = document.getElementById('tab-' + name);
+    if (!panel) return;
     panel.classList.add('active');
-    gsap.fromTo(panel,
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto', clearProps: 'opacity,transform' }
-    );
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo(panel,
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto', clearProps: 'opacity,transform' }
+      );
+    }
 
     if (name === 'users') loadUsers();
     if (name === 'courses') loadCourses();
@@ -1893,6 +2005,8 @@
     if (name === 's3') loadWasabiInfo();
     if (name === 'waitlist') loadWaitlist();
     if (name === 'integrations') loadGoogleCalendarStatus();
+    if (name === 'blog') loadBlogPosts();
+    if (name === 'quotes') loadQuotes();
   }
 
   // ═══════════ Waitlist ═══════════
@@ -3084,6 +3198,164 @@
     localStorage.removeItem('archive_user');
     window.location.href = '/signin.html';
   }
+
+  // ═══════════ Blog ═══════════
+  let _editingBlogId = null;
+
+  function openBlogForm(post) {
+    _editingBlogId = post ? post.id : null;
+    document.getElementById('blog-f-title').value    = post ? post.title    : '';
+    document.getElementById('blog-f-excerpt').value  = post ? post.excerpt  : '';
+    document.getElementById('blog-f-body').value     = post ? post.body     : '';
+    document.getElementById('blog-f-category').value = post ? (post.category || 'general') : 'general';
+    document.getElementById('blog-f-cover').value    = post ? (post.cover_image || '') : '';
+    document.getElementById('blog-f-status').value   = post ? post.status   : 'draft';
+    document.getElementById('blog-form-wrap').style.display = 'block';
+    document.getElementById('blog-form-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function closeBlogForm() {
+    _editingBlogId = null;
+    document.getElementById('blog-form-wrap').style.display = 'none';
+  }
+
+  async function saveBlog() {
+    const tkn = localStorage.getItem('archive_token');
+    const title    = document.getElementById('blog-f-title').value.trim();
+    const excerpt  = document.getElementById('blog-f-excerpt').value.trim();
+    const body     = document.getElementById('blog-f-body').value.trim();
+    const category = document.getElementById('blog-f-category').value.trim() || 'general';
+    const cover    = document.getElementById('blog-f-cover').value.trim();
+    const status   = document.getElementById('blog-f-status').value;
+    if (!title || !body) { alert('Title and body are required.'); return; }
+    const payload = { title, excerpt, body, category, cover_image: cover || null, status };
+    const url    = _editingBlogId ? `/api/blog/admin/${_editingBlogId}` : '/api/blog/admin';
+    const method = _editingBlogId ? 'PUT' : 'POST';
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { Authorization: 'Bearer ' + tkn, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const d = await res.json();
+      if (!res.ok) { alert(d.error || 'Save failed'); return; }
+      closeBlogForm();
+      loadBlogPosts();
+    } catch(e) { alert('Network error'); }
+  }
+
+  async function loadBlogPosts() {
+    const tkn = localStorage.getItem('archive_token');
+    const list = document.getElementById('blog-list');
+    const label = document.getElementById('blog-count-label');
+    list.innerHTML = '<div style="text-align:center;padding:30px;"><div class="spinner" style="margin:0 auto;"></div></div>';
+    try {
+      const res = await fetch('/api/blog/admin', { headers: { Authorization: 'Bearer ' + tkn } });
+      const d = await res.json();
+      const posts = d.posts || [];
+      label.textContent = posts.length + ' post' + (posts.length !== 1 ? 's' : '');
+      if (!posts.length) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-3);">No blog posts yet. Create your first post above.</div>';
+        return;
+      }
+      list.innerHTML = posts.map(p => `
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(200,168,75,0.08);">
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:var(--text);">${p.title}</div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:3px;">/${p.slug} &middot; ${p.category || 'general'}</div>
+          </div>
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:4px;
+            ${p.status === 'published' ? 'background:rgba(42,107,74,0.2);color:#5ECFA0;' : 'background:rgba(107,107,42,0.2);color:#CFC05E;'}">${p.status}</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick='openBlogForm(${JSON.stringify(p)})'>Edit</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--ruby-text);" onclick="deleteBlog(${p.id})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    } catch(e) {
+      list.innerHTML = '<div style="color:var(--ruby-text);padding:16px;">Could not load posts.</div>';
+    }
+  }
+
+  async function deleteBlog(id) {
+    if (!confirm('Delete this post?')) return;
+    const tkn = localStorage.getItem('archive_token');
+    try {
+      await fetch(`/api/blog/admin/${id}`, { method: 'DELETE', headers: { Authorization: 'Bearer ' + tkn } });
+      loadBlogPosts();
+    } catch(e) { alert('Delete failed'); }
+  }
+
+  // ═══════════ Quotes ═══════════
+  function toggleQuoteForm() {
+    const f = document.getElementById('quote-add-form');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  }
+
+  async function saveQuote() {
+    const tkn = localStorage.getItem('archive_token');
+    const text = document.getElementById('quote-f-text').value.trim();
+    const attribution = document.getElementById('quote-f-attr').value.trim();
+    if (!text) { alert('Quote text is required.'); return; }
+    try {
+      const res = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + tkn, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, attribution })
+      });
+      if (!res.ok) { const d = await res.json(); alert(d.error || 'Failed'); return; }
+      document.getElementById('quote-f-text').value = '';
+      document.getElementById('quote-f-attr').value = '';
+      toggleQuoteForm();
+      loadQuotes();
+    } catch(e) { alert('Network error'); }
+  }
+
+  async function loadQuotes() {
+    const tkn = localStorage.getItem('archive_token');
+    const list = document.getElementById('quotes-list');
+    const label = document.getElementById('quotes-count-label');
+    list.innerHTML = '<div style="text-align:center;padding:30px;"><div class="spinner" style="margin:0 auto;"></div></div>';
+    try {
+      const res = await fetch('/api/quotes', { headers: { Authorization: 'Bearer ' + tkn } });
+      const d = await res.json();
+      const quotes = d.quotes || [];
+      label.textContent = quotes.length + ' quote' + (quotes.length !== 1 ? 's' : '');
+      if (!quotes.length) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-3);">No quotes yet.</div>';
+        return;
+      }
+      list.innerHTML = quotes.map(q => `
+        <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(200,168,75,0.08);">
+          <div style="flex:1;">
+            <div style="font-family:var(--serif);font-style:italic;font-size:14px;color:var(--text);line-height:1.5;">"${q.text}"</div>
+            ${q.attribution ? `<div style="font-size:12px;color:var(--text-3);margin-top:4px;">— ${q.attribution}</div>` : ''}
+          </div>
+          <button class="btn btn-outline btn-sm" style="color:var(--ruby-text);flex-shrink:0;" onclick="deleteQuote(${q.id})">Delete</button>
+        </div>
+      `).join('');
+    } catch(e) {
+      list.innerHTML = '<div style="color:var(--ruby-text);padding:16px;">Could not load quotes.</div>';
+    }
+  }
+
+  async function deleteQuote(id) {
+    if (!confirm('Delete this quote?')) return;
+    const tkn = localStorage.getItem('archive_token');
+    try {
+      await fetch(`/api/quotes/${id}`, { method: 'DELETE', headers: { Authorization: 'Bearer ' + tkn } });
+      loadQuotes();
+    } catch(e) { alert('Delete failed'); }
+  }
+
+  // ═══════════ URL hash routing — activate tab from #hash ═══════════
+  (function checkHash() {
+    const hash = (window.location.hash || '').replace(/^#/, '');
+    if (hash) {
+      // Delay so GSAP + DOM are ready
+      setTimeout(() => { if (typeof switchTab === 'function') switchTab(hash); }, 200);
+    }
+  })();
 </script>
 </body>
 </html>

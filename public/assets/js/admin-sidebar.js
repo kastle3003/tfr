@@ -4,49 +4,41 @@
   const I = {
     dashboard:     '<rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>',
     users:         '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-    cms:           '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
     blog:          '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    quotes:        '<path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>',
     courses:       '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
     payments:      '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
     analytics:     '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="20" x2="21" y2="20"/>',
     announce:      '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
-    messages:      '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
-    email:         '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
     notifications: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
-    catalog:       '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
-    archive:       '<polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>',
     profile:       '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-    instructor:    '<circle cx="12" cy="8" r="4"/><path d="M12 14c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z"/>',
-    student:       '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>',
     export:        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+    gradebook:     '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>',
+    live:          '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>',
   };
 
-  const CMS_SUBITEMS = [
-    { hash: 'dashboard',   label: 'Dashboard',    icon: I.dashboard  },
-    { hash: 'courses',     label: 'Courses',      icon: I.courses    },
-    { hash: 'instructors', label: 'Instructors',  icon: I.instructor },
-    { hash: 'blog',        label: 'Blog Posts',   icon: I.blog       },
-    { hash: 'students',    label: 'Students',     icon: I.student    },
+  // Sub-items for admin-panel.html tabs
+  const PANEL_SUBITEMS = [
+    { hash: 'blog',          label: 'Blog',          icon: I.blog     },
+    { hash: 'quotes',        label: 'Quotes',        icon: I.quotes   },
+    { hash: 'announcements', label: 'Announcements', icon: I.announce },
   ];
 
   const ITEMS = [
-    { href: '/admin-panel.html',           label: 'Admin Panel',    icon: I.dashboard },
-    { section: 'Content' },
-    { href: '/admin-cms.html',             label: 'CMS',            icon: I.cms, subitems: CMS_SUBITEMS },
+    { href: '/admin-panel.html', label: 'Admin Panel', icon: I.dashboard, subitems: PANEL_SUBITEMS },
     { section: 'Commerce' },
-    { href: '/admin-payments.html',        label: 'Payments',       icon: I.payments },
-    { href: '/admin-coupons.html',         label: 'Coupons',        icon: I.payments },
-    { section: 'Engagement' },
-    { href: '/admin-announcements.html',   label: 'Announcements',  icon: I.announce },
-    { href: '/admin-messaging.html',       label: 'Messages',       icon: I.messages },
-    { href: '/email-automation.html',      label: 'Email',          icon: I.email },
-    { href: '/admin-notifications.html',   label: 'Notifications',  icon: I.notifications },
+    { href: '/admin-payments.html',       label: 'Payments',         icon: I.payments },
+    { href: '/admin-coupons.html',        label: 'Coupons',          icon: I.payments },
+    { section: 'Live Classes' },
+    { href: '/admin-live-batches.html',   label: 'Batches',          icon: I.live },
     { section: 'Insights' },
-    { href: '/admin-panel.html#dashboard', label: 'Analytics',      icon: I.analytics },
-    { section: 'Export' },
-    { href: '/reports.html',               label: 'Reports & Exports', icon: I.export },
+    { href: '/analytics-instructor.html', label: 'Analytics',        icon: I.analytics },
+    { href: '/reports.html',              label: 'Reports & Exports', icon: I.export },
+    { href: '/gradebook.html',            label: 'Gradebook',        icon: I.gradebook },
+    { section: 'Engagement' },
+    { href: '/admin-notifications.html',  label: 'Notifications',    icon: I.notifications },
     { section: 'Account' },
-    { href: '/admin-profile.html',         label: 'Profile',        icon: I.profile },
+    { href: '/admin-profile.html',        label: 'Profile',          icon: I.profile },
   ];
 
   const SVG_TPL = (inner) =>
@@ -154,7 +146,7 @@
         const icon = s.icon
           ? `<svg class="nav-subicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s.icon}</svg>`
           : '';
-        return `<a href="${it.href}#${s.hash}" class="nav-subitem${activeSub}" data-cms-hash="${s.hash}">${icon}${s.label}</a>`;
+        return `<a href="${it.href}#${s.hash}" class="nav-subitem${activeSub}" data-panel-hash="${s.hash}">${icon}${s.label}</a>`;
       }).join('');
       return `${main}<div class="nav-subgroup">${subs}</div>`;
     }).join('');
@@ -182,23 +174,23 @@
     `;
   }
 
-  function wireCmsSubitems() {
-    if (window.location.pathname !== '/admin-cms.html') return;
-    const subs = document.querySelectorAll('.nav-subitem[data-cms-hash]');
+  function wirePanelSubitems() {
+    if (window.location.pathname !== '/admin-panel.html') return;
+    const subs = document.querySelectorAll('.nav-subitem[data-panel-hash]');
     subs.forEach(a => {
       a.addEventListener('click', (e) => {
-        const hash = a.getAttribute('data-cms-hash');
-        if (typeof window.switchSection === 'function') {
+        const h = a.getAttribute('data-panel-hash');
+        if (typeof window.switchTab === 'function') {
           e.preventDefault();
-          history.replaceState(null, '', '#' + hash);
-          window.switchSection(hash);
+          history.replaceState(null, '', '#' + h);
+          window.switchTab(h);
           subs.forEach(x => x.classList.toggle('active', x === a));
         }
       });
     });
     const initial = (window.location.hash || '').replace(/^#/, '');
-    if (initial && typeof window.switchSection === 'function') {
-      setTimeout(() => window.switchSection(initial), 0);
+    if (initial && typeof window.switchTab === 'function') {
+      setTimeout(() => window.switchTab(initial), 0);
     }
   }
 
@@ -244,7 +236,7 @@
     if (!el) return;
     ensureStyles();
     el.innerHTML = render();
-    wireCmsSubitems();
+    wirePanelSubitems();
     setupMobileToggle();
   }
 

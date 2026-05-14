@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Certificates — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    .cert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .cert-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.18);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cert-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+    .cert-banner {
+      background: linear-gradient(135deg, rgba(200,168,75,0.15) 0%, rgba(200,168,75,0.05) 100%);
+      border-bottom: 1px solid rgba(200,168,75,0.15);
+      padding: 28px 24px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+    .cert-seal {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(200,168,75,0.12);
+      border: 2px solid rgba(200,168,75,0.35);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .cert-seal svg { width: 32px; height: 32px; color: var(--gold); }
+    .cert-course { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--text); font-weight: 400; line-height: 1.4; }
+    .cert-body { padding: 18px 20px; }
+    .cert-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .cert-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; }
+    .cert-value { font-size: 13px; font-weight: 500; color: var(--text-2); }
+    .cert-number { font-family: monospace; font-size: 12px; color: var(--gold); }
+    .cert-actions { padding: 0 20px 20px; }
+    .btn-download {
+      width: 100%; padding: 10px; background: transparent;
+      border: 1.5px solid rgba(200,168,75,0.35); border-radius: 8px;
+      color: var(--gold); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: var(--sans);
+    }
+    .btn-download:hover { background: rgba(200,168,75,0.10); border-color: var(--gold); }
+
+    .empty-state { text-align: center; padding: 80px 20px; }
+    .empty-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(200,168,75,0.08); border: 1px solid rgba(200,168,75,0.15);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .empty-icon svg { width: 36px; height: 36px; color: var(--gold); opacity: 0.5; }
+    .empty-state h3 { font-family: var(--serif); font-size: 20px; color: var(--text); margin-bottom: 10px; }
+    .empty-state p { font-size: 14px; color: var(--text-3); max-width: 360px; margin: 0 auto; line-height: 1.6; }
+
+    #loading-msg { text-align: center; padding: 40px; color: var(--text-3); }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="topbar-title">My Certificates</h1>
+      </div>
+      <div class="topbar-right">
+        <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar">—</a>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <p id="loading-msg">Loading certificates...</p>
+      <div class="cert-grid" id="cert-grid" style="display:none;"></div>
+      <div id="empty-state" style="display:none;">
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="8" r="6"/><polyline points="8.21 13.89 7 22 12 19 17 22 15.79 13.88"/>
+            </svg>
+          </div>
+          <h3>No Certificates Yet</h3>
+          <p>Complete a course to earn your certificate. Once awarded, you can download them here.</p>
+          <a href="/student-courses.html" class="btn btn-primary" style="margin-top:20px;display:inline-block;">View My Courses</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/student-sidebar.js"></script>
+<script>
+  const token = localStorage.getItem('archive_token');
+  if (!token) location.href = '/signin.html';
+
+  async function init() {
+    try {
+      const me = await fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+      if (!me.ok) { localStorage.clear(); location.href = '/signin.html'; return; }
+      document.dispatchEvent(new Event('userLoaded'));
+      loadCertificates();
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadCertificates() {
+    try {
+      const res = await fetch('/api/certificates/me', { headers: { Authorization: 'Bearer ' + token } });
+      const data = await res.json();
+      document.getElementById('loading-msg').style.display = 'none';
+      const certs = data.certificates || [];
+      if (!certs.length) {
+        document.getElementById('empty-state').style.display = 'block';
+        return;
+      }
+      document.getElementById('cert-grid').style.display = 'grid';
+      renderCerts(certs);
+    } catch(e) {
+      document.getElementById('loading-msg').textContent = 'Could not load certificates.';
+    }
+  }
+
+  function renderCerts(certs) {
+    const grid = document.getElementById('cert-grid');
+    grid.innerHTML = certs.map(c => {
+      const issued = new Date(c.issued_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+      return `<div class="cert-card">
+        <div class="cert-banner">
+          <div class="cert-seal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="8" r="6"/><polyline points="8.21 13.89 7 22 12 19 17 22 15.79 13.88"/>
+            </svg>
+          </div>
+          <div class="cert-course">${c.course_title || 'Course Certificate'}</div>
+        </div>
+        <div class="cert-body">
+          <div class="cert-row">
+            <span class="cert-label">Instructor</span>
+            <span class="cert-value">${c.instructor_name || '—'}</span>
+          </div>
+          <div class="cert-row">
+            <span class="cert-label">Issued</span>
+            <span class="cert-value">${issued}</span>
+          </div>
+          <div class="cert-row">
+            <span class="cert-label">Certificate No.</span>
+            <span class="cert-number">${c.certificate_number}</span>
+          </div>
+        </div>
+        <div class="cert-actions">
+          <button class="btn-download" onclick="downloadCert(${c.id}, '${c.certificate_number}')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download Certificate
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function downloadCert(id, certNo) {
+    const url = `/api/certificates/${id}/download`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.setAttribute('download', `certificate-${certNo}.svg`);
+    // Add auth token via fetch + blob download
+    fetch(url, { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => r.blob())
+      .then(blob => {
+        const burl = URL.createObjectURL(blob);
+        a.href = burl;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(burl);
+      })
+      .catch(() => alert('Download failed. Please try again.'));
+  }
+
+  init();
+</script>
+</body>
+</html>

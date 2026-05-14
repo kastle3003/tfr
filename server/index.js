@@ -312,7 +312,7 @@ app.use('/api/sheet-music', require('./middleware/auth'), require('./routes/shee
 app.use('/api/submissions', require('./middleware/auth'), require('./routes/submissions.routes'));
 app.use('/api/practice-materials', require('./middleware/auth'), require('./routes/practice-materials.routes'));
 // app.use('/api/practice-uploads', — removed: practice-room-upload page removed
-// app.use('/api/quotes',   — removed: no active UI
+app.use('/api/quotes',    require('./routes/quotes.routes'));
 app.use('/api/admin', require('./middleware/auth'), require('./routes/admin.routes'));
 app.use('/api/chapters', require('./middleware/auth'), require('./routes/chapters.routes'));
 // app.use('/api/assignments', — removed: no active UI
@@ -330,13 +330,13 @@ app.use('/api/notifications', require('./middleware/auth'), require('./routes/no
 app.use('/api/profile', require('./middleware/auth'), require('./routes/profile.routes'));
 
 // Active: Practice & engagement
-// app.use('/api/analytics', — removed: no active UI
+app.use('/api/analytics', require('./middleware/auth'), require('./routes/analytics.routes'));
 app.use('/api/practice-log', require('./middleware/auth'), require('./routes/practice-log.routes'));
-// app.use('/api/calendar', — removed: Google OAuth not configured
+app.use('/api/calendar',  require('./middleware/auth'), require('./routes/calendar.routes'));
 
 // Active: Monetisation & live classes
 app.use('/api/payments', require('./middleware/auth'), require('./routes/payments.routes'));
-// app.use('/api/certificates', — removed: no certs issued yet
+app.use('/api/certificates', require('./middleware/auth'), require('./routes/certificates.routes'));
 app.use('/api/live-sessions', require('./middleware/auth'), require('./routes/live-classes.routes'));
 // app.use('/api/search', — removed: search page removed
 app.use('/api/announcements', require('./middleware/auth'), require('./routes/announcements.routes'));
@@ -345,7 +345,7 @@ app.use('/api/support-links', require('./middleware/auth'), require('./routes/su
 // app.use('/api/email', — removed: email automation not active
 // app.use('/api/roles', — removed: handled in admin panel directly
 
-// app.use('/api/export', — removed: reports page removed
+app.use('/api/export',   require('./middleware/auth'), require('./routes/export.routes'));
 
 // Blog (no CMS, blog posts managed via admin panel)
 // app.use('/api/cms', — removed: CMS page removed

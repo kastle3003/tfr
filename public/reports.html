@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports & Exports — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12); border-radius: 12px; padding: 22px 24px; }
+    .stat-label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
+    .stat-value { font-family: var(--serif); font-size: 36px; color: var(--text); font-weight: 400; }
+    .stat-sub { font-size: 12px; color: var(--text-3); margin-top: 6px; }
+
+    .export-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+    .export-card {
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 12px;
+      transition: border-color 0.2s;
+    }
+    .export-card:hover { border-color: rgba(200,168,75,0.30); }
+    .export-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: rgba(200,168,75,0.10); border: 1px solid rgba(200,168,75,0.20);
+      display: flex; align-items: center; justify-content: center; color: var(--gold);
+    }
+    .export-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .export-desc { font-size: 13px; color: var(--text-3); line-height: 1.5; flex: 1; }
+    .export-fields { font-size: 11px; color: var(--text-3); }
+    .export-fields span {
+      display: inline-block; background: rgba(200,168,75,0.08);
+      border: 1px solid rgba(200,168,75,0.12); border-radius: 3px;
+      padding: 2px 6px; margin: 2px 2px 0 0;
+    }
+    .btn-export {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 16px; background: transparent;
+      border: 1.5px solid rgba(200,168,75,0.35); border-radius: 8px;
+      color: var(--gold); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+      font-family: var(--sans); width: 100%; text-decoration: none;
+    }
+    .btn-export:hover { background: rgba(200,168,75,0.10); border-color: var(--gold); }
+    .btn-export.loading { opacity: 0.6; pointer-events: none; }
+
+    .section-title { font-family: var(--serif); font-size: 20px; color: var(--text); margin-bottom: 16px; font-weight: 400; }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="topbar-title">Reports & Exports</h1>
+      </div>
+      <div class="topbar-right">
+        <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar">—</a>
+      </div>
+    </header>
+
+    <div class="content-area">
+
+      <!-- Overview stats -->
+      <h2 class="section-title">Overview</h2>
+      <div class="stat-grid" id="stat-grid">
+        <div class="stat-card"><div class="stat-label">Students</div><div class="stat-value" id="s-students">—</div></div>
+        <div class="stat-card"><div class="stat-label">Enrollments</div><div class="stat-value" id="s-enrollments">—</div></div>
+        <div class="stat-card"><div class="stat-label">Payments</div><div class="stat-value" id="s-payments">—</div></div>
+      </div>
+
+      <!-- Export cards -->
+      <h2 class="section-title">Export Data</h2>
+      <div class="export-grid">
+
+        <div class="export-card">
+          <div class="export-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="export-title">Student Profiles</div>
+          <div class="export-desc">All student profiles with contact info, instrument, location, and social links.</div>
+          <div class="export-fields">
+            <span>Name</span><span>Email</span><span>Phone</span><span>Instrument</span><span>Location</span><span>Social Links</span>
+          </div>
+          <button class="btn-export" id="btn-students" onclick="exportData('students', 'btn-students')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export Students CSV
+          </button>
+        </div>
+
+        <div class="export-card">
+          <div class="export-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>
+            </svg>
+          </div>
+          <div class="export-title">Enrollment Report</div>
+          <div class="export-desc">Full enrollment data with progress, payment status, and completion dates.</div>
+          <div class="export-fields">
+            <span>Student</span><span>Course</span><span>Progress %</span><span>Payment</span><span>Enrolled Date</span>
+          </div>
+          <button class="btn-export" id="btn-enrollments" onclick="exportData('enrollments', 'btn-enrollments')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export Enrollments CSV
+          </button>
+        </div>
+
+        <div class="export-card">
+          <div class="export-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+          </div>
+          <div class="export-title">Payment Report</div>
+          <div class="export-desc">All Razorpay transactions with amounts, statuses, and order IDs.</div>
+          <div class="export-fields">
+            <span>Student</span><span>Course</span><span>Amount</span><span>Status</span><span>Razorpay ID</span>
+          </div>
+          <button class="btn-export" id="btn-payments" onclick="exportData('payments', 'btn-payments')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export Payments CSV
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/instructor-sidebar.js"></script>
+<script>
+  const token = localStorage.getItem('archive_token');
+  if (!token) location.href = '/signin.html';
+
+  async function init() {
+    try {
+      const me = await fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+      if (!me.ok) { localStorage.clear(); location.href = '/signin.html'; return; }
+      const user = await me.json();
+      if (!['instructor','admin'].includes(user.role)) { location.href = '/student-dashboard.html'; return; }
+      document.dispatchEvent(new Event('userLoaded'));
+
+      if (user.role === 'admin') {
+        document.querySelectorAll('script[src*="instructor-sidebar"]').forEach(s => s.remove());
+        const sc = document.createElement('script'); sc.src = '/assets/js/admin-sidebar.js';
+        document.body.appendChild(sc);
+      }
+
+      loadPreview();
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadPreview() {
+    try {
+      const res = await fetch('/api/export/preview', { headers: { Authorization: 'Bearer ' + token } });
+      const d = await res.json();
+      document.getElementById('s-students').textContent = d.students ?? '—';
+      document.getElementById('s-enrollments').textContent = d.enrollments ?? '—';
+      document.getElementById('s-payments').textContent = d.payments ?? '—';
+    } catch(e) {
+      ['s-students','s-enrollments','s-payments'].forEach(id => document.getElementById(id).textContent = '—');
+    }
+  }
+
+  function exportData(type, btnId) {
+    const btn = document.getElementById(btnId);
+    btn.classList.add('loading');
+    btn.textContent = 'Downloading...';
+
+    fetch(`/api/export/${type}`, { headers: { Authorization: 'Bearer ' + token } })
+      .then(async res => {
+        if (!res.ok) throw new Error('Export failed');
+        const blob = await res.blob();
+        const fname = res.headers.get('Content-Disposition')?.match(/filename="(.+)"/)?.[1] || `${type}_report.csv`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = fname;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      })
+      .catch(e => alert('Export failed: ' + e.message))
+      .finally(() => {
+        btn.classList.remove('loading');
+        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg> Export ${type.charAt(0).toUpperCase() + type.slice(1)} CSV`;
+      });
+  }
+
+  init();
+</script>
+</body>
+</html>

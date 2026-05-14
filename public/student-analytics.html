@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Analytics — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12); border-radius: 12px;
+      padding: 20px 22px;
+    }
+    .stat-label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; }
+    .stat-value { font-family: var(--serif); font-size: 32px; color: var(--text); font-weight: 400; }
+    .stat-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+    .stat-highlight .stat-value { color: var(--gold); }
+
+    .section-title { font-family: var(--serif); font-size: 18px; color: var(--text); margin-bottom: 16px; font-weight: 400; }
+
+    .progress-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+    .progress-item { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.10); border-radius: 10px; padding: 16px 18px; }
+    .progress-course { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .progress-pct { font-size: 13px; color: var(--gold); font-weight: 700; }
+    .progress-bar-bg { height: 6px; background: rgba(200,168,75,0.10); border-radius: 3px; }
+    .progress-bar-fill { height: 6px; background: linear-gradient(90deg, var(--gold) 0%, #E8C96E 100%); border-radius: 3px; transition: width 0.6s ease; }
+    .progress-meta { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--text-3); }
+
+    .chart-card { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12); border-radius: 12px; padding: 22px 24px; margin-bottom: 28px; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 100px; }
+    .bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+    .bar { width: 100%; background: rgba(200,168,75,0.30); border-radius: 3px 3px 0 0; min-height: 2px; transition: background 0.2s; }
+    .bar:hover { background: var(--gold); }
+    .bar-label { font-size: 9px; color: var(--text-3); text-align: center; white-space: nowrap; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-3); }
+    .empty-state h3 { font-size: 16px; color: var(--text-2); margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="topbar-title">My Analytics</h1>
+      </div>
+      <div class="topbar-right">
+        <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar">—</a>
+      </div>
+    </header>
+
+    <div class="content-area" id="main-content">
+      <p style="color:var(--text-3);text-align:center;padding:40px;">Loading your analytics...</p>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/student-sidebar.js"></script>
+<script>
+  const token = localStorage.getItem('archive_token');
+  if (!token) location.href = '/signin.html';
+
+  async function init() {
+    try {
+      const me = await fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+      if (!me.ok) { localStorage.clear(); location.href = '/signin.html'; return; }
+      document.dispatchEvent(new Event('userLoaded'));
+      loadAnalytics();
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadAnalytics() {
+    const container = document.getElementById('main-content');
+    try {
+      const res = await fetch('/api/analytics/student', { headers: { Authorization: 'Bearer ' + token } });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || 'Failed');
+      render(d, container);
+    } catch(e) {
+      container.innerHTML = `<div class="empty-state"><h3>Could not load analytics</h3><p>${e.message}</p></div>`;
+    }
+  }
+
+  function render(d, container) {
+    const totalPracticeH = Math.floor((d.total_practice_minutes || 0) / 60);
+    const totalPracticeM = (d.total_practice_minutes || 0) % 60;
+    const practiceStr = totalPracticeH > 0 ? `${totalPracticeH}h ${totalPracticeM}m` : `${d.total_practice_minutes || 0}m`;
+    const courses = d.course_progress || [];
+    const enrolled = courses.length;
+    const completed = courses.filter(c => (c.progress_pct || 0) >= 100).length;
+
+    // Stat cards
+    let html = `<div class="stat-grid">
+      <div class="stat-card stat-highlight">
+        <div class="stat-label">Practice Time</div>
+        <div class="stat-value">${practiceStr}</div>
+        <div class="stat-sub">Total logged</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Courses Enrolled</div>
+        <div class="stat-value">${enrolled}</div>
+        <div class="stat-sub">${completed} completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Current Streak</div>
+        <div class="stat-value">${d.current_streak_days || 0}</div>
+        <div class="stat-sub">days in a row</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Longest Streak</div>
+        <div class="stat-value">${d.longest_streak_days || 0}</div>
+        <div class="stat-sub">days record</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Submissions</div>
+        <div class="stat-value">${d.assignments_completed || 0}</div>
+        <div class="stat-sub">${d.assignments_pending || 0} pending review</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Completion Rate</div>
+        <div class="stat-value">${d.completion_rate || 0}%</div>
+        <div class="stat-sub">across all courses</div>
+      </div>
+    </div>`;
+
+    // Course progress
+    if (courses.length) {
+      html += `<h2 class="section-title">Course Progress</h2>
+      <div class="progress-list">`;
+      courses.forEach(c => {
+        const pct = Math.min(c.progress_pct || 0, 100);
+        html += `<div class="progress-item">
+          <div class="progress-course">
+            <span>${c.title}</span>
+            <span class="progress-pct">${pct}%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="progress-meta">
+            <span>${c.lessons_done || 0} of ${c.total_lessons || 0} lessons</span>
+            <span>${pct >= 100 ? '✓ Completed' : pct > 0 ? 'In Progress' : 'Not Started'}</span>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    // Weekly practice bar chart
+    const weekly = d.weekly_practice || [];
+    if (weekly.length) {
+      const maxMin = Math.max(...weekly.map(w => w.minutes || 0), 1);
+      html += `<h2 class="section-title">Weekly Practice (Last 12 Weeks)</h2>
+      <div class="chart-card">
+        <div class="bar-chart">`;
+      weekly.forEach(w => {
+        const h = Math.max(Math.round(((w.minutes || 0) / maxMin) * 96), 2);
+        const label = (w.week || '').split('-W')[1] ? 'W' + (w.week || '').split('-W')[1] : '';
+        html += `<div class="bar-col">
+          <div class="bar" style="height:${h}px;" title="${w.minutes || 0} min"></div>
+          <span class="bar-label">${label}</span>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    if (!courses.length && !weekly.length) {
+      html += `<div class="empty-state">
+        <h3>No data yet</h3>
+        <p>Start practising and completing lessons to see your analytics here.</p>
+      </div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  init();
+</script>
+</body>
+</html>

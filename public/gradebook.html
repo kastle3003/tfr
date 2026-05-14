@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gradebook — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/archive.css">
+  <style>
+    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .course-select {
+      background: var(--bg-2); border: 1.5px solid rgba(200,168,75,0.20);
+      border-radius: 8px; color: var(--text); font-family: var(--sans); font-size: 14px;
+      padding: 9px 14px; outline: none; cursor: pointer; min-width: 240px;
+    }
+    .course-select:focus { border-color: var(--gold); }
+    .course-select option { background: var(--bg-2); }
+
+    .table-wrap { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.12); border-radius: 12px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; padding: 12px 16px;
+      font-size: 11px; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      border-bottom: 1px solid rgba(200,168,75,0.10); background: var(--bg-elevated);
+    }
+    td { padding: 13px 16px; border-bottom: 1px solid rgba(200,168,75,0.06); font-size: 13px; color: var(--text-2); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(200,168,75,0.03); }
+
+    .avatar-cell { display: flex; align-items: center; gap: 10px; }
+    .student-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(200,168,75,0.15); color: var(--gold);
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .student-name { font-weight: 600; color: var(--text); }
+    .student-email { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+    .progress-inline { display: flex; align-items: center; gap: 8px; }
+    .prog-bar-sm { flex: 1; height: 4px; background: rgba(200,168,75,0.10); border-radius: 2px; min-width: 60px; }
+    .prog-fill-sm { height: 4px; background: var(--gold); border-radius: 2px; }
+    .prog-pct { font-size: 12px; font-weight: 600; color: var(--gold); width: 36px; text-align: right; }
+
+    .status-badge {
+      display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .status-active { background: rgba(42,107,74,0.2); color: #5ECFA0; }
+    .status-idle { background: rgba(107,42,42,0.2); color: #CF5E5E; }
+
+    .empty-row td { text-align: center; padding: 48px; color: var(--text-3); }
+    #loading-row td { text-align: center; padding: 36px; color: var(--text-3); }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="topbar-title">Gradebook</h1>
+      </div>
+      <div class="topbar-right">
+        <a href="/student-profile.html" class="topbar-avatar" id="topbar-avatar">—</a>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <div class="toolbar">
+        <select class="course-select" id="course-select" onchange="loadEnrollments()">
+          <option value="">Select a course...</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()" id="export-btn" style="display:none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export CSV
+        </button>
+        <span id="enroll-count" style="font-size:13px;color:var(--text-3);margin-left:auto;"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Enrolled</th>
+              <th>Progress</th>
+              <th>Last Active</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr id="loading-row"><td colspan="5">Select a course to view students</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/instructor-sidebar.js"></script>
+<script>
+  const token = localStorage.getItem('archive_token');
+  if (!token) location.href = '/signin.html';
+
+  let currentCourseId = null;
+
+  async function init() {
+    try {
+      const me = await fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+      if (!me.ok) { localStorage.clear(); location.href = '/signin.html'; return; }
+      const user = await me.json();
+      if (!['instructor','admin'].includes(user.role)) { location.href = '/student-dashboard.html'; return; }
+      document.dispatchEvent(new Event('userLoaded'));
+
+      if (user.role === 'admin') {
+        document.querySelectorAll('script[src*="instructor-sidebar"]').forEach(s => s.remove());
+        const sc = document.createElement('script'); sc.src = '/assets/js/admin-sidebar.js';
+        document.body.appendChild(sc);
+      }
+
+      loadCourses();
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadCourses() {
+    try {
+      const res = await fetch('/api/courses', { headers: { Authorization: 'Bearer ' + token } });
+      const data = await res.json();
+      const sel = document.getElementById('course-select');
+      (data.courses || []).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id; opt.textContent = c.title;
+        sel.appendChild(opt);
+      });
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadEnrollments() {
+    const courseId = document.getElementById('course-select').value;
+    if (!courseId) return;
+    currentCourseId = courseId;
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '<tr id="loading-row"><td colspan="5">Loading...</td></tr>';
+    document.getElementById('export-btn').style.display = 'none';
+    document.getElementById('enroll-count').textContent = '';
+    try {
+      const res = await fetch('/api/enrollments/instructor', { headers: { Authorization: 'Bearer ' + token } });
+      const data = await res.json();
+      // Filter by selected course
+      const all = data.students || [];
+      const enrs = all.filter(e => String(e.course_id) === String(courseId));
+      document.getElementById('enroll-count').textContent = enrs.length + ' student' + (enrs.length !== 1 ? 's' : '');
+      if (enrs.length) document.getElementById('export-btn').style.display = 'inline-flex';
+      renderTable(enrs);
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:36px;color:var(--text-3);">Could not load data.</td></tr>`;
+    }
+  }
+
+  function renderTable(enrs) {
+    const tbody = document.getElementById('table-body');
+    if (!enrs.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No students enrolled in this course yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = enrs.map(e => {
+      const pct = Math.min(e.progress_pct || 0, 100);
+      const enrolled = e.enrolled_at ? new Date(e.enrolled_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      const lastActive = e.last_accessed_at ? timeSince(e.last_accessed_at) : 'Never';
+      const isActive = e.last_accessed_at && (Date.now() - new Date(e.last_accessed_at).getTime()) < 7 * 86400000;
+      const initials = ((e.first_name || '?')[0] + (e.last_name || '?')[0]).toUpperCase();
+      return `<tr>
+        <td>
+          <div class="avatar-cell">
+            <div class="student-avatar">${e.avatar_initials || initials}</div>
+            <div>
+              <div class="student-name">${e.first_name || ''} ${e.last_name || ''}</div>
+              <div class="student-email">${e.email || ''}</div>
+            </div>
+          </div>
+        </td>
+        <td>${enrolled}</td>
+        <td>
+          <div class="progress-inline">
+            <div class="prog-bar-sm"><div class="prog-fill-sm" style="width:${pct}%"></div></div>
+            <span class="prog-pct">${pct}%</span>
+          </div>
+        </td>
+        <td>${lastActive}</td>
+        <td><span class="status-badge ${isActive ? 'status-active' : 'status-idle'}">${isActive ? 'Active' : 'Idle'}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function timeSince(dateStr) {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const days = Math.floor(diff / 86400000);
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) return `${Math.floor(days/7)} weeks ago`;
+    return new Date(dateStr).toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+  }
+
+  function exportCSV() {
+    if (!currentCourseId) return;
+    window.open(`/api/export/enrollments?course_id=${currentCourseId}`, '_blank');
+  }
+
+  init();
+</script>
+</body>
+</html>
