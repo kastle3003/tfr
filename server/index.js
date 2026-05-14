@@ -133,14 +133,14 @@ app.get('/courses/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/course-landing.html'));
 });
 
-// Practice Room per chapter: /practice/:chapterId
+// Practice Room removed — redirect to home
 app.get('/practice/:chapterId', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/practice-room.html'));
+  res.redirect('/');
 });
 
-// Course experience / marketing page: /experience/:slug
+// Course experience page removed — redirect to home
 app.get('/experience/:slug', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/course-experience.html'));
+  res.redirect('/');
 });
 
 // Legal page aliases (extension-less)
@@ -153,7 +153,7 @@ app.use('/api/public', require('./routes/public.routes'));
 
 // ── Integrations: Google OAuth callback is public (browser redirect from
 //    Google), other endpoints in this router enforce auth themselves. ──
-app.use('/api/integrations', require('./routes/integrations.routes'));
+// app.use('/api/integrations', — removed: no active UI
 
 // ── Notify-interest (course waitlist signup from landing pages) ──
 app.post('/api/notify-interest', async (req, res) => {
@@ -307,15 +307,15 @@ app.use('/api/courses', require('./middleware/auth'), require('./routes/courses.
 app.use('/api/enrollments', require('./middleware/auth'), require('./routes/enrollments.routes'));
 app.use('/api/lessons', require('./middleware/auth'), require('./routes/lessons.routes'));
 app.use('/api/sheet-music', require('./middleware/auth'), require('./routes/sheetmusic.routes'));
-app.use('/api/recordings', require('./middleware/auth'), require('./routes/recordings.routes'));
-app.use('/api/masterclasses', require('./middleware/auth'), require('./routes/masterclasses.routes'));
+// app.use('/api/recordings', — removed: no active UI
+// app.use('/api/masterclasses', — removed: no active UI
 app.use('/api/submissions', require('./middleware/auth'), require('./routes/submissions.routes'));
 app.use('/api/practice-materials', require('./middleware/auth'), require('./routes/practice-materials.routes'));
-app.use('/api/practice-uploads',  require('./middleware/auth'), require('./routes/practice-uploads.routes'));
-app.use('/api/quotes', require('./middleware/auth'), require('./routes/quotes.routes'));
+// app.use('/api/practice-uploads', — removed: practice-room-upload page removed
+// app.use('/api/quotes',   — removed: no active UI
 app.use('/api/admin', require('./middleware/auth'), require('./routes/admin.routes'));
 app.use('/api/chapters', require('./middleware/auth'), require('./routes/chapters.routes'));
-app.use('/api/assignments', require('./middleware/auth'), require('./routes/assignments.routes'));
+// app.use('/api/assignments', — removed: no active UI
 app.use('/api/materials', require('./middleware/auth'), require('./routes/materials.routes'));
 app.use('/api/assets',    require('./middleware/auth'), require('./routes/assets.routes'));
 app.use('/api/progress',  require('./middleware/auth'), require('./routes/progress.routes'));
@@ -323,33 +323,32 @@ app.use('/api/purchases', require('./middleware/auth'), require('./routes/purcha
 app.use('/api/pricing',   require('./middleware/auth'), require('./routes/pricing.routes'));
 app.use('/api/coupons',   require('./middleware/auth'), require('./routes/coupons.routes'));
 
-// Sprint 1+2: Learning core & communication
-app.use('/api/quizzes', require('./middleware/auth'), require('./routes/quiz.routes'));
+// Active: Learning core & communication
+// app.use('/api/quizzes', — removed: no active UI
 app.use('/api/notifications', require('./middleware/auth'), require('./routes/notifications.routes'));
-app.use('/api/messages', require('./middleware/auth'), require('./routes/messages.routes'));
+// app.use('/api/messages', — removed: messaging feature not active
 app.use('/api/profile', require('./middleware/auth'), require('./routes/profile.routes'));
 
-// Sprint 3: Analytics & engagement
-app.use('/api/analytics', require('./middleware/auth'), require('./routes/analytics.routes'));
+// Active: Practice & engagement
+// app.use('/api/analytics', — removed: no active UI
 app.use('/api/practice-log', require('./middleware/auth'), require('./routes/practice-log.routes'));
-app.use('/api/calendar', require('./middleware/auth'), require('./routes/calendar.routes'));
+// app.use('/api/calendar', — removed: Google OAuth not configured
 
-// Sprint 4+5+6: Monetisation, growth, scale
+// Active: Monetisation & live classes
 app.use('/api/payments', require('./middleware/auth'), require('./routes/payments.routes'));
-app.use('/api/certificates', require('./middleware/auth'), require('./routes/certificates.routes'));
+// app.use('/api/certificates', — removed: no certs issued yet
 app.use('/api/live-sessions', require('./middleware/auth'), require('./routes/live-classes.routes'));
-app.use('/api/search', require('./middleware/auth'), require('./routes/search.routes'));
+// app.use('/api/search', — removed: search page removed
 app.use('/api/announcements', require('./middleware/auth'), require('./routes/announcements.routes'));
-app.use('/api/resources', require('./middleware/auth'), require('./routes/resources.routes'));
+// app.use('/api/resources', — removed: resources page removed
 app.use('/api/support-links', require('./middleware/auth'), require('./routes/support-links.routes'));
-app.use('/api/email', require('./middleware/auth'), require('./routes/email.routes'));
-app.use('/api/roles', require('./middleware/auth'), require('./routes/roles.routes'));
+// app.use('/api/email', — removed: email automation not active
+// app.use('/api/roles', — removed: handled in admin panel directly
 
-// Export / Reports (instructor + admin)
-app.use('/api/export', require('./middleware/auth'), require('./routes/export.routes'));
+// app.use('/api/export', — removed: reports page removed
 
-// CMS & Blog
-app.use('/api/cms', require('./middleware/auth'), require('./routes/cms.routes'));
+// Blog (no CMS, blog posts managed via admin panel)
+// app.use('/api/cms', — removed: CMS page removed
 // Admin blog endpoints need JWT so req.user is populated for adminOnly — public endpoints stay open.
 app.use('/api/blog/admin', require('./middleware/auth'));
 app.use('/api/blog', require('./routes/blog.routes'));

@@ -886,7 +886,7 @@
                 <span class="lessons-count">${lessons} lesson${lessons === 1 ? '' : 's'}</span>
               </div>
               <div class="card-cta">
-                <button class="${ctaClass}" onclick="handleCta(event, ${c.id}, ${isEnrolled}, ${isPaid ? 1 : 0})">${ctaLabel}</button>
+                <button class="${ctaClass}" onclick="handleCta(event, ${c.id}, ${isEnrolled}, ${isPaid ? 1 : 0}, '${c.slug || c.id}')">${ctaLabel}</button>
               </div>
             </div>
           </div>
@@ -896,12 +896,13 @@
   }
 
   /* ── CTA handler ── */
-  function handleCta(event, courseId, isEnrolled, isPaid) {
+  function handleCta(event, courseId, isEnrolled, isPaid, slug) {
     event.stopPropagation();
+    const dest = slug || courseId;
     if (isEnrolled) {
-      window.location.href = `/courses/${courseId}#foundation-tabs`;
+      window.location.href = `/courses/${dest}#foundation-tabs`;
     } else if (isPaid) {
-      window.location.href = `/student-checkout.html?course_id=${courseId}`;
+      window.location.href = `/courses/${dest}`;
     } else {
       enroll(courseId, event.currentTarget);
     }
