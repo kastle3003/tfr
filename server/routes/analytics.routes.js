@@ -146,7 +146,7 @@ router.get('/student', (req, res) => {
 });
 
 // GET /api/analytics/instructor
-router.get('/instructor', requireRole('instructor'), (req, res) => {
+router.get('/instructor', requireRole(['instructor','admin']), (req, res) => {
   try {
     const instructorId = req.user.id;
 
@@ -246,7 +246,7 @@ router.get('/instructor', requireRole('instructor'), (req, res) => {
 });
 
 // GET /api/analytics/course/:id
-router.get('/course/:id', requireRole('instructor'), (req, res) => {
+router.get('/course/:id', requireRole(['instructor','admin']), (req, res) => {
   try {
     const courseId = req.params.id;
     const instructorId = req.user.id;
