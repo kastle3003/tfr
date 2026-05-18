@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site-chrome.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:         #080706;
+      --ink-soft:    #0f0e0c;
+      --ink-mid:     #1a1916;
+      --gold:        #C8A84B;
+      --gold-bright: #E2C26A;
+      --accent-red:  #E24A3F;
+      --gold-dim:    #8C7033;
+      --gold-bg:     rgba(200,168,75,.08);
+      --cream:       #F0E6D3;
+      --cream-dim:   #b8ad9e;
+      --ghost:       rgba(240,230,211,.06);
+      --ghost-mid:   rgba(240,230,211,.12);
+      --ghost-hi:    rgba(240,230,211,.18);
+      --border:      rgba(200,168,75,.15);
+      --border-hi:   rgba(200,168,75,.35);
+      --font-display: 'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+      --serif: var(--font-display);
+      --sans:  var(--font-body);
+      --text-2: var(--cream-dim);
+      --text-3: rgba(184,173,158,0.55);
+      --radius:       4px;
+      --max:          1280px;
+    }
+
+    html { scroll-behavior: smooth; overflow-x: clip; }
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3, h4, h5 { font-family: var(--font-display); }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 64px;
+      display: flex; align-items: center;
+      padding: 0 40px;
+      background: rgba(240, 228, 196, 0.22);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(240, 228, 196, 0.12);
+      box-shadow: none;
+    }
+    .nav-logo { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--gold); letter-spacing: .04em; }
+    .nav-logo span { font-size: 10px; font-family: var(--font-body); font-weight: 400; color: var(--cream-dim); display: block; letter-spacing: .2em; text-transform: uppercase; margin-top: -4px; }
+    .nav-spacer { flex: 1; }
+    .nav-btn {
+      padding: 9px 24px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: none;
+      transition: all .2s;
+    }
+    .nav-ghost { background: transparent; border: 1px solid rgba(200,168,75,0.32); color: var(--cream-dim); margin-right: 12px; }
+    .nav-ghost:hover { border-color: rgba(200,168,75,0.65); background: rgba(200,168,75,0.08); }
+    .nav-gold { background: var(--gold); color: var(--ink); }
+    .nav-gold:hover { background: var(--gold-bright); }
+    .nav-back { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--cream-dim); margin-right: 24px; transition: color .2s; }
+    .nav-back:hover { color: var(--gold); }
+    .nav-back svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ─── HERO BAND ─── */
+    #hero {
+      margin-top: 64px;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-left {
+      padding: 80px 80px 48px;
+      max-width: var(--max);
+      width: 100%;
+      align-self: center;
+      display: flex; flex-direction: column;
+      position: relative; z-index: 2;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      opacity: .6;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--ink) 0%, rgba(8,7,6,.7) 40%, rgba(8,7,6,.3) 100%);
+    }
+    /* YouTube video background */
+    .hero-yt-wrap {
+      position: absolute; inset: 0; z-index: 0; overflow: hidden; background: #000;
+    }
+    .hero-yt-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--ink) 0%, rgba(8,7,6,.65) 40%, rgba(8,7,6,.25) 100%);
+      z-index: 1;
+    }
+    /* Mask the YouTube title overlay that appears top-left */
+    .hero-yt-wrap::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 320px; height: 72px;
+      background: linear-gradient(to bottom right, rgba(8,7,6,.9) 0%, transparent 100%);
+      z-index: 2;
+    }
+    .hero-yt-wrap iframe {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 177.78vh; /* 16:9 at full height */
+      height: 56.25vw; /* 16:9 at full width */
+      min-width: 100%; min-height: 100%;
+      transform: translate(-50%, -50%);
+      border: none; pointer-events: none;
+    }
+
+    /* ─── ENROLL SIDEBAR ─── */
+    .enroll-sidebar {
+      padding: 48px 40px 80px 0;
+      position: sticky;
+      top: 80px;
+      align-self: start;
+      max-height: calc(100vh - 80px - 24px);
+      display: flex; flex-direction: column;
+    }
+    .enroll-card {
+      background: linear-gradient(160deg, #1C1508 0%, #121008 100%);
+      border: 1px solid rgba(200,168,75,0.32);
+      border-top: 3px solid var(--gold);
+      border-radius: 6px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(200,168,75,0.08), inset 0 1px 0 rgba(200,168,75,0.06);
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .enroll-card-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(200,168,75,.2) transparent;
+    }
+    .enroll-card-scroll::-webkit-scrollbar { width: 4px; }
+    .enroll-card-scroll::-webkit-scrollbar-thumb { background: rgba(200,168,75,.2); border-radius: 4px; }
+    .enroll-card-inner {
+      padding: 28px 24px 16px;
+      display: flex; flex-direction: column; align-items: stretch;
+    }
+    .enroll-card-footer {
+      padding: 16px 24px 20px;
+      border-top: 1px solid rgba(200,168,75,0.12);
+      background: linear-gradient(160deg, #1C1508 0%, #121008 100%);
+      flex-shrink: 0;
+    }
+    .enroll-card-label {
+      font-size: 10px; font-weight: 600; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 18px; opacity: .8;
+    }
+    .enroll-card-enrolled {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(200,168,75,.1); border: 1px solid rgba(200,168,75,.3);
+      border-radius: 4px; padding: 14px 16px;
+      font-size: 13px; color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .enroll-card-enrolled svg { width: 18px; height: 18px; stroke: var(--gold); fill: none; stroke-width: 2.2; flex-shrink: 0; }
+    .hero-eyebrow {
+      font-family: var(--font-body); font-size: 11px; font-weight: 500;
+      letter-spacing: .25em; text-transform: uppercase; color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: var(--font-display); font-size: clamp(38px, 5vw, 64px);
+      font-weight: 600; line-height: 1.08; color: var(--cream);
+      margin-bottom: 16px;
+    }
+    .hero-subtitle {
+      font-family: var(--font-display); font-size: 22px; font-style: normal;
+      color: var(--cream-dim); margin-bottom: 32px; font-weight: 300;
+    }
+    .hero-meta {
+      display: flex; gap: 28px; flex-wrap: wrap;
+    }
+    .hero-stat { display: flex; flex-direction: column; gap: 4px; }
+    .hero-stat-val { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--accent-red); line-height: 1; }
+    .hero-stat-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--cream-dim); }
+
+    .enroll-price-big {
+      font-family: var(--font-display); font-size: 52px; font-weight: 600; line-height: 1;
+      color: var(--accent-red);
+      text-shadow: 0 0 40px rgba(226,74,63,.25);
+      margin-bottom: 4px;
+    }
+    .enroll-price-note { font-size: 12px; color: var(--cream-dim); margin-bottom: 24px; letter-spacing: .04em; }
+    .btn-enroll-big {
+      width: 100%;
+      padding: 18px 24px;
+      background: var(--gold);
+      color: var(--ink);
+      font-size: 13px; font-weight: 700;
+      letter-spacing: .14em; text-transform: uppercase;
+      border: none; border-radius: var(--radius);
+      cursor: pointer; transition: all .25s;
+      text-align: center; display: block;
+    }
+    .btn-enroll-big:hover { background: var(--gold-bright); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(200,168,75,.3); }
+    .btn-enroll-big:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .enroll-divider { width: 100%; border: none; border-top: 1px solid rgba(200,168,75,.12); margin: 18px 0; }
+    /* Introductory badge */
+    .enroll-intro-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(200,168,75,.18), rgba(200,168,75,.08));
+      border: 1px solid rgba(200,168,75,.35);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+    /* Tier picker */
+    .enroll-tiers { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .enroll-tier {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      border: 1px solid rgba(200,168,75,.18);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      background: rgba(255,255,255,.02);
+    }
+    .enroll-tier:hover { border-color: rgba(200,168,75,.45); background: rgba(200,168,75,.04); }
+    .enroll-tier.selected {
+      border-color: var(--gold);
+      background: rgba(200,168,75,.1);
+    }
+    .enroll-tier-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid rgba(200,168,75,.4);
+      flex-shrink: 0; margin-right: 10px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .15s;
+    }
+    .enroll-tier.selected .enroll-tier-dot { border-color: var(--gold); background: var(--gold); }
+    .enroll-tier.selected .enroll-tier-dot::after {
+      content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--ink);
+    }
+    .enroll-tier-info { flex: 1; }
+    .enroll-tier-name { font-size: 12px; font-weight: 600; color: var(--cream); }
+    .enroll-tier-price { font-size: 11px; color: var(--cream-dim); margin-top: 1px; }
+    .enroll-tier.selected .enroll-tier-name { color: var(--gold); }
+    /* Bundle option */
+    .enroll-bundle {
+      position: relative;
+      padding: 14px 16px;
+      border: 1px solid rgba(200,168,75,.35);
+      border-radius: 6px;
+      background: linear-gradient(135deg, rgba(200,168,75,.1), rgba(200,168,75,.03));
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      margin-top: 8px; margin-bottom: 4px;
+    }
+    .enroll-bundle:hover, .enroll-bundle.selected {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(200,168,75,.18), rgba(200,168,75,.07));
+    }
+    .enroll-bundle-badge {
+      position: absolute; top: -9px; right: 14px;
+      background: var(--gold); color: var(--ink);
+      font-size: 8.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      padding: 2px 9px; border-radius: 10px;
+    }
+    .enroll-bundle-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .enroll-bundle-title { font-size: 12px; font-weight: 700; color: var(--cream); }
+    .enroll-bundle-price { font-size: 14px; font-weight: 700; color: var(--gold); }
+    .enroll-bundle-desc { font-size: 11px; color: var(--cream-dim); margin-top: 4px; line-height: 1.45; }
+    /* Value list */
+    .enroll-value-heading {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--gold); opacity: .8; margin-bottom: 12px;
+    }
+    .enroll-perks { list-style: none; width: 100%; }
+    .enroll-perks li {
+      display: flex; align-items: flex-start; gap: 9px;
+      font-size: 12px; color: var(--cream-dim); margin-bottom: 10px; line-height: 1.4;
+    }
+    .enroll-perks li svg { width: 13px; height: 13px; stroke: var(--gold); fill: none; stroke-width: 2.5; flex-shrink: 0; margin-top: 2px; }
+    /* CTA price display */
+    .enroll-cta-price {
+      font-size: 11px; color: var(--cream-dim);
+      text-align: center; margin-bottom: 10px;
+      font-weight: 500; letter-spacing: .03em;
+      text-decoration: none; display: block;
+      transition: color .15s;
+    }
+    a.enroll-cta-price:hover { color: var(--gold); }
+    .enroll-note { font-size: 10px; color: rgba(184,173,158,.45); text-align: center; margin-top: 12px; letter-spacing: .04em; }
+    .enroll-success {
+      display: none;
+      flex-direction: column; align-items: center; gap: 12px;
+      padding: 20px; background: rgba(200,168,75,.1);
+      border: 1px solid var(--border-hi); border-radius: var(--radius);
+      text-align: center; margin-bottom: 20px; width: 100%;
+    }
+    .enroll-success svg { width: 32px; height: 32px; stroke: var(--gold); fill: none; stroke-width: 2; }
+    .enroll-success p { font-size: 13px; color: var(--cream-dim); }
+    .enroll-success strong { color: var(--gold); font-size: 15px; }
+
+    /* ─── LAYOUT ─── */
+    .page-wrap {
+      max-width: var(--max); margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      align-items: start;
+    }
+    .page-main { padding: 72px 56px 80px 80px; }
+    @media (max-width: 1024px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .enroll-sidebar { padding: 0 40px 32px; position: static; order: -1; max-height: none; }
+      .enroll-card { border-radius: 0; border-left: none; border-right: none; border-top: 3px solid var(--gold); }
+      .enroll-card-scroll { overflow-y: visible; flex: none; }
+      .page-main { padding: 56px 40px 80px; }
+    }
+    @media (max-width: 600px) {
+      .page-main { padding: 40px 20px 60px; }
+      .enroll-sidebar { padding: 0 0 32px; }
+      .enroll-card-inner { padding: 18px 16px 12px; }
+      .enroll-card-footer { padding: 12px 16px 16px; }
+      .enroll-tiers { gap: 6px; }
+      .enroll-tier { padding: 9px 12px; }
+      .enroll-perks li { font-size: 11px; margin-bottom: 7px; }
+      .enroll-value-heading { font-size: 10px; }
+      .enroll-intro-badge { font-size: 9px; padding: 3px 10px; }
+      .btn-enroll-big { padding: 15px 20px; font-size: 12px; }
+    }
+
+    /* ─── SECTIONS ─── */
+    .section { margin-bottom: 72px; }
+    .section-label {
+      font-size: 11px; font-weight: 500; letter-spacing: .25em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 16px;
+    }
+    .section-heading {
+      font-family: var(--font-display); font-size: 38px; font-weight: 600;
+      line-height: 1.15; margin-bottom: 24px; color: var(--cream);
+    }
+    .section-heading em { font-style: normal; color: var(--accent-red); }
+    .section-body { color: var(--cream-dim); font-size: 15px; line-height: 1.8; }
+    .section-body p + p { margin-top: 16px; }
+    .section-sep { border: none; border-top: 1px solid var(--border); margin-bottom: 72px; }
+
+    /* outcomes grid */
+    .outcomes-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin-top: 32px;
+    }
+    .outcome-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 16px; background: var(--ghost); border: 1px solid var(--border);
+      border-radius: var(--radius); font-size: 13px; color: var(--cream-dim); line-height: 1.4;
+    }
+    .outcome-item svg { width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 2.5; flex-shrink: 0; margin-top: 1px; }
+
+    /* ─── CURRICULUM ─── */
+    .curriculum-section {
+      width: 100%;
+      padding: 0;
+    }
+    .curriculum-section .section-heading { margin-top: 6px; }
+    .curriculum-section .foundation-tabs { padding-top: 4px; }
+    .curriculum-summary {
+      display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;
+    }
+    .curr-stat { font-size: 13px; color: var(--cream-dim); }
+    .curr-stat strong { color: var(--cream); font-weight: 500; }
+
+    /* Course-wide progress: one large instrument icon that fills gold from
+       the bottom as completion increases. Total = video lessons in the
+       whole course (including previews). Fill = completed / total. */
+    .course-progress {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-left: 4px;
+    }
+    .course-progress svg {
+      width: 34px; height: 34px;
+      color: var(--gold);
+      display: block;
+    }
+    .course-progress-count {
+      font-size: 12px; color: var(--cream-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .foundation-tabs {
+      display: flex; gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .foundation-tab {
+      background: none; border: 0;
+      padding: 12px 20px;
+      color: var(--cream-dim);
+      font-family: inherit;
+      font-size: 13px; font-weight: 500; letter-spacing: .02em;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s;
+      white-space: nowrap;
+    }
+    .foundation-tab:hover { color: var(--cream); }
+    .foundation-tab.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+
+    .foundation-body {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) 2.6fr;
+      gap: 32px;
+      align-items: start;
+    }
+    @media (max-width: 860px) { .foundation-body { grid-template-columns: 1fr; gap: 18px; } }
+
+    .foundation-lessons {
+      background: var(--ghost);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(200,168,75,0.15) transparent;
+    }
+    .foundation-lessons::-webkit-scrollbar { width: 3px; }
+    .foundation-lessons::-webkit-scrollbar-track { background: transparent; }
+    .foundation-lessons::-webkit-scrollbar-thumb { background: rgba(200,168,75,0.2); border-radius: 2px; }
+    .lesson-item.completed { opacity: 1; }
+    .lesson-item.completed .l-icon { color: var(--gold); }
+    .lesson-item.seq-locked { opacity: 0.38; cursor: pointer; }
+    .seq-lock-toast {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      background: rgba(10,8,6,0.97);
+      border: 1px solid rgba(200,168,75,0.3);
+      border-left: 3px solid var(--gold);
+      border-radius: 4px; padding: 11px 16px;
+      font-size: 13px; color: var(--cream-dim);
+      max-width: 310px; pointer-events: none;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity .2s, transform .2s;
+    }
+    .seq-lock-toast.show { opacity: 1; transform: none; }
+    .lesson-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
+    .lesson-item {
+      display: flex; flex-direction: column;
+      padding: 10px 12px;
+      font-size: 13px; color: var(--cream-dim);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background .15s, color .15s;
+      user-select: none;
+    }
+    .lesson-item .l-row { display: flex; align-items: center; gap: 12px; }
+    .lesson-item:hover { background: var(--ghost-mid); color: var(--cream); }
+    .lesson-item.selected {
+      background: rgba(200,168,75,.1);
+      color: var(--cream);
+    }
+    .lesson-item.locked { opacity: .75; }
+    .lesson-item .l-num { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--gold-dim); min-width: 18px; }
+    .lesson-item .l-icon { width: 18px; height: 18px; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .lesson-item .l-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: currentColor; }
+    .lesson-item.locked .l-icon { color: var(--cream-dim); }
+    .lesson-item.locked .l-icon svg { fill: none; stroke-width: 2; }
+    .lesson-item.selected .l-icon { color: var(--gold-bright, #E8C96E); }
+    .lesson-item .l-name { flex: 1; }
+    .lesson-item .l-dur { font-size: 11px; color: var(--cream-dim); font-variant-numeric: tabular-nums; }
+    /* Guest preview tooltip */
+    .lesson-item.guest-preview { position: relative; }
+    .lesson-item.guest-preview::after {
+      content: "Login to watch";
+      position: absolute;
+      right: 10px; top: 50%; transform: translateY(-50%);
+      background: #141312; color: var(--gold);
+      padding: 4px 10px; font-size: 10px; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      border: 1px solid rgba(200,168,75,.3); border-radius: 3px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .15s;
+      white-space: nowrap;
+    }
+    .lesson-item.guest-preview:hover::after { opacity: 1; }
+
+    .l-timestamps { display: none; margin-top: 8px; padding-left: 30px; border-left: 2px solid rgba(200,168,75,.25); }
+    .lesson-item.selected .l-timestamps { display: block; }
+    .l-ts-item { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; font-size: 11px; }
+    .l-ts-time { color: var(--gold); font-variant-numeric: tabular-nums; font-weight: 600; min-width: 36px; flex-shrink: 0; }
+    .l-ts-label { color: var(--cream-dim); }
+
+    .foundation-player {
+      background: var(--ghost);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+    .video-expand-btn {
+      position: absolute;
+      top: 10px; right: 10px; z-index: 4;
+      width: 34px; height: 34px;
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.2);
+      color: var(--cream);
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, border-color .15s;
+    }
+    .video-expand-btn:hover { background: rgba(200,168,75,.35); border-color: var(--gold); }
+    .video-expand-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ─── Theater / Full-viewport mode ─── */
+    .curriculum-section.theater {
+      position: fixed; inset: 0; z-index: 1000;
+      background: var(--bg, #0b0a08);
+      padding: 24px 32px;
+      margin: 0;
+      overflow-y: auto;
+      display: flex; flex-direction: column;
+    }
+    .curriculum-section.theater .section-label,
+    .curriculum-section.theater .section-heading,
+    .curriculum-section.theater .curriculum-summary { display: none; }
+    .curriculum-section.theater .foundation-tabs { margin-bottom: 16px; flex-shrink: 0; }
+    .curriculum-section.theater .foundation-body {
+      grid-template-columns: 320px 1fr;
+      flex: 1;
+      min-height: 0;
+    }
+    .curriculum-section.theater .foundation-lessons { overflow-y: auto; max-height: 100%; }
+    .curriculum-section.theater .foundation-player { height: 100%; }
+    .curriculum-section.theater .video-slot { aspect-ratio: auto; flex: 1; }
+    body.curriculum-theater-on { overflow: hidden; }
+    @media (max-width: 860px) {
+      .curriculum-section.theater .foundation-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    }
+    .video-slot {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      overflow: hidden;
+    }
+    .video-slot video, .video-slot iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%; display: block; border: 0;
+    }
+    .video-slot video { background: #000; }
+    .video-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+    .video-play-btn {
+      pointer-events: auto;
+      width: 68px; height: 68px; border-radius: 50%;
+      background: rgba(200,168,75,.95); color: #0F0D0B;
+      border: 0; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .15s, background .15s;
+    }
+    .video-play-btn:hover { transform: scale(1.06); background: var(--gold-bright, #E8C96E); }
+    .video-play-btn svg { width: 28px; height: 28px; fill: currentColor; }
+    .video-slot.playing .video-overlay { opacity: 0; }
+    .video-slot.playing:hover .video-overlay { opacity: 1; }
+
+    .video-progress-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: rgba(255,255,255,.12);
+      pointer-events: none;
+    }
+    .video-progress-fill {
+      height: 100%; background: var(--gold);
+      width: 0%;
+    }
+
+    .video-title-row {
+      padding: 12px 16px;
+      font-size: 13px; color: var(--cream);
+      border-top: 1px solid var(--border);
+      background: var(--ghost-mid);
+      min-height: 42px;
+    }
+
+    /* ─── VIDEO CONTROL BAR ─── */
+    .video-ctrl-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 12px;
+      background: rgba(8,7,6,0.98);
+      border-top: 1px solid rgba(200,168,75,0.07);
+      min-height: 34px; flex-shrink: 0;
+    }
+    .video-ctrl-bar:empty { display: none; }
+    .vcl-play-btn {
+      background: none; border: none; padding: 2px 4px;
+      color: rgba(240,230,211,0.75); cursor: pointer;
+      display: flex; align-items: center; flex-shrink: 0;
+      transition: color .15s;
+    }
+    .vcl-play-btn:hover { color: var(--gold); }
+    .vcl-play-btn svg { width: 13px; height: 13px; fill: currentColor; }
+    .vcl-time {
+      font-size: 11px; color: rgba(240,230,211,0.45);
+      font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    .vcl-vol { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .vcl-vol-btn {
+      background: none; border: none; padding: 0;
+      color: rgba(240,230,211,0.65); cursor: pointer;
+      display: flex; align-items: center; flex-shrink: 0;
+      transition: color .15s;
+    }
+    .vcl-vol-btn:hover { color: var(--gold); }
+    .vcl-vol-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .vcl-vol-btn .vol-hi { display: block; }
+    .vcl-vol-btn .vol-mute { display: none; }
+    .vcl-vol-btn.muted .vol-hi { display: none; }
+    .vcl-vol-btn.muted .vol-mute { display: block; }
+    .vcl-vol-slider { width: 68px; accent-color: var(--gold); cursor: pointer; }
+
+    /* Practice Room CTA below the player — LOCKED for now.
+       Fills the player box width; shows "Coming soon" on hover/tap.
+       (Backend + /practice/:id page + course-manager editor are all wired and
+       ready; flip this back to an <a href> when you want to unlock.) */
+    .curriculum-section.theater .practice-room-btn { display: none; }
+    .curriculum-section.theater .video-title-row { display: none; }
+
+    .practice-room-btn {
+      position: relative;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%;
+      margin: 12px 0 0;
+      padding: 15px 18px;
+      background: var(--gold);
+      color: var(--ink, #0F0D0B);
+      border: 0;
+      border-radius: 0;
+      font-family: inherit;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      cursor: not-allowed;
+      box-shadow: none;
+      transition: background .2s;
+    }
+    .practice-room-btn:hover { background: var(--gold-bright, #E8C96E); }
+    .practice-room-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+    .practice-room-btn::after {
+      content: "Coming soon";
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #141312;
+      color: var(--cream);
+      padding: 6px 12px;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: .02em; text-transform: none;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s;
+    }
+    .practice-room-btn::before {
+      content: "";
+      position: absolute;
+      bottom: calc(100% + 3px);
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #141312;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .practice-room-btn:hover::after,
+    .practice-room-btn:hover::before,
+    .practice-room-btn.tapped::after,
+    .practice-room-btn.tapped::before { opacity: 1; }
+
+    .video-locked {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--cream-dim); padding: 24px; text-align: center;
+      background: #0a0907;
+    }
+    .video-locked svg { width: 36px; height: 36px; color: var(--accent-red); margin-bottom: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .video-locked h3 { font-family: var(--font-display); font-size: 20px; color: var(--cream); margin: 0 0 6px; }
+    .video-locked p { font-size: 13px; margin: 0 0 14px; max-width: 340px; }
+    .video-locked .cta-row { display: flex; gap: 10px; }
+    .video-locked a {
+      background: var(--gold); color: #0F0D0B;
+      padding: 9px 18px; border-radius: 3px; font-weight: 600;
+      text-decoration: none; font-size: 12px; letter-spacing: .05em;
+      transition: background .15s;
+    }
+    .video-locked a.outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 8px 17px; }
+    .video-locked a:hover { background: var(--gold-bright, #E8C96E); color: #0F0D0B; }
+    .video-locked a.outline:hover { background: var(--gold); color: #0F0D0B; }
+
+    /* ─── INSTRUCTOR ─── */
+    .instructor-card-pub {
+      display: flex; gap: 28px; align-items: flex-start;
+      padding: 36px; background: var(--ghost); border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .instructor-avatar-big {
+      width: 160px; height: 200px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 32px; font-weight: 600;
+      color: var(--gold); flex-shrink: 0;
+      border: 2px solid var(--border-hi);
+      overflow: hidden;
+    }
+    .instructor-info-name { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--cream); margin-bottom: 4px; }
+    .instructor-info-subject { font-size: 12px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+    .instructor-info-bio { font-size: 14px; color: var(--cream-dim); line-height: 1.8; }
+
+    /* ─── TESTIMONIALS ─── */
+    .testi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+    .testi-card {
+      padding: 28px; background: var(--ghost); border: 1px solid var(--border);
+      border-radius: var(--radius); position: relative;
+    }
+    .testi-mark { font-family: var(--font-display); font-size: 60px; color: var(--gold-dim); line-height: .8; margin-bottom: 12px; display: block; }
+    .testi-text { font-size: 14px; color: var(--cream-dim); line-height: 1.7; margin-bottom: 16px; font-style: normal; }
+    .testi-author { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--cream); }
+    .testi-origin { font-size: 11px; color: var(--cream-dim); margin-top: 2px; }
+    .stars { display: flex; gap: 3px; margin-bottom: 12px; }
+    .star { width: 10px; height: 10px; background: var(--accent-red); clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
+
+    /* ─── BOTTOM ENROLL CTA ─── */
+    .bottom-cta {
+      background: linear-gradient(135deg, var(--ink-mid) 0%, #141210 100%);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 52px 60px;
+      display: flex; align-items: center; justify-content: space-between; gap: 40px;
+      max-width: var(--max); margin: 0 auto 80px;
+      box-sizing: border-box;
+      padding-left: 80px; padding-right: 80px;
+    }
+    .bottom-cta-text h2 { font-family: var(--font-display); font-size: 38px; font-weight: 600; color: var(--cream); margin-bottom: 8px; }
+    .bottom-cta-text h2 em { font-style: normal; color: var(--accent-red); }
+    .bottom-cta-text p { font-size: 15px; color: var(--cream-dim); }
+    .bottom-cta-action { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .btn-enroll-bottom {
+      padding: 18px 48px; background: var(--gold); color: var(--ink);
+      font-size: 14px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      transition: all .25s; white-space: nowrap;
+    }
+    .btn-enroll-bottom:hover { background: var(--gold-bright); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(200,168,75,.3); }
+    .bottom-cta-note { font-size: 11px; color: var(--cream-dim); text-align: center; }
+
+    /* ─── FOOTER ─── */
+    footer { background: rgba(240,228,196,0.22); border-top: 1px solid rgba(240,228,196,0.12); padding: 64px 40px 0; }
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr; gap: 48px; max-width: 1200px; margin: 0 auto 48px; }
+    .footer-tagline { font-family: var(--serif); font-style: normal; font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
+    .footer-socials { display: flex; gap: 12px; }
+    .footer-social { width: 34px; height: 34px; border: 1px solid rgba(200,168,75,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s, background 0.2s; text-decoration: none; }
+    .footer-social:hover { border-color: var(--gold); background: rgba(200,168,75,0.08); }
+    .footer-social svg { width: 14px; height: 14px; fill: var(--gold); }
+    .footer-col-title { font-family: var(--sans); font-size: 10px; font-weight: 700; letter-spacing: 0.2em; color: var(--text-3); text-transform: uppercase; margin-bottom: 20px; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer-links a { font-family: var(--sans); font-size: 13px; color: var(--text-2); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-connect-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .footer-connect-item svg { width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px; }
+    .footer-connect-text { font-family: var(--sans); font-size: 13px; color: var(--text-2); line-height: 1.5; }
+    .footer-connect-text a { color: var(--text-2); text-decoration: none; transition: color 0.2s; }
+    .footer-connect-text a:hover { color: var(--gold); }
+    .footer-bar { max-width: 1200px; margin: 0 auto; border-top: 1px solid rgba(200,168,75,0.12); padding: 20px 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .footer-copy { font-family: var(--sans); font-size: 12px; color: var(--text-3); }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a { font-family: var(--sans); font-size: 12px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+    .footer-legal a:hover { color: var(--gold); }
+    @media (max-width: 960px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; } }
+    @media (max-width: 768px) { footer { padding: 48px 24px 0; } .footer-grid { grid-template-columns: 1fr; gap: 32px; } .footer-bar { flex-direction: column; align-items: flex-start; } }
+
+    /* ─── LOADING SKELETON ─── */
+    .loading-wrap {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 60vh; flex-direction: column; gap: 20px;
+    }
+    .loading-spinner {
+      width: 40px; height: 40px; border: 2px solid var(--border);
+      border-top-color: var(--gold); border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-family: var(--font-display); font-size: 20px; color: var(--cream-dim); }
+
+    /* ─── ERROR STATE ─── */
+    .error-wrap {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 60vh; flex-direction: column; gap: 16px; padding: 40px;
+    }
+    .error-code { font-family: var(--font-display); font-size: 80px; color: var(--border); line-height: 1; }
+    .error-msg { font-family: var(--font-display); font-size: 24px; color: var(--cream-dim); }
+    .error-link { margin-top: 12px; padding: 12px 28px; border: 1px solid var(--border-hi); border-radius: var(--radius); font-size: 13px; color: var(--cream-dim); transition: all .2s; }
+    .error-link:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .page-main { padding: 48px 24px; }
+      .hero-left { padding: 48px 24px 36px; }
+      .hero-meta { gap: 20px; }
+      .outcomes-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .bottom-cta { flex-direction: column; margin: 0 24px 48px; padding: 36px 28px; align-items: flex-start; }
+      footer { padding: 32px 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
+      nav { padding: 0 20px; }
+    }
+
+    /* Phone */
+    @media (max-width: 640px) {
+      nav { padding: 0 14px; }
+      .hero-title { font-size: clamp(30px, 9vw, 44px); }
+      .hero-subtitle { font-size: 17px; margin-bottom: 24px; }
+      .hero-left { padding: 32px 18px 28px; }
+      .hero-stat-val { font-size: 22px; }
+      .hero-meta { gap: 14px 20px; }
+      .page-main { padding: 32px 18px; }
+      .section-heading { font-size: clamp(26px, 7vw, 36px); }
+      .curriculum-summary { gap: 14px; font-size: 12px; }
+      .course-progress { margin-left: 0; }
+      .course-progress svg { width: 28px; height: 28px; }
+      .foundation-tab { padding: 10px 14px; font-size: 12px; }
+      .foundation-lessons { padding: 6px; }
+      .lesson-item { padding: 9px 10px; font-size: 12px; }
+      .lesson-item .l-row { gap: 10px; }
+      .video-title-row { font-size: 12px; padding: 10px 12px; }
+      .instructor-card-pub { flex-direction: column; padding: 22px; gap: 18px; }
+      .instructor-avatar-big { align-self: flex-start; }
+      .testi-card { padding: 20px; }
+      .bottom-cta { padding: 28px 20px; }
+      .bottom-cta h2 { font-size: clamp(22px, 6vw, 30px); }
+      .curriculum-section.theater { padding: 18px; }
+      .curriculum-section.theater .foundation-lessons { max-height: 30vh; }
+    }
+
+    /* Very small phones: drop the side nav button text entirely */
+    @media (max-width: 380px) {
+      .nav-back { margin-right: 10px; }
+      .nav-btn { padding: 8px 12px; font-size: 11px; letter-spacing: .08em; }
+      .hero-stat { min-width: 60px; }
+    }
+
+    /* ─── Mobile-specific overrides ─── */
+    @media (max-width: 480px) {
+      .hero-left { padding: 28px 16px 24px; }
+      .hero-meta { flex-wrap: wrap; gap: 12px 20px; }
+      .foundation-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+      .foundation-tab { scroll-snap-align: start; flex-shrink: 0; }
+      .video-slot { border-radius: 0; }
+      .video-title-row { font-size: 11px; }
+      .lesson-item .l-dur { display: none; }
+      .enroll-card-inner, .enroll-card-scroll { padding: 20px 16px; }
+      .outcomes-grid { grid-template-columns: 1fr; }
+      .page-main { padding: 28px 14px 48px; }
+      .section { margin-bottom: 48px; }
+    }
+
+    /* ─── REVEAL ANIM ─── */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ─── CURRICULUM FULL-WIDTH WRAPPER ─── */
+    .curriculum-wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 40px 80px 0;
+    }
+    .curriculum-wrap .curriculum-section { margin-bottom: 0; }
+    @media (max-width: 900px) { .curriculum-wrap { padding: 32px 24px 0; } }
+    @media (max-width: 600px) { .curriculum-wrap { padding: 20px 16px 0; } }
+  </style>
+  <link rel="stylesheet" href="/assets/css/enroll-modal.css">
+</head>
+<body>
+
+<!-- NAVIGATION (shared) -->
+<div data-site-nav data-active="courses"></div>
+
+<!-- Shared site chrome (must run before public-nav-auth) -->
+<script src="/assets/js/site-chrome.js"></script>
+<!-- Auth-aware nav (swaps Sign In/Join Now for an avatar pill when signed in) -->
+<script src="/assets/js/public-nav-auth.js"></script>
+
+<!-- CONTENT (rendered by JS) -->
+<div id="app">
+  <div class="loading-wrap">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading course…</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="/assets/js/enroll-modal.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+// ─── Get course slug or id from URL ─────────────────────────────────────────
+// Supports both SEO URLs (/courses/sitar-the-complete-foundation)
+// and legacy query strings (?id=1) for backward compatibility
+let courseId = null;
+const pathParts = window.location.pathname.split('/');
+const slugFromPath = pathParts[pathParts.length - 1]; // last segment
+if (slugFromPath && slugFromPath !== 'course-landing.html' && slugFromPath !== '') {
+  courseId = slugFromPath; // slug (string) or numeric id
+} else {
+  const params = new URLSearchParams(window.location.search);
+  courseId = params.get('id');
+}
+
+if (!courseId) {
+  showError('No course specified.');
+}
+
+// ─── Auth helpers ────────────────────────────────────────────────────────────
+function getToken() { return localStorage.getItem('archive_token'); }
+function isLoggedIn() { return !!getToken(); }
+async function checkEnrolled(id) {
+  try {
+    const r = await fetch('/api/enrollments/me', { headers: { Authorization: 'Bearer ' + getToken() } });
+    if (!r.ok) return false;
+    const d = await r.json();
+    return (d.enrollments || []).some(e => e.course_id == id);
+  } catch { return false; }
+}
+
+async function checkPurchaseAccess(courseId) {
+  try {
+    const r = await fetch('/api/purchases/me', { headers: { Authorization: 'Bearer ' + getToken() } });
+    if (!r.ok) return;
+    const d = await r.json();
+    const completed = (d.purchases || []).filter(p => p.status === 'completed' && p.course_id == courseId);
+    _hasBundlePurchase = completed.some(p => p.type === 'bundle');
+    completed.filter(p => p.type === 'individual' && p.foundation_id).forEach(p => {
+      _purchasedChapterIds.add(String(p.foundation_id));
+    });
+  } catch { /* no-op */ }
+}
+
+// Enroll/Buy modal logic lives in /assets/js/enroll-modal.js (loaded via <script>).
+// It exposes window.openEnrollModal(courseId) and window.handleEnroll as an alias.
+
+// ─── Lead capture (uses logged-in user's DB record) ──────────────────────────
+async function openLeadModal() {
+  const token = localStorage.getItem('archive_token');
+  if (!token) { window.location.href = '/login'; return; }
+
+  const btn = document.getElementById('enroll-btn-main');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+  try {
+    await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ course: 'Practise Room — Djembe' })
+    });
+    showLeadToast('Thank you for registering. Our team will get in touch with you soon.');
+  } catch (_) {
+    showLeadToast('Something went wrong — please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enroll Now'; }
+  }
+}
+
+function showLeadToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#C8A84B;color:#0F0D0B;padding:22px 40px;border-radius:10px;font-size:16px;font-weight:700;letter-spacing:.04em;z-index:99999;box-shadow:0 16px 64px rgba(0,0,0,.7);text-align:center;max-width:88vw;line-height:1.5;';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+function _selectTier(el) {
+  document.querySelectorAll('.enroll-tier, .enroll-bundle').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  const name = el.dataset.name;
+  const price = el.dataset.price;
+  const fmt = Number(price).toLocaleString('en-IN');
+  const ctaEl = document.getElementById('enroll-cta-price');
+  if (ctaEl) {
+    ctaEl.textContent = name + ' — ₹' + fmt;
+    const expUrl = el.dataset.expUrl;
+    if (expUrl) { ctaEl.href = expUrl; ctaEl.style.pointerEvents = ''; }
+    else { ctaEl.removeAttribute('href'); ctaEl.style.pointerEvents = 'none'; }
+  }
+}
+
+// ─── Error screen ────────────────────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById('app').innerHTML = `
+    <div class="error-wrap">
+      <div class="error-code">404</div>
+      <p class="error-msg">${msg}</p>
+      <a href="/" class="error-link">← Back to Home</a>
+    </div>`;
+}
+
+// ─── Format duration ─────────────────────────────────────────────────────────
+function fmtDur(min) {
+  if (!min) return '';
+  if (min < 60) return min + 'm';
+  const h = Math.floor(min / 60), m = min % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+
+// ─── Lesson type icons ───────────────────────────────────────────────────────
+function lessonIcon(type) {
+  if (type === 'video') return `<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+  if (type === 'reading') return `<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`;
+  return `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+}
+
+// ─── Per-slug chapter title overrides ────────────────────────────────────────
+const CHAPTER_TITLE_OVERRIDES = {
+  'djembe-world-percussions': {
+    'Percussion Beginner': 'Basic Foundation Course',
+    'Beginner':            'Basic Foundation Course',
+  }
+};
+
+// ─── Outline dots per-category ───────────────────────────────────────────────
+const OUTCOMES = {
+  Sitar: ['Correct baithak posture and mizrab technique','Meend (glide) across all seven swaras','Alaap and gat in Raga Yaman','Daily riyaz structure to build muscle memory','Performance-ready composition in Teentaal'],
+  Percussion: ['Core djembe sounds: bass, tone, slap','Alternating hand independence','Teentaal & Dadra on hand percussion','Polyrhythmic layering techniques','Create your own groove compositions'],
+  Vocals: ['Sur (pitch) stability and intonation training','Raga grammar and time-cycle application','Khayal composition in Raag Yaman & Bhairav','Recording feedback protocol','Monthly live mehfil participation'],
+  Dance: ['Foundational tatkar (footwork) sequences','Classical hastas and mudras','Thumri abhinaya (expressive dance)','Full Teentaal composition','Understanding the nine rasas in performance'],
+  'Film Songs': ['Mic technique and studio breath control','Stylistic interpretation of Bollywood songs','Voice texture and nuance for recording','Pre-session warm-up routines','Inside knowledge of playback sessions'],
+  Acting: ['Finding your authentic storytelling voice','Improvisational scene construction','Transforming personal experience into drama','Workshop exercises for creative unblocking','Live performance feedback from Makarand']
+};
+
+const TESTIMONIALS = {
+  Sitar: [
+    { text: 'I still cannot believe I\'m learning from THE Niladri Kumar. Every session feels like a private concert that becomes a lesson.', author: 'Debaditya R.', origin: 'Kolkata · Sitar Student' },
+    { text: 'The structured riyaz approach completely transformed my practice. I went from aimless playing to real musicianship.', author: 'Priyanka M.', origin: 'Bengaluru · Sitar Student' }
+  ],
+  Percussion: [
+    { text: 'Taufiq bhai doesn\'t just teach rhythm. He makes you feel it in your body. The most meditative course I\'ve ever taken.', author: 'Rohit S.', origin: 'Hyderabad · Percussion Student' },
+    { text: 'I had no music background at all. After 8 weeks I was playing polyrhythms and feeling genuinely musical.', author: 'Aishwarya N.', origin: 'Chennai · Percussion Student' }
+  ],
+  Vocals: [
+    { text: 'Sveta ji\'s feedback on my recordings is surgical — precise, kind, and exactly what I needed to hear.', author: 'Megha T.', origin: 'Pune · Vocals Student' },
+    { text: 'The Kirana gharana approach to sur is unlike anything you find in casual music classes. This is the real thing.', author: 'Arjun K.', origin: 'Mumbai · Vocals Student' }
+  ],
+  Dance: [
+    { text: 'Training under Guruma ji is a privilege that simply wasn\'t available outside of Mumbai before TFR. Extraordinary.', author: 'Sunita P.', origin: 'Delhi · Kathak Student' },
+    { text: 'The rasa framework changed how I see dance entirely. Technique and emotion finally feel inseparable.', author: 'Lavanya C.', origin: 'Jaipur · Kathak Student' }
+  ],
+  'Film Songs': [
+    { text: 'Milind sir gives you the real studio insider knowledge. The mic technique module alone was worth the entire course.', author: 'Siddharth V.', origin: 'Mumbai · Film Songs Student' },
+    { text: 'I always wanted to be a playback singer. This course showed me the path — practical, honest, and inspiring.', author: 'Sneha K.', origin: 'Nagpur · Film Songs Student' }
+  ],
+  Acting: [
+    { text: 'Makarand\'s Writer\'s Room is like a psychological excavation. Terrifying and liberating at the same time.', author: 'Vikram A.', origin: 'Kolkata · Writer\'s Room' },
+    { text: 'I came as a theatre amateur and left with two one-act plays and the confidence to stage them.', author: 'Divya S.', origin: 'Ahmedabad · Writer\'s Room' }
+  ]
+};
+
+// ─── Render Page ─────────────────────────────────────────────────────────────
+async function renderPage(data) {
+  const { course, chapters } = data;
+  const totalLessons = chapters.reduce((a, c) => a + c.lessons.length, 0);
+  // Prefer actual uploaded video durations over typed duration_minutes.
+  // Inline equivalent of _lessonSeconds (defined later in the file).
+  const _lsecs = (l) => {
+    const v = (l.materials || []).find(m => m && m.type === 'video' && m.duration_seconds);
+    if (v) return Number(v.duration_seconds);
+    if (l.duration_seconds) return Number(l.duration_seconds);
+    if (l.duration_minutes) return Number(l.duration_minutes) * 60;
+    return 0;
+  };
+  const totalSeconds = chapters.reduce((a, c) => a + c.lessons.reduce((b, l) => b + _lsecs(l), 0), 0);
+  const _fmtS = (sec) => {
+    sec = Math.max(0, Math.round(sec));
+    if (sec === 0) return '—';
+    if (sec < 60) return sec + 's';
+    if (sec < 3600) {
+      const m = Math.floor(sec / 60), s = sec % 60;
+      return s ? `${m}m ${s}s` : `${m}m`;
+    }
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+    return m ? `${h}h ${m}m` : `${h}h`;
+  };
+
+  document.title = `${course.title} — The Foundation Room`;
+
+  const cat = course.category;
+  const outcomes = OUTCOMES[cat] || OUTCOMES['Sitar'];
+  const testimonials = TESTIMONIALS[cat] || TESTIMONIALS['Sitar'];
+
+  let enrolled = false;
+  if (isLoggedIn()) {
+    [enrolled] = await Promise.all([
+      checkEnrolled(course.id),
+      checkPurchaseAccess(course.id),
+    ]);
+  }
+  _isEnrolled = enrolled;
+
+  const enrollBtnLabel = enrolled ? 'Start Learning →' : 'Enroll Now';
+  const enrollBtnAction = enrolled
+    ? `document.getElementById('foundation-tabs')?.scrollIntoView({behavior:'smooth',block:'start'})`
+    : `openEnrollModal(${course.id})`;
+
+  const enrollSuccessHTML = enrolled ? `
+    <div class="enroll-success" style="display:flex">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <strong>You're enrolled!</strong>
+      <p>Continue learning from your dashboard.</p>
+    </div>` : `
+    <div class="enroll-success">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <strong>You're enrolled!</strong>
+      <p>Head to your dashboard to begin.</p>
+    </div>`;
+
+  const priceStr = course.bundle_price_paise > 0
+    ? '₹' + (course.bundle_price_paise / 100).toLocaleString('en-IN')
+    : (course.price_paise > 0 ? '₹' + (course.price_paise / 100).toLocaleString('en-IN') : 'Free');
+
+  const html = `
+    <!-- HERO (full width) -->
+    <div id="hero">
+      ${course.slug === 'djembe-world-percussions' ? `
+      <div class="hero-yt-wrap">
+        <iframe src="https://www.youtube.com/embed/En8fsz2uQ7k?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&rel=0&showinfo=0&playlist=En8fsz2uQ7k" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>` : `
+      <div class="hero-bg" style="background:${course.cover_color || '#1a0d00'}">
+        ${course.cover_image_url ? `<img src="${course.cover_image_url}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">` : ''}
+      </div>`}
+      <div class="hero-left">
+        <p class="hero-eyebrow">${course.slug === 'djembe-world-percussions' ? 'Basic Foundation Course' : `${course.category} · ${course.level || 'All Levels'}`}</p>
+        <h1 class="hero-title">${course.title}</h1>
+        <p class="hero-subtitle">${
+          course.slug === 'djembe-world-percussions'
+            ? 'Rhythm is a Universal Language'
+            : (course.subtitle || '')
+        }</p>
+        <div class="hero-meta">
+          <div class="hero-stat">
+            <span class="hero-stat-val">${totalLessons}</span>
+            <span class="hero-stat-label">Lessons</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-val">${chapters.length}</span>
+            <span class="hero-stat-label">Chapters</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-val" data-no-countup="1">1</span>
+            <span class="hero-stat-label">Unbelievable Experience</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MAIN BODY + ENROLL SIDEBAR -->
+    <div class="page-wrap">
+      <main class="page-main">
+
+        <!-- ABOUT -->
+        <div class="section reveal">
+          <p class="section-label">About This Course</p>
+          <h2 class="section-heading">What you will <em>experience</em></h2>
+          <div class="section-body">
+            ${(course.description || `An immersive ${course.instrument || course.category || ''} course taught by ${course.instructor_name || 'our expert faculty'}.`)
+              .split('. ').reduce((acc, s, i) => {
+                if (i === 0) return acc + s;
+                if (i % 3 !== 0) return acc + '. ' + s;
+                return acc + '.</p><p>' + s;
+              }, '<p>') + '.</p>'}
+          </div>
+        </div>
+
+        <!-- WHAT YOU'LL LEARN -->
+        <div class="section reveal">
+          <p class="section-label">Outcomes</p>
+          <h2 class="section-heading">What you will <em>learn</em></h2>
+          <div class="outcomes-grid">
+            ${outcomes.map(o => `
+              <div class="outcome-item">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                ${o}
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <hr class="section-sep">
+
+        <!-- CURRICULUM -->
+        <div class="section reveal curriculum-section">
+          <p class="section-label">Enter the World of Rhythm</p>
+          <div class="foundation-tabs" id="foundation-tabs" role="tablist">
+            ${chapters.map((ch, i) => {
+              const _overrides = CHAPTER_TITLE_OVERRIDES[course.slug] || {};
+              const _tabTitle = _overrides[ch.title] || ch.title;
+              return `<button class="foundation-tab${i === 0 ? ' active' : ''}" data-ch="${ch.id}" onclick="selectFoundation('${ch.id}', true)" role="tab">${_tabTitle}</button>`;
+            }).join('')}
+          </div>
+          ${!isLoggedIn() ? `<div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cream-dim);background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.15);border-radius:4px;padding:8px 12px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold);flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <span>First lesson is free — no sign in needed. <a href="/signin.html" style="color:var(--gold);text-decoration:none;font-weight:500;">Sign in</a> to unlock all other lessons after purchase.</span>
+          </div>` : ''}
+          <h2 class="section-heading">${course.slug === 'djembe-world-percussions' ? 'Course <em>topics</em>' : 'Course <em>structure</em>'}</h2>
+          <div class="curriculum-summary">
+            <span class="curr-stat"><strong id="stat-lessons-num">${(chapters[0]?.lessons || []).length}</strong> <span id="stat-lessons-label">${(chapters[0]?.lessons || []).length === 1 ? 'lesson' : 'lessons'}</span></span>
+            <span class="curr-stat"><strong id="stat-runtime-num">—</strong> total runtime</span>
+            <span class="course-progress" id="course-progress" data-instrument="${(course.instrument || '').toLowerCase()}"></span>
+          </div>
+          <div class="foundation-body">
+            <div class="foundation-lessons">
+              <ol class="lesson-list" id="foundation-lesson-list"></ol>
+            </div>
+            <div class="foundation-player">
+              <button class="video-expand-btn" id="video-expand-btn" onclick="toggleCurriculumTheater()" aria-label="Expand" title="Expand to full-size">
+                <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              </button>
+              <div class="video-slot" id="video-slot"></div>
+              <div class="video-ctrl-bar" id="video-ctrl-bar"></div>
+              <div class="video-title-row" id="video-title">Select a lesson to preview</div>
+            </div>
+          </div>
+          <button class="practice-room-btn" id="practice-room-btn" type="button" onclick="_practiceRoomTap(this)" aria-label="Practice Room (coming soon)">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Practice Room
+          </button>
+        </div>
+
+        ${course.slug !== 'djembe-world-percussions' ? `<hr class="section-sep">` : ''}
+
+        ${course.slug !== 'djembe-world-percussions' ? `
+        <!-- INSTRUCTOR -->
+        <div class="section reveal">
+          <p class="section-label">Your Instructor</p>
+          <div class="instructor-card-pub">
+            <div class="instructor-avatar-big" style="background: ${course.cover_color || '#1a0d00'};">
+              ${course.instructor_photo_url
+                ? `<img src="${course.instructor_photo_url}" alt="${course.instructor_name || ''}" style="width:100%;height:100%;object-fit:cover;">`
+                : (course.instructor_name || '').toLowerCase().includes('taufiq')
+                  ? `<img src="/assets/tfr-play/taufiq-upcoming.jpg" alt="Taufiq Qureshi" style="width:100%;height:100%;object-fit:cover;object-position:center top;">`
+                  : (course.instructor_initials || '??')
+              }
+            </div>
+            <div>
+              <p class="instructor-info-name">${course.instructor_name}</p>
+              <p class="instructor-info-subject">${course.instrument || course.category}</p>
+              <p class="instructor-info-bio">${course.instructor_bio || 'An extraordinary artist and dedicated teacher.'}</p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-sep">
+
+        <!-- TESTIMONIALS -->
+        <div class="section reveal">
+          <p class="section-label">Student Stories</p>
+          <h2 class="section-heading">What our students <em>say</em></h2>
+          <div class="testi-grid">
+            ${testimonials.map(t => `
+              <div class="testi-card">
+                <span class="testi-mark">&ldquo;</span>
+                <div class="stars">${'<div class="star"></div>'.repeat(5)}</div>
+                <p class="testi-text">${t.text}</p>
+                <p class="testi-author">${t.author}</p>
+                <p class="testi-origin">${t.origin}</p>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+
+      </main>
+
+      <!-- ENROLL SIDEBAR -->
+      <aside class="enroll-sidebar">
+        <div class="enroll-card">
+          ${enrolled ? `
+            <div class="enroll-card-scroll">
+              <div class="enroll-card-inner">
+                <p class="enroll-card-label">Your Access</p>
+                <div class="enroll-card-enrolled">
+                  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                  You're enrolled
+                </div>
+                <hr class="enroll-divider">
+                <ul class="enroll-perks">
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${course.lesson_count || totalLessons} on-demand lessons</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${chapters.length} structured chapters</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</li>
+                </ul>
+              </div>
+            </div>
+            <div class="enroll-card-footer">
+              <button class="btn-enroll-big" onclick="document.getElementById('foundation-tabs')?.scrollIntoView({behavior:'smooth',block:'start'})">Start Learning &rarr;</button>
+            </div>
+          ` : `
+            <div class="enroll-card-scroll">
+              <div class="enroll-card-inner">
+                <p class="enroll-card-label">Enrol &amp; Start Training</p>
+                <div class="enroll-intro-badge">&#x2728; Introductory Offers</div>
+
+                <!-- Tier selection -->
+                <div class="enroll-tiers" id="enroll-tiers">
+                  <div class="enroll-tier selected" data-price="3999" data-name="Basic Foundation A" data-exp-url="/experience/${course.slug}" onclick="_selectTier(this)">
+                    <div class="enroll-tier-dot"></div>
+                    <div class="enroll-tier-info">
+                      <div class="enroll-tier-name">Basic Foundation A</div>
+                      <div class="enroll-tier-price">&#8377;3,999</div>
+                    </div>
+                  </div>
+                  <div class="enroll-tier" data-price="3999" data-name="Foundation B" data-exp-url="/experience/${course.slug}" onclick="_selectTier(this)">
+                    <div class="enroll-tier-dot"></div>
+                    <div class="enroll-tier-info">
+                      <div class="enroll-tier-name">Foundation B</div>
+                      <div class="enroll-tier-price">&#8377;3,999</div>
+                    </div>
+                  </div>
+                  <div class="enroll-tier" data-price="3999" data-name="Foundation C" data-exp-url="/experience/${course.slug}" onclick="_selectTier(this)">
+                    <div class="enroll-tier-dot"></div>
+                    <div class="enroll-tier-info">
+                      <div class="enroll-tier-name">Foundation C</div>
+                      <div class="enroll-tier-price">&#8377;3,999</div>
+                    </div>
+                  </div>
+                  <div class="enroll-tier" data-price="4999" data-name="Foundation D" data-exp-url="/experience/${course.slug}" onclick="_selectTier(this)">
+                    <div class="enroll-tier-dot"></div>
+                    <div class="enroll-tier-info">
+                      <div class="enroll-tier-name">Foundation D</div>
+                      <div class="enroll-tier-price">&#8377;4,999</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Full bundle -->
+                <div class="enroll-bundle" data-price="11999" data-name="Complete Rhythm Journey" onclick="_selectTier(this)">
+                  <div class="enroll-bundle-badge">Best Value</div>
+                  <div class="enroll-bundle-row">
+                    <span class="enroll-bundle-title">Complete Rhythm Journey</span>
+                    <span class="enroll-bundle-price">&#8377;11,999</span>
+                  </div>
+                  <div class="enroll-bundle-desc">All courses. One path. Learn it right, from the foundation.</div>
+                </div>
+
+                <hr class="enroll-divider">
+
+                <p class="enroll-value-heading">Your First Step into the World of Rhythm</p>
+                <ul class="enroll-perks">
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>4 structured chapters designed for clear progression</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Begin from absolute basics, guided by a Master</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Build a strong foundation step by step</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Bite-sized learning modules for focused, effective learning</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>A musical environment at your access</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Certificate of completion</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lifetime access</li>
+                  <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Join the Worldwide Rhythm Community</li>
+                </ul>
+              </div>
+            </div>
+            <div class="enroll-card-footer">
+              <a class="enroll-cta-price" id="enroll-cta-price" href="/experience/${course.slug}">Basic Foundation A &mdash; &#8377;3,999</a>
+              <button class="btn-enroll-big enroll-trigger" id="enroll-btn-main" onclick="${enrollBtnAction}">Enroll Now</button>
+              <p class="enroll-note">Secure payment &middot; Cancel anytime</p>
+            </div>
+          `}
+        </div>
+      </aside>
+    </div>
+
+    <!-- BOTTOM CTA (hidden for enrolled students) -->
+    ${!enrolled ? `
+    <div class="bottom-cta reveal">
+      <div class="bottom-cta-text">
+        <h2>Ready to begin your <em>journey</em>?</h2>
+        <p>Join ${course.instructor_name || 'our instructor'}'s course and transform your relationship with ${course.instrument || 'music'} — for good.</p>
+      </div>
+      <div class="bottom-cta-action">
+        <button class="btn-enroll-bottom enroll-trigger" onclick="${enrollBtnAction}">${enrollBtnLabel}</button>
+        <span class="bottom-cta-note">${course.bundle_price_paise > 0 ? 'From ₹' + (course.bundle_price_paise / 100).toLocaleString('en-IN') + ' · Lifetime access' : 'Enrolment open'}</span>
+      </div>
+    </div>` : ''}
+
+    <!-- FOOTER (shared, mounted via SiteChrome.mount() below) -->
+    <div data-site-footer></div>
+  `;
+
+  document.getElementById('app').innerHTML = html;
+  if (window.SiteChrome) window.SiteChrome.mount();
+
+  // Move curriculum section to full-width strip above the page-wrap
+  (function moveCurriculum() {
+    const cs = document.querySelector('.curriculum-section');
+    const pw = document.querySelector('.page-wrap');
+    if (!cs || !pw) return;
+    // Remove the orphaned <hr> that was immediately before the curriculum section
+    let prev = cs.previousElementSibling;
+    while (prev && prev.tagName !== 'HR' && prev.tagName !== 'DIV') prev = prev.previousElementSibling;
+    if (prev && prev.tagName === 'HR') prev.remove();
+    cs.classList.remove('section', 'reveal');
+    const wrap = document.createElement('div');
+    wrap.className = 'curriculum-wrap';
+    cs.parentNode.removeChild(cs);
+    wrap.appendChild(cs);
+    pw.parentNode.insertBefore(wrap, pw);
+  })();
+
+  // ─── GSAP Animations after render ───
+  // Hero title words stagger
+  const heroTitle = document.querySelector('.hero-title');
+  if (heroTitle) {
+    const words = heroTitle.innerHTML.split(' ');
+    heroTitle.innerHTML = words.map(w => `<span style="display:inline-block; will-change:transform;">${w}</span>`).join(' ');
+    gsap.from(heroTitle.querySelectorAll('span'), {
+      opacity: 0, y: 30, duration: 0.55, stagger: 0.07, ease: 'power3.out', delay: 0.2
+    });
+  }
+
+  // Hero eyebrow, subtitle
+  gsap.from('.hero-eyebrow', { opacity: 0, y: 16, duration: 0.45, ease: 'power3.out', delay: 0.1 });
+  gsap.from('.hero-subtitle', { opacity: 0, y: 16, duration: 0.45, ease: 'power3.out', delay: 0.5 });
+
+  // Hero stats count-up. Only animate simple "<number><unit>" patterns.
+  // Complex strings like "1h 34m" carry two numbers, which the naive regex
+  // used to mash into "134h m" — mark those with data-no-countup to skip.
+  document.querySelectorAll('.hero-stat-val').forEach(el => {
+    if (el.dataset.noCountup) return;
+    const text = el.textContent.trim();
+    const match = text.match(/^(₹?)([\d,]+(?:\.\d+)?)([^\d]*)$/);
+    if (!match) return; // e.g. "1h 34m" or "—" — leave static
+    const prefix = match[1] || '';
+    const raw = parseFloat(match[2].replace(/,/g, ''));
+    const suffix = match[3] || '';
+    if (isNaN(raw) || raw <= 0) return;
+    const obj = { v: 0 };
+    gsap.to(obj, {
+      v: raw, duration: 1.6, ease: 'power2.out', delay: 0.6,
+      onUpdate: () => { el.textContent = prefix + Math.round(obj.v) + suffix; }
+    });
+  });
+
+  // Enroll button pulse
+  const enrollBtns = document.querySelectorAll('.btn-enroll-big, .btn-enroll-bottom');
+  enrollBtns.forEach(btn => {
+    gsap.to(btn, {
+      scale: 1.03, duration: 0.6, ease: 'power2.inOut',
+      yoyo: true, repeat: -1, repeatDelay: 2.4
+    });
+  });
+
+  // Curriculum chapters stagger from left on scroll
+  gsap.utils.toArray('.chapter').forEach((ch, i) => {
+    gsap.from(ch, {
+      scrollTrigger: { trigger: ch, start: 'top 85%', once: true },
+      x: -30, opacity: 0, duration: 0.5, delay: i * 0.04, ease: 'power3.out'
+    });
+  });
+
+  // Section reveals
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: .1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+(async () => {
+  if (!courseId) return;
+  try {
+    const r = await fetch(`/api/public/courses/${courseId}`);
+    if (!r.ok) throw new Error('Not found');
+    const data = await r.json();
+    await renderPage(data);
+
+    // Scroll to hash after dynamic render (e.g. #foundation-tabs from student dashboard "Continue")
+    if (window.location.hash) {
+      const target = document.querySelector(window.location.hash);
+      if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+    }
+
+    // Auto-enroll if redirected back after login
+    const pendingCourse = sessionStorage.getItem('tfr_enroll_after_login');
+    if (pendingCourse && isLoggedIn() && pendingCourse == courseId) {
+      sessionStorage.removeItem('tfr_enroll_after_login');
+      await handleEnroll(courseId);
+    }
+  } catch (e) {
+    showError('Course not found or unavailable.');
+  }
+})();
+
+// ─── CURRICULUM: FOUNDATION TABS + INLINE PLAYER ─────────────────────────────
+// Replaces the old accordion + modal popup. Lessons render on the left, the
+// selected lesson's video plays in the embedded player on the right. Video
+// controls are custom (play/pause + visual-only progress bar) — no seeker,
+// no keyboard seeking, no right-click menu.
+let _landingData = null;
+let _isEnrolled = false;
+let _hasBundlePurchase = false;
+let _purchasedChapterIds = new Set();
+let _completedLessons = new Set();
+let _syncHtTimer;
+function _isAdminUser() {
+  const u = window.archiveAuth && window.archiveAuth.getUser();
+  return u && (u.role === 'admin' || u.role === 'instructor');
+}
+
+function _syncFoundationHeight() {
+  const section = document.querySelector('.curriculum-section');
+  if (section && section.classList.contains('theater')) return;
+  const player = document.querySelector('.foundation-player');
+  const lessons = document.querySelector('.foundation-lessons');
+  if (!player || !lessons) return;
+  const h = player.offsetHeight;
+  if (h > 0) lessons.style.maxHeight = h + 'px';
+}
+window.addEventListener('resize', () => {
+  clearTimeout(_syncHtTimer);
+  _syncHtTimer = setTimeout(_syncFoundationHeight, 80);
+});
+const _origRenderForFoundations = renderPage;
+renderPage = async function patched(data) {
+  _landingData = data;
+  const out = await _origRenderForFoundations.call(this, data);
+  // After original renderPage: _isEnrolled, _hasBundlePurchase, _purchasedChapterIds are set.
+  // Fetch full video materials for accessible chapters so they can be played.
+  if (isLoggedIn() && (_isAdminUser() || _isEnrolled || _hasBundlePurchase || _purchasedChapterIds.size > 0)) {
+    try {
+      const mr = await fetch(`/api/courses/${data.course.id}/full-materials`, {
+        headers: { Authorization: 'Bearer ' + getToken() }
+      });
+      if (mr.ok) {
+        const { lesson_materials } = await mr.json();
+        (_landingData.chapters || []).forEach(ch => {
+          (ch.lessons || []).forEach(l => {
+            if (lesson_materials[l.id]) l.materials = lesson_materials[l.id];
+          });
+        });
+      }
+    } catch (_) {}
+  }
+  if ((data.chapters || []).length) {
+    selectFoundation(data.chapters[0].id, /*autoLoadVideo*/ true);
+  }
+  return out;
+};
+
+function _playIconSvg() {
+  return '<svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+}
+function _lockIconSvg() {
+  return '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
+}
+
+function selectFoundation(chId, autoLoadVideo) {
+  document.querySelectorAll('.foundation-tab').forEach(b =>
+    b.classList.toggle('active', String(b.dataset.ch) === String(chId))
+  );
+  renderLessonList(chId);
+  updateFoundationStats(chId);
+  // Practice Room button is currently locked — no href update.
+  if (autoLoadVideo) {
+    const first = _findFirstPlayable(chId);
+    if (first) {
+      _loadLessonIntoPlayer(first, /*autoplay*/ false);
+      _markSelectedLesson(chId, first.id);
+    } else {
+      _showLockedPlayer('No free preview in this foundation');
+      requestAnimationFrame(_syncFoundationHeight);
+    }
+  }
+}
+
+function _chapterAccessible(chId) {
+  if (_isAdminUser()) return true;
+  if (_hasBundlePurchase) return true;
+  if (_purchasedChapterIds.has(String(chId))) return true;
+  // fallback: enrolled with no purchase record = admin-enrolled, grant full access
+  if (_isEnrolled && _purchasedChapterIds.size === 0 && !_hasBundlePurchase) return true;
+  return false;
+}
+
+function _isFirstFreeLesson(chId, lessonId) {
+  const chapters = _landingData.chapters || [];
+  if (!chapters.length) return false;
+  const firstCh = chapters[0];
+  if (String(firstCh.id) !== String(chId)) return false;
+  const lessons = (firstCh.lessons || []).filter(l =>
+    (l.materials || []).some(m => m.type === 'video' && (m.url || m.secure_stream))
+  );
+  return lessons.length > 0 && lessons[0].id === lessonId;
+}
+
+function _findFirstPlayable(chId) {
+  const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
+  if (!ch) return null;
+  const hasAccess = _chapterAccessible(ch.id);
+  const videoLessons = (ch.lessons || []).filter(l =>
+    (l.materials || []).some(m => m.type === 'video' && (m.url || m.secure_stream))
+  );
+  if (!videoLessons.length) return null;
+  // First video of Foundation A is free for everyone — guests included
+  if (!hasAccess) return _isFirstFreeLesson(chId, videoLessons[0].id) ? videoLessons[0] : null;
+  // All lessons unlocked once purchased — find first uncompleted
+  const first = videoLessons.find(l => !_completedLessons.has(l.id));
+  return first || videoLessons[videoLessons.length - 1];
+}
+
+function renderLessonList(chId) {
+  const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
+  const list = document.getElementById('foundation-lesson-list');
+  if (!list) return;
+  if (!ch || !(ch.lessons || []).length) {
+    list.innerHTML = '<li class="lesson-item locked" style="cursor:default;"><span class="l-name" style="color:var(--cream-dim);">No lessons in this foundation yet.</span></li>';
+    return;
+  }
+  const hasAccess = _chapterAccessible(ch.id);
+
+  let firstVideoMarked = false;
+
+  list.innerHTML = (ch.lessons || []).map((l, i) => {
+    const video = (l.materials || []).find(m => m.type === 'video' && (m.url || m.secure_stream));
+    const isFreeSlot = video && !firstVideoMarked;
+    if (video) firstVideoMarked = true;
+
+    const isCompleted = _completedLessons.has(l.id);
+    const isGuestFree = isFreeSlot && !isLoggedIn() && _isFirstFreeLesson(ch.id, l.id);
+    const canPlay = hasAccess || isCompleted || (isFreeSlot && isLoggedIn() && !hasAccess) || isGuestFree;
+    const isSeqLocked = false;
+
+    let click, extraClass;
+    if (canPlay) {
+      click = `onclick="selectLesson('${ch.id}', ${l.id})"`;
+      extraClass = isCompleted ? ' completed' : '';
+    } else if (!hasAccess && isLoggedIn()) {
+      click = `onclick="openEnrollModal(${_landingData.course.id})"`;
+      extraClass = ' locked';
+    } else if (isSeqLocked) {
+      click = 'onclick="_showSeqLockMsg()"';
+      extraClass = ' locked seq-locked';
+    } else {
+      click = '';
+      extraClass = ' locked';
+    }
+
+    let icon;
+    if (isCompleted) {
+      icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    } else if (canPlay) {
+      icon = _playIconSvg();
+    } else {
+      icon = _lockIconSvg();
+    }
+
+    const timestamps = canPlay ? (video?.timestamps || []) : [];
+    const tsHtml = timestamps.length
+      ? `<div class="l-timestamps">${timestamps.map(t => {
+          const m = Math.floor(t.time_seconds / 60);
+          const s = String(t.time_seconds % 60).padStart(2, '0');
+          return `<div class="l-ts-item"><span class="l-ts-time">${m}:${s}</span><span class="l-ts-label">${t.label || ''}</span></div>`;
+        }).join('')}</div>`
+      : '';
+
+    const isFirstChapter = (_landingData.chapters || [])[0]?.id === ch.id;
+    const badge = isFreeSlot && !hasAccess && isFirstChapter
+      ? ' <span style="font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-left:4px;">Free Preview</span>'
+      : '';
+
+    return `<li class="lesson-item${extraClass}" data-lesson="${l.id}" data-title="${(l.title || '').replace(/"/g,'&quot;')}" ${click}>
+      <div class="l-row">
+        <span class="l-num">${i + 1}</span>
+        <span class="l-icon">${icon}</span>
+        <span class="l-name">${l.title || ''}${badge}</span>
+        <span class="l-dur">${_lessonDisplayDuration(l)}</span>
+      </div>${tsHtml}
+    </li>`;
+  }).join('');
+
+  requestAnimationFrame(_syncFoundationHeight);
+}
+
+function _markSelectedLesson(chId, lessonId) {
+  document.querySelectorAll('#foundation-lesson-list .lesson-item').forEach(li =>
+    li.classList.toggle('selected', String(li.dataset.lesson) === String(lessonId))
+  );
+}
+
+function selectLesson(chId, lessonId) {
+  const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
+  const lesson = ch && (ch.lessons || []).find(l => l.id === lessonId);
+  if (!lesson) return;
+  _markSelectedLesson(chId, lessonId);
+  _loadLessonIntoPlayer(lesson, /*autoplay*/ true);
+}
+
+async function _loadLessonIntoPlayer(lesson, autoplay) {
+  const slot    = document.getElementById('video-slot');
+  const ctrlBar = document.getElementById('video-ctrl-bar');
+  const titleEl = document.getElementById('video-title');
+  const vid = (lesson.materials || []).find(m => m.type === 'video' && (m.url || m.secure_stream));
+  if (!vid) { _showLockedPlayer(lesson.title); return; }
+
+  slot.classList.remove('playing');
+  if (ctrlBar) ctrlBar.innerHTML = '';
+
+  const PLAY_ICON  = '<svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/></svg>';
+  const PAUSE_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+  const VOL_ICON   = `<svg class="vol-hi" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+    <svg class="vol-mute" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
+
+  const rawUrl = vid.url || '';
+  const isIframeHost = /youtube\.com|youtu\.be|vimeo\.com/i.test(rawUrl);
+  const isWasabi = vid.secure_stream || rawUrl.startsWith('/api/files/');
+
+  if (isIframeHost) {
+    const embed = _toEmbed(rawUrl);
+    const sep   = embed.includes('?') ? '&' : '?';
+    slot.innerHTML = `<iframe src="${embed}${sep}enablejsapi=1${autoplay ? '&autoplay=1' : ''}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+
+    if (ctrlBar) {
+      ctrlBar.innerHTML = `<div class="vcl-vol"><button class="vcl-vol-btn" id="_yvb" type="button" title="Volume">${VOL_ICON}</button><input class="vcl-vol-slider" id="_yvs" type="range" min="0" max="1" step="0.02" value="1"></div>`;
+      const iframe  = slot.querySelector('iframe');
+      const slider  = ctrlBar.querySelector('#_yvs');
+      const volBtn  = ctrlBar.querySelector('#_yvb');
+      function ytCmd(func, args) {
+        try { iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: args || [] }), '*'); } catch(_) {}
+      }
+      slider.addEventListener('input', () => {
+        const pct = parseFloat(slider.value);
+        ytCmd('setVolume', [Math.round(pct * 100)]);
+        if (pct === 0) { ytCmd('mute'); volBtn.classList.add('muted'); }
+        else { ytCmd('unMute'); volBtn.classList.remove('muted'); }
+      });
+      volBtn.addEventListener('click', () => {
+        if (volBtn.classList.contains('muted')) {
+          slider.value = 0.8; ytCmd('unMute'); ytCmd('setVolume', [80]); volBtn.classList.remove('muted');
+        } else {
+          slider.value = 0; ytCmd('mute'); ytCmd('setVolume', [0]); volBtn.classList.add('muted');
+        }
+      });
+    }
+  } else {
+    // For Wasabi-hosted videos, fetch a short-lived signed stream URL first.
+    let videoSrc = rawUrl;
+    if (isWasabi && isLoggedIn()) {
+      slot.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--cream-dim);font-size:13px;">Loading video…</div>`;
+      try {
+        const tok = await fetch(`/api/video/${vid.id}/token`, {
+          headers: { Authorization: 'Bearer ' + getToken() }
+        });
+        if (tok.ok) {
+          const { stream_url } = await tok.json();
+          if (stream_url) videoSrc = stream_url;
+        }
+      } catch (_) {}
+    }
+
+    slot.innerHTML = `
+      <video preload="auto" playsinline oncontextmenu="return false;" src="${videoSrc}"></video>
+      <div class="video-overlay">
+        <button class="video-play-btn" type="button" aria-label="Play">${_playIconSvg()}</button>
+      </div>
+      <div class="video-progress-bar"><div class="video-progress-fill"></div></div>`;
+
+    const v      = slot.querySelector('video');
+    const bigBtn = slot.querySelector('.video-play-btn');
+    const fill   = slot.querySelector('.video-progress-fill');
+
+    function fmtT(s) { s = Math.floor(s || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+
+    if (ctrlBar) {
+      ctrlBar.innerHTML = `
+        <button class="vcl-play-btn" id="_vpb" type="button" title="Play / Pause">${PLAY_ICON}</button>
+        <span class="vcl-time" id="_vt">0:00 / 0:00</span>
+        <div class="vcl-vol">
+          <button class="vcl-vol-btn" id="_vvb" type="button" title="Mute">${VOL_ICON}</button>
+          <input class="vcl-vol-slider" id="_vvs" type="range" min="0" max="1" step="0.02" value="1">
+        </div>`;
+    }
+    const playBtn   = ctrlBar && ctrlBar.querySelector('#_vpb');
+    const timeEl    = ctrlBar && ctrlBar.querySelector('#_vt');
+    const volBtn    = ctrlBar && ctrlBar.querySelector('#_vvb');
+    const volSlider = ctrlBar && ctrlBar.querySelector('#_vvs');
+
+    const toggle = () => v.paused ? v.play().catch(() => {}) : v.pause();
+    bigBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+    v.addEventListener('click', toggle);
+    playBtn && playBtn.addEventListener('click', toggle);
+
+    v.addEventListener('play',  () => { slot.classList.add('playing');    if (playBtn) playBtn.innerHTML = PAUSE_ICON; });
+    v.addEventListener('pause', () => { slot.classList.remove('playing'); if (playBtn) playBtn.innerHTML = PLAY_ICON;  });
+    v.addEventListener('ended', () => {
+      slot.classList.remove('playing');
+      if (playBtn) playBtn.innerHTML = PLAY_ICON;
+      _autoMarkComplete(lesson.id);
+    });
+
+    v.addEventListener('timeupdate', () => {
+      if (!v.duration) return;
+      fill.style.width = (v.currentTime / v.duration * 100) + '%';
+      if (timeEl) timeEl.textContent = fmtT(v.currentTime) + ' / ' + fmtT(v.duration);
+    });
+    v.addEventListener('loadedmetadata', () => {
+      if (timeEl) timeEl.textContent = '0:00 / ' + fmtT(v.duration);
+    });
+
+    if (volSlider) {
+      volSlider.addEventListener('input', () => {
+        v.volume = parseFloat(volSlider.value);
+        v.muted  = v.volume === 0;
+        if (volBtn) v.muted ? volBtn.classList.add('muted') : volBtn.classList.remove('muted');
+      });
+    }
+    if (volBtn) {
+      volBtn.addEventListener('click', () => {
+        v.muted = !v.muted;
+        v.muted ? volBtn.classList.add('muted') : volBtn.classList.remove('muted');
+        if (volSlider) volSlider.value = v.muted ? 0 : (v.volume || 0.8);
+      });
+    }
+
+    // Block only deliberate large seeks; allow buffering
+    let _lastT = 0;
+    v.addEventListener('timeupdate', () => { _lastT = v.currentTime; });
+    v.addEventListener('seeking', () => {
+      if (Math.abs(v.currentTime - _lastT) > 30) v.currentTime = _lastT;
+    });
+
+    if (autoplay) v.play().catch(() => {});
+  }
+
+  titleEl.textContent = lesson.title || '';
+  requestAnimationFrame(_syncFoundationHeight);
+}
+
+async function _autoMarkComplete(lessonId) {
+  if (!isLoggedIn() || !lessonId) return;
+  try {
+    await fetch(`/api/lessons/${lessonId}/complete`, {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }
+    });
+    _completedLessons.add(lessonId);
+    // Sync into _landingData so sequential checks stay consistent
+    (_landingData && _landingData.chapters || []).forEach(ch =>
+      (ch.lessons || []).forEach(l => { if (l.id == lessonId) l.completed = true; })
+    );
+    // Refresh progress ring
+    if (_landingData && _landingData.course) {
+      const total = _countVideoLessons(_landingData);
+      renderCourseProgress(total, _completedLessons.size, _landingData.course.instrument || '');
+    }
+    // Re-render lesson list to unlock the next lesson
+    const activeTab = document.querySelector('.foundation-tab.active');
+    if (activeTab) renderLessonList(activeTab.dataset.ch);
+  } catch (_) { /* non-blocking */ }
+}
+
+function _showLockedPlayer(title) {
+  const slot    = document.getElementById('video-slot');
+  const ctrlBar = document.getElementById('video-ctrl-bar');
+  const titleEl = document.getElementById('video-title');
+  slot.classList.remove('playing');
+  if (ctrlBar) ctrlBar.innerHTML = '';
+  const loggedIn = isLoggedIn();
+  const enrolled = _isEnrolled;
+  const msg = !loggedIn
+    ? 'Sign in to watch the free preview lesson in each chapter.'
+    : enrolled
+      ? 'This chapter requires a separate purchase.'
+      : 'Purchase this chapter or the full bundle to continue.';
+  slot.innerHTML = `
+    <div class="video-locked">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      <h3>${title || 'This lesson is locked'}</h3>
+      <p>${msg}</p>
+      <div class="cta-row">
+        ${!loggedIn
+          ? '<a class="outline" href="/login">Log In</a>'
+          : !enrolled
+            ? `<a href="#" onclick="openEnrollModal(${_landingData && _landingData.course ? _landingData.course.id : 0}); return false;">Unlock Now</a>`
+            : ''}
+      </div>
+    </div>
+  `;
+  titleEl.textContent = '';
+}
+
+let _seqToastTimer;
+function _showSeqLockMsg() {
+  let toast = document.getElementById('_seq-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = '_seq-toast';
+    toast.className = 'seq-lock-toast';
+    toast.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" style="color:var(--gold);vertical-align:middle;margin-right:7px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Please complete the earlier lesson to watch this one.';
+    document.body.appendChild(toast);
+  }
+  clearTimeout(_seqToastTimer);
+  toast.classList.add('show');
+  _seqToastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+function _toEmbed(url) {
+  const id = (url.match(/youtu\.be\/([\w-]+)/) || [])[1]
+          || (url.match(/[?&]v=([\w-]+)/) || [])[1]
+          || (url.match(/youtube\.com\/embed\/([\w-]+)/) || [])[1];
+  return id ? `https://www.youtube.com/embed/${id}` : url;
+}
+
+// ─── DYNAMIC STATS + COURSE PROGRESS INDICATOR ──────────────────────────────
+// Per-lesson duration in seconds. Prefers the uploaded video file's actual
+// duration (recorded at upload time on lesson_materials.duration_seconds)
+// over instructor-entered duration_minutes on the lesson row.
+function _lessonSeconds(l) {
+  if (l && l.materials && l.materials.length) {
+    const v = l.materials.find(m => m && m.type === 'video' && m.duration_seconds);
+    if (v && v.duration_seconds) return Number(v.duration_seconds);
+  }
+  if (l && l.duration_seconds) return Number(l.duration_seconds);
+  if (l && l.duration_minutes) return Number(l.duration_minutes) * 60;
+  return 0;
+}
+function _fmtSeconds(sec) {
+  sec = Math.max(0, Math.round(Number(sec) || 0));
+  if (sec === 0) return '—';
+  if (sec < 3600) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+function _lessonDisplayDuration(l) {
+  const s = _lessonSeconds(l);
+  return s ? _fmtSeconds(s) : '';
+}
+
+function updateFoundationStats(chId) {
+  const ch = (_landingData.chapters || []).find(c => String(c.id) === String(chId));
+  const lessons = ch ? (ch.lessons || []) : [];
+  const count = lessons.length;
+  const secs = lessons.reduce((a, l) => a + _lessonSeconds(l), 0);
+  const numEl = document.getElementById('stat-lessons-num');
+  const runEl = document.getElementById('stat-runtime-num');
+  const labelEl = document.getElementById('stat-lessons-label');
+  if (numEl) numEl.textContent = count;
+  if (runEl) runEl.textContent = _fmtSeconds(secs);
+  if (labelEl) labelEl.textContent = count === 1 ? 'lesson' : 'lessons';
+}
+
+function _instrumentIconInner(instrument) {
+  const inst = (instrument || '').toLowerCase();
+  if (inst.includes('djembe') || inst.includes('percussion') || inst.includes('drum')) {
+    // Goblet drum
+    return '<ellipse cx="12" cy="5.5" rx="6" ry="1.8"/><path d="M6 5.5 L8 13 L10 19 L14 19 L16 13 L18 5.5 Z"/>';
+  }
+  if (inst.includes('vocal') || inst.includes('voice') || inst.includes('singing')) {
+    // Microphone
+    return '<rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10 A7 7 0 0 0 19 10 L17 10 A5 5 0 0 1 7 10 Z"/><rect x="11" y="17" width="2" height="4" rx="0.4"/><rect x="7.5" y="20" width="9" height="1.8" rx="0.4"/>';
+  }
+  if (inst.includes('sitar') || inst.includes('tanpura') || inst.includes('veena')) {
+    // Long-neck lute: round body + angled neck
+    return '<circle cx="6.5" cy="18" r="4"/><path d="M9 15.5 L19.5 4.5 L21 6 L10.5 17 Z"/>';
+  }
+  if (inst.includes('kathak') || inst.includes('dance')) {
+    // Dancer silhouette simplified
+    return '<circle cx="12" cy="5" r="2.2"/><path d="M12 7 L12 14 L9 22 L11 22 L12 16 L13 22 L15 22 L12 14 Z"/>';
+  }
+  if (inst.includes('film') || inst.includes('song')) {
+    // Musical note with flag
+    return '<path d="M9 17 V3 L19 1.5 V13 L17 13.5 V4 L11 5 V17 Z"/><ellipse cx="6.5" cy="17.5" rx="3" ry="2.2"/><ellipse cx="15.5" cy="13.5" rx="3" ry="2.2"/>';
+  }
+  // Default: eighth note
+  return '<path d="M9 17 V3 L19 1.5 V13 L17 13.5 V4 L11 5 V17 Z"/><ellipse cx="6.5" cy="17.5" rx="3" ry="2.2"/><ellipse cx="15.5" cy="13.5" rx="3" ry="2.2"/>';
+}
+
+function renderCourseProgress(total, completed, instrument) {
+  const host = document.getElementById('course-progress');
+  if (!host) return;
+  if (!total) { host.innerHTML = ''; return; }
+  const pct = Math.max(0, Math.min(1, completed / total));
+  const fillH = (24 * pct).toFixed(3);
+  const fillY = (24 - 24 * pct).toFixed(3);
+  const inner = _instrumentIconInner(instrument);
+  const maskId = 'prog-mask-' + Math.random().toString(36).slice(2, 8);
+  host.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-label="Course progress: ${completed} of ${total} lessons complete">
+      <defs>
+        <mask id="${maskId}">
+          <rect width="24" height="24" fill="black"/>
+          <rect x="0" y="${fillY}" width="24" height="${fillH}" fill="white"/>
+        </mask>
+      </defs>
+      <g opacity="0.28" fill="currentColor">${inner}</g>
+      <g mask="url(#${maskId})" fill="currentColor">${inner}</g>
+    </svg>
+    <span class="course-progress-count">${completed} / ${total}</span>
+  `;
+}
+
+function _countVideoLessons(data) {
+  return (data.chapters || []).reduce((a, ch) =>
+    a + (ch.lessons || []).filter(l => (l.type || '').toLowerCase() === 'video').length, 0);
+}
+
+async function loadUserProgress() {
+  if (!_landingData || !_landingData.course) return;
+  const total = _countVideoLessons(_landingData);
+  const instrument = _landingData.course.instrument || '';
+
+  renderCourseProgress(total, 0, instrument);
+
+  const token = localStorage.getItem('archive_token');
+  if (!token) return;
+  try {
+    const data = await api.get('/api/courses/' + _landingData.course.id + '/chapters');
+    _completedLessons = new Set();
+    (data.chapters || []).forEach(ch => {
+      (ch.lessons || []).forEach(l => {
+        if ((l.type || '').toLowerCase() === 'video' && l.completed) {
+          _completedLessons.add(l.id);
+        }
+      });
+    });
+    // Sync completion into _landingData for sequential checks
+    (_landingData.chapters || []).forEach(ch => {
+      (ch.lessons || []).forEach(l => {
+        if (_completedLessons.has(l.id)) l.completed = true;
+      });
+    });
+    renderCourseProgress(total, _completedLessons.size, instrument);
+    // Re-render active lesson list to reflect unlock state
+    const activeTab = document.querySelector('.foundation-tab.active');
+    if (activeTab) renderLessonList(activeTab.dataset.ch);
+  } catch (_) { /* not enrolled / auth fail — stay at 0 */ }
+}
+
+// Kick off progress load after renderPage has run (renderPage sets _landingData)
+const _origRenderForProgress = renderPage;
+renderPage = async function wrappedForProgress(data) {
+  const out = await _origRenderForProgress.call(this, data);
+  loadUserProgress();
+  return out;
+};
+
+function _updateExpandBtn(on) {
+  const btn = document.getElementById('video-expand-btn');
+  if (!btn) return;
+  btn.setAttribute('aria-label', on ? 'Shrink' : 'Expand');
+  btn.setAttribute('title', on ? 'Exit fullscreen (Esc)' : 'Expand to fullscreen');
+  btn.innerHTML = on
+    ? '<svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>'
+    : '<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+}
+
+function toggleCurriculumTheater() {
+  const section = document.querySelector('.curriculum-section');
+  if (!section) return;
+  const on = section.classList.toggle('theater');
+  document.body.classList.toggle('curriculum-theater-on', on);
+  const lessonsEl = document.querySelector('.foundation-lessons');
+  if (lessonsEl) lessonsEl.style.maxHeight = on ? '' : '';
+  if (on) {
+    const req = document.documentElement.requestFullscreen
+      || document.documentElement.webkitRequestFullscreen
+      || document.documentElement.mozRequestFullScreen
+      || document.documentElement.msRequestFullscreen;
+    if (req) req.call(document.documentElement).catch(() => {});
+  } else {
+    const isFs = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+    if (isFs) {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+      if (exit) exit.call(document).catch(() => {});
+    }
+  }
+  _updateExpandBtn(on);
+}
+
+function _onFullscreenChange() {
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  if (!isFs) {
+    const section = document.querySelector('.curriculum-section');
+    if (section && section.classList.contains('theater')) {
+      section.classList.remove('theater');
+      document.body.classList.remove('curriculum-theater-on');
+      _updateExpandBtn(false);
+      requestAnimationFrame(_syncFoundationHeight);
+    }
+  }
+}
+document.addEventListener('fullscreenchange', _onFullscreenChange);
+document.addEventListener('webkitfullscreenchange', _onFullscreenChange);
+document.addEventListener('msfullscreenchange', _onFullscreenChange);
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  // If browser is handling native fullscreen exit, let fullscreenchange handle it
+  if (document.fullscreenElement || document.webkitFullscreenElement) return;
+  const section = document.querySelector('.curriculum-section');
+  if (section && section.classList.contains('theater')) toggleCurriculumTheater();
+});
+
+// Locked Practice Room CTA: on tap/click reveal the "coming soon" bubble for ~2s.
+function _practiceRoomTap(btn) {
+  btn.classList.add('tapped');
+  setTimeout(() => btn.classList.remove('tapped'), 1800);
+}
+
+// ── Floating "Start Training" button ──────────────────────────────────────
+(function () {
+  // Only show when user is NOT enrolled / has no full access
+  const fab = document.createElement('button');
+  fab.id = 'fab-start-training';
+  fab.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Training`;
+  fab.style.cssText = `
+    position: fixed;
+    right: 24px;
+    bottom: 32px;
+    z-index: 9990;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: linear-gradient(180deg, #E8C96E, #C8A84B);
+    color: #080706;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 8px 28px rgba(200,168,75,.45);
+    transition: transform .18s, box-shadow .18s, opacity .3s;
+  `;
+  fab.addEventListener('mouseenter', () => {
+    fab.style.transform = 'translateY(-3px)';
+    fab.style.boxShadow = '0 14px 36px rgba(200,168,75,.55)';
+  });
+  fab.addEventListener('mouseleave', () => {
+    fab.style.transform = '';
+    fab.style.boxShadow = '0 8px 28px rgba(200,168,75,.45)';
+  });
+  fab.addEventListener('click', () => {
+    const sidebar = document.querySelector('.enroll-sidebar');
+    if (sidebar) sidebar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  document.body.appendChild(fab);
+
+  // Show FAB only when the enroll sidebar is scrolled out of view
+  function updateFab() {
+    const sidebar = document.querySelector('.enroll-sidebar');
+    if (!sidebar) return;
+    // Hide if user is already enrolled (sidebar shows "enrolled" state)
+    if (document.querySelector('.enroll-card-enrolled')) { fab.style.display = 'none'; return; }
+    const rect = sidebar.getBoundingClientRect();
+    const outOfView = rect.bottom < 0 || rect.top > window.innerHeight;
+    fab.style.display = outOfView ? 'flex' : 'none';
+  }
+
+  window.addEventListener('scroll', updateFab, { passive: true });
+  // Initial check after page data loads
+  setTimeout(updateFab, 1200);
+})();
+
+</script>
+
+</body>
+</html>
