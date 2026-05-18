@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Classes — Admin · The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080706; --bg-2: #0F0D0B; --bg-card: #161412; --bg-elevated: #1E1B17; --bg-hover: #252119;
+      --gold: #C8A84B; --gold-bright: #E8C96E; --gold-dim: #7A6530; --gold-glow: rgba(200,168,75,0.12);
+      --text: #F0E6D3; --text-2: #B8A898; --text-3: #6B5E50; --ruby: #bf0000;
+      --serif: 'Libre Baskerville', Georgia, serif; --sans: 'DM Sans', sans-serif;
+      --sidebar-w: 240px; --topbar-h: 60px; --radius: 6px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--sans); background: var(--bg); color: var(--text); }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .shell { display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--bg-card); display: flex; flex-direction: column; height: 100vh; position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid rgba(200,168,75,0.06); }
+    .main-wrap { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+    .topbar { height: var(--topbar-h); background: var(--bg-card); border-bottom: 1px solid rgba(200,168,75,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 10; }
+    .topbar-title { font-family: var(--serif); font-style: normal; font-size: 22px; color: var(--gold); }
+    .main-content { padding: 28px 32px 64px; flex: 1; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; flex-wrap: wrap; gap: 14px; }
+    .page-title { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--gold); }
+    .page-subtitle { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex; gap: 4px;
+      border-bottom: 1px solid rgba(200,168,75,0.10);
+      margin-bottom: 22px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      font-size: 13px; color: var(--text-3);
+      border-bottom: 2px solid transparent;
+      transition: all .15s; font-weight: 500;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text-2); }
+    .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .btn { padding: 9px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all .15s; }
+    .btn-primary { background: var(--gold); color: var(--bg); }
+    .btn-primary:hover { background: var(--gold-bright); }
+    .btn-outline { background: transparent; color: var(--text-2); border: 1px solid rgba(200,168,75,0.25); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-danger { background: transparent; color: var(--ruby); border: 1px solid rgba(191,0,0,.4); }
+    .btn-danger:hover { background: rgba(191,0,0,.1); }
+    .btn.sm { padding: 5px 10px; font-size: 12px; }
+
+    .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .stat-card { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.08); border-radius: var(--radius); padding: 16px 18px; }
+    .stat-card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); }
+    .stat-card-value { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--gold); margin: 6px 0 2px; }
+    .stat-card-sub { font-size: 11px; color: var(--text-3); }
+
+    .table-card { background: var(--bg-card); border: 1px solid rgba(200,168,75,0.08); border-radius: var(--radius); overflow: hidden; }
+    .table-card-header { padding: 14px 18px; border-bottom: 1px solid rgba(200,168,75,0.08); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .table-card-title { font-family: var(--serif); font-size: 16px; color: var(--text); }
+    .table-card-filters { display: flex; gap: 8px; align-items: center; }
+    .table-wrap { overflow-x: auto; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table thead th { padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid rgba(200,168,75,0.10); }
+    .table tbody tr { border-bottom: 1px solid rgba(200,168,75,0.06); transition: background .12s; }
+    .table tbody tr:last-child { border-bottom: none; }
+    .table tbody tr:hover { background: var(--bg-2); }
+    .table tbody td { padding: 12px 14px; font-size: 12.5px; color: var(--text-2); vertical-align: middle; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; letter-spacing: .04em; }
+    .badge.active { background: rgba(125,200,125,0.12); color: #7dc87d; }
+    .badge.inactive { background: rgba(120,120,120,0.15); color: var(--text-3); }
+    .badge.paid { background: rgba(125,200,125,0.12); color: #7dc87d; }
+    .badge.pending { background: rgba(200,168,75,0.12); color: var(--gold); }
+    .badge.failed { background: rgba(231,138,138,0.12); color: #e78a8a; }
+    .badge.cancelled { background: rgba(120,120,120,0.15); color: var(--text-3); }
+    .actions-cell { display: flex; gap: 6px; }
+    .code-cell { font-family: monospace; color: var(--gold); font-weight: 600; }
+    .img-thumb { width: 36px; height: 36px; border-radius: 4px; background-size: cover; background-position: center; background-color: var(--bg-elevated); }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.78); z-index: 999; display: none; align-items: center; justify-content: center; padding: 24px; }
+    .modal-overlay.open { display: flex; }
+    .modal { width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; background: var(--bg-card); border: 1px solid rgba(200,168,75,0.2); border-radius: 8px; padding: 26px; }
+    .modal-title { font-family: var(--serif); font-size: 22px; color: var(--gold); margin-bottom: 4px; }
+    .modal-subtitle { font-size: 12px; color: var(--text-3); margin-bottom: 18px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    .form-input, .form-select, .form-textarea { width: 100%; background: var(--bg-2); border: 1px solid rgba(200,168,75,0.15); color: var(--text); padding: 9px 11px; border-radius: 4px; font-family: inherit; font-size: 13px; }
+    .form-textarea { min-height: 80px; resize: vertical; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--gold); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(200,168,75,0.08); }
+
+    .price-list { display: flex; flex-direction: column; gap: 8px; }
+    .price-item { display: grid; grid-template-columns: 1fr 120px auto; gap: 8px; align-items: center; padding: 8px; background: var(--bg-2); border-radius: 4px; border: 1px solid rgba(200,168,75,0.10); }
+    .price-item input { background: var(--bg); }
+    .icon-btn { background: transparent; color: var(--ruby); border: 1px solid rgba(191,0,0,.3); padding: 5px 8px; border-radius: 4px; font-size: 12px; }
+    .add-price-btn { margin-top: 6px; }
+
+    /* Sidebar internals (same pattern as admin-coupons.html) */
+    .sidebar-brand { padding: 20px 16px 14px; border-bottom: 1px solid rgba(200,168,75,0.06); }
+    .brand-title { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--gold); }
+    .brand-sub { font-size: 10px; color: var(--text-3); margin-top: 3px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .sidebar-nav { flex: 1; padding: 10px; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; color: var(--text-3); font-size: 13px; font-weight: 500; transition: background 0.15s, color 0.15s; margin-bottom: 2px; }
+    .nav-item:hover { background: var(--bg-elevated); color: var(--text-2); }
+    .nav-item.active { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(200,168,75,0.15); }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-footer { padding: 12px 10px 16px; border-top: 1px solid rgba(200,168,75,0.06); }
+    .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; }
+    .sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--gold); }
+    .sidebar-user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .user-role { font-size: 10px; color: var(--text-3); }
+
+    /* Toast */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+    .toast { background: var(--bg-elevated); border: 1px solid rgba(200,168,75,0.15); border-left: 3px solid var(--gold); border-radius: 6px; padding: 12px 16px; font-size: 13px; color: var(--text); min-width: 240px; }
+    .toast.error { border-left-color: var(--ruby); }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">Live Class Bookings</div>
+    </header>
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Live Class Bookings</h1>
+          <p class="page-subtitle">Manage teachers, raags, slots, bookings and coupons for live online sessions.</p>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stat-cards" id="stat-cards">
+        <div class="stat-card"><div class="stat-card-label">Total Bookings</div><div class="stat-card-value" id="stat-total">—</div><div class="stat-card-sub">All time, all statuses</div></div>
+        <div class="stat-card"><div class="stat-card-label">Paid Bookings</div><div class="stat-card-value" id="stat-paid">—</div><div class="stat-card-sub">Confirmed</div></div>
+        <div class="stat-card"><div class="stat-card-label">Revenue Today</div><div class="stat-card-value" id="stat-today">—</div><div class="stat-card-sub" id="stat-today-count">0 bookings</div></div>
+        <div class="stat-card"><div class="stat-card-label">Revenue This Month</div><div class="stat-card-value" id="stat-month">—</div><div class="stat-card-sub" id="stat-month-count">0 bookings</div></div>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="teachers" onclick="switchTab('teachers')">Teachers</button>
+        <button class="tab-btn" data-tab="raags" onclick="switchTab('raags')">Raags</button>
+        <button class="tab-btn" data-tab="slots" onclick="switchTab('slots')">Slots</button>
+        <button class="tab-btn" data-tab="bookings" onclick="switchTab('bookings')">Bookings</button>
+        <button class="tab-btn" data-tab="coupons" onclick="switchTab('coupons')">Coupons</button>
+      </div>
+
+      <!-- TEACHERS TAB -->
+      <div class="tab-panel active" id="tab-teachers">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Teachers</div>
+            <button class="btn btn-primary" onclick="openTeacherModal()">+ New Teacher</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Photo</th><th>Name</th><th>Slug</th><th>Instrument</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="teachers-tbody"><tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:36px;">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RAAGS TAB -->
+      <div class="tab-panel" id="tab-raags">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Raags / Topics</div>
+            <button class="btn btn-primary" onclick="openRaagModal()">+ New Raag</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Name</th><th>Slug</th><th>Teacher</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="raags-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:36px;">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLOTS TAB -->
+      <div class="tab-panel" id="tab-slots">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Slots</div>
+            <button class="btn btn-primary" onclick="openSlotModal()">+ New Slot</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Date</th><th>Time</th><th>Teacher</th><th>Raag</th><th>Seats</th><th>Prices</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="slots-tbody"><tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:36px;">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOKINGS TAB -->
+      <div class="tab-panel" id="tab-bookings">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Bookings</div>
+            <div class="table-card-filters">
+              <select class="form-select" id="filter-status" onchange="loadBookings()" style="width:auto;padding:6px 8px;font-size:12px;">
+                <option value="">All statuses</option>
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+                <option value="failed">Failed</option>
+              </select>
+              <button class="btn btn-outline sm" onclick="exportCsv()">↓ Export CSV</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Slot</th><th>Teacher / Raag</th><th>Plan</th><th>Amount</th><th>Status</th><th>Created</th></tr></thead>
+              <tbody id="bookings-tbody"><tr><td colspan="9" style="text-align:center;color:var(--text-3);padding:36px;">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- COUPONS TAB -->
+      <div class="tab-panel" id="tab-coupons">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Coupons</div>
+            <button class="btn btn-primary" onclick="openCouponModal()">+ New Coupon</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Code</th><th>Discount</th><th>Usage</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="coupons-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:36px;">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- TEACHER MODAL -->
+<div class="modal-overlay" id="teacher-modal">
+  <div class="modal" style="max-width:760px;">
+    <div class="modal-title" id="t-modal-title">New Teacher</div>
+    <div class="modal-subtitle">Add or edit a live class teacher profile + landing page content.</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="t-name" maxlength="120"></div>
+      <div class="form-group"><label class="form-label">Slug *</label><input class="form-input" id="t-slug" maxlength="80" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Instrument *</label><input class="form-input" id="t-instrument" maxlength="40" placeholder="sitar" oninput="this.value=this.value.toLowerCase()"></div>
+      <div class="form-group"><label class="form-label">Sort Order</label><input class="form-input" id="t-sort" type="number" value="0"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Photo URL (card thumbnail)</label><input class="form-input" id="t-photo" placeholder="/assets/tfr-play/..."></div>
+    <div class="form-group"><label class="form-label">Bio (short, used as card description)</label><textarea class="form-textarea" id="t-bio" maxlength="2000"></textarea></div>
+    <div class="form-group"><label style="font-size:12px;color:var(--text-2);"><input type="checkbox" id="t-active" checked> Active</label></div>
+
+    <div style="border-top:1px solid rgba(200,168,75,0.15);margin:20px 0 16px;padding-top:16px;">
+      <div style="font-family:var(--serif);font-size:16px;color:var(--gold);margin-bottom:4px;">Landing page content</div>
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:14px;">All optional — leaving blank uses defaults from name/bio.</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Hero eyebrow</label><input class="form-input" id="t-l-eyebrow" placeholder="Sitara™ Live"></div>
+      <div class="form-group"><label class="form-label">Hero accent color</label><input class="form-input" id="t-l-accent" placeholder="#C8362A"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Title line 1</label><input class="form-input" id="t-l-title1" placeholder="Niladri"></div>
+      <div class="form-group"><label class="form-label">Title line 2</label><input class="form-input" id="t-l-title2" placeholder="Kumaar"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Hero tagline (HTML allowed; use &lt;br&gt; for line breaks)</label><textarea class="form-textarea" id="t-l-tagline" rows="2"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Hero badge</label><input class="form-input" id="t-l-badge" placeholder="Live Batch Classes · Online"></div>
+      <div class="form-group"><label class="form-label">Hero full-image URL</label><input class="form-input" id="t-l-photofull" placeholder="/assets/tfr-play/niladri-live.jpg"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Trust strip (4 numbers + labels)</label>
+      <div id="t-trust-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <button class="btn btn-outline sm" type="button" onclick="addTrustRow()" style="margin-top:6px;">+ Add trust item</button>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">About eyebrow</label><input class="form-input" id="t-l-about-eyebrow" placeholder="About the Programme"></div>
+      <div class="form-group"><label class="form-label">About title</label><input class="form-input" id="t-l-about-title" placeholder="Riyaz with a living legend"></div>
+    </div>
+    <div class="form-group"><label class="form-label">About body</label><textarea class="form-textarea" id="t-l-about-body" rows="3"></textarea></div>
+
+    <div class="form-group">
+      <label class="form-label">"What you will learn" — title</label>
+      <input class="form-input" id="t-l-learn-title" placeholder="The complete sitar foundation">
+    </div>
+    <div class="form-group">
+      <label class="form-label">"What you will learn" — cards</label>
+      <div id="t-learn-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <button class="btn btn-outline sm" type="button" onclick="addLearnCard()" style="margin-top:6px;">+ Add card</button>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Bottom CTA title</label><input class="form-input" id="t-l-cta-title" placeholder="Begin your riyaz."></div>
+      <div class="form-group"><label class="form-label">Bottom CTA subtitle</label><input class="form-input" id="t-l-cta-sub"></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeModal('teacher-modal')">Cancel</button>
+      <button class="btn btn-primary" id="t-save" onclick="saveTeacher()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- RAAG MODAL -->
+<div class="modal-overlay" id="raag-modal">
+  <div class="modal">
+    <div class="modal-title" id="r-modal-title">New Raag</div>
+    <div class="modal-subtitle">Add a raag / topic under a teacher.</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Teacher *</label><select class="form-select" id="r-teacher"></select></div>
+      <div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="r-name" maxlength="120"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Slug *</label><input class="form-input" id="r-slug" maxlength="80" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')"></div>
+      <div class="form-group"><label class="form-label">Sort Order</label><input class="form-input" id="r-sort" type="number" value="0"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" id="r-image"></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="r-desc" maxlength="2000"></textarea></div>
+    <div class="form-group"><label style="font-size:12px;color:var(--text-2);"><input type="checkbox" id="r-active" checked> Active</label></div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeModal('raag-modal')">Cancel</button>
+      <button class="btn btn-primary" id="r-save" onclick="saveRaag()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- SLOT MODAL -->
+<div class="modal-overlay" id="slot-modal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-title" id="s-modal-title">New Slot</div>
+    <div class="modal-subtitle">Configure a bookable session.</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Teacher *</label><select class="form-select" id="s-teacher" onchange="loadRaagsForSlot()"></select></div>
+      <div class="form-group"><label class="form-label">Raag</label><select class="form-select" id="s-raag"><option value="">(none)</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="s-title" placeholder="e.g. Jhinjoti — Aaroh / Avaroh and pakar"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-input" id="s-date" type="date"></div>
+      <div class="form-group"><label class="form-label">Start time (24h IST) *</label><input class="form-input" id="s-time" type="time"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Duration (min)</label><input class="form-input" id="s-duration" type="number" value="60"></div>
+      <div class="form-group"><label class="form-label">Total seats *</label><input class="form-input" id="s-seats" type="number" value="20"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Google Meet link</label><input class="form-input" id="s-meet" placeholder="https://meet.google.com/..."></div>
+      <div class="form-group"><label class="form-label">Meet password</label><input class="form-input" id="s-meet-pw"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Price options</label>
+      <div class="price-list" id="price-list"></div>
+      <button class="btn btn-outline sm add-price-btn" onclick="addPriceRow()">+ Add price option</button>
+    </div>
+
+    <div class="form-group"><label style="font-size:12px;color:var(--text-2);"><input type="checkbox" id="s-active" checked> Active</label></div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeModal('slot-modal')">Cancel</button>
+      <button class="btn btn-primary" id="s-save" onclick="saveSlot()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- COUPON MODAL -->
+<div class="modal-overlay" id="coupon-modal">
+  <div class="modal">
+    <div class="modal-title" id="c-modal-title">New Coupon</div>
+    <div class="modal-subtitle">Create a discount code for live class bookings.</div>
+    <div class="form-group"><label class="form-label">Code *</label><input class="form-input" id="c-code" maxlength="32" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Discount Type *</label>
+        <select class="form-select" id="c-type"><option value="pct">Percentage (%)</option><option value="flat">Flat (₹)</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Value *</label><input class="form-input" id="c-value" type="number" min="0" step="1"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Max uses <span style="color:var(--text-3);font-weight:400;">(blank = unlimited)</span></label><input class="form-input" id="c-max" type="number" min="0"></div>
+      <div class="form-group"><label class="form-label">Expires <span style="color:var(--text-3);font-weight:400;">(blank = never)</span></label><input class="form-input" id="c-expires" type="datetime-local"></div>
+    </div>
+    <div class="form-group"><label style="font-size:12px;color:var(--text-2);"><input type="checkbox" id="c-active" checked> Active</label></div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeModal('coupon-modal')">Cancel</button>
+      <button class="btn btn-primary" id="c-save" onclick="saveCoupon()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/assets/js/api.js?v=2"></script>
+<script src="/assets/js/auth-guard.js?v=2"></script>
+<script>requireRole(['admin']);</script>
+<script src="/assets/js/admin-sidebar.js?v=2"></script>
+<script>
+  // ───────── State ─────────
+  let TEACHERS = [], RAAGS = [], SLOTS = [], BOOKINGS = [], COUPONS = [];
+  let editingId = { teacher: null, raag: null, slot: null, coupon: null };
+
+  // ───────── Helpers ─────────
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast${type === 'error' ? ' error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+  const fmtINR = (paise) => '₹' + (Number(paise || 0) / 100).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  const fmtDate = (s) => s ? new Date(s + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  const fmtDateTime = (s) => s ? new Date(s).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  // ───────── Tabs ─────────
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+    history.replaceState(null, '', '#' + name);
+    if (name === 'teachers') loadTeachers();
+    else if (name === 'raags') loadRaags();
+    else if (name === 'slots') loadSlots();
+    else if (name === 'bookings') loadBookings();
+    else if (name === 'coupons') loadCoupons();
+  }
+  window.switchTab = switchTab;
+
+  // ───────── Stats ─────────
+  async function loadStats() {
+    try {
+      const s = await api.get('/api/lc/admin/stats');
+      document.getElementById('stat-total').textContent = s.totals.total_bookings ?? 0;
+      document.getElementById('stat-paid').textContent = s.totals.paid_bookings ?? 0;
+      document.getElementById('stat-today').textContent = fmtINR(s.today.revenue_paise);
+      document.getElementById('stat-today-count').textContent = `${s.today.bookings || 0} bookings`;
+      document.getElementById('stat-month').textContent = fmtINR(s.month.revenue_paise);
+      document.getElementById('stat-month-count').textContent = `${s.month.bookings || 0} bookings`;
+    } catch (e) { console.warn('stats', e); }
+  }
+
+  // ───────── TEACHERS ─────────
+  async function loadTeachers() {
+    try {
+      const r = await api.get('/api/lc/admin/teachers');
+      TEACHERS = r.teachers || [];
+      const html = TEACHERS.length ? TEACHERS.map(t => `
+        <tr>
+          <td><div class="img-thumb" style="${t.photo_url ? `background-image:url('${esc(t.photo_url)}')` : ''}"></div></td>
+          <td><strong style="color:var(--text);">${esc(t.name)}</strong></td>
+          <td class="code-cell">${esc(t.slug)}</td>
+          <td>${esc(t.instrument)}</td>
+          <td>${t.sort_order ?? 0}</td>
+          <td>${t.is_active ? '<span class="badge active">Active</span>' : '<span class="badge inactive">Inactive</span>'}</td>
+          <td class="actions-cell">
+            <button class="btn btn-outline sm" onclick='editTeacher(${t.id})'>Edit</button>
+            <button class="btn btn-danger sm" onclick='deleteTeacher(${t.id})'>Delete</button>
+          </td>
+        </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:36px;">No teachers yet.</td></tr>';
+      document.getElementById('teachers-tbody').innerHTML = html;
+    } catch (e) {
+      document.getElementById('teachers-tbody').innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--ruby);padding:36px;">${esc(e.message)}</td></tr>`;
+    }
+  }
+  // Landing-section row builders (trust strip + learn cards)
+  let _trustRowCount = 0, _learnRowCount = 0;
+  function addTrustRow(num = '', label = '') {
+    _trustRowCount++;
+    const id = 'tr-' + _trustRowCount;
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;';
+    div.innerHTML = `
+      <input class="form-input" placeholder="Number (e.g. 8)" data-tf="num" value="${esc(num)}">
+      <input class="form-input" placeholder="Label" data-tf="label" value="${esc(label)}">
+      <button class="btn btn-danger sm" type="button" onclick="document.getElementById('${id}').remove()">✕</button>`;
+    document.getElementById('t-trust-list').appendChild(div);
+  }
+  function addLearnCard(icon = '', title = '', body = '') {
+    _learnRowCount++;
+    const id = 'lc-' + _learnRowCount;
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'display:grid;grid-template-columns:60px 1fr auto;gap:8px;align-items:flex-start;background:var(--bg-2);padding:8px;border-radius:4px;border:1px solid rgba(200,168,75,0.10);';
+    div.innerHTML = `
+      <input class="form-input" placeholder="🎵" data-lf="icon" value="${esc(icon)}" style="text-align:center;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <input class="form-input" placeholder="Card title" data-lf="title" value="${esc(title)}">
+        <textarea class="form-textarea" placeholder="Card body" data-lf="body" rows="2" style="min-height:50px;">${esc(body)}</textarea>
+      </div>
+      <button class="btn btn-danger sm" type="button" onclick="document.getElementById('${id}').remove()">✕</button>`;
+    document.getElementById('t-learn-list').appendChild(div);
+  }
+  window.addTrustRow = addTrustRow;
+  window.addLearnCard = addLearnCard;
+
+  function collectLanding() {
+    const L = {};
+    const eyebrow = document.getElementById('t-l-eyebrow').value.trim();
+    const accent  = document.getElementById('t-l-accent').value.trim();
+    const t1 = document.getElementById('t-l-title1').value.trim();
+    const t2 = document.getElementById('t-l-title2').value.trim();
+    const tagline = document.getElementById('t-l-tagline').value.trim();
+    const badge   = document.getElementById('t-l-badge').value.trim();
+    const photof  = document.getElementById('t-l-photofull').value.trim();
+    const aboutEy = document.getElementById('t-l-about-eyebrow').value.trim();
+    const aboutT  = document.getElementById('t-l-about-title').value.trim();
+    const aboutB  = document.getElementById('t-l-about-body').value.trim();
+    const learnT  = document.getElementById('t-l-learn-title').value.trim();
+    const ctaT    = document.getElementById('t-l-cta-title').value.trim();
+    const ctaS    = document.getElementById('t-l-cta-sub').value.trim();
+
+    if (eyebrow) L.hero_eyebrow = eyebrow;
+    if (accent)  L.accent_color = accent;
+    if (t1)      L.hero_title_line1 = t1;
+    if (t2)      L.hero_title_line2 = t2;
+    if (tagline) L.hero_tagline = tagline;
+    if (badge)   L.hero_badge = badge;
+    if (photof)  L.hero_photo_full = photof;
+    if (aboutEy) L.about_eyebrow = aboutEy;
+    if (aboutT)  L.about_title = aboutT;
+    if (aboutB)  L.about_body = aboutB;
+    if (learnT)  L.what_you_learn_title = learnT;
+    if (ctaT)    L.cta_title = ctaT;
+    if (ctaS)    L.cta_sub = ctaS;
+
+    const trust = [];
+    document.querySelectorAll('#t-trust-list > div').forEach(row => {
+      const num = row.querySelector('[data-tf="num"]').value.trim();
+      const label = row.querySelector('[data-tf="label"]').value.trim();
+      if (num || label) trust.push({ num, label });
+    });
+    if (trust.length) L.trust_strip = trust;
+
+    const learn = [];
+    document.querySelectorAll('#t-learn-list > div').forEach(row => {
+      const icon = row.querySelector('[data-lf="icon"]').value.trim();
+      const title = row.querySelector('[data-lf="title"]').value.trim();
+      const body = row.querySelector('[data-lf="body"]').value.trim();
+      if (icon || title || body) learn.push({ icon, title, body });
+    });
+    if (learn.length) L.what_you_learn = learn;
+
+    return Object.keys(L).length ? L : null;
+  }
+
+  function fillLanding(L) {
+    const v = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    v('t-l-eyebrow', L.hero_eyebrow);
+    v('t-l-accent',  L.accent_color);
+    v('t-l-title1',  L.hero_title_line1);
+    v('t-l-title2',  L.hero_title_line2);
+    v('t-l-tagline', L.hero_tagline);
+    v('t-l-badge',   L.hero_badge);
+    v('t-l-photofull', L.hero_photo_full);
+    v('t-l-about-eyebrow', L.about_eyebrow);
+    v('t-l-about-title',   L.about_title);
+    v('t-l-about-body',    L.about_body);
+    v('t-l-learn-title',   L.what_you_learn_title);
+    v('t-l-cta-title',     L.cta_title);
+    v('t-l-cta-sub',       L.cta_sub);
+    document.getElementById('t-trust-list').innerHTML = '';
+    (L.trust_strip || []).forEach(t => addTrustRow(t.num || '', t.label || ''));
+    document.getElementById('t-learn-list').innerHTML = '';
+    (L.what_you_learn || []).forEach(c => addLearnCard(c.icon || '', c.title || '', c.body || ''));
+  }
+
+  function openTeacherModal() {
+    editingId.teacher = null;
+    document.getElementById('t-modal-title').textContent = 'New Teacher';
+    ['t-name','t-slug','t-instrument','t-photo','t-bio'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('t-sort').value = 0;
+    document.getElementById('t-active').checked = true;
+    fillLanding({});
+    openModal('teacher-modal');
+  }
+  function editTeacher(id) {
+    const t = TEACHERS.find(x => x.id === id); if (!t) return;
+    editingId.teacher = id;
+    document.getElementById('t-modal-title').textContent = 'Edit Teacher';
+    document.getElementById('t-name').value = t.name || '';
+    document.getElementById('t-slug').value = t.slug || '';
+    document.getElementById('t-instrument').value = t.instrument || '';
+    document.getElementById('t-sort').value = t.sort_order ?? 0;
+    document.getElementById('t-photo').value = t.photo_url || '';
+    document.getElementById('t-bio').value = t.bio || '';
+    document.getElementById('t-active').checked = !!t.is_active;
+    fillLanding(t.landing || {});
+    openModal('teacher-modal');
+  }
+  async function saveTeacher() {
+    const body = {
+      name: document.getElementById('t-name').value.trim(),
+      slug: document.getElementById('t-slug').value.trim(),
+      instrument: document.getElementById('t-instrument').value.trim(),
+      sort_order: Number(document.getElementById('t-sort').value) || 0,
+      photo_url: document.getElementById('t-photo').value.trim() || null,
+      bio: document.getElementById('t-bio').value.trim() || null,
+      is_active: document.getElementById('t-active').checked ? 1 : 0,
+      landing: collectLanding(),
+    };
+    if (!body.name || !body.slug || !body.instrument) return toast('Name, slug, instrument required', 'error');
+    try {
+      if (editingId.teacher) await api.put(`/api/lc/admin/teachers/${editingId.teacher}`, body);
+      else await api.post('/api/lc/admin/teachers', body);
+      closeModal('teacher-modal'); toast('Saved'); loadTeachers();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+  async function deleteTeacher(id) {
+    if (!confirm('Delete this teacher and ALL their raags? Cannot be undone.')) return;
+    try { await api.del(`/api/lc/admin/teachers/${id}`); toast('Deleted'); loadTeachers(); }
+    catch (e) { toast(e.message, 'error'); }
+  }
+  window.editTeacher = editTeacher; window.deleteTeacher = deleteTeacher;
+
+  // ───────── RAAGS ─────────
+  async function loadRaags() {
+    try {
+      // Make sure TEACHERS is loaded for the dropdown
+      if (!TEACHERS.length) { const t = await api.get('/api/lc/admin/teachers'); TEACHERS = t.teachers || []; }
+      const r = await api.get('/api/lc/admin/raags');
+      RAAGS = r.raags || [];
+      const html = RAAGS.length ? RAAGS.map(rg => `
+        <tr>
+          <td><strong style="color:var(--text);">${esc(rg.name)}</strong></td>
+          <td class="code-cell">${esc(rg.slug)}</td>
+          <td>${esc(rg.teacher_name || teacherById(rg.teacher_id)?.name || '—')}</td>
+          <td>${rg.sort_order ?? 0}</td>
+          <td>${rg.is_active ? '<span class="badge active">Active</span>' : '<span class="badge inactive">Inactive</span>'}</td>
+          <td class="actions-cell">
+            <button class="btn btn-outline sm" onclick='editRaag(${rg.id})'>Edit</button>
+            <button class="btn btn-danger sm" onclick='deleteRaag(${rg.id})'>Delete</button>
+          </td>
+        </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:36px;">No raags yet.</td></tr>';
+      document.getElementById('raags-tbody').innerHTML = html;
+    } catch (e) {
+      document.getElementById('raags-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--ruby);padding:36px;">${esc(e.message)}</td></tr>`;
+    }
+  }
+  function teacherById(id) { return TEACHERS.find(t => t.id === id); }
+  function fillTeacherSelect(selectId, selectedId) {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = TEACHERS.map(t => `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${esc(t.name)} (${esc(t.instrument)})</option>`).join('');
+  }
+  function openRaagModal() {
+    editingId.raag = null;
+    document.getElementById('r-modal-title').textContent = 'New Raag';
+    ['r-name','r-slug','r-image','r-desc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('r-sort').value = 0;
+    document.getElementById('r-active').checked = true;
+    fillTeacherSelect('r-teacher');
+    openModal('raag-modal');
+  }
+  function editRaag(id) {
+    const r = RAAGS.find(x => x.id === id); if (!r) return;
+    editingId.raag = id;
+    document.getElementById('r-modal-title').textContent = 'Edit Raag';
+    fillTeacherSelect('r-teacher', r.teacher_id);
+    document.getElementById('r-name').value = r.name || '';
+    document.getElementById('r-slug').value = r.slug || '';
+    document.getElementById('r-sort').value = r.sort_order ?? 0;
+    document.getElementById('r-image').value = r.image_url || '';
+    document.getElementById('r-desc').value = r.description || '';
+    document.getElementById('r-active').checked = !!r.is_active;
+    openModal('raag-modal');
+  }
+  async function saveRaag() {
+    const body = {
+      teacher_id: Number(document.getElementById('r-teacher').value),
+      name: document.getElementById('r-name').value.trim(),
+      slug: document.getElementById('r-slug').value.trim(),
+      description: document.getElementById('r-desc').value.trim() || null,
+      image_url: document.getElementById('r-image').value.trim() || null,
+      sort_order: Number(document.getElementById('r-sort').value) || 0,
+      is_active: document.getElementById('r-active').checked ? 1 : 0,
+    };
+    if (!body.teacher_id || !body.name || !body.slug) return toast('Teacher, name, slug required', 'error');
+    try {
+      if (editingId.raag) await api.put(`/api/lc/admin/raags/${editingId.raag}`, body);
+      else await api.post('/api/lc/admin/raags', body);
+      closeModal('raag-modal'); toast('Saved'); loadRaags();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+  async function deleteRaag(id) {
+    if (!confirm('Delete this raag?')) return;
+    try { await api.del(`/api/lc/admin/raags/${id}`); toast('Deleted'); loadRaags(); }
+    catch (e) { toast(e.message, 'error'); }
+  }
+  window.editRaag = editRaag; window.deleteRaag = deleteRaag;
+
+  // ───────── SLOTS ─────────
+  async function loadSlots() {
+    try {
+      if (!TEACHERS.length) { const t = await api.get('/api/lc/admin/teachers'); TEACHERS = t.teachers || []; }
+      const r = await api.get('/api/lc/admin/slots');
+      SLOTS = r.slots || [];
+      const html = SLOTS.length ? SLOTS.map(s => `
+        <tr>
+          <td>${fmtDate(s.slot_date)}</td>
+          <td>${esc(s.start_time)}</td>
+          <td>${esc(s.teacher_name || '—')}</td>
+          <td>${esc(s.raag_name || '—')}</td>
+          <td>${s.booked_seats || 0}/${s.total_seats}</td>
+          <td>${(s.price_options || []).map(p => `${esc(p.label)}: ${fmtINR(p.amount_paise)}`).join('<br>') || '—'}</td>
+          <td>${s.is_active ? '<span class="badge active">Active</span>' : '<span class="badge inactive">Inactive</span>'}</td>
+          <td class="actions-cell">
+            <button class="btn btn-outline sm" onclick='editSlot(${s.id})'>Edit</button>
+            <button class="btn btn-danger sm" onclick='deleteSlot(${s.id})'>Delete</button>
+          </td>
+        </tr>`).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:36px;">No slots yet.</td></tr>';
+      document.getElementById('slots-tbody').innerHTML = html;
+    } catch (e) {
+      document.getElementById('slots-tbody').innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--ruby);padding:36px;">${esc(e.message)}</td></tr>`;
+    }
+  }
+  let slotPriceRowCount = 0;
+  function addPriceRow(label = '', amount = '', desc = '') {
+    slotPriceRowCount++;
+    const id = 'pr-' + slotPriceRowCount;
+    const div = document.createElement('div');
+    div.className = 'price-item';
+    div.id = id;
+    div.innerHTML = `
+      <input class="form-input" placeholder="Label (e.g. Basic)" data-pf="label" value="${esc(label)}">
+      <input class="form-input" type="number" placeholder="₹ (rupees)" data-pf="amount" value="${amount}">
+      <button class="icon-btn" onclick="document.getElementById('${id}').remove()">✕</button>`;
+    document.getElementById('price-list').appendChild(div);
+  }
+  window.addPriceRow = addPriceRow;
+  function collectPriceOptions() {
+    const rows = document.querySelectorAll('#price-list .price-item');
+    const arr = [];
+    rows.forEach((row, i) => {
+      const label = row.querySelector('[data-pf="label"]').value.trim();
+      const amountRup = Number(row.querySelector('[data-pf="amount"]').value);
+      if (label && amountRup > 0) arr.push({ label, amount_paise: Math.round(amountRup * 100), sort_order: i });
+    });
+    return arr;
+  }
+  async function loadRaagsForSlot() {
+    const teacherId = Number(document.getElementById('s-teacher').value);
+    const sel = document.getElementById('s-raag');
+    try {
+      const r = await api.get(`/api/lc/admin/raags?teacher_id=${teacherId}`);
+      sel.innerHTML = '<option value="">(none)</option>' +
+        (r.raags || []).map(rg => `<option value="${rg.id}">${esc(rg.name)}</option>`).join('');
+    } catch (_) { sel.innerHTML = '<option value="">(none)</option>'; }
+  }
+  window.loadRaagsForSlot = loadRaagsForSlot;
+  async function openSlotModal() {
+    editingId.slot = null;
+    document.getElementById('s-modal-title').textContent = 'New Slot';
+    fillTeacherSelect('s-teacher');
+    await loadRaagsForSlot();
+    ['s-title','s-meet','s-meet-pw'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('s-date').value = '';
+    document.getElementById('s-time').value = '';
+    document.getElementById('s-duration').value = 60;
+    document.getElementById('s-seats').value = 20;
+    document.getElementById('s-active').checked = true;
+    document.getElementById('price-list').innerHTML = '';
+    addPriceRow('Basic', 999);
+    addPriceRow('Premium', 1499);
+    openModal('slot-modal');
+  }
+  window.openSlotModal = openSlotModal;
+  async function editSlot(id) {
+    try {
+      const r = await api.get(`/api/lc/admin/slots/${id}`);
+      const s = r.slot;
+      editingId.slot = id;
+      document.getElementById('s-modal-title').textContent = 'Edit Slot';
+      fillTeacherSelect('s-teacher', s.teacher_id);
+      await loadRaagsForSlot();
+      document.getElementById('s-raag').value = s.raag_id || '';
+      document.getElementById('s-title').value = s.title || '';
+      document.getElementById('s-date').value = s.slot_date || '';
+      document.getElementById('s-time').value = s.start_time || '';
+      document.getElementById('s-duration').value = s.duration_min || 60;
+      document.getElementById('s-seats').value = s.total_seats || 20;
+      document.getElementById('s-meet').value = s.meet_link || '';
+      document.getElementById('s-meet-pw').value = s.meet_password || '';
+      document.getElementById('s-active').checked = !!s.is_active;
+      document.getElementById('price-list').innerHTML = '';
+      (r.price_options || []).forEach(p => addPriceRow(p.label, (p.amount_paise / 100)));
+      openModal('slot-modal');
+    } catch (e) { toast(e.message, 'error'); }
+  }
+  window.editSlot = editSlot;
+  async function saveSlot() {
+    const body = {
+      teacher_id: Number(document.getElementById('s-teacher').value),
+      raag_id: document.getElementById('s-raag').value ? Number(document.getElementById('s-raag').value) : null,
+      title: document.getElementById('s-title').value.trim() || null,
+      slot_date: document.getElementById('s-date').value,
+      start_time: document.getElementById('s-time').value,
+      duration_min: Number(document.getElementById('s-duration').value) || 60,
+      total_seats: Number(document.getElementById('s-seats').value),
+      meet_link: document.getElementById('s-meet').value.trim() || null,
+      meet_password: document.getElementById('s-meet-pw').value.trim() || null,
+      is_active: document.getElementById('s-active').checked ? 1 : 0,
+      price_options: collectPriceOptions(),
+    };
+    if (!body.teacher_id || !body.slot_date || !body.start_time || !body.total_seats) {
+      return toast('Teacher, date, time, seats required', 'error');
+    }
+    if (!body.price_options.length) return toast('Add at least one price option', 'error');
+    try {
+      if (editingId.slot) await api.put(`/api/lc/admin/slots/${editingId.slot}`, body);
+      else await api.post('/api/lc/admin/slots', body);
+      closeModal('slot-modal'); toast('Saved'); loadSlots();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+  window.saveSlot = saveSlot;
+  async function deleteSlot(id) {
+    if (!confirm('Delete this slot? Existing bookings remain in the DB.')) return;
+    try { await api.del(`/api/lc/admin/slots/${id}`); toast('Deleted'); loadSlots(); }
+    catch (e) { toast(e.message, 'error'); }
+  }
+  window.deleteSlot = deleteSlot;
+
+  // ───────── BOOKINGS ─────────
+  async function loadBookings() {
+    try {
+      const status = document.getElementById('filter-status').value;
+      const q = status ? `?status=${encodeURIComponent(status)}` : '';
+      const r = await api.get('/api/lc/admin/bookings' + q);
+      BOOKINGS = r.bookings || [];
+      const html = BOOKINGS.length ? BOOKINGS.map(b => `
+        <tr>
+          <td>#${b.id}</td>
+          <td><strong style="color:var(--text);">${esc(b.name)}</strong><br><span style="font-size:11px;color:var(--text-3);">${esc(b.phone)}</span></td>
+          <td>${esc(b.email)}</td>
+          <td>${fmtDate(b.slot_date)}<br><span style="font-size:11px;color:var(--text-3);">${esc(b.start_time || '')}</span></td>
+          <td>${esc(b.teacher_name || '—')}${b.raag_name ? '<br><span style="font-size:11px;color:var(--text-3);">' + esc(b.raag_name) + '</span>' : ''}</td>
+          <td>${esc(b.price_label || '—')}${b.coupon_code ? `<br><span style="font-size:11px;color:var(--gold);">${esc(b.coupon_code)}</span>` : ''}</td>
+          <td><strong style="color:var(--text);">${fmtINR(b.amount_paid_paise)}</strong>${b.discount_paise ? `<br><span style="font-size:11px;color:#7dc87d;">−${fmtINR(b.discount_paise)}</span>` : ''}</td>
+          <td><span class="badge ${b.status}">${esc(b.status)}</span></td>
+          <td style="font-size:11px;color:var(--text-3);">${fmtDateTime(b.created_at)}</td>
+        </tr>`).join('') : '<tr><td colspan="9" style="text-align:center;color:var(--text-3);padding:36px;">No bookings yet.</td></tr>';
+      document.getElementById('bookings-tbody').innerHTML = html;
+    } catch (e) {
+      document.getElementById('bookings-tbody').innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--ruby);padding:36px;">${esc(e.message)}</td></tr>`;
+    }
+  }
+  window.loadBookings = loadBookings;
+  function exportCsv() {
+    const tok = localStorage.getItem('archive_token');
+    fetch('/api/lc/admin/bookings/export.csv', { headers: { Authorization: 'Bearer ' + tok } })
+      .then(r => r.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'lc-bookings.csv'; a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch(e => toast(e.message, 'error'));
+  }
+  window.exportCsv = exportCsv;
+
+  // ───────── COUPONS ─────────
+  async function loadCoupons() {
+    try {
+      const r = await api.get('/api/lc/admin/coupons');
+      COUPONS = r.coupons || [];
+      const html = COUPONS.length ? COUPONS.map(c => `
+        <tr>
+          <td class="code-cell">${esc(c.code)}</td>
+          <td>${c.discount_type === 'pct' ? c.discount_value + '%' : '₹' + c.discount_value}</td>
+          <td>${c.used_count || 0}${c.max_uses ? '/' + c.max_uses : ''}</td>
+          <td>${c.expires_at ? fmtDateTime(c.expires_at) : '—'}</td>
+          <td>${c.is_active ? '<span class="badge active">Active</span>' : '<span class="badge inactive">Inactive</span>'}</td>
+          <td class="actions-cell">
+            <button class="btn btn-outline sm" onclick='editCoupon(${c.id})'>Edit</button>
+            <button class="btn btn-danger sm" onclick='deleteCoupon(${c.id})'>Delete</button>
+          </td>
+        </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:36px;">No coupons yet.</td></tr>';
+      document.getElementById('coupons-tbody').innerHTML = html;
+    } catch (e) {
+      document.getElementById('coupons-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--ruby);padding:36px;">${esc(e.message)}</td></tr>`;
+    }
+  }
+  function openCouponModal() {
+    editingId.coupon = null;
+    document.getElementById('c-modal-title').textContent = 'New Coupon';
+    ['c-code','c-value','c-max','c-expires'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('c-type').value = 'pct';
+    document.getElementById('c-active').checked = true;
+    openModal('coupon-modal');
+  }
+  function editCoupon(id) {
+    const c = COUPONS.find(x => x.id === id); if (!c) return;
+    editingId.coupon = id;
+    document.getElementById('c-modal-title').textContent = 'Edit Coupon';
+    document.getElementById('c-code').value = c.code || '';
+    document.getElementById('c-type').value = c.discount_type || 'pct';
+    document.getElementById('c-value').value = c.discount_value || '';
+    document.getElementById('c-max').value = c.max_uses != null ? c.max_uses : '';
+    document.getElementById('c-expires').value = c.expires_at ? c.expires_at.replace(' ', 'T').slice(0, 16) : '';
+    document.getElementById('c-active').checked = !!c.is_active;
+    openModal('coupon-modal');
+  }
+  window.editCoupon = editCoupon;
+  async function saveCoupon() {
+    const body = {
+      code: document.getElementById('c-code').value.trim(),
+      discount_type: document.getElementById('c-type').value,
+      discount_value: Number(document.getElementById('c-value').value),
+      max_uses: document.getElementById('c-max').value ? Number(document.getElementById('c-max').value) : null,
+      expires_at: document.getElementById('c-expires').value || null,
+      is_active: document.getElementById('c-active').checked ? 1 : 0,
+    };
+    if (!body.code || !body.discount_value) return toast('Code and value required', 'error');
+    try {
+      if (editingId.coupon) await api.put(`/api/lc/admin/coupons/${editingId.coupon}`, body);
+      else await api.post('/api/lc/admin/coupons', body);
+      closeModal('coupon-modal'); toast('Saved'); loadCoupons();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+  window.saveCoupon = saveCoupon;
+  async function deleteCoupon(id) {
+    if (!confirm('Delete this coupon?')) return;
+    try { await api.del(`/api/lc/admin/coupons/${id}`); toast('Deleted'); loadCoupons(); }
+    catch (e) { toast(e.message, 'error'); }
+  }
+  window.deleteCoupon = deleteCoupon;
+
+  // React to hash changes from sidebar sub-item clicks
+  window.addEventListener('hashchange', () => {
+    const h = (window.location.hash || '').replace(/^#/, '');
+    if (h && ['teachers','raags','slots','bookings','coupons'].includes(h)) switchTab(h);
+  });
+
+  // ───────── Init ─────────
+  loadStats();
+  const startTab = (window.location.hash || '').replace(/^#/, '') || 'teachers';
+  switchTab(startTab);
+</script>
+</body>
+</html>

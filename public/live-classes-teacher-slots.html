@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Your Slot — The Foundation Room</title>
+  <link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site-chrome.css">
+  <style>
+    :root {
+      --bg: #080706; --bg-2: #0F0D0B; --bg-card: #161412; --bg-elevated: #1E1B17;
+      --gold: #C8A84B; --gold-bright: #E8C96E; --gold-dim: #7A6530;
+      --text: #F0E6D3; --text-2: #B8A898; --text-3: #6B5E50;
+      --cta-red: #C8362A;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'DM Sans', 'Inter', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--sans); -webkit-font-smoothing: antialiased;
+      overflow-x: hidden; min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+    em, i { font-style: normal; }
+
+    .hero {
+      position: relative; min-height: 100vh; overflow: hidden;
+      display: flex; align-items: stretch;
+    }
+    .hero-photo {
+      position: absolute; top: 0; left: 0; bottom: 0; width: 62%;
+      background-size: cover; background-position: center top;
+    }
+    .hero-photo::after {
+      content: ''; position: absolute; inset: 0;
+      background:
+        linear-gradient(to right,
+          rgba(8,7,6,0.02) 0%, rgba(8,7,6,0.02) 28%,
+          rgba(8,7,6,0.50) 54%, rgba(8,7,6,0.82) 72%, #080706 92%),
+        linear-gradient(to bottom,
+          rgba(8,7,6,0.65) 0%, transparent 12%, transparent 70%,
+          rgba(8,7,6,0.85) 86%, #080706 100%);
+    }
+    .hero::after {
+      content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 42%;
+      background: linear-gradient(to right, transparent 0%, #080706 22%); z-index: 0;
+    }
+    .hero::before {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+      background: linear-gradient(to bottom, transparent, #080706); z-index: 1;
+    }
+    .hero-content {
+      position: relative; z-index: 2; width: 100%;
+      max-width: 1360px; margin: 0 auto; padding: 0 80px;
+      display: flex; justify-content: flex-end; align-items: center;
+      min-height: 100vh;
+    }
+    .hero-text { width: 520px; padding-top: 80px; }
+    .hero-eyebrow {
+      font-family: var(--serif);
+      font-size: clamp(14px, 1.3vw, 18px); font-weight: 300;
+      letter-spacing: 0.30em; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(62px, 7vw, 100px); font-weight: 700;
+      color: var(--accent-color, var(--cta-red));
+      line-height: 0.90; letter-spacing: 0.02em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-instructor {
+      font-family: var(--serif);
+      font-size: clamp(18px, 2vw, 26px); font-weight: 300;
+      font-style: italic; color: var(--text-2);
+      margin-bottom: 22px; letter-spacing: 0.04em;
+    }
+    .hero-desc {
+      font-size: 15px; font-weight: 300;
+      color: var(--text-2); line-height: 1.70;
+      max-width: 400px; margin-bottom: 34px;
+    }
+    .hero-pills { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 42px; }
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(200,168,75,0.08);
+      border: 1px solid rgba(200,168,75,0.20);
+      border-radius: 40px; padding: 6px 14px;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.04em; color: var(--text-2);
+    }
+    .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: var(--gold); color: var(--bg);
+      font-size: 13px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 17px 40px; border-radius: 4px;
+      cursor: pointer; transition: background .18s, transform .15s, box-shadow .18s;
+    }
+    .hero-cta:hover {
+      background: var(--gold-bright);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(200,168,75,0.28);
+    }
+
+    .slots-section { background: var(--bg); padding: 80px 0 100px; }
+    .slots-inner { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+    .section-head { text-align: center; margin-bottom: 50px; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(36px, 4vw, 56px); font-weight: 600;
+      color: var(--text); line-height: 1.05; margin-bottom: 14px;
+    }
+    .section-sub {
+      font-size: 15px; color: var(--text-3);
+      line-height: 1.6; max-width: 560px; margin: 0 auto;
+    }
+
+    .raag-group { margin-bottom: 56px; }
+    .raag-header {
+      display: flex; align-items: baseline; gap: 16px;
+      margin-bottom: 18px; padding-bottom: 14px;
+      border-bottom: 1px solid rgba(200,168,75,0.16);
+    }
+    .raag-header h3 {
+      font-family: var(--serif); font-size: 32px; font-weight: 600;
+      color: var(--text); line-height: 1;
+    }
+    .raag-header .raag-sub {
+      font-size: 13px; color: var(--text-3); line-height: 1.5; flex: 1;
+    }
+    .raag-header .raag-count {
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--gold-dim);
+    }
+
+    .slot-list { display: grid; gap: 14px; }
+    .slot-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.10);
+      border-radius: 8px; padding: 22px 26px;
+      display: grid; grid-template-columns: 1fr auto; gap: 18px;
+      align-items: center; transition: border-color .2s ease, transform .2s ease;
+    }
+    .slot-card:hover { border-color: rgba(200,168,75,0.32); transform: translateY(-2px); }
+    .slot-info .slot-date {
+      font-family: var(--serif); font-size: 22px;
+      color: var(--text); margin-bottom: 4px;
+    }
+    .slot-info .slot-meta {
+      font-size: 13px; color: var(--text-3);
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    }
+    .slot-info .slot-meta .seats-pill {
+      background: rgba(200,168,75,0.10); color: var(--gold);
+      padding: 2px 9px; border-radius: 10px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    }
+    .slot-info .slot-title {
+      font-size: 13px; color: var(--text-2); margin-top: 6px;
+    }
+    .slot-cta {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+    .slot-cta .price-from {
+      font-size: 10px; color: var(--text-3);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .slot-cta .price {
+      font-family: var(--serif); font-size: 24px; color: var(--gold); line-height: 1;
+    }
+    .btn-book {
+      display: inline-block; background: var(--gold); color: var(--bg);
+      border: none; border-radius: 5px;
+      padding: 9px 18px; font-weight: 700; font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-book:hover { background: var(--gold-bright); }
+    .btn-book:disabled, .btn-book.disabled {
+      background: var(--bg-elevated); color: var(--text-3);
+      cursor: not-allowed;
+    }
+
+    .empty {
+      padding: 50px 20px; text-align: center;
+      color: var(--text-3); font-style: italic;
+      background: var(--bg-card); border: 1px dashed rgba(200,168,75,0.15);
+      border-radius: 8px;
+    }
+
+    @media (max-width: 920px) {
+      .hero-photo { width: 100%; opacity: 0.22; }
+      .hero-photo::after { background: none; }
+      .hero::after { display: none; }
+      .hero-content { justify-content: center; padding: 0 28px; }
+      .hero-text { width: 100%; max-width: 520px; text-align: center; }
+      .hero-pills { justify-content: center; }
+    }
+    @media (max-width: 600px) {
+      .slot-card { grid-template-columns: 1fr; }
+      .slot-cta { align-items: flex-start; flex-direction: row; justify-content: space-between; }
+      .slots-inner { padding: 0 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div data-site-nav data-active="live-classes"></div>
+<script src="/assets/js/site-chrome.js"></script>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-photo" id="hero-photo"></div>
+  <div class="hero-content">
+    <div class="hero-text" id="hero-text">
+      <p style="color:rgba(255,255,255,0.5);font-size:14px;">Loading…</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLOTS -->
+<section class="slots-section" id="pick-slot">
+  <div class="slots-inner">
+    <div class="section-head">
+      <p class="section-label">Available Batches</p>
+      <h2 class="section-title">Choose Your Slot</h2>
+      <p class="section-sub">Each batch is a live session over Google Meet. Pick the raag and date that works for you.</p>
+    </div>
+    <div id="raag-groups"><div class="empty">Loading…</div></div>
+  </div>
+</section>
+
+<script src="/assets/js/live-classes-public.js"></script>
+<script>
+  const path = window.location.pathname;
+  const m = path.match(/^\/live-classes\/([^\/]+)\/book\/?$/);
+  const teacherSlug = m ? decodeURIComponent(m[1]) : '';
+
+  async function load() {
+    if (!teacherSlug) { window.location.href = '/live-classes'; return; }
+    try {
+      const data = await lcApi.get(`/api/lc/teachers/${encodeURIComponent(teacherSlug)}`);
+      renderHero(data.teacher);
+      renderGroups(data.groups || []);
+    } catch (e) {
+      document.getElementById('hero-text').innerHTML =
+        `<h1 class="hero-title">Not found</h1><p class="hero-desc">${lcFmt.esc(e.message)}</p>`;
+    }
+  }
+
+  function renderHero(t) {
+    const L = t.landing || {};
+    if (L.accent_color) document.documentElement.style.setProperty('--accent-color', L.accent_color);
+    document.title = `Book Your Slot — ${t.name} · The Foundation Room`;
+
+    const photo = L.hero_photo_full || t.photo_url;
+    if (photo) document.getElementById('hero-photo').style.backgroundImage = `url('${photo}')`;
+
+    document.getElementById('hero-text').innerHTML = `
+      ${L.hero_eyebrow ? `<p class="hero-eyebrow">${lcFmt.esc(L.hero_eyebrow)}</p>` : ''}
+      <h1 class="hero-title">${L.hero_title_line2
+        ? lcFmt.esc(L.hero_title_line1 || t.name) + '<br>' + lcFmt.esc(L.hero_title_line2)
+        : lcFmt.esc(L.hero_title_line1 || t.name)}</h1>
+      ${L.hero_tagline || t.bio
+        ? `<p class="hero-instructor">${lcFmt.esc((L.about_title || 'Five generations of mastery — now live with you'))}</p>`
+        : ''}
+      <p class="hero-desc">Select your batch, pay once, and receive your Google Meet link instantly. Intimate class sizes. Direct access to the maestro.</p>
+      <div class="hero-pills">
+        <span class="hero-pill"><span class="pill-dot"></span>Live via Google Meet</span>
+        <span class="hero-pill"><span class="pill-dot"></span>Limited seats per batch</span>
+        <span class="hero-pill"><span class="pill-dot"></span>Instant confirmation</span>
+      </div>
+      <a href="#pick-slot" class="hero-cta">Choose Your Slot ↓</a>
+    `;
+  }
+
+  function renderGroups(groups) {
+    if (!groups.length || groups.every(g => !g.slots.length)) {
+      document.getElementById('raag-groups').innerHTML =
+        '<div class="empty">No upcoming slots scheduled. Check back soon.</div>';
+      return;
+    }
+    document.getElementById('raag-groups').innerHTML = groups
+      .filter(g => g.slots.length)
+      .map(g => renderGroup(g)).join('');
+  }
+
+  function renderGroup(g) {
+    const title = g.raag ? `Raag ${lcFmt.esc(g.raag.name)}` : 'Other Sessions';
+    const desc = g.raag ? lcFmt.esc(g.raag.description || '') : '';
+    const count = g.slots.length;
+    return `
+      <div class="raag-group">
+        <div class="raag-header">
+          <h3>${title}</h3>
+          ${desc ? `<div class="raag-sub">${desc}</div>` : ''}
+          <div class="raag-count">${count} session${count === 1 ? '' : 's'}</div>
+        </div>
+        <div class="slot-list">
+          ${g.slots.map(renderSlotCard).join('')}
+        </div>
+      </div>`;
+  }
+
+  function renderSlotCard(s) {
+    const soldOut = s.seats_left <= 0;
+    return `
+      <div class="slot-card">
+        <div class="slot-info">
+          <div class="slot-date">${lcFmt.fmtDate(s.slot_date)}</div>
+          <div class="slot-meta">
+            <span>${lcFmt.esc(s.start_time)} IST</span>
+            <span>${s.duration_min || 60} min</span>
+            <span class="seats-pill">${soldOut ? 'Sold out' : (s.seats_left + ' seats left')}</span>
+          </div>
+          ${s.title ? `<div class="slot-title">${lcFmt.esc(s.title)}</div>` : ''}
+        </div>
+        <div class="slot-cta">
+          <div style="text-align:right;">
+            <div class="price-from">From</div>
+            <div class="price">${lcFmt.fmtINR(s.from_price_paise)}</div>
+          </div>
+          ${soldOut
+            ? '<button class="btn-book disabled" disabled>Sold out</button>'
+            : `<a href="/live-classes/book/${s.id}" class="btn-book">Book →</a>`}
+        </div>
+      </div>`;
+  }
+
+  load();
+</script>
+</body>
+</html>

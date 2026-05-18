@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Online Classes — The Foundation Room</title>
+  <meta name="description" content="Book live online classes with India's foremost classical music masters. Limited seats per session.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site-chrome.css">
+  <style>
+    :root {
+      --bg: #080706; --bg-2: #0F0D0B; --bg-card: #161412; --bg-elevated: #1E1B17;
+      --gold: #C8A84B; --gold-bright: #E8C96E; --gold-dim: #7A6530;
+      --text: #F0E6D3; --text-2: #B8A898; --text-3: #6B5E50;
+      --serif: 'Libre Baskerville', Baskerville, Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text); font-family: var(--sans);
+      min-height: 100vh; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .hero {
+      padding: 140px 32px 64px;
+      max-width: 1200px; margin: 0 auto;
+      text-align: center;
+    }
+    .hero .kicker {
+      font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 14px;
+    }
+    .hero h1 {
+      font-family: var(--serif); font-weight: 400;
+      font-size: clamp(36px, 5.6vw, 64px);
+      color: var(--text); line-height: 1.06; margin-bottom: 16px;
+    }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero p {
+      max-width: 620px; margin: 0 auto;
+      color: var(--text-2); font-size: 16px; line-height: 1.7;
+    }
+
+    .grid {
+      max-width: 1200px; margin: 24px auto 100px;
+      padding: 0 32px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.10);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+      cursor: pointer;
+      display: flex; flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(200,168,75,0.32);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    }
+    .card-photo {
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, #1A1208 0%, #2A1F12 100%);
+      background-size: cover; background-position: center;
+      position: relative;
+    }
+    .card-photo::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(8,7,6,0.6) 100%);
+    }
+    .card-body { padding: 20px 22px 24px; }
+    .card-instrument {
+      font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase;
+      color: var(--gold-dim); margin-bottom: 6px;
+    }
+    .card h3 {
+      font-family: var(--serif); font-weight: 400;
+      font-size: 22px; color: var(--text); margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 13px; color: var(--text-3); line-height: 1.55;
+    }
+    .card-cta {
+      display: inline-block; margin-top: 16px;
+      color: var(--gold); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 60px 20px; text-align: center;
+      color: var(--text-3); font-style: italic;
+    }
+
+    /* Instrument section header + teacher cards beneath */
+    .instrument-block { margin-bottom: 56px; max-width: 1200px; margin-left: auto; margin-right: auto; padding: 0 32px; }
+    .instrument-heading {
+      font-family: var(--serif); font-weight: 400;
+      font-size: 13px; letter-spacing: 0.32em;
+      color: var(--gold-dim); text-transform: uppercase;
+      margin-bottom: 18px; padding-bottom: 12px;
+      border-bottom: 1px solid rgba(200,168,75,0.16);
+    }
+    .teacher-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="/" class="site-nav-logo">
+      <img src="/assets/tfr-play/tfr-logo-main.png" alt="TFR" style="height:30px;width:auto;">
+    </a>
+    <div class="site-nav-links">
+      <a href="/courses.html">Courses</a>
+      <a href="/live-classes" style="color:var(--gold);">Live Classes</a>
+      <a href="/blog.html">Blog</a>
+      <a href="/signin.html">Sign in</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="kicker">Live Online Classes</div>
+    <h1>Train <em>live</em> with India's finest masters.</h1>
+    <p>One-on-many sessions over Google Meet. Limited seats. Real-time guidance, real-time correction. Choose your instrument to see who's teaching.</p>
+  </section>
+
+  <section class="grid" id="instrument-grid">
+    <div class="empty">Loading…</div>
+  </section>
+
+  <script src="/assets/js/live-classes-public.js"></script>
+  <script>
+    async function load() {
+      try {
+        const { teachers } = await lcApi.get('/api/lc/teachers');
+        if (!teachers.length) {
+          document.getElementById('instrument-grid').innerHTML =
+            '<div class="empty">No live classes yet. Check back soon.</div>';
+          return;
+        }
+        // Group by instrument (alphabetical), then render teacher cards under each group header
+        const byInst = {};
+        teachers.forEach(t => { (byInst[t.instrument] ||= []).push(t); });
+        const instruments = Object.keys(byInst).sort();
+        const grid = document.getElementById('instrument-grid');
+        grid.style.gridTemplateColumns = ''; // disable single grid; use sections instead
+        grid.style.display = 'block';
+        grid.innerHTML = instruments.map(key => {
+          const cards = byInst[key].map(t => {
+            const photo = t.photo_url || (t.landing && t.landing.hero_photo_full) || '';
+            const sub = (t.landing && t.landing.hero_eyebrow) || t.instrument;
+            return `
+              <a href="/live-classes/${encodeURIComponent(t.slug)}" class="card">
+                <div class="card-photo" style="${photo ? `background-image: url('${lcFmt.esc(photo)}')` : ''}"></div>
+                <div class="card-body">
+                  <div class="card-instrument">${lcFmt.esc(sub)}</div>
+                  <h3>${lcFmt.esc(t.name)}</h3>
+                  <p>${lcFmt.esc((t.bio || '').slice(0, 140))}${(t.bio || '').length > 140 ? '…' : ''}</p>
+                  <span class="card-cta">View &amp; Book →</span>
+                </div>
+              </a>`;
+          }).join('');
+          return `
+            <div class="instrument-block">
+              <h2 class="instrument-heading">${lcFmt.esc(key.toUpperCase())}</h2>
+              <div class="teacher-grid">${cards}</div>
+            </div>`;
+        }).join('');
+      } catch (e) {
+        document.getElementById('instrument-grid').innerHTML =
+          `<div class="empty">Failed to load. ${lcFmt.esc(e.message)}</div>`;
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
