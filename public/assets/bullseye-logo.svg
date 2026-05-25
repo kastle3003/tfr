@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Outer ring -->
+  <circle cx="60" cy="60" r="54" stroke="#C8A84B" stroke-width="1.5" fill="rgba(200,168,75,0.04)"/>
+  <!-- Ring 4 -->
+  <circle cx="60" cy="60" r="42" stroke="#C8A84B" stroke-width="1.2" fill="rgba(200,168,75,0.06)" stroke-opacity="0.7"/>
+  <!-- Ring 3 -->
+  <circle cx="60" cy="60" r="30" stroke="#C8A84B" stroke-width="1.2" fill="rgba(200,168,75,0.09)" stroke-opacity="0.8"/>
+  <!-- Ring 2 -->
+  <circle cx="60" cy="60" r="18" stroke="#C8A84B" stroke-width="1.4" fill="rgba(200,168,75,0.14)" stroke-opacity="0.9"/>
+  <!-- Bullseye center -->
+  <circle cx="60" cy="60" r="8"  fill="#C8A84B" opacity="0.9"/>
+  <circle cx="60" cy="60" r="3"  fill="#080706"/>
+  <!-- Crosshair lines -->
+  <line x1="60" y1="4"  x2="60" y2="22"  stroke="#C8A84B" stroke-width="1"   stroke-opacity="0.35"/>
+  <line x1="60" y1="98" x2="60" y2="116" stroke="#C8A84B" stroke-width="1"   stroke-opacity="0.35"/>
+  <line x1="4"  y1="60" x2="22" y2="60"  stroke="#C8A84B" stroke-width="1"   stroke-opacity="0.35"/>
+  <line x1="98" y1="60" x2="116" y2="60" stroke="#C8A84B" stroke-width="1"   stroke-opacity="0.35"/>
+  <!-- Arrow shaft — from upper-right, tip at center -->
+  <line x1="100" y1="20" x2="63"  y2="57"  stroke="#F0E6D3" stroke-width="2" stroke-linecap="round"/>
+  <!-- Arrow head -->
+  <polygon points="60,60 70,22 66,30 74,26" fill="#C8A84B" opacity="0.9"/>
+  <polygon points="60,60 68,18 65,28 73,25" fill="#C8A84B"/>
+  <!-- Fletching -->
+  <path d="M100 20 L108 12 L104 22 L112 18 L105 26Z" fill="#C8A84B" opacity="0.7"/>
+</svg>

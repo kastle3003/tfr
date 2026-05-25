@@ -1,0 +1,2855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BULLSEYE — Bartending & Hospitality Excellence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/assets/bullseye-logo-mark.svg">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:       #080706;
+  --gold:     #C8A84B;
+  --gold-lt:  #E2C46A;
+  --gold-dim: #7a6430;
+  --cream:    #F0E6D3;
+  --cream-dim:#9a8b74;
+  --dark2:    #0f0d0b;
+  --dark3:    #141210;
+  --serif:    'Cormorant Garamond', Georgia, serif;
+  --sans:     'Inter', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; overflow-x: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: var(--sans);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Film grain body overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.045;
+  pointer-events: none;
+  z-index: 9990;
+  animation: grainShift 0.4s steps(1) infinite;
+}
+
+@keyframes grainShift {
+  0%   { transform: translate(0,0); }
+  25%  { transform: translate(-5px, 3px); }
+  50%  { transform: translate(4px, -2px); }
+  75%  { transform: translate(-3px, -4px); }
+  100% { transform: translate(2px, 5px); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+/* ═══════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════ */
+#cursor {
+  width: 10px; height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9997;
+  transform: translate(-50%,-50%);
+  transition: width 0.25s, height 0.25s, background 0.25s;
+}
+#cursor-ring {
+  width: 32px; height: 32px;
+  border: 1px solid rgba(200,168,75,0.55);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9996;
+  transform: translate(-50%,-50%);
+  transition: width 0.3s, height 0.3s, opacity 0.3s;
+}
+body.cursor-hover #cursor { width: 16px; height: 16px; background: var(--gold-lt); }
+body.cursor-hover #cursor-ring { width: 52px; height: 52px; opacity: 0.35; }
+
+/* ═══════════════════════════════════════════════
+   PRELOADER
+═══════════════════════════════════════════════ */
+#preloader {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+#preloader-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+#preloader-brand {
+  position: relative; z-index: 2;
+  text-align: center;
+  margin-top: 240px;
+  opacity: 0;
+}
+.preloader-word {
+  display: flex; gap: 0.06em; justify-content: center;
+}
+.preloader-letter {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.35em;
+  opacity: 0;
+  transform: translateY(20px);
+  display: inline-block;
+}
+.preloader-line {
+  width: 0; height: 1px;
+  background: var(--gold);
+  margin: 14px auto 0;
+}
+#pl-tagline {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  margin-top: 10px;
+  opacity: 0;
+}
+#pl-logo {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 20px;
+  display: block;
+  opacity: 0;
+  filter: drop-shadow(0 0 20px rgba(200,168,75,0.4));
+}
+
+/* ─── Floating Tools ─── */
+.floating-tools {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+.tool-float {
+  position: absolute;
+  left: var(--tx);
+  top: var(--ty);
+  transform: rotate(var(--rot));
+  opacity: 0;
+  animation: toolFloat var(--dur) var(--delay) ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.tool-float svg {
+  display: block;
+  filter: drop-shadow(0 0 8px rgba(200,168,75,0.15));
+}
+.tool-float[data-tool="shaker"] svg  { width: 28px; height: auto; }
+.tool-float[data-tool="wineglass"] svg { width: 24px; height: auto; }
+.tool-float[data-tool="martini"] svg  { width: 32px; height: auto; }
+.tool-float[data-tool="corkscrew"] svg { width: 14px; height: auto; }
+.tool-float[data-tool="muddler"] svg  { width: 12px; height: auto; }
+.tool-float[data-tool="key"] svg      { width: 44px; height: auto; }
+.tool-float[data-tool="jigger"] svg   { width: 20px; height: auto; }
+.tool-float[data-tool="strainer"] svg { width: 40px; height: auto; }
+.tool-float[data-tool="flute"] svg    { width: 18px; height: auto; }
+.tool-float[data-tool="barspoon"] svg { width: 10px; height: auto; }
+.tool-float[data-tool="bell"] svg     { width: 34px; height: auto; }
+.tool-float[data-tool="bottle"] svg   { width: 20px; height: auto; }
+
+@keyframes toolFloat {
+  0%   { opacity: 0;    transform: rotate(var(--rot)) translateY(0px); }
+  15%  { opacity: 0.45; }
+  50%  { opacity: 0.55; transform: rotate(var(--rot)) translateY(-18px); }
+  85%  { opacity: 0.45; }
+  100% { opacity: 0;    transform: rotate(var(--rot)) translateY(0px); }
+}
+
+/* Hide tools during preloader */
+#preloader ~ .floating-tools { opacity: 0; }
+body.loaded .floating-tools .tool-float { animation-play-state: running; }
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 28px 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all 0.5s ease;
+}
+
+nav.scrolled {
+  padding: 18px 64px;
+  background: rgba(8,7,6,0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(200,168,75,0.18);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.nav-logo-mark {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 6px rgba(200,168,75,0.3));
+  transition: filter 0.3s ease;
+}
+.nav-logo:hover .nav-logo-mark {
+  filter: drop-shadow(0 0 12px rgba(200,168,75,0.6));
+}
+.nav-logo-text {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex; align-items: center; gap: 40px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover { color: var(--gold); }
+
+.nav-enroll {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-decoration: none;
+  border: 1px solid rgba(200,168,75,0.5);
+  padding: 9px 22px;
+  border-radius: 40px;
+  transition: all 0.3s ease;
+}
+.nav-enroll:hover {
+  background: var(--gold);
+  color: var(--bg);
+  border-color: var(--gold);
+}
+
+/* Mobile nav toggle */
+.nav-hamburger {
+  display: none;
+  flex-direction: column; gap: 5px;
+  cursor: pointer; background: none; border: none; padding: 4px;
+}
+.nav-hamburger span {
+  display: block; width: 24px; height: 1px;
+  background: var(--gold); transition: all 0.3s;
+}
+
+/* Mobile overlay */
+#mobile-nav {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 998;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 36px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+#mobile-nav.open { opacity: 1; pointer-events: all; }
+#mobile-nav a {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  color: var(--cream);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  transition: color 0.3s;
+}
+#mobile-nav a:hover { color: var(--gold); }
+.mobile-close {
+  position: absolute; top: 28px; right: 28px;
+  background: none; border: none; color: var(--cream-dim);
+  font-size: 1.5rem; cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+#hero {
+  position: relative;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+
+#hero-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+
+.hero-content {
+  position: relative; z-index: 10;
+  text-align: center;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0;
+  opacity: 0;
+}
+
+.hero-eyebrow {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 28px;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.hero-title-sm {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  color: var(--cream);
+  line-height: 1;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.hero-title-lg {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(3.5rem, 12vw, 11rem);
+  line-height: 0.88;
+  background: linear-gradient(135deg, #C8A84B 0%, #E8C96B 45%, #C8A84B 70%, #a87e2e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0;
+  transform: translateY(30px);
+  letter-spacing: -0.01em;
+}
+
+.hero-divider {
+  width: 80px; height: 1px;
+  background: var(--gold);
+  margin: 28px auto;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+}
+
+.hero-subtitle {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 12px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.hero-cta {
+  display: inline-block;
+  margin-top: 40px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cream);
+  text-decoration: none;
+  border: 1px solid rgba(200,168,75,0.4);
+  padding: 14px 36px;
+  border-radius: 40px;
+  transition: all 0.35s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+.hero-cta:hover {
+  background: var(--gold);
+  color: var(--bg);
+  border-color: var(--gold);
+}
+
+/* Hero edge labels */
+.hero-scroll-label {
+  position: absolute;
+  bottom: 48px; left: 48px;
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  opacity: 0;
+}
+
+.hero-enroll-label {
+  position: absolute;
+  bottom: 48px; right: 48px;
+  text-align: right;
+  opacity: 0;
+}
+.hero-enroll-label span {
+  display: block;
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.hero-enroll-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ═══════════════════════════════════════════════
+   MARQUEE STRIP
+═══════════════════════════════════════════════ */
+.marquee-section {
+  border-top: 1.5px solid var(--gold);
+  border-bottom: 1.5px solid var(--gold);
+  overflow: hidden;
+  padding: 0;
+}
+
+.marquee-row {
+  display: flex;
+  overflow: hidden;
+  padding: 14px 0;
+}
+.marquee-row + .marquee-row {
+  border-top: 1px solid rgba(200,168,75,0.12);
+}
+
+.marquee-track {
+  display: flex;
+  white-space: nowrap;
+  animation: marqueeLeft 45s linear infinite;
+  gap: 0;
+  min-width: max-content;
+}
+
+.marquee-track.right {
+  animation: marqueeRight 55s linear infinite;
+}
+
+.marquee-item {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  padding: 0 28px;
+  flex-shrink: 0;
+}
+
+.marquee-track.right .marquee-item {
+  color: var(--cream-dim);
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+@keyframes marqueeLeft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marqueeRight {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* ═══════════════════════════════════════════════
+   ABOUT / VISION
+═══════════════════════════════════════════════ */
+#about {
+  padding: 120px 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.about-left { position: relative; }
+
+.about-bg-number {
+  position: absolute;
+  top: -60px; left: -20px;
+  font-family: var(--serif);
+  font-size: 15rem;
+  font-weight: 700;
+  color: var(--gold);
+  opacity: 0.06;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.about-left-inner { position: relative; z-index: 1; }
+
+.section-label {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+
+.about-headline {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--cream);
+  margin-bottom: 28px;
+}
+
+.gold-rule {
+  width: 60px; height: 1px;
+  background: var(--gold);
+  margin-bottom: 28px;
+}
+
+.about-body {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: var(--cream-dim);
+}
+
+.about-body em {
+  color: var(--cream);
+  font-style: italic;
+}
+
+#about-canvas {
+  width: 100%;
+  max-width: 520px;
+  height: 480px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════════════
+   SERVICES
+═══════════════════════════════════════════════ */
+#services {
+  background: var(--dark2);
+  padding: 100px 64px;
+}
+
+.services-header {
+  max-width: 1400px;
+  margin: 0 auto 72px;
+}
+
+.section-meta {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+.services-title {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 3.5vw, 3.5rem);
+  font-weight: 400;
+  color: var(--cream);
+  line-height: 1.15;
+}
+
+.services-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.service-item {
+  padding: 44px 40px;
+  border-left: 3px solid rgba(200,168,75,0.25);
+  position: relative;
+  cursor: default;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  background: transparent;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.service-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 0;
+  background: radial-gradient(ellipse at bottom, rgba(200,168,75,0.07) 0%, transparent 70%);
+  transition: height 0.4s ease;
+}
+
+.service-item:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+}
+.service-item:hover::after { height: 80px; }
+
+.service-number {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 400;
+  color: rgba(200,168,75,0.18);
+  display: block;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.service-title {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+
+.service-desc {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--cream-dim);
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════
+   STATS BAR
+═══════════════════════════════════════════════ */
+#stats {
+  background: var(--gold);
+  padding: 56px 64px;
+}
+
+.stats-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 0 40px;
+  position: relative;
+}
+
+.stat-item + .stat-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 10%; bottom: 10%;
+  width: 1px;
+  background: rgba(8,7,6,0.2);
+}
+
+.stat-number {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 3.5vw, 3.5rem);
+  color: var(--bg);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dark2);
+}
+
+/* ═══════════════════════════════════════════════
+   COURSES
+═══════════════════════════════════════════════ */
+#courses {
+  padding: 100px 64px;
+  background: var(--bg);
+}
+
+.courses-header {
+  max-width: 1400px;
+  margin: 0 auto 72px;
+}
+
+.courses-title {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 3.5vw, 3.5rem);
+  font-weight: 400;
+  color: var(--cream);
+  line-height: 1.15;
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.course-card {
+  background: var(--dark2);
+  padding: 56px 48px;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.course-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 1px;
+  width: 0;
+  background: var(--gold);
+  transition: width 0.5s ease;
+}
+
+.course-card:hover::after { width: 100%; }
+.course-card:hover .course-link { color: var(--gold-lt); gap: 10px; }
+
+.course-level {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid rgba(200,168,75,0.3);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+.course-name {
+  font-family: var(--serif);
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.course-desc {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--cream-dim);
+  margin-bottom: 28px;
+}
+
+.course-meta {
+  display: flex; gap: 24px;
+  margin-bottom: 32px;
+}
+
+.course-meta span {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--cream-dim);
+  text-transform: uppercase;
+}
+
+.course-meta span::before {
+  content: '— ';
+  color: var(--gold-dim);
+}
+
+.course-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════
+   CINEMATIC FULLBLEED
+═══════════════════════════════════════════════ */
+#cinematic {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#cinematic-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+
+.cinematic-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(8,7,6,0.65) 80%, rgba(8,7,6,0.92) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cinematic-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+
+.cinematic-box {
+  border: 1px solid rgba(200,168,75,0.3);
+  padding: 60px 80px;
+  text-align: center;
+  max-width: 700px;
+  position: relative;
+}
+
+.cinematic-title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 5.5vw, 5.5rem);
+  color: var(--cream);
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.cinematic-rule {
+  width: 60px; height: 1px;
+  background: var(--gold);
+  margin: 0 auto 24px;
+}
+
+.cinematic-sub {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--cream-dim);
+  line-height: 1.7;
+  margin-bottom: 36px;
+}
+
+.cinematic-cta {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cream);
+  text-decoration: none;
+  border: 1px solid rgba(200,168,75,0.4);
+  padding: 14px 36px;
+  border-radius: 40px;
+  transition: all 0.35s ease;
+}
+.cinematic-cta:hover {
+  background: var(--gold);
+  color: var(--bg);
+  border-color: var(--gold);
+}
+
+/* ═══════════════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════════════ */
+#testimonials {
+  background: var(--dark2);
+  padding: 120px 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonials-bg-quote {
+  position: absolute;
+  top: 40px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--serif);
+  font-size: 24rem;
+  line-height: 1;
+  color: var(--gold);
+  opacity: 0.04;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.testimonials-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative; z-index: 1;
+}
+
+.testimonial-slide {
+  display: none;
+  animation: fadeSlide 0.5s ease;
+}
+.testimonial-slide.active { display: block; }
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.testimonial-quote {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+  color: var(--cream);
+  line-height: 1.75;
+  margin-bottom: 44px;
+}
+
+.testimonial-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin: 0 auto 16px;
+  background: rgba(200,168,75,0.07);
+}
+
+.testimonial-author {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.testimonial-role {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--cream-dim);
+}
+
+.testimonial-hotel {
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(200,168,75,0.6);
+  margin-top: 2px;
+}
+
+.testimonial-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 44px;
+}
+
+.testimonial-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  cursor: pointer;
+  border: none;
+  transition: background 0.3s, transform 0.3s;
+}
+.testimonial-dot.active {
+  background: var(--gold);
+  transform: scale(1.4);
+}
+
+/* ═══════════════════════════════════════════════
+   CTA / ENROLL
+═══════════════════════════════════════════════ */
+#enroll {
+  position: relative;
+  padding: 120px 64px;
+  background: linear-gradient(160deg, var(--bg) 0%, var(--dark2) 100%);
+  overflow: hidden;
+  text-align: center;
+}
+
+#cta-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0.6;
+}
+
+.enroll-inner {
+  position: relative; z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.enroll-title-a {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(3rem, 7vw, 7rem);
+  color: var(--cream);
+  line-height: 0.9;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.enroll-title-b {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(3rem, 7vw, 7rem);
+  background: linear-gradient(135deg, #C8A84B 0%, #E8C96B 50%, #C8A84B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 0.9;
+  margin-bottom: 40px;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.enroll-sub {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--cream-dim);
+  margin-bottom: 44px;
+  line-height: 1.7;
+  opacity: 0;
+}
+
+.enroll-form {
+  display: flex;
+  gap: 0;
+  max-width: 480px;
+  margin: 0 auto 16px;
+  border: 1px solid rgba(200,168,75,0.3);
+  border-radius: 40px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.enroll-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 16px 24px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--cream);
+  letter-spacing: 0.04em;
+}
+
+.enroll-input::placeholder { color: var(--cream-dim); }
+
+.enroll-btn {
+  background: var(--gold);
+  border: none;
+  padding: 16px 28px;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bg);
+  cursor: pointer;
+  border-radius: 0 40px 40px 0;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+.enroll-btn:hover { background: var(--gold-lt); }
+
+.enroll-privacy {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--cream-dim);
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+footer {
+  background: var(--dark2);
+  border-top: 1px solid rgba(200,168,75,0.2);
+  padding: 72px 64px 40px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+  gap: 48px;
+  max-width: 1400px;
+  margin: 0 auto 56px;
+}
+
+/* .footer-brand-logo styles moved to new block below */
+
+.footer-tagline {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--cream-dim);
+  margin-bottom: 28px;
+}
+
+.footer-socials {
+  display: flex; gap: 16px;
+}
+
+.footer-social-link {
+  width: 34px; height: 34px;
+  border: 1px solid rgba(200,168,75,0.2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  color: var(--cream-dim);
+  text-decoration: none;
+}
+.footer-social-link:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.footer-social-link svg { width: 14px; height: 14px; fill: currentColor; }
+
+.footer-col-title {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-links a {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--cream-dim);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: color 0.3s;
+}
+.footer-links a:hover { color: var(--cream); }
+
+.footer-contact-line {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--cream-dim);
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
+
+.footer-contact-line a {
+  color: var(--gold);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.footer-contact-line a:hover { color: var(--gold-lt); }
+
+.footer-bottom {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-copy,
+.footer-credit {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgba(154,139,116,0.5);
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  body { cursor: auto; }
+  #cursor, #cursor-ring { display: none; }
+
+  nav { padding: 20px 24px; }
+  nav.scrolled { padding: 14px 24px; }
+
+  .nav-links-desktop { display: none; }
+  .nav-hamburger { display: flex; }
+
+  #hero { height: 100svh; }
+  .hero-title-lg { font-size: clamp(3rem, 16vw, 5rem); }
+  .hero-scroll-label, .hero-enroll-label { display: none; }
+
+  #about {
+    grid-template-columns: 1fr;
+    padding: 72px 24px;
+    gap: 48px;
+  }
+  .about-bg-number { display: none; }
+  #about-canvas { height: 320px; }
+
+  #services { padding: 72px 24px; }
+  .services-grid { grid-template-columns: 1fr; }
+
+  #stats { padding: 40px 24px; }
+  .stats-inner { flex-wrap: wrap; }
+  .stat-item { flex: 0 0 50%; padding: 20px; }
+  .stat-item + .stat-item::before { display: none; }
+
+  #courses { padding: 72px 24px; }
+  .courses-grid { grid-template-columns: 1fr; }
+  .course-card { padding: 40px 32px; }
+
+  #cinematic { height: 75vh; }
+  .cinematic-box { padding: 40px 28px; margin: 0 24px; }
+
+  #testimonials { padding: 80px 24px; }
+  .testimonials-bg-quote { font-size: 10rem; }
+
+  #enroll { padding: 80px 24px; }
+  .enroll-form { flex-direction: column; border-radius: 12px; }
+  .enroll-btn { border-radius: 0 0 12px 12px; }
+
+  footer { padding: 56px 24px 32px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .stat-item { flex: 0 0 100%; }
+}
+
+.hero-logo-watermark {
+  position: absolute;
+  width: min(500px, 70vw);
+  height: auto;
+  opacity: 0.035;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  animation: logoSpin 40s linear infinite;
+}
+@keyframes logoSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.logo-divider {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 64px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.logo-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(200,168,75,0.25), transparent);
+}
+.logo-divider-mark {
+  width: 36px;
+  height: 36px;
+  opacity: 0.5;
+  flex-shrink: 0;
+  animation: logoSpin 20s linear infinite;
+}
+
+.section-label-with-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.section-logo-sm {
+  width: 22px;
+  height: 22px;
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+.footer-brand-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.footer-logo-img {
+  width: 64px;
+  height: 64px;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 8px rgba(200,168,75,0.2));
+}
+.footer-logo-text {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.cta-logo-bg {
+  width: 120px;
+  height: 120px;
+  opacity: 0.08;
+  display: block;
+  margin: 0 auto 32px;
+  animation: logoSpin 30s linear infinite;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ CUSTOM CURSOR ═══ -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ═══ MOBILE NAV OVERLAY ═══ -->
+<div id="mobile-nav">
+  <img src="/assets/bullseye-logo-mark.svg" style="width:48px;height:48px;opacity:0.7;margin-bottom:8px;" alt="Bullseye">
+  <button class="mobile-close" aria-label="Close menu">✕</button>
+  <a href="#about">Philosophy</a>
+  <a href="#services">Disciplines</a>
+  <a href="#courses">Programmes</a>
+  <a href="#testimonials">Alumni</a>
+  <a href="#enroll">Enrol</a>
+</div>
+
+<!-- ═══ PRELOADER ═══ -->
+<div id="preloader">
+  <canvas id="preloader-canvas"></canvas>
+  <div id="preloader-brand">
+    <img src="/assets/bullseye-logo.svg" id="pl-logo" alt="Bullseye Logo">
+    <div class="preloader-word" id="pl-word"></div>
+    <div class="preloader-line" id="preloader-line"></div>
+    <div id="pl-tagline">Bartending & Hospitality Excellence</div>
+  </div>
+</div>
+
+<!-- ═══ NAVIGATION ═══ -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <img src="/assets/bullseye-logo-mark.svg" alt="Bullseye" class="nav-logo-mark">
+    <span class="nav-logo-text">BULLSEYE</span>
+  </a>
+  <ul class="nav-links nav-links-desktop">
+    <li><a href="#about">Philosophy</a></li>
+    <li><a href="#services">Disciplines</a></li>
+    <li><a href="#courses">Programmes</a></li>
+    <li><a href="#testimonials">Alumni</a></li>
+    <li><a href="#enroll" class="nav-enroll">Enrol Now</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+
+  <div class="hero-content" id="hero-content">
+    <img src="/assets/bullseye-logo.svg" class="hero-logo-watermark" alt="">
+    <p class="hero-eyebrow">Est. 2012 &nbsp;·&nbsp; India's Premier Hospitality Institute</p>
+    <h1>
+      <div class="hero-title-sm">The Art of</div>
+      <div class="hero-title-lg">Hospitality</div>
+    </h1>
+    <div class="hero-divider"></div>
+    <p class="hero-subtitle">Bartending &nbsp;·&nbsp; Hotel Management &nbsp;·&nbsp; Fine Dining</p>
+    <a href="#courses" class="hero-cta">Discover Our Programmes</a>
+  </div>
+
+  <div class="hero-scroll-label" id="hero-scroll-label">Scroll to Explore</div>
+  <div class="hero-enroll-label" id="hero-enroll-label">
+    <span><span class="hero-enroll-dot"></span>Now Enrolling · 2025</span>
+  </div>
+</section>
+
+<!-- ═══ MARQUEE ═══ -->
+<div class="marquee-section">
+  <div class="marquee-row">
+    <div class="marquee-track" id="marquee-a">
+      <span class="marquee-item">Mixology Artistry ✦</span>
+      <span class="marquee-item">Hotel Operations ✦</span>
+      <span class="marquee-item">Fine Dining Service ✦</span>
+      <span class="marquee-item">Bar Management ✦</span>
+      <span class="marquee-item">Luxury Hospitality ✦</span>
+      <span class="marquee-item">Sommelier Training ✦</span>
+      <span class="marquee-item">Mixology Artistry ✦</span>
+      <span class="marquee-item">Hotel Operations ✦</span>
+      <span class="marquee-item">Fine Dining Service ✦</span>
+      <span class="marquee-item">Bar Management ✦</span>
+      <span class="marquee-item">Luxury Hospitality ✦</span>
+      <span class="marquee-item">Sommelier Training ✦</span>
+    </div>
+  </div>
+  <div class="marquee-row">
+    <div class="marquee-track right" id="marquee-b">
+      <span class="marquee-item">Craft Excellence</span>
+      <span class="marquee-item">Guest Experience</span>
+      <span class="marquee-item">Beverage Innovation</span>
+      <span class="marquee-item">Service Artistry</span>
+      <span class="marquee-item">Leadership Mastery</span>
+      <span class="marquee-item">Culinary Pairing</span>
+      <span class="marquee-item">Craft Excellence</span>
+      <span class="marquee-item">Guest Experience</span>
+      <span class="marquee-item">Beverage Innovation</span>
+      <span class="marquee-item">Service Artistry</span>
+      <span class="marquee-item">Leadership Mastery</span>
+      <span class="marquee-item">Culinary Pairing</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LOGO DIVIDER ═══ -->
+<div class="logo-divider">
+  <div class="logo-divider-line"></div>
+  <img src="/assets/bullseye-logo-mark.svg" class="logo-divider-mark" alt="">
+  <div class="logo-divider-line"></div>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about">
+  <div class="about-left">
+    <div class="about-bg-number">01</div>
+    <div class="about-left-inner">
+      <p class="section-label">Our Philosophy</p>
+      <h2 class="about-headline">Where discipline<br>becomes distinction.</h2>
+      <div class="gold-rule"></div>
+      <p class="about-body">
+        We believe hospitality is not a service — it is a language. Spoken fluently through precision,
+        patience, and an unwavering commitment to the guest's experience. At Bullseye, we do not merely
+        train bartenders and hotel professionals; we <em>cultivate artisans</em> — individuals who
+        understand that every poured glass, every greeted guest, every set table is an opportunity for
+        quiet excellence.
+        <br><br>
+        Our curriculum bridges classical technique with contemporary innovation, preparing graduates not
+        just for their first role, but for a lifetime of leadership in India's most distinguished hotels,
+        bars, and hospitality establishments.
+      </p>
+    </div>
+  </div>
+  <div class="about-right">
+    <canvas id="about-canvas"></canvas>
+  </div>
+</section>
+
+<!-- ═══ SERVICES ═══ -->
+<section id="services">
+  <div class="services-header">
+    <div class="section-label-with-logo">
+      <img src="/assets/bullseye-logo-mark.svg" class="section-logo-sm" alt="">
+      <span class="section-label">02 / WHAT WE OFFER</span>
+    </div>
+    <h2 class="services-title">Disciplines of <em>Excellence</em></h2>
+  </div>
+
+  <div class="services-grid" id="services-grid">
+    <div class="service-item">
+      <span class="service-number">01</span>
+      <h3 class="service-title">Cocktail Craft & Mixology</h3>
+      <p class="service-desc">Classical techniques, molecular innovation, and the story behind every spirit.</p>
+    </div>
+    <div class="service-item">
+      <span class="service-number">02</span>
+      <h3 class="service-title">Hotel Front Desk & Guest Relations</h3>
+      <p class="service-desc">Mastering the art of first impressions across five-star standards and beyond.</p>
+    </div>
+    <div class="service-item">
+      <span class="service-number">03</span>
+      <h3 class="service-title">Fine Dining & Table Service</h3>
+      <p class="service-desc">Silver service, wine pairing, and the choreography of a flawless dining experience.</p>
+    </div>
+    <div class="service-item">
+      <span class="service-number">04</span>
+      <h3 class="service-title">Bar Setup & Beverage Operations</h3>
+      <p class="service-desc">Back-bar logistics, inventory control, and the architecture of a profitable bar.</p>
+    </div>
+    <div class="service-item">
+      <span class="service-number">05</span>
+      <h3 class="service-title">Hospitality Staff Development</h3>
+      <p class="service-desc">Training the trainers — leadership, soft skills, and team culture for premium venues.</p>
+    </div>
+    <div class="service-item">
+      <span class="service-number">06</span>
+      <h3 class="service-title">Event, Banquet & Catering Management</h3>
+      <p class="service-desc">From intimate soirées to grand banquets — orchestrating seamless guest experiences at scale.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ STATS BAR ═══ -->
+<section id="stats">
+  <div style="text-align:center; margin-bottom: 48px;">
+    <img src="/assets/bullseye-logo-mark.svg" style="width:28px;height:28px;opacity:0.4;display:inline-block;">
+  </div>
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-number" data-target="2500" data-suffix="+">0</div>
+      <div class="stat-label">Professionals Trained</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-target="150" data-suffix="+">0</div>
+      <div class="stat-label">Hotel Partners</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-target="98" data-suffix="%">0</div>
+      <div class="stat-label">Placement Rate</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-target="12" data-suffix=" Yrs">0</div>
+      <div class="stat-label">Industry Experience</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LOGO DIVIDER ═══ -->
+<div class="logo-divider">
+  <div class="logo-divider-line"></div>
+  <img src="/assets/bullseye-logo-mark.svg" class="logo-divider-mark" alt="">
+  <div class="logo-divider-line"></div>
+</div>
+
+<!-- ═══ COURSES ═══ -->
+<section id="courses">
+  <div class="courses-header">
+    <p class="section-meta">03 / Programmes</p>
+    <h2 class="courses-title">Choose Your Path</h2>
+  </div>
+
+  <div class="courses-grid" id="courses-grid">
+    <div class="course-card">
+      <span class="course-level">Beginner</span>
+      <h3 class="course-name">Bartending Fundamentals</h3>
+      <p class="course-desc">A comprehensive introduction to the bar — from essential spirits knowledge and glassware to free-pouring, shaking, and your first original cocktail creation.</p>
+      <div class="course-meta">
+        <span>8 Weeks</span>
+        <span>In-Person</span>
+      </div>
+      <a href="#enroll" class="course-link">View Programme →</a>
+    </div>
+
+    <div class="course-card">
+      <span class="course-level">Advanced</span>
+      <h3 class="course-name">Advanced Mixology & Cocktail Innovation</h3>
+      <p class="course-desc">Molecular gastronomy meets liquid artistry. Master fat-washing, clarification, seasonal menus, and the craft of building a signature cocktail programme for any venue.</p>
+      <div class="course-meta">
+        <span>12 Weeks</span>
+        <span>Hybrid</span>
+      </div>
+      <a href="#enroll" class="course-link">View Programme →</a>
+    </div>
+
+    <div class="course-card">
+      <span class="course-level">Professional</span>
+      <h3 class="course-name">Hotel Operations & Front Office Management</h3>
+      <p class="course-desc">Operational excellence in guest services, PMS systems, yield management, and the interpersonal mastery that defines five-star hotel culture from check-in to check-out.</p>
+      <div class="course-meta">
+        <span>16 Weeks</span>
+        <span>In-Person</span>
+      </div>
+      <a href="#enroll" class="course-link">View Programme →</a>
+    </div>
+
+    <div class="course-card">
+      <span class="course-level">Executive</span>
+      <h3 class="course-name">Luxury Hospitality Leadership</h3>
+      <p class="course-desc">For seasoned professionals ready to lead. Strategy, brand stewardship, team development, and the executive vision required to shape the next generation of luxury hospitality.</p>
+      <div class="course-meta">
+        <span>20 Weeks</span>
+        <span>Blended</span>
+      </div>
+      <a href="#enroll" class="course-link">View Programme →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CINEMATIC FULLBLEED ═══ -->
+<section id="cinematic">
+  <canvas id="cinematic-canvas"></canvas>
+  <div class="cinematic-vignette"></div>
+  <div class="cinematic-overlay">
+    <div class="cinematic-box">
+      <h2 class="cinematic-title">Master<br>the Craft</h2>
+      <div class="cinematic-rule"></div>
+      <p class="cinematic-sub">Behind every great bar lies years of disciplined artistry.<br>Every pour deliberate. Every garnish intentional. Every guest, remembered.</p>
+      <a href="#courses" class="cinematic-cta">Explore Programmes</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LOGO DIVIDER ═══ -->
+<div class="logo-divider">
+  <div class="logo-divider-line"></div>
+  <img src="/assets/bullseye-logo-mark.svg" class="logo-divider-mark" alt="">
+  <div class="logo-divider-line"></div>
+</div>
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section id="testimonials">
+  <div class="testimonials-bg-quote">"</div>
+  <div class="testimonials-inner">
+    <div class="testimonial-slide active" id="t-0">
+      <p class="testimonial-quote">"Bullseye didn't just teach me to bartend — it taught me to think like a hospitality professional. The precision, the presence, the passion they instilled is what landed me my role at The Taj Mahal Palace."</p>
+      <div class="testimonial-avatar">AR</div>
+      <p class="testimonial-author">Arjun Rao</p>
+      <p class="testimonial-role">Senior Bartender</p>
+      <p class="testimonial-hotel">The Taj Mahal Palace, Mumbai</p>
+    </div>
+
+    <div class="testimonial-slide" id="t-1">
+      <p class="testimonial-quote">"The hotel operations programme is genuinely world-class. I joined as a front desk associate and within 18 months of graduating, I was managing an entire guest relations department."</p>
+      <div class="testimonial-avatar">PP</div>
+      <p class="testimonial-author">Priya Pillai</p>
+      <p class="testimonial-role">Guest Relations Manager</p>
+      <p class="testimonial-hotel">ITC Grand Chola, Chennai</p>
+    </div>
+
+    <div class="testimonial-slide" id="t-2">
+      <p class="testimonial-quote">"The Advanced Mixology course changed how I see my craft entirely. Understanding the science and the story behind each drink made me a better bartender and a more compelling host."</p>
+      <div class="testimonial-avatar">SK</div>
+      <p class="testimonial-author">Sahil Kapoor</p>
+      <p class="testimonial-role">Head Mixologist</p>
+      <p class="testimonial-hotel">Leela Ambience, New Delhi</p>
+    </div>
+
+    <div class="testimonial-slide" id="t-3">
+      <p class="testimonial-quote">"The faculty at Bullseye bring real-world luxury hospitality experience into every session. It is not theory — it is lived knowledge, shared generously, with exceptional standards."</p>
+      <div class="testimonial-avatar">NM</div>
+      <p class="testimonial-author">Nandita Mehta</p>
+      <p class="testimonial-role">F&B Operations Lead</p>
+      <p class="testimonial-hotel">Oberoi Grand, Kolkata</p>
+    </div>
+
+    <div class="testimonial-dots" id="testimonial-dots">
+      <button class="testimonial-dot active" data-index="0"></button>
+      <button class="testimonial-dot" data-index="1"></button>
+      <button class="testimonial-dot" data-index="2"></button>
+      <button class="testimonial-dot" data-index="3"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ENROL / CTA ═══ -->
+<section id="enroll">
+  <canvas id="cta-canvas"></canvas>
+  <div class="enroll-inner">
+    <img src="/assets/bullseye-logo.svg" class="cta-logo-bg" alt="">
+    <div class="enroll-title-a">Begin Your</div>
+    <div class="enroll-title-b">Journey</div>
+    <p class="enroll-sub">
+      Applications are open for our 2025 intakes across all disciplines.<br>
+      Limited seats. Exceptional standards. Lifelong membership in India's finest hospitality community.
+    </p>
+    <form class="enroll-form" onsubmit="return false;">
+      <input type="email" class="enroll-input" placeholder="Your email address" autocomplete="email">
+      <button type="submit" class="enroll-btn">Enrol Now</button>
+    </form>
+    <p class="enroll-privacy">Your details are held in strict confidence. We will only contact you regarding admissions.</p>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand-logo">
+        <img src="/assets/bullseye-logo.svg" class="footer-logo-img" alt="Bullseye">
+        <div class="footer-logo-text">BULLSEYE</div>
+      </div>
+      <p class="footer-tagline">India's premier institute for bartending and hospitality excellence — forging careers, shaping culture, setting the standard since 2012.</p>
+      <div class="footer-socials">
+        <a href="#" class="footer-social-link" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="#" class="footer-social-link" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="#" class="footer-social-link" aria-label="YouTube">
+          <svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <p class="footer-col-title">Programmes</p>
+      <ul class="footer-links">
+        <li><a href="#courses">Bartending Fundamentals</a></li>
+        <li><a href="#courses">Advanced Mixology</a></li>
+        <li><a href="#courses">Hotel Operations</a></li>
+        <li><a href="#courses">Hospitality Leadership</a></li>
+        <li><a href="#courses">Corporate Training</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="footer-col-title">Company</p>
+      <ul class="footer-links">
+        <li><a href="#about">Our Philosophy</a></li>
+        <li><a href="#services">Disciplines</a></li>
+        <li><a href="#testimonials">Alumni</a></li>
+        <li><a href="#">Faculty</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="footer-col-title">Contact</p>
+      <p class="footer-contact-line">
+        <a href="mailto:admissions@bullseye.in">admissions@bullseye.in</a>
+        <br><br>
+        +91 98765 43210<br>
+        Mumbai · Delhi · Bengaluru<br>
+        <br>
+        Mon – Sat, 9:00 AM – 6:00 PM IST
+      </p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2025 Bullseye Hospitality Institute. All rights reserved.</p>
+    <p class="footer-credit">Crafted with Excellence</p>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ─────────────── GSAP REGISTER ─────────────── */
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ─────────────── CURSOR ─────────────── */
+  const cursor     = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+  let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+  let ringX  = mouseX, ringY = mouseY;
+  let cursorRAF;
+
+  if (window.innerWidth > 768) {
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      gsap.to(cursor, { x: mouseX, y: mouseY, duration: 0.08, ease: 'none' });
+    });
+
+    function animateRing() {
+      ringX += (mouseX - ringX) * 0.12;
+      ringY += (mouseY - ringY) * 0.12;
+      gsap.set(cursorRing, { x: ringX, y: ringY });
+      cursorRAF = requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('a, button, .testimonial-dot, .course-card, .service-item').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+  }
+
+  /* ─────────────── MOBILE NAV ─────────────── */
+  const hamburger  = document.getElementById('hamburger');
+  const mobileNav  = document.getElementById('mobile-nav');
+  const mobileClose = document.querySelector('.mobile-close');
+
+  function openMobileNav() {
+    mobileNav.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobileNav() {
+    mobileNav.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  hamburger.addEventListener('click', openMobileNav);
+  mobileClose.addEventListener('click', closeMobileNav);
+  mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMobileNav));
+
+  /* ─────────────── NAV SCROLL ─────────────── */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  /* ─────────────── PRELOADER BULLSEYE ─────────────── */
+  (function() {
+    const canvas = document.getElementById('preloader-canvas');
+    const ctx = canvas.getContext('2d');
+    const brand = document.getElementById('preloader-brand');
+    const pLine = document.getElementById('preloader-line');
+    const plWord = document.getElementById('pl-word');
+    const plTagline = document.getElementById('pl-tagline');
+    const preloader = document.getElementById('preloader');
+
+    // Build letters
+    'BULLSEYE'.split('').forEach(ch => {
+      const s = document.createElement('span');
+      s.className = 'preloader-letter';
+      s.textContent = ch;
+      plWord.appendChild(s);
+    });
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const GOLD = '#C8A84B';
+    const GOLD_DIM = 'rgba(200,168,75,0.25)';
+    const CREAM = '#F0E6D3';
+
+    // State machine
+    let phase = 'rings'; // rings → arrow → impact → brand → exit
+    let startTime = null;
+    let ringProgress = 0; // 0→1 rings drawing in
+    let arrowProgress = 0; // 0→1 arrow flying
+    let impactTime = 0;
+    let brandShown = false;
+
+    // Bullseye params
+    const rings = 5;
+    const ringColors = ['#C8A84B','#fff','#C8A84B','#fff','#C8A84B'];
+    const ringBg     = ['#8B1A1A','#fff','#8B1A1A','#fff','#8B1A1A'];
+    const maxRadius = 130;
+
+    function getCx() { return canvas.width / 2; }
+    function getCy() { return canvas.height * 0.42; }
+
+    // Arrow path: starts far right, flies to center
+    function getArrowPos(t) {
+      const cx = getCx(), cy = getCy();
+      const startX = cx + canvas.width * 0.6;
+      const startY = cy - 60;
+      // ease in-out cubic
+      const e = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+      return {
+        x: startX + (cx - startX) * e,
+        y: startY + (cy - startY) * e,
+        angle: Math.atan2(cy - startY, cx - startX)
+      };
+    }
+
+    function drawBullseye(ctx, cx, cy, progress) {
+      // Draw rings from outside in, revealed by progress
+      for (let i = rings - 1; i >= 0; i--) {
+        const r = maxRadius * ((i + 1) / rings);
+        const innerR = maxRadius * (i / rings);
+        // Each ring reveals sequentially
+        const ringStart = i / rings;
+        const ringEnd   = (i + 1) / rings;
+        const localP = Math.max(0, Math.min(1, (progress - (1 - ringEnd)) / (1 / rings)));
+
+        ctx.save();
+        // Clip to arc
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * localP, 0, Math.PI * 2);
+        ctx.arc(cx, cy, innerR, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = ringBg[i];
+        ctx.fill();
+
+        // Ring border
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * localP, 0, Math.PI * 2);
+        ctx.strokeStyle = ringColors[i];
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+      }
+      // Gold outer ring border
+      ctx.beginPath();
+      ctx.arc(cx, cy, maxRadius * progress, 0, Math.PI * 2);
+      ctx.strokeStyle = GOLD;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function drawArrow(ctx, x, y, angle, scale) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.scale(scale, scale);
+
+      // Arrow shaft
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-80, 0);
+      ctx.strokeStyle = CREAM;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Arrow head
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-14, -7);
+      ctx.lineTo(-10, 0);
+      ctx.lineTo(-14, 7);
+      ctx.closePath();
+      ctx.fillStyle = GOLD;
+      ctx.fill();
+
+      // Fletching (feathers at back)
+      ctx.beginPath();
+      ctx.moveTo(-80, 0);
+      ctx.lineTo(-95, -10);
+      ctx.lineTo(-90, 0);
+      ctx.lineTo(-95, 10);
+      ctx.closePath();
+      ctx.fillStyle = '#8B1A1A';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(-80, 0);
+      ctx.lineTo(-100, -6);
+      ctx.lineTo(-93, 0);
+      ctx.lineTo(-100, 6);
+      ctx.closePath();
+      ctx.fillStyle = CREAM;
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawImpact(ctx, cx, cy, t) {
+      // Gold shockwave rings expanding outward
+      const numWaves = 3;
+      for (let i = 0; i < numWaves; i++) {
+        const delay = i * 0.18;
+        const lt = Math.max(0, t - delay);
+        const radius = lt * 200;
+        const alpha = Math.max(0, 1 - lt * 1.4);
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(200,168,75,${alpha * 0.7})`;
+        ctx.lineWidth = 2 - lt;
+        ctx.stroke();
+      }
+      // Gold flash
+      if (t < 0.3) {
+        const flashAlpha = (1 - t / 0.3) * 0.35;
+        ctx.fillStyle = `rgba(200,168,75,${flashAlpha})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function animate(ts) {
+      if (!startTime) startTime = ts;
+      const elapsed = (ts - startTime) / 1000;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const cx = getCx(), cy = getCy();
+
+      if (phase === 'rings') {
+        ringProgress = Math.min(1, elapsed / 1.2);
+        drawBullseye(ctx, cx, cy, ringProgress);
+        // crosshairs subtle
+        ctx.save();
+        ctx.strokeStyle = 'rgba(200,168,75,0.18)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([6, 10]);
+        ctx.beginPath(); ctx.moveTo(cx - 200, cy); ctx.lineTo(cx + 200, cy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx, cy - 200); ctx.lineTo(cx, cy + 200); ctx.stroke();
+        ctx.restore();
+
+        if (ringProgress >= 1) { phase = 'arrow'; startTime = ts; }
+      }
+
+      else if (phase === 'arrow') {
+        const t = Math.min(1, elapsed / 0.9);
+        arrowProgress = t;
+        drawBullseye(ctx, cx, cy, 1);
+        // crosshairs
+        ctx.save();
+        ctx.strokeStyle = 'rgba(200,168,75,0.18)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([6, 10]);
+        ctx.beginPath(); ctx.moveTo(cx - 200, cy); ctx.lineTo(cx + 200, cy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx, cy - 200); ctx.lineTo(cx, cy + 200); ctx.stroke();
+        ctx.restore();
+
+        const pos = getArrowPos(t);
+        drawArrow(ctx, pos.x, pos.y, pos.angle, 1);
+
+        if (t >= 1) { phase = 'impact'; startTime = ts; impactTime = 0; }
+      }
+
+      else if (phase === 'impact') {
+        const t = elapsed;
+        drawBullseye(ctx, cx, cy, 1);
+        // Arrow stuck in center
+        drawArrow(ctx, cx, cy, Math.atan2(-60, canvas.width * 0.6), 1);
+        drawImpact(ctx, cx, cy, t);
+
+        // Show brand
+        if (t > 0.4 && !brandShown) {
+          brandShown = true;
+          brand.style.opacity = '1';
+          const letters = document.querySelectorAll('.preloader-letter');
+          gsap.to(letters, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.07, delay: 0.1 });
+          gsap.to('#pl-logo', { opacity: 1, duration: 0.4, ease: 'power2.out', delay: 0.05 });
+          gsap.to(pLine,  { width: '180px', duration: 0.5, ease: 'power2.inOut', delay: 0.6 });
+          gsap.to(plTagline, { opacity: 1, duration: 0.5, delay: 0.8 });
+        }
+
+        if (t > 1.8) { phase = 'exit'; startTime = ts; }
+      }
+
+      else if (phase === 'exit') {
+        const t = elapsed;
+        drawBullseye(ctx, cx, cy, 1);
+        drawArrow(ctx, cx, cy, Math.atan2(-60, canvas.width * 0.6), 1);
+        // Lingering waves
+        drawImpact(ctx, cx, cy, Math.max(0, 1.8 - t));
+
+        if (t > 0.5) {
+          gsap.to(preloader, {
+            opacity: 0, duration: 0.7, ease: 'power2.inOut',
+            onComplete: () => {
+              preloader.style.display = 'none';
+              revealHero();
+              document.body.classList.add('loaded');
+            }
+          });
+          phase = 'done';
+        }
+      }
+
+      else if (phase === 'done') {
+        // Stop
+        return;
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+  })();
+
+  /* ─────────────── HERO REVEAL ─────────────── */
+  function revealHero() {
+    const heroContent = document.getElementById('hero-content');
+    heroContent.style.opacity = '1';
+
+    gsap.timeline()
+      .to('.hero-eyebrow',   { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' })
+      .to('.hero-title-sm',  { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.5')
+      .to('.hero-title-lg',  { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.5')
+      .to('.hero-divider',   { opacity: 1, scaleX: 1, duration: 0.7, ease: 'power2.out' }, '-=0.3')
+      .to('.hero-subtitle',  { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.4')
+      .to('.hero-cta',       { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.4')
+      .to('#hero-scroll-label',  { opacity: 0.5, duration: 0.6 }, '-=0.3')
+      .to('#hero-enroll-label',  { opacity: 1,   duration: 0.6 }, '-=0.5');
+  }
+
+  /* ═════════════════════════════════════════════
+     THREE.JS — HERO CANVAS
+  ═════════════════════════════════════════════ */
+  (function initHeroCanvas() {
+    const canvas   = document.getElementById('hero-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x080706, 1);
+
+    const scene  = new THREE.Scene();
+    scene.fog    = new THREE.FogExp2(0x080706, 0.032);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+    camera.position.set(0, 0, 28);
+
+    /* Lights */
+    const ambientLight = new THREE.AmbientLight(0x221a0a, 0.6);
+    scene.add(ambientLight);
+
+    const goldLight = new THREE.PointLight(0xC8A84B, 1.5, 80);
+    goldLight.position.set(10, 15, 10);
+    scene.add(goldLight);
+
+    const warmLight = new THREE.PointLight(0xFFEED0, 0.8, 80);
+    warmLight.position.set(-12, -8, 8);
+    scene.add(warmLight);
+
+    /* Particles */
+    const pCount = 800;
+    const pGeo   = new THREE.BufferGeometry();
+    const pPos   = new Float32Array(pCount * 3);
+    const pSizes = new Float32Array(pCount);
+
+    for (let i = 0; i < pCount; i++) {
+      pPos[i * 3]     = (Math.random() - 0.5) * 90;
+      pPos[i * 3 + 1] = (Math.random() - 0.5) * 90;
+      pPos[i * 3 + 2] = (Math.random() - 0.5) * 50;
+      pSizes[i]        = Math.random() * 1.5 + 0.5;
+    }
+
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    pGeo.setAttribute('size',     new THREE.BufferAttribute(pSizes, 1));
+
+    const pMat = new THREE.PointsMaterial({
+      color: 0xC8A84B,
+      size: 0.12,
+      transparent: true,
+      opacity: 0.55,
+      sizeAttenuation: true
+    });
+
+    const particles = new THREE.Points(pGeo, pMat);
+    scene.add(particles);
+
+    /* Bokeh orbs */
+    const orbData = [
+      { r: 10, x: -22, y: 8,  z: -15, color: 0xC8A84B, opacity: 0.06, speed: 0.0004 },
+      { r: 14, x:  20, y: -5, z: -20, color: 0xE8C96B, opacity: 0.05, speed: 0.0003 },
+      { r:  8, x:   2, y: 14, z: -10, color: 0xa87e2e, opacity: 0.08, speed: 0.0005 },
+    ];
+
+    const orbs = orbData.map(d => {
+      const geo  = new THREE.SphereGeometry(d.r, 24, 24);
+      const mat  = new THREE.MeshPhongMaterial({
+        color: d.color,
+        wireframe: true,
+        transparent: true,
+        opacity: d.opacity,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(d.x, d.y, d.z);
+      mesh.userData.speed = d.speed;
+      scene.add(mesh);
+      return mesh;
+    });
+
+    /* Animate */
+    let heroVisible = true;
+    const heroObserver = new IntersectionObserver(entries => {
+      heroVisible = entries[0].isIntersecting;
+    }, { threshold: 0 });
+    heroObserver.observe(canvas);
+
+    let elapsed = 0;
+    function animateHero() {
+      requestAnimationFrame(animateHero);
+      if (!heroVisible) return;
+
+      elapsed += 0.016;
+
+      /* drift particles upward */
+      const pos = pGeo.attributes.position.array;
+      for (let i = 0; i < pCount; i++) {
+        pos[i * 3 + 1] += 0.012;
+        if (pos[i * 3 + 1] > 45) pos[i * 3 + 1] = -45;
+      }
+      pGeo.attributes.position.needsUpdate = true;
+
+      /* oscillate lights */
+      goldLight.position.x = Math.sin(elapsed * 0.4) * 14;
+      goldLight.position.y = Math.cos(elapsed * 0.3) * 10 + 5;
+      warmLight.position.x = Math.cos(elapsed * 0.35) * -14;
+      warmLight.position.y = Math.sin(elapsed * 0.28) * 8;
+
+      /* rotate orbs */
+      orbs.forEach((orb, i) => {
+        orb.rotation.x += orb.userData.speed * (i % 2 === 0 ? 1 : -1);
+        orb.rotation.y += orb.userData.speed * 1.6;
+      });
+
+      renderer.render(scene, camera);
+    }
+    animateHero();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  })();
+
+  /* ═════════════════════════════════════════════
+     THREE.JS — ABOUT CANVAS (Cocktail Glass)
+  ═════════════════════════════════════════════ */
+  (function initAboutCanvas() {
+    const canvas   = document.getElementById('about-canvas');
+    const w = canvas.clientWidth  || 520;
+    const h = canvas.clientHeight || 480;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(w, h);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 100);
+    camera.position.set(0, 2, 14);
+    camera.lookAt(0, 0, 0);
+
+    /* Lights */
+    scene.add(new THREE.AmbientLight(0x1a1208, 0.8));
+
+    const goldDir = new THREE.DirectionalLight(0xC8A84B, 1.4);
+    goldDir.position.set(5, 8, 5);
+    scene.add(goldDir);
+
+    const rimLight = new THREE.PointLight(0xFFEED0, 0.9, 30);
+    rimLight.position.set(-6, 4, -4);
+    scene.add(rimLight);
+
+    const bottomFill = new THREE.PointLight(0xC8A84B, 0.4, 20);
+    bottomFill.position.set(0, -5, 3);
+    scene.add(bottomFill);
+
+    /* Glass group */
+    const glassGroup = new THREE.Group();
+    scene.add(glassGroup);
+
+    const glassMat = new THREE.MeshPhongMaterial({
+      color: 0xC8A84B,
+      transparent: true,
+      opacity: 0.28,
+      side: THREE.DoubleSide,
+      shininess: 120,
+      specular: new THREE.Color(0xffd070),
+    });
+
+    /* Stem */
+    const stemGeo  = new THREE.CylinderGeometry(0.08, 0.12, 4.5, 20);
+    const stemMesh = new THREE.Mesh(stemGeo, glassMat);
+    stemMesh.position.y = -2.0;
+    glassGroup.add(stemMesh);
+
+    /* Base */
+    const baseGeo  = new THREE.CylinderGeometry(1.3, 1.1, 0.22, 32);
+    const baseMesh = new THREE.Mesh(baseGeo, glassMat);
+    baseMesh.position.y = -4.1;
+    glassGroup.add(baseMesh);
+
+    /* Bowl — open cylinder (martini-ish) */
+    const bowlGeo  = new THREE.CylinderGeometry(2.2, 0.4, 3.5, 40, 1, true);
+    const bowlMesh = new THREE.Mesh(bowlGeo, glassMat);
+    bowlMesh.position.y = 0.5;
+    glassGroup.add(bowlMesh);
+
+    /* Liquid inside */
+    const liquidMat = new THREE.MeshPhongMaterial({
+      color: 0xb8700a,
+      transparent: true,
+      opacity: 0.75,
+      shininess: 80,
+      specular: new THREE.Color(0xffaa33),
+    });
+    const liquidGeo  = new THREE.CylinderGeometry(1.95, 0.5, 2.0, 40);
+    const liquidMesh = new THREE.Mesh(liquidGeo, liquidMat);
+    liquidMesh.position.y = -0.6;
+    glassGroup.add(liquidMesh);
+
+    /* Garnish — olive pick */
+    const pickMat = new THREE.MeshPhongMaterial({ color: 0x8B6914 });
+    const pickGeo = new THREE.CylinderGeometry(0.025, 0.025, 3.2, 8);
+    const pickMesh = new THREE.Mesh(pickGeo, pickMat);
+    pickMesh.rotation.z = Math.PI * 0.18;
+    pickMesh.position.set(0.6, 0.5, 0);
+    glassGroup.add(pickMesh);
+
+    const oliveMat  = new THREE.MeshPhongMaterial({ color: 0x4e7a28, shininess: 60 });
+    const oliveGeo  = new THREE.SphereGeometry(0.18, 12, 12);
+    const oliveMesh = new THREE.Mesh(oliveGeo, oliveMat);
+    oliveMesh.position.set(1.1, 0.82, 0);
+    glassGroup.add(oliveMesh);
+
+    /* Second olive */
+    const olive2 = oliveMesh.clone();
+    olive2.position.set(0.1, 0.18, 0);
+    glassGroup.add(olive2);
+
+    /* Glow disc below glass */
+    const glowGeo = new THREE.CircleGeometry(2.2, 32);
+    const glowMat = new THREE.MeshBasicMaterial({
+      color: 0xC8A84B,
+      transparent: true,
+      opacity: 0.06,
+      side: THREE.DoubleSide,
+    });
+    const glowDisc = new THREE.Mesh(glowGeo, glowMat);
+    glowDisc.rotation.x = -Math.PI / 2;
+    glowDisc.position.y = -4.3;
+    scene.add(glowDisc);
+
+    glassGroup.position.y = 1.2;
+
+    /* Animate */
+    let aboutVisible = false;
+    const aboutObserver = new IntersectionObserver(entries => {
+      aboutVisible = entries[0].isIntersecting;
+    }, { threshold: 0.1 });
+    aboutObserver.observe(canvas);
+
+    let elapsed = 0;
+    function animateAbout() {
+      requestAnimationFrame(animateAbout);
+      if (!aboutVisible) return;
+      elapsed += 0.008;
+      glassGroup.rotation.y = elapsed;
+      glassGroup.position.y = 1.2 + Math.sin(elapsed * 0.8) * 0.12;
+      renderer.render(scene, camera);
+    }
+    animateAbout();
+
+    window.addEventListener('resize', () => {
+      const nw = canvas.clientWidth  || 520;
+      const nh = canvas.clientHeight || 480;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    });
+  })();
+
+  /* ═════════════════════════════════════════════
+     THREE.JS — CINEMATIC CANVAS
+  ═════════════════════════════════════════════ */
+  (function initCinematicCanvas() {
+    const canvas   = document.getElementById('cinematic-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x04030200, 1);
+
+    const scene  = new THREE.Scene();
+    scene.fog    = new THREE.FogExp2(0x080706, 0.045);
+
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
+    camera.position.set(0, 6, 22);
+
+    /* Lights */
+    scene.add(new THREE.AmbientLight(0x180e04, 0.7));
+
+    const amberLight = new THREE.PointLight(0xFFAA33, 1.8, 60);
+    amberLight.position.set(-8, 12, 4);
+    scene.add(amberLight);
+
+    const fillLight = new THREE.PointLight(0xC8A84B, 0.6, 40);
+    fillLight.position.set(10, 4, 6);
+    scene.add(fillLight);
+
+    /* Bar counter */
+    const counterGeo = new THREE.BoxGeometry(28, 0.35, 7);
+    const counterMat = new THREE.MeshStandardMaterial({ color: 0x1a1006, roughness: 0.85, metalness: 0.05 });
+    const counter    = new THREE.Mesh(counterGeo, counterMat);
+    counter.position.y = -0.4;
+    scene.add(counter);
+
+    /* Bar bottles */
+    const bottleConfigs = [
+      { x: -7.5, h: 5.5, r: 0.22, color: 0x1e3a1e, opacity: 0.82 },
+      { x: -4.0, h: 6.8, r: 0.18, color: 0x3b1c08, opacity: 0.9  },
+      { x: -1.0, h: 7.8, r: 0.20, color: 0x0a1e2e, opacity: 0.88 },
+      { x:  2.5, h: 6.0, r: 0.16, color: 0x2a1a08, opacity: 0.85 },
+      { x:  5.5, h: 5.2, r: 0.24, color: 0x1a0a0a, opacity: 0.82 },
+    ];
+
+    bottleConfigs.forEach(cfg => {
+      /* Body */
+      const bodyGeo = new THREE.CylinderGeometry(cfg.r, cfg.r * 1.15, cfg.h * 0.75, 18);
+      const bodyMat = new THREE.MeshPhongMaterial({ color: cfg.color, transparent: true, opacity: cfg.opacity, shininess: 100 });
+      const body    = new THREE.Mesh(bodyGeo, bodyMat);
+      body.position.set(cfg.x, (cfg.h * 0.75) / 2 + 0.18, 0);
+      scene.add(body);
+
+      /* Neck */
+      const neckGeo = new THREE.CylinderGeometry(cfg.r * 0.55, cfg.r, cfg.h * 0.28, 12);
+      const neck    = new THREE.Mesh(neckGeo, bodyMat);
+      neck.position.set(cfg.x, cfg.h * 0.75 + (cfg.h * 0.14) + 0.18, 0);
+      scene.add(neck);
+    });
+
+    /* Glasses */
+    const glassMat = new THREE.MeshPhongMaterial({
+      color: 0xC8A84B, transparent: true, opacity: 0.22,
+      side: THREE.DoubleSide, shininess: 150,
+    });
+
+    [[-11, 0.9, -1], [-9, 1.1, 0.5], [-10, 0.7, 1.2]].forEach(([x, h, z]) => {
+      const gGeo  = new THREE.CylinderGeometry(h * 0.5, h * 0.15, h * 1.5, 24, 1, true);
+      const gMesh = new THREE.Mesh(gGeo, glassMat);
+      gMesh.position.set(x, h * 0.75 + 0.18, z);
+      scene.add(gMesh);
+    });
+
+    /* Animate */
+    let cinVisible = false;
+    const cinObserver = new IntersectionObserver(entries => {
+      cinVisible = entries[0].isIntersecting;
+    }, { threshold: 0 });
+    cinObserver.observe(canvas);
+
+    let elapsed = 0;
+    function animateCinematic() {
+      requestAnimationFrame(animateCinematic);
+      if (!cinVisible) return;
+      elapsed += 0.008;
+
+      const r     = 24;
+      camera.position.x = Math.sin(elapsed * 0.25) * r * 0.28;
+      camera.position.z = Math.cos(elapsed * 0.18) * 4 + 20;
+      camera.position.y = 6 + Math.sin(elapsed * 0.12) * 1.2;
+      camera.lookAt(0, 2, 0);
+
+      amberLight.position.x = Math.sin(elapsed * 0.3) * 6 - 6;
+
+      renderer.render(scene, camera);
+    }
+    animateCinematic();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  })();
+
+  /* ═════════════════════════════════════════════
+     THREE.JS — CTA CANVAS (Constellation solids)
+  ═════════════════════════════════════════════ */
+  (function initCtaCanvas() {
+    const canvas   = document.getElementById('cta-canvas');
+    const section  = document.getElementById('enroll');
+    const w = section.offsetWidth;
+    const h = section.offsetHeight;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(w, h);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 200);
+    camera.position.z = 35;
+
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0xC8A84B,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.13,
+    });
+
+    const solids = [];
+    for (let i = 0; i < 20; i++) {
+      const isIco = Math.random() > 0.5;
+      const geo   = isIco
+        ? new THREE.IcosahedronGeometry(Math.random() * 2.5 + 0.8, 0)
+        : new THREE.OctahedronGeometry(Math.random() * 2.2 + 0.6, 0);
+      const mesh  = new THREE.Mesh(geo, wireMat);
+      mesh.position.set(
+        (Math.random() - 0.5) * 55,
+        (Math.random() - 0.5) * 35,
+        (Math.random() - 0.5) * 20
+      );
+      mesh.userData.rx = (Math.random() - 0.5) * 0.003;
+      mesh.userData.ry = (Math.random() - 0.5) * 0.004;
+      scene.add(mesh);
+      solids.push(mesh);
+    }
+
+    let ctaVisible = false;
+    const ctaObserver = new IntersectionObserver(entries => {
+      ctaVisible = entries[0].isIntersecting;
+    }, { threshold: 0 });
+    ctaObserver.observe(canvas);
+
+    function animateCta() {
+      requestAnimationFrame(animateCta);
+      if (!ctaVisible) return;
+      solids.forEach(m => {
+        m.rotation.x += m.userData.rx;
+        m.rotation.y += m.userData.ry;
+      });
+      renderer.render(scene, camera);
+    }
+    animateCta();
+
+    window.addEventListener('resize', () => {
+      const nw = section.offsetWidth;
+      const nh = section.offsetHeight;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    });
+  })();
+
+  /* ═════════════════════════════════════════════
+     GSAP SCROLL ANIMATIONS
+  ═════════════════════════════════════════════ */
+  /* About */
+  gsap.from('.about-left-inner > *', {
+    scrollTrigger: { trigger: '#about', start: 'top 75%' },
+    y: 40, opacity: 0, duration: 0.85, ease: 'power3.out', stagger: 0.14
+  });
+  gsap.from('#about-canvas', {
+    scrollTrigger: { trigger: '#about', start: 'top 70%' },
+    y: 50, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.2
+  });
+
+  /* Services stagger */
+  gsap.utils.toArray('.service-item').forEach((item, i) => {
+    gsap.to(item, {
+      scrollTrigger: { trigger: item, start: 'top 88%' },
+      y: 0, opacity: 1, duration: 0.7, ease: 'power3.out',
+      delay: (i % 3) * 0.12
+    });
+  });
+
+  /* Stats count-up */
+  gsap.utils.toArray('.stat-number').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    ScrollTrigger.create({
+      trigger: '#stats',
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to({ val: 0 }, {
+          val: target,
+          duration: 1.8,
+          ease: 'power2.out',
+          onUpdate: function () {
+            el.textContent = Math.round(this.targets()[0].val).toLocaleString() + suffix;
+          }
+        });
+      }
+    });
+  });
+
+  /* Courses alternating slide */
+  gsap.utils.toArray('.course-card').forEach((card, i) => {
+    gsap.to(card, {
+      scrollTrigger: { trigger: card, start: 'top 85%' },
+      opacity: 1,
+      x: 0,
+      duration: 0.85,
+      ease: 'power3.out',
+    });
+    gsap.set(card, { opacity: 0, x: i % 2 === 0 ? -50 : 50 });
+  });
+
+  /* Cinematic box */
+  gsap.from('.cinematic-box', {
+    scrollTrigger: { trigger: '#cinematic', start: 'top 80%' },
+    y: 30, opacity: 0, duration: 1, ease: 'power3.out'
+  });
+
+  /* Enroll */
+  ScrollTrigger.create({
+    trigger: '#enroll',
+    start: 'top 75%',
+    once: true,
+    onEnter: () => {
+      gsap.timeline()
+        .to('.enroll-title-a', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' })
+        .to('.enroll-title-b', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.5')
+        .to('.enroll-sub',     { opacity: 1,       duration: 0.7, ease: 'power3.out' }, '-=0.4')
+        .to('.enroll-form',    { opacity: 1,       duration: 0.6, ease: 'power3.out' }, '-=0.3');
+    }
+  });
+
+  /* ═════════════════════════════════════════════
+     TESTIMONIALS CAROUSEL
+  ═════════════════════════════════════════════ */
+  let currentSlide = 0;
+  const slides     = document.querySelectorAll('.testimonial-slide');
+  const dots       = document.querySelectorAll('.testimonial-dot');
+  let autoCarousel;
+
+  function goToSlide(index) {
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    currentSlide = (index + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+  }
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      clearInterval(autoCarousel);
+      goToSlide(parseInt(dot.dataset.index));
+      autoCarousel = setInterval(() => goToSlide(currentSlide + 1), 6000);
+    });
+  });
+
+  autoCarousel = setInterval(() => goToSlide(currentSlide + 1), 6000);
+
+  /* ═════════════════════════════════════════════
+     CLEANUP: dispose unused geometries after load
+     (called once after hero reveal, minor cleanup)
+  ═════════════════════════════════════════════ */
+  window.addEventListener('load', () => {
+    // All canvases are kept alive intentionally;
+    // IntersectionObserver stops rendering when not visible.
+  });
+
+})();
+</script>
+
+<!-- ═══ FLOATING PROFESSION TOOLS ═══ -->
+<div class="floating-tools" aria-hidden="true">
+  <!-- Cocktail Shaker -->
+  <div class="tool-float" data-tool="shaker" style="--tx:8vw;--ty:18vh;--rot:-18deg;--dur:7s;--delay:0s">
+    <svg viewBox="0 0 40 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="12" y="0" width="16" height="8" rx="3" fill="rgba(200,168,75,0.55)" stroke="rgba(200,168,75,0.8)" stroke-width="0.8"/>
+      <path d="M10 8 L8 70 Q20 74 32 70 L30 8Z" fill="rgba(200,168,75,0.12)" stroke="rgba(200,168,75,0.6)" stroke-width="0.8"/>
+      <line x1="10" y1="18" x2="30" y2="18" stroke="rgba(200,168,75,0.4)" stroke-width="0.6"/>
+      <line x1="9" y1="28" x2="31" y2="28" stroke="rgba(200,168,75,0.25)" stroke-width="0.5"/>
+      <ellipse cx="20" cy="70" rx="12" ry="3" fill="rgba(200,168,75,0.08)"/>
+    </svg>
+  </div>
+
+  <!-- Wine Glass -->
+  <div class="tool-float" data-tool="wineglass" style="--tx:88vw;--ty:30vh;--rot:12deg;--dur:9s;--delay:-3s">
+    <svg viewBox="0 0 36 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 4 Q4 36 18 44 Q32 36 32 4Z" fill="rgba(200,168,75,0.1)" stroke="rgba(200,168,75,0.6)" stroke-width="0.8"/>
+      <path d="M6 14 Q6 34 18 40 Q30 34 30 14Z" fill="rgba(200,168,75,0.25)" stroke="none"/>
+      <line x1="18" y1="44" x2="18" y2="68" stroke="rgba(200,168,75,0.55)" stroke-width="1.2"/>
+      <line x1="10" y1="68" x2="26" y2="68" stroke="rgba(200,168,75,0.7)" stroke-width="1.5"/>
+      <ellipse cx="18" cy="68" rx="8" ry="2" fill="rgba(200,168,75,0.08)"/>
+    </svg>
+  </div>
+
+  <!-- Martini Glass -->
+  <div class="tool-float" data-tool="martini" style="--tx:5vw;--ty:55vh;--rot:8deg;--dur:11s;--delay:-5s">
+    <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 4 L24 38 L46 4Z" fill="rgba(200,168,75,0.1)" stroke="rgba(200,168,75,0.6)" stroke-width="0.8"/>
+      <path d="M6 4 L24 34 L42 4Z" fill="rgba(200,168,75,0.2)" stroke="none"/>
+      <line x1="24" y1="38" x2="24" y2="66" stroke="rgba(200,168,75,0.55)" stroke-width="1.2"/>
+      <line x1="12" y1="66" x2="36" y2="66" stroke="rgba(200,168,75,0.7)" stroke-width="1.5"/>
+      <!-- olive -->
+      <circle cx="24" cy="22" r="3" fill="rgba(78,122,40,0.7)" stroke="rgba(200,168,75,0.5)" stroke-width="0.5"/>
+      <line x1="20" y1="22" x2="28" y2="22" stroke="rgba(200,168,75,0.5)" stroke-width="0.7"/>
+    </svg>
+  </div>
+
+  <!-- Corkscrew -->
+  <div class="tool-float" data-tool="corkscrew" style="--tx:92vw;--ty:60vh;--rot:-30deg;--dur:13s;--delay:-7s">
+    <svg viewBox="0 0 20 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="0" width="8" height="14" rx="3" fill="rgba(200,168,75,0.5)" stroke="rgba(200,168,75,0.8)" stroke-width="0.7"/>
+      <line x1="10" y1="14" x2="10" y2="24" stroke="rgba(200,168,75,0.7)" stroke-width="1.4"/>
+      <!-- helix -->
+      <path d="M10 24 Q18 30 10 36 Q2 42 10 48 Q18 54 10 60 Q2 66 10 72" stroke="rgba(200,168,75,0.65)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- Muddler -->
+  <div class="tool-float" data-tool="muddler" style="--tx:85vw;--ty:80vh;--rot:22deg;--dur:8s;--delay:-2s">
+    <svg viewBox="0 0 14 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="0" width="6" height="50" rx="3" fill="rgba(200,168,75,0.35)" stroke="rgba(200,168,75,0.6)" stroke-width="0.7"/>
+      <rect x="2" y="50" width="10" height="18" rx="2" fill="rgba(200,168,75,0.55)" stroke="rgba(200,168,75,0.8)" stroke-width="0.8"/>
+      <line x1="3" y1="58" x2="11" y2="58" stroke="rgba(200,168,75,0.3)" stroke-width="0.5"/>
+      <line x1="3" y1="62" x2="11" y2="62" stroke="rgba(200,168,75,0.3)" stroke-width="0.5"/>
+    </svg>
+  </div>
+
+  <!-- Hotel Room Key -->
+  <div class="tool-float" data-tool="key" style="--tx:12vw;--ty:72vh;--rot:-10deg;--dur:10s;--delay:-4s">
+    <svg viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="10" cy="12" r="9" stroke="rgba(200,168,75,0.7)" stroke-width="1.2" fill="rgba(200,168,75,0.08)"/>
+      <circle cx="10" cy="12" r="5" stroke="rgba(200,168,75,0.4)" stroke-width="0.8" fill="none"/>
+      <line x1="19" y1="12" x2="58" y2="12" stroke="rgba(200,168,75,0.65)" stroke-width="1.5"/>
+      <rect x="44" y="8" width="4" height="8" rx="1" fill="rgba(200,168,75,0.4)"/>
+      <rect x="52" y="10" width="4" height="6" rx="1" fill="rgba(200,168,75,0.4)"/>
+    </svg>
+  </div>
+
+  <!-- Jigger (measure) -->
+  <div class="tool-float" data-tool="jigger" style="--tx:78vw;--ty:12vh;--rot:5deg;--dur:6s;--delay:-1s">
+    <svg viewBox="0 0 28 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 2 L12 28 L16 28 L24 2Z" fill="rgba(200,168,75,0.12)" stroke="rgba(200,168,75,0.65)" stroke-width="0.8"/>
+      <path d="M12 28 L10 58 L18 58 L16 28Z" fill="rgba(200,168,75,0.12)" stroke="rgba(200,168,75,0.65)" stroke-width="0.8"/>
+      <line x1="6" y1="12" x2="22" y2="12" stroke="rgba(200,168,75,0.3)" stroke-width="0.6"/>
+    </svg>
+  </div>
+
+  <!-- Cocktail Strainer -->
+  <div class="tool-float" data-tool="strainer" style="--tx:3vw;--ty:38vh;--rot:35deg;--dur:12s;--delay:-6s">
+    <svg viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 12 Q30 2 58 12" stroke="rgba(200,168,75,0.65)" stroke-width="1.5" fill="rgba(200,168,75,0.08)"/>
+      <path d="M2 12 Q30 22 58 12" stroke="rgba(200,168,75,0.4)" stroke-width="0.8" fill="none"/>
+      <!-- perforations -->
+      <circle cx="15" cy="10" r="1.2" fill="rgba(200,168,75,0.4)"/>
+      <circle cx="22" cy="8"  r="1.2" fill="rgba(200,168,75,0.4)"/>
+      <circle cx="30" cy="7"  r="1.2" fill="rgba(200,168,75,0.4)"/>
+      <circle cx="38" cy="8"  r="1.2" fill="rgba(200,168,75,0.4)"/>
+      <circle cx="45" cy="10" r="1.2" fill="rgba(200,168,75,0.4)"/>
+      <!-- handle -->
+      <line x1="58" y1="12" x2="78" y2="4" stroke="rgba(200,168,75,0.6)" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <!-- Champagne Flute -->
+  <div class="tool-float" data-tool="flute" style="--tx:48vw;--ty:5vh;--rot:-6deg;--dur:14s;--delay:-9s">
+    <svg viewBox="0 0 22 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 4 Q4 30 11 44 Q18 30 16 4Z" fill="rgba(200,168,75,0.1)" stroke="rgba(200,168,75,0.6)" stroke-width="0.8"/>
+      <path d="M7 4 Q5 28 11 42 Q17 28 15 4Z" fill="rgba(200,168,75,0.22)" stroke="none"/>
+      <!-- bubbles -->
+      <circle cx="11" cy="38" r="1"   fill="rgba(200,168,75,0.5)" class="bubble"/>
+      <circle cx="9"  cy="30" r="0.8" fill="rgba(200,168,75,0.4)" class="bubble"/>
+      <circle cx="13" cy="22" r="0.7" fill="rgba(200,168,75,0.35)" class="bubble"/>
+      <line x1="11" y1="44" x2="11" y2="66" stroke="rgba(200,168,75,0.55)" stroke-width="1"/>
+      <line x1="5"  y1="66" x2="17" y2="66" stroke="rgba(200,168,75,0.7)" stroke-width="1.4"/>
+    </svg>
+  </div>
+
+  <!-- Bar Spoon -->
+  <div class="tool-float" data-tool="barspoon" style="--tx:93vw;--ty:44vh;--rot:-45deg;--dur:15s;--delay:-11s">
+    <svg viewBox="0 0 8 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="4" cy="6" rx="4" ry="6" fill="rgba(200,168,75,0.45)" stroke="rgba(200,168,75,0.7)" stroke-width="0.7"/>
+      <line x1="4" y1="12" x2="4" y2="82" stroke="rgba(200,168,75,0.55)" stroke-width="1.2" stroke-dasharray="none"/>
+      <path d="M4 12 Q8 22 4 32 Q0 42 4 52" stroke="rgba(200,168,75,0.25)" stroke-width="0.5" fill="none"/>
+      <circle cx="4" cy="85" r="3" fill="rgba(200,168,75,0.4)" stroke="rgba(200,168,75,0.6)" stroke-width="0.6"/>
+    </svg>
+  </div>
+
+  <!-- Concierge Bell -->
+  <div class="tool-float" data-tool="bell" style="--tx:20vw;--ty:90vh;--rot:0deg;--dur:8s;--delay:-3.5s">
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24 6 C14 6 8 16 8 26 L40 26 C40 16 34 6 24 6Z" fill="rgba(200,168,75,0.15)" stroke="rgba(200,168,75,0.65)" stroke-width="0.9"/>
+      <rect x="4" y="26" width="40" height="5" rx="2.5" fill="rgba(200,168,75,0.5)" stroke="rgba(200,168,75,0.7)" stroke-width="0.8"/>
+      <line x1="24" y1="4" x2="24" y2="6" stroke="rgba(200,168,75,0.7)" stroke-width="1.5"/>
+      <circle cx="24" cy="3" r="2" fill="rgba(200,168,75,0.6)" stroke="rgba(200,168,75,0.8)" stroke-width="0.7"/>
+      <path d="M20 31 Q24 36 28 31" stroke="rgba(200,168,75,0.5)" stroke-width="0.8" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- Bottle -->
+  <div class="tool-float" data-tool="bottle" style="--tx:60vw;--ty:88vh;--rot:15deg;--dur:10s;--delay:-8s">
+    <svg viewBox="0 0 24 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="0" width="8" height="6" rx="2" fill="rgba(200,168,75,0.5)" stroke="rgba(200,168,75,0.8)" stroke-width="0.7"/>
+      <path d="M8 6 L6 16 L4 70 Q12 75 20 70 L18 16 L16 6Z" fill="rgba(200,168,75,0.1)" stroke="rgba(200,168,75,0.6)" stroke-width="0.8"/>
+      <rect x="4" y="28" width="16" height="18" rx="1" fill="rgba(200,168,75,0.08)" stroke="rgba(200,168,75,0.3)" stroke-width="0.5"/>
+      <line x1="6" y1="34" x2="18" y2="34" stroke="rgba(200,168,75,0.2)" stroke-width="0.4"/>
+      <line x1="6" y1="38" x2="18" y2="38" stroke="rgba(200,168,75,0.2)" stroke-width="0.4"/>
+    </svg>
+  </div>
+</div>
+</body>
+</html>
