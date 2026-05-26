@@ -51,7 +51,12 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  // PERMISSIONS_POLICY_V2 — allow camera/mic on live class room (self + Jitsi iframe origin)
+  if (req.path === '/live-class-room.html') {
+    res.setHeader('Permissions-Policy', 'camera=(self \"https://meet.tfrplay.com\"), microphone=(self \"https://meet.tfrplay.com\"), display-capture=(self \"https://meet.tfrplay.com\"), autoplay=(self \"https://meet.tfrplay.com\"), geolocation=()');
+  } else {
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  }
 
   // HSTS — site is HTTPS-only via Nginx; tell browsers to never downgrade.
   // 1-year max-age, includeSubDomains. Preload omitted (not registered).

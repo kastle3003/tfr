@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>Live Class Room — The Foundation Room</title>
+<!-- v2-prejoin --><title>Live Class Room — The Foundation Room</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -81,7 +81,61 @@
     } catch(_){}
   }
 
-  function renderJitsi(meetUrl, b){
+  function showPermissionDeniedPopup(errName){
+    // PERMISSION_DENIED_MODAL_V1 — full-screen modal with browser-specific directions
+    const ua = navigator.userAgent;
+    const isChrome = /Chrome|Edg|Brave/i.test(ua) && !/Firefox/i.test(ua);
+    const isFirefox = /Firefox/i.test(ua);
+    const isSafari = /Safari/i.test(ua) && !/Chrome/i.test(ua);
+    let steps = '';
+    if (isChrome) {
+      steps = '<li>Click the <b>🔒 lock icon</b> (or camera icon) on the left of the address bar</li><li>Find <b>Camera</b> and <b>Microphone</b> in the dropdown</li><li>Change both from <b>Block</b> to <b>Allow</b></li><li>Click <b>Try Again</b> below (no need to refresh)</li>';
+    } else if (isFirefox) {
+      steps = '<li>Click the <b>🔒 padlock icon</b> in the address bar</li><li>Click <b>Connection secure</b> → <b>More information</b> → <b>Permissions</b></li><li>Uncheck <b>Use Default</b> next to Camera and Microphone, then click <b>Allow</b></li><li>Click <b>Try Again</b> below</li>';
+    } else if (isSafari) {
+      steps = '<li>Open <b>Safari → Settings → Websites</b></li><li>Click <b>Camera</b> in left sidebar → set tfrplay.com to <b>Allow</b></li><li>Click <b>Microphone</b> → set tfrplay.com to <b>Allow</b></li><li>Refresh this page</li>';
+    } else {
+      steps = '<li>Open your browser site settings for tfrplay.com</li><li>Set Camera and Microphone to <b>Allow</b></li><li>Refresh this page</li>';
+    }
+    const html = '<div id="perm-modal" style="position:fixed;inset:0;background:rgba(8,7,6,.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;">' +
+      '<div style="background:#1a1614;border:1px solid #C8A84B;border-radius:14px;max-width:520px;width:100%;padding:32px;color:#F0E6D3;font-family:DM Sans,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,.5);">' +
+        '<div style="font-size:48px;text-align:center;margin-bottom:8px;">🎥🎙️</div>' +
+        '<h2 style="color:#C8A84B;text-align:center;margin:0 0 6px;font-family:Libre Baskerville,serif;font-size:22px;">Camera &amp; Mic Blocked</h2>' +
+        '<p style="text-align:center;opacity:.85;margin:0 0 18px;font-size:14px;">To attend the live class, we need access to your camera and microphone. Right now they are blocked by your browser.</p>' +
+        '<div style="background:rgba(200,168,75,.08);border:1px solid rgba(200,168,75,.3);border-radius:10px;padding:16px 16px 16px 36px;margin-bottom:20px;">' +
+          '<div style="font-weight:700;color:#C8A84B;margin-bottom:8px;margin-left:-20px;">How to fix (' + (isChrome?'Chrome/Edge':isFirefox?'Firefox':isSafari?'Safari':'Browser') + '):</div>' +
+          '<ol style="margin:0;padding-left:18px;line-height:1.7;font-size:14px;">' + steps + '</ol>' +
+        '</div>' +
+        '<div style="display:flex;gap:10px;">' +
+          '<button id="perm-retry" style="flex:1;background:#C8A84B;color:#080706;border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer;font-size:15px;">🔄 Try Again</button>' +
+          '<button id="perm-refresh" style="flex:1;background:transparent;color:#F0E6D3;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:12px;cursor:pointer;font-size:15px;">Refresh Page</button>' +
+        '</div>' +
+        '<p style="text-align:center;margin:14px 0 0;font-size:12px;opacity:.6;">Error: ' + (errName||'NotAllowedError') + '</p>' +
+      '</div></div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+    document.getElementById('perm-retry').onclick = async () => {
+      document.getElementById('perm-modal').remove();
+      const container = document.getElementById('room');
+      const ok = await requestAVPermission(container);
+      if (ok && window._pendingJitsiInit) window._pendingJitsiInit();
+    };
+    document.getElementById('perm-refresh').onclick = () => location.reload();
+  }
+
+  async function requestAVPermission(container){
+    // MEDIA_PERMISSION_V1 — ask camera+mic up-front so user sees clear browser prompt
+    container.innerHTML = '<div class="external-meet"><h2>🎥 Camera &amp; Microphone</h2><p>This live class needs access to your camera and microphone.</p><p style="opacity:.7;font-size:14px;">Click <b>Allow</b> on the browser prompt to continue.</p><div id="perm-status" style="margin-top:14px;font-size:14px;color:#C8A84B;">Requesting permission…</div></div>';
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio:true, video:true });
+      stream.getTracks().forEach(t => t.stop()); // release immediately, Jitsi will re-request
+      return true;
+    } catch(e) {
+      showPermissionDeniedPopup(e && e.name);
+      return false;
+    }
+  }
+
+  async function renderJitsi(meetUrl, b){
     const room = jitsiRoomFromUrl(meetUrl);
     const userStr = localStorage.getItem('archive_user');
     let displayName = b.name || 'Student';
@@ -100,7 +154,7 @@
       width: '100%', height: '100%',
       userInfo: { displayName, email: b.email || '' },
       configOverwrite: {
-        prejoinPageEnabled: false,                // skip prejoin → faster join, less Jitsi branding
+        prejoinPageEnabled: true,                 // PREJOIN_V2 — Jitsi handles cam/mic permission cleanly
         startWithAudioMuted: true,
         startWithVideoMuted: false,
         enableLobby: true,
@@ -114,7 +168,7 @@
         disableInviteFunctions: true,
         doNotStoreRoom: true,
         readOnlyName: true,
-        prejoinConfig: { enabled: false }
+        prejoinConfig: { enabled: true }
       },
       interfaceConfigOverwrite: {
         // TFR_BRANDING_V1 — strip all Jitsi branding
