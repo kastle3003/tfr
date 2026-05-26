@@ -807,29 +807,41 @@
       return {
         admin: '/admin-panel.html',
         instructor: '/instructor-dashboard.html',
-        student: '/student-dashboard.html'
+        student: '/student-dashboard.html',
+        coordinator: '/coordinator-dashboard.html'
       }[role] || '/student-dashboard.html';
     }
 
     // Deferred-enroll: if the visitor was sent here from a course page,
     // bounce them back to it after login/signup instead of the role dashboard.
     function postLoginDestination(user) {
+      // LOGIN_BEFORE_PAY_V1 — return to live-class booking page if user was sent here from there
+      const lcPath = sessionStorage.getItem('tfr_lc_book_after_login');
+      if (lcPath) {
+        sessionStorage.removeItem('tfr_lc_book_after_login');
+        return lcPath;
+      }
       const pending = sessionStorage.getItem('tfr_enroll_after_login');
       if (pending) {
-        // Keep the key; the course page reads it to auto-trigger enroll.
-        // Numeric id → /courses/<id>; slug already works with the same route.
         return '/courses/' + pending;
       }
       return roleHome(user.role);
     }
 
     // ─── AUTH GUARD ───
-    (function() {
+    (async function() {
       const token = localStorage.getItem('archive_token');
       const user  = localStorage.getItem('archive_user');
       if (token && user) {
         try {
           const u = JSON.parse(user);
+          /* PORTAL_HUB_V1 — instructors with both course + LC roles → portal hub */
+          if (u.role === 'instructor') {
+            try {
+              const r = await fetch('/api/lc/teacher/me', { headers:{ Authorization:'Bearer ' + token } });
+              if (r.ok) { window.location.replace('/portal-hub.html'); return; }
+            } catch (_) {}
+          }
           window.location.replace(postLoginDestination(u));
         } catch(e) { /* invalid JSON, stay on page */ }
       }
@@ -997,6 +1009,13 @@
         });
         localStorage.setItem('archive_token', data.token);
         localStorage.setItem('archive_user',  JSON.stringify(data.user));
+        /* PORTAL_HUB_V1 — instructor with both LC + course roles → hub page */
+        if (data.user && data.user.role === 'instructor') {
+          try {
+            const r = await fetch('/api/lc/teacher/me', { headers:{ Authorization:'Bearer ' + data.token } });
+            if (r.ok) { window.location.href = '/portal-hub.html'; return; }
+          } catch (_) {}
+        }
         window.location.href = postLoginDestination(data.user);
       } catch (err) {
         if (err.message && err.message.toLowerCase().includes('verify')) {

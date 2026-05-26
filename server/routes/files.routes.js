@@ -3,7 +3,12 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const storage = require('../lib/storage');
 
-const TTL = 900; // 15 minutes for all presigned URLs
+// Presigned URL TTL — env-configurable. 30min default gives users headroom for
+// big videos with mid-stream pauses; max 4h to prevent permanent leak risk.
+const TTL = Math.min(
+  Math.max(parseInt(process.env.WASABI_PRESIGN_TTL_SECONDS, 10) || 1800, 300),
+  4 * 60 * 60
+);
 
 // Course/lesson content requires a valid JWT — these are the sensitive media files.
 // Avatars, thumbnails and other public assets are not under these prefixes.

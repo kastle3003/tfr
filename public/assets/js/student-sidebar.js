@@ -26,6 +26,8 @@
     { href: '/student-dashboard.html', label: 'Dashboard', icon: I.dashboard },
     { section: 'Learning' },
     { href: '/student-courses.html', label: 'My Courses', icon: I.courses },
+    { href: '/my-live-classes.html', label: 'My Live Classes', icon: I.courses }, // JOIN_CLASS_V1
+    { href: '/my-live-class-materials.html', label: 'Live Class Materials', icon: I.resources }, // ASSIGNMENTS_V1
     { section: 'Library' },
     { href: '/student-resources.html',   label: 'Resources',   icon: I.resources },
     { href: '/student-archive.html',     label: 'The Archive', icon: I.archive },

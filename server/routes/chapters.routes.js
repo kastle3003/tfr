@@ -60,7 +60,7 @@ router.post('/', requireRole(['instructor', 'admin']), (req, res) => {
       : (db.prepare('SELECT COALESCE(MAX(order_index),-1)+1 AS n FROM chapters WHERE course_id = ?').get(course_id).n);
 
     const result = db.prepare(
-      "INSERT INTO chapters (course_id, title, order_index, description, created_at) VALUES (?, ?, ?, ?, datetime('now'))"
+      "INSERT INTO chapters (course_id, title, order_index, description) VALUES (?, ?, ?, ?)"
     ).run(course_id, title, nextOrder, description || '');
     const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
     res.status(201).json({ id: result.lastInsertRowid, course_id, title, order_index: nextOrder, description: description || '', created_at: now, lessons: [] });
@@ -102,7 +102,6 @@ router.delete('/:id', requireRole(['instructor', 'admin']), (req, res) => {
 
     const chId = req.params.id;
     db.prepare('DELETE FROM lesson_progress WHERE lesson_id IN (SELECT id FROM lessons WHERE chapter_id = ?)').run(chId);
-    db.prepare('UPDATE practice_sessions SET lesson_id = NULL WHERE lesson_id IN (SELECT id FROM lessons WHERE chapter_id = ?)').run(chId);
     db.prepare('DELETE FROM submissions WHERE lesson_id IN (SELECT id FROM lessons WHERE chapter_id = ?)').run(chId);
     db.prepare('UPDATE recordings SET lesson_id = NULL WHERE lesson_id IN (SELECT id FROM lessons WHERE chapter_id = ?)').run(chId);
     db.prepare('UPDATE purchases SET foundation_id = NULL WHERE foundation_id = ?').run(chId);

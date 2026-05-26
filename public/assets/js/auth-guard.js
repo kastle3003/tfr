@@ -5,6 +5,7 @@
     admin: '/admin-panel.html',
     instructor: '/instructor-dashboard.html',
     student: '/student-dashboard.html',
+    coordinator: '/coordinator-dashboard.html', // STAFF_REGISTER_V1 — page added in Phase 6
   };
 
   function roleHome(role) {

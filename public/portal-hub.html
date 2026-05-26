@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Choose Portal — The Foundation Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080706; --bg-2:#0F0D0B; --bg-card:#161412; --bg-elevated:#1E1B17;
+    --gold:#C8A84B; --gold-bright:#E8C96E; --gold-dim:#7A6530;
+    --text:#F0E6D3; --text-2:#B8A898; --text-3:#6B5E50;
+    --ruby:#C8362A; --emerald:#3E8E5A;
+    --serif:'Libre Baskerville',Georgia,serif; --sans:'DM Sans',system-ui,sans-serif;
+  }
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    background:radial-gradient(ellipse at top, #1a1409 0%, #080706 60%);
+    color:var(--text); font-family:var(--sans); min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+  .topbar{ padding:22px 32px; display:flex; align-items:center; justify-content:space-between; }
+  .topbar img{ height:32px; }
+  .topbar .btn{ padding:8px 16px; background:transparent; border:1px solid rgba(200,54,42,.4); color:var(--ruby); border-radius:6px; cursor:pointer; font-size:13px; font-family:var(--sans); font-weight:600; }
+  .container{ flex:1; max-width:980px; margin:0 auto; padding:60px 32px; width:100%; }
+  .hero{ text-align:center; margin-bottom:48px; }
+  .hero .eyebrow{ font-size:11px; letter-spacing:.32em; color:var(--gold); text-transform:uppercase; margin-bottom:14px; font-weight:600; }
+  .hero h1{ font-family:var(--serif); font-size:clamp(28px, 4vw, 42px); font-weight:400; line-height:1.15; margin-bottom:14px; }
+  .hero h1 em{ font-style:italic; color:var(--gold); }
+  .hero p{ font-size:15px; color:var(--text-2); max-width:560px; margin:0 auto; line-height:1.7; }
+  .portal-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:22px; }
+  .portal-card{
+    background:linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+    border:1px solid rgba(200,168,75,.16);
+    border-radius:14px;
+    padding:36px 32px;
+    text-decoration:none;
+    color:inherit;
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    position:relative;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .portal-card:hover{ transform:translateY(-4px); border-color:var(--gold); box-shadow:0 16px 40px rgba(200,168,75,0.16); }
+  .portal-card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);
+  }
+  .portal-icon{ font-size:42px; margin-bottom:18px; line-height:1; }
+  .portal-card h2{ font-family:var(--serif); font-size:24px; color:var(--gold); margin-bottom:10px; font-weight:400; }
+  .portal-card .desc{ font-size:14px; color:var(--text-2); line-height:1.6; margin-bottom:18px; flex:1; }
+  .portal-card .features{ list-style:none; margin-bottom:22px; }
+  .portal-card .features li{ font-size:12px; color:var(--text-3); padding:4px 0; padding-left:18px; position:relative; }
+  .portal-card .features li::before{ content:'•'; position:absolute; left:6px; color:var(--gold); }
+  .portal-card .enter{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 24px; background:rgba(200,168,75,0.08);
+    border:1px solid rgba(200,168,75,0.32);
+    color:var(--gold); border-radius:6px;
+    font-size:12px; font-weight:700; letter-spacing:.10em; text-transform:uppercase;
+    margin-top:auto;
+  }
+  .portal-card:hover .enter{ background:var(--gold); color:#080706; border-color:var(--gold); }
+  .footer{ text-align:center; padding:28px; color:var(--text-3); font-size:12px; }
+  .skip-link{ color:var(--gold-dim); text-decoration:none; font-size:13px; }
+  .skip-link:hover{ color:var(--gold); }
+  .role-badge{ display:inline-block; padding:3px 10px; background:rgba(200,168,75,0.10); color:var(--gold); border-radius:10px; font-size:10px; letter-spacing:.10em; text-transform:uppercase; font-weight:600; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/"><img src="/assets/tfr-play/tfr-logo-main.png" alt="TFR"></a>
+  <button class="btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <div class="eyebrow">Welcome back</div>
+    <h1 id="welcome">Choose your <em>portal</em></h1>
+    <p>You have access to multiple portals. Pick where you want to work today — you can switch anytime.</p>
+  </div>
+
+  <div class="portal-grid" id="grid">
+    <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-3);">Loading…</div>
+  </div>
+
+  <div style="text-align:center;margin-top:36px;">
+    <a href="/student-dashboard.html" class="skip-link">Or visit student dashboard →</a>
+  </div>
+</div>
+
+<div class="footer">The Foundation Room · Internal Portal</div>
+
+<script>
+  (function(){
+    const t = localStorage.getItem('archive_token');
+    if (!t) { window.location.replace('/signin.html'); return; }
+  })();
+  function logout(){ localStorage.clear(); window.location.href = '/signin.html'; }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  async function load(){
+    const token = localStorage.getItem('archive_token');
+    const userStr = localStorage.getItem('archive_user');
+    let user = {}; try { user = JSON.parse(userStr || '{}'); } catch(_) {}
+    document.getElementById('welcome').innerHTML = 'Welcome, <em>' + esc(user.first_name || 'there') + '</em>';
+
+    const cards = [];
+
+    // Admin always sees Admin Panel
+    if (user.role === 'admin') {
+      cards.push({
+        icon:'👑', title:'Admin Panel',
+        desc:'Manage everything — teachers, slots, bookings, coupons, users, content.',
+        features:['Full system access','Create staff accounts','View all bookings + revenue','Manage homepage CMS'],
+        href:'/admin-panel.html', badge:'ADMIN'
+      });
+    }
+
+    // Coordinator
+    if (user.role === 'coordinator') {
+      cards.push({
+        icon:'🤝', title:'Coordinator Dashboard',
+        desc:'Manage prices, slots, and bookings for your assigned teacher.',
+        features:['View assigned teacher slots','Edit slot prices','See all students + bookings','Assign post-class content'],
+        href:'/coordinator-dashboard.html', badge:'COORDINATOR'
+      });
+    }
+
+    // Instructor — check both roles
+    if (user.role === 'instructor' || user.role === 'admin') {
+      // Check if has lc_teacher link
+      try {
+        const r = await fetch('/api/lc/teacher/me', { headers:{ Authorization:'Bearer ' + token } });
+        if (r.ok) {
+          const data = await r.json();
+          cards.push({
+            icon:'🎵', title:'Teacher Dashboard',
+            desc:'Manage your <b>live class</b> sessions and students (' + esc(data.teacher.instrument || 'live') + ').',
+            features:['Schedule + manage slots','See students who booked you','Assign PDF/video content after class','Add your own coordinators'],
+            href:'/teacher-live-dashboard.html', badge:'LIVE CLASS TEACHER'
+          });
+        }
+      } catch (_) {}
+
+      // Course instructor portal — always available for instructors
+      if (user.role === 'instructor') {
+        cards.push({
+          icon:'📚', title:'Instructor Portal',
+          desc:'Manage your <b>recorded courses</b>, lessons, gradebook, and quizzes.',
+          features:['Course Hub + Gradebook','Quiz Builder','Schedule live sessions for courses','Analytics + announcements'],
+          href:'/instructor-dashboard.html', badge:'COURSE INSTRUCTOR'
+        });
+      }
+    }
+
+    const grid = document.getElementById('grid');
+    if (!cards.length){
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-3);">No portals available for your role. <a href="/student-dashboard.html" style="color:var(--gold);">Go to student dashboard →</a></div>';
+      return;
+    }
+
+    grid.innerHTML = cards.map(c => `
+      <a href="${esc(c.href)}" class="portal-card">
+        ${c.badge ? `<span class="role-badge" style="margin-bottom:14px;align-self:flex-start;">${esc(c.badge)}</span>` : ''}
+        <div class="portal-icon">${c.icon}</div>
+        <h2>${esc(c.title)}</h2>
+        <p class="desc">${c.desc}</p>
+        <ul class="features">
+          ${c.features.map(f => '<li>' + esc(f) + '</li>').join('')}
+        </ul>
+        <span class="enter">Enter ${esc(c.title.split(' ')[0])} →</span>
+      </a>`).join('');
+  }
+  load();
+</script>
+</body>
+</html>

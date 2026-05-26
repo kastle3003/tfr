@@ -287,9 +287,19 @@
     return new Date(str).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
+  // Cache the user's local timezone abbreviation once — Intl call is non-trivial.
+  const _userTzAbbr = (() => {
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(new Date());
+      const tz = parts.find(p => p.type === 'timeZoneName');
+      return tz ? tz.value : '';
+    } catch (_) { return ''; }
+  })();
+
   function formatTime(str) {
     if (!str) return '';
-    return new Date(str).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const t = new Date(str).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    return _userTzAbbr ? `${t} ${_userTzAbbr}` : t;
   }
 
   function countdown(scheduledAt) {
@@ -338,7 +348,14 @@
   function renderUpcoming(sessions) {
     const el = document.getElementById('upcoming-sessions');
     if (!sessions || sessions.length === 0) {
-      el.innerHTML = `<div class="card" style="text-align:center;padding:48px;color:var(--text-3);font-style:italic;">No upcoming sessions scheduled.</div>`;
+      el.innerHTML = `<div class="card" style="text-align:center;padding:56px 32px;">
+        <div style="font-size:36px;line-height:1;margin-bottom:12px;">📅</div>
+        <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:6px;">No live sessions scheduled yet</div>
+        <div style="font-size:13px;color:var(--text-3);max-width:380px;margin:0 auto 18px;line-height:1.55;">
+          Live class times are announced by your instructor. You'll get an email notification 30 minutes before each session.
+        </div>
+        <a href="/student-course-catalog.html" style="display:inline-block;padding:9px 18px;font-size:13px;font-weight:600;color:#1a0d00;background:#c8a84b;text-decoration:none;border-radius:6px;">Browse courses</a>
+      </div>`;
       return;
     }
     el.innerHTML = sessions.map(s => {

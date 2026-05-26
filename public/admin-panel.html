@@ -962,6 +962,14 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           Moderation
         </button>
+        <button class="tab-btn" onclick="switchTab('waitlist', this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Waitlist
+        </button>
+        <button class="tab-btn" onclick="switchTab('integrations', this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Integrations
+        </button>
       </div>
 
       <!-- ═══════════ DASHBOARD TAB ═══════════ -->
@@ -1506,6 +1514,62 @@
         </div>
       </div>
 
+      <!-- ═══════════ WAITLIST TAB ═══════════ -->
+      <div class="tab-panel" id="tab-waitlist">
+        <div class="config-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+            <div>
+              <div class="config-card-title" style="margin-bottom:2px;">Waitlist & Lead capture</div>
+              <div style="font-size:12px;color:var(--text-3);" id="waitlist-count-label">Loading…</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <input class="filter-select" id="waitlist-search" placeholder="Search email / course…" style="min-width:220px;" oninput="onWaitlistSearch()">
+              <select class="filter-select" id="waitlist-type-filter" onchange="loadWaitlist()">
+                <option value="">All types</option>
+                <option value="waitlist">Waitlist</option>
+                <option value="lead">Lead</option>
+              </select>
+              <button class="btn btn-outline btn-sm" onclick="exportWaitlistCsv()">Export CSV</button>
+            </div>
+          </div>
+          <div id="waitlist-table-wrap">
+            <div style="text-align:center;padding:40px;"><div class="spinner" style="margin:0 auto;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ INTEGRATIONS TAB ═══════════ -->
+      <div class="tab-panel" id="tab-integrations">
+        <div class="config-card">
+          <div class="config-card-title">Google Calendar / Meet</div>
+          <p style="color:var(--text-3);font-size:13px;line-height:1.55;margin-bottom:18px;">
+            Connect your Google account so live class sessions automatically create real Google Meet links via Calendar. Without this, sessions fall back to a placeholder URL.
+          </p>
+          <div id="google-cal-status" style="padding:14px 18px;border-radius:8px;border:1px solid rgba(200,168,75,0.25);background:rgba(200,168,75,0.05);margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+              <div>
+                <div style="font-weight:600;font-size:14px;" id="google-cal-status-label">Loading…</div>
+                <div style="font-size:12px;color:var(--text-3);margin-top:2px;" id="google-cal-status-sub"></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-primary btn-sm" id="google-cal-connect-btn" style="display:none;" onclick="connectGoogleCalendar()">Connect Google Calendar</button>
+                <button class="btn btn-outline btn-sm" id="google-cal-disconnect-btn" style="display:none;" onclick="disconnectGoogleCalendar()">Disconnect</button>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-3);line-height:1.6;">
+            <strong>Setup checklist (one-time, server-side):</strong>
+            <ol style="margin:6px 0 0 18px;padding:0;">
+              <li>Create a project at <a href="https://console.cloud.google.com/" target="_blank" style="color:var(--gold);">console.cloud.google.com</a></li>
+              <li>Enable the Google Calendar API</li>
+              <li>OAuth consent screen → External, scope <code style="background:rgba(200,168,75,0.1);padding:1px 4px;border-radius:3px;">calendar.events</code></li>
+              <li>Create an OAuth 2.0 Web application client; redirect URI = <code style="background:rgba(200,168,75,0.1);padding:1px 4px;border-radius:3px;">https://tfrplay.com/api/integrations/google/callback</code></li>
+              <li>Set <code>GOOGLE_OAUTH_CLIENT_ID</code>, <code>GOOGLE_OAUTH_CLIENT_SECRET</code>, <code>GOOGLE_OAUTH_REDIRECT_URI</code> in the server <code>.env</code></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 </div>
@@ -1827,6 +1891,144 @@
     if (name === 'moderation') { loadFlags(); loadStorageBreakdown(); }
     if (name === 'roles') loadPermissions();
     if (name === 's3') loadWasabiInfo();
+    if (name === 'waitlist') loadWaitlist();
+    if (name === 'integrations') loadGoogleCalendarStatus();
+  }
+
+  // ═══════════ Waitlist ═══════════
+  let _waitlistRows = [];
+  let _waitlistSearchTimer = null;
+
+  function onWaitlistSearch() {
+    clearTimeout(_waitlistSearchTimer);
+    _waitlistSearchTimer = setTimeout(loadWaitlist, 200);
+  }
+
+  async function loadWaitlist() {
+    const wrap = document.getElementById('waitlist-table-wrap');
+    const label = document.getElementById('waitlist-count-label');
+    const q = (document.getElementById('waitlist-search')?.value || '').trim();
+    const type = document.getElementById('waitlist-type-filter')?.value || '';
+    try {
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      if (type) params.set('type', type);
+      const data = await api.get('/api/admin/notify-interest?' + params.toString());
+      _waitlistRows = data.rows || [];
+      label.textContent = `${_waitlistRows.length} of ${data.total} entries`;
+      renderWaitlistTable(_waitlistRows);
+    } catch (e) {
+      wrap.innerHTML = '<div class="empty-state"><p>Failed to load waitlist: ' + esc(e.message) + '</p></div>';
+    }
+  }
+
+  function renderWaitlistTable(rows) {
+    const wrap = document.getElementById('waitlist-table-wrap');
+    if (!rows.length) {
+      wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📧</div><p>No entries match.</p></div>';
+      return;
+    }
+    const fmt = (s) => s ? new Date(s).toLocaleString() : '—';
+    wrap.innerHTML = `<table>
+      <thead><tr>
+        <th>#</th><th>Email</th><th>Phone</th><th>Course</th><th>Type</th><th>Notified</th><th>Auto-replied</th><th>Submitted</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(r => `<tr>
+          <td>${r.id}</td>
+          <td><strong>${esc(r.email)}</strong></td>
+          <td style="font-size:12px;">${esc(r.phone || '—')}</td>
+          <td style="font-size:12px;">${esc(r.course || '—')}${r.tier ? ' · <em>' + esc(r.tier) + '</em>' : ''}</td>
+          <td><span class="badge ${r.type === 'lead' ? 'badge-gold' : 'badge-muted'}">${esc(r.type || 'waitlist')}</span></td>
+          <td style="font-size:11px;color:${r.admin_notified_at ? 'var(--text-2)' : '#c44'};">${r.admin_notified_at ? '✓ ' + fmt(r.admin_notified_at) : 'pending'}</td>
+          <td style="font-size:11px;color:${r.responded_at ? 'var(--text-2)' : '#c44'};">${r.responded_at ? '✓ ' + fmt(r.responded_at) : 'pending'}</td>
+          <td style="font-size:11px;">${fmt(r.created_at)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  async function exportWaitlistCsv() {
+    try {
+      const r = await fetch('/api/admin/notify-interest/export.csv', {
+        headers: { Authorization: 'Bearer ' + (localStorage.getItem('archive_token') || '') }
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'notify-interest-' + new Date().toISOString().slice(0,10) + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      toast(e.message || 'Export failed', 'error');
+    }
+  }
+
+  // ═══════════ Google Calendar integration ═══════════
+  async function loadGoogleCalendarStatus() {
+    const labelEl = document.getElementById('google-cal-status-label');
+    const subEl = document.getElementById('google-cal-status-sub');
+    const connectBtn = document.getElementById('google-cal-connect-btn');
+    const disconnectBtn = document.getElementById('google-cal-disconnect-btn');
+    if (!labelEl) return;
+    try {
+      const r = await api.get('/api/integrations/google/status');
+      if (!r.configured) {
+        labelEl.textContent = 'Not configured';
+        subEl.textContent = 'Server is missing GOOGLE_OAUTH_CLIENT_ID / SECRET / REDIRECT_URI in .env. See checklist below.';
+        connectBtn.style.display = 'none';
+        disconnectBtn.style.display = 'none';
+      } else if (r.connected) {
+        labelEl.textContent = 'Connected ✓';
+        subEl.textContent = 'Live sessions you create will get a real Google Meet link automatically.';
+        connectBtn.style.display = 'none';
+        disconnectBtn.style.display = 'inline-block';
+      } else {
+        labelEl.textContent = 'Not connected';
+        subEl.textContent = 'Click below to grant calendar access.';
+        connectBtn.style.display = 'inline-block';
+        disconnectBtn.style.display = 'none';
+      }
+
+      // Surface OAuth callback result if present in URL
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('google_connected') === '1') {
+        toast('Google Calendar connected.');
+        history.replaceState({}, '', window.location.pathname + window.location.hash);
+      } else if (params.get('google_error')) {
+        toast('Google connect failed: ' + params.get('google_error'), 'error');
+        history.replaceState({}, '', window.location.pathname + window.location.hash);
+      }
+    } catch (e) {
+      labelEl.textContent = 'Error';
+      subEl.textContent = e.message || 'Failed to load integration status';
+    }
+  }
+
+  async function connectGoogleCalendar() {
+    try {
+      const r = await api.get('/api/integrations/google/auth-url?return_to=/admin-panel.html#integrations');
+      if (r && r.url) {
+        window.location.href = r.url;
+      } else {
+        toast('No OAuth URL returned', 'error');
+      }
+    } catch (e) {
+      toast(e.message || 'Failed to start OAuth', 'error');
+    }
+  }
+
+  async function disconnectGoogleCalendar() {
+    if (!confirm('Disconnect Google Calendar? Future live sessions will fall back to placeholder URLs.')) return;
+    try {
+      await api.del('/api/integrations/google');
+      toast('Disconnected');
+      loadGoogleCalendarStatus();
+    } catch (e) {
+      toast(e.message || 'Failed', 'error');
+    }
   }
 
   // ═══════════ Accordion ═══════════
@@ -2231,7 +2433,7 @@
 
   function confirmDeleteCourse(courseId, title) {
     document.getElementById('confirm-title').textContent = 'Delete Course';
-    document.getElementById('confirm-body').textContent = `Are you sure you want to delete "${title}"? All lessons, chapters, and enrollments will be permanently removed.`;
+    document.getElementById('confirm-body').textContent = `Delete "${title}"? Active courses are archived (data preserved, recoverable). If already archived, this permanently destroys the course and its lessons/chapters.`;
     const btn = document.getElementById('confirm-action-btn');
     btn.textContent = 'Delete Course';
     btn.onclick = async () => {

@@ -666,18 +666,18 @@ db.exec(`
   CREATE TRIGGER trg_users_role_insert
   BEFORE INSERT ON users
   FOR EACH ROW
-  WHEN NEW.role NOT IN ('student','instructor','admin')
+  WHEN NEW.role NOT IN ('student','instructor','admin','coordinator')
   BEGIN
-    SELECT RAISE(ABORT, 'Invalid role: must be student, instructor, or admin');
+    SELECT RAISE(ABORT, 'Invalid role: must be student, instructor, admin, or coordinator');
   END;
 
   DROP TRIGGER IF EXISTS trg_users_role_update;
   CREATE TRIGGER trg_users_role_update
   BEFORE UPDATE OF role ON users
   FOR EACH ROW
-  WHEN NEW.role NOT IN ('student','instructor','admin')
+  WHEN NEW.role NOT IN ('student','instructor','admin','coordinator')
   BEGIN
-    SELECT RAISE(ABORT, 'Invalid role: must be student, instructor, or admin');
+    SELECT RAISE(ABORT, 'Invalid role: must be student, instructor, admin, or coordinator');
   END;
 `);
 
@@ -1431,6 +1431,42 @@ try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_url TEXT`); } catc
 try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_duration_seconds INTEGER`); } catch (_) {}
 try { db.exec(`ALTER TABLE chapters ADD COLUMN practice_video_title TEXT`); } catch (_) {}
 try { db.exec(`ALTER TABLE chapters ADD COLUMN created_at TEXT DEFAULT (datetime('now'))`); } catch (_) {}
+
+// ── Sitar batch-flow + integrations migrations (idempotent) ──
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS support_links (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      url TEXT NOT NULL,
+      category TEXT,
+      order_index INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime("now"))
+    )
+  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_support_links_course ON support_links(course_id)`);
+} catch (_) {}
+
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS instructor_google_tokens (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      access_token TEXT NOT NULL,
+      refresh_token TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      calendar_id TEXT DEFAULT "primary",
+      connected_at TEXT DEFAULT (datetime("now")),
+      updated_at TEXT DEFAULT (datetime("now"))
+    )
+  `);
+} catch (_) {}
+
+try { db.exec(`ALTER TABLE courses ADD COLUMN batch_mode INTEGER DEFAULT 0`); } catch (_) {}
+
+// Defensive index — payment finalize race is already eliminated via conditional
+// status-update SQL, but a UNIQUE constraint catches any future regression.
+try { db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS uniq_coupon_redemption_per_purchase ON coupon_redemptions(purchase_id)`); } catch (_) {}
 
 // ── Dummy bundle + foundation pricing (Razorpay TEST mode only) ──
 // Any course with a zero/null bundle_price_paise and any chapter with a zero

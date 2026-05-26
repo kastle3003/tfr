@@ -10,7 +10,7 @@ try {
   uuidv4 = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
-// GET /api/live-sessions
+// GET /api/live-sessions  — UNIFIED_V1: includes legacy live_sessions + lc_slots for the logged-in instructor
 router.get('/', (req, res) => {
   try {
     const { status, course_id } = req.query;
@@ -26,12 +26,52 @@ router.get('/', (req, res) => {
       WHERE 1=1
     `;
     const params = [];
-
     if (status) { query += ' AND ls.status = ?'; params.push(status); }
     if (course_id) { query += ' AND ls.course_id = ?'; params.push(course_id); }
-
     query += ' ORDER BY ls.scheduled_at ASC';
     const sessions = db.prepare(query).all(...params);
+
+    // UNIFIED_V1 — merge lc_slots for the logged-in instructor as virtual live_sessions
+    if (req.user && (req.user.role === 'instructor' || req.user.role === 'admin')) {
+      const teacherRow = db.prepare('SELECT id FROM lc_teachers WHERE user_id = ?').get(req.user.id);
+      const lcSlotsQuery = req.user.role === 'admin'
+        ? `SELECT s.*, t.name AS teacher_name, t.user_id AS t_user_id FROM lc_slots s LEFT JOIN lc_teachers t ON t.id = s.teacher_id WHERE s.is_active = 1 ORDER BY s.slot_date, s.start_time`
+        : (teacherRow ? `SELECT s.*, t.name AS teacher_name, t.user_id AS t_user_id FROM lc_slots s LEFT JOIN lc_teachers t ON t.id = s.teacher_id WHERE s.teacher_id = ${teacherRow.id} AND s.is_active = 1 ORDER BY s.slot_date, s.start_time` : null);
+      if (lcSlotsQuery) {
+        const lcRows = db.prepare(lcSlotsQuery).all();
+        const today = new Date(); today.setHours(0,0,0,0);
+        lcRows.forEach(s => {
+          const [y,m,d] = (s.slot_date||'').split('-').map(Number);
+          const [hh,mm] = (s.start_time||'').split(':').map(Number);
+          const startDate = new Date(y, m-1, d, hh, mm);
+          const endDate = new Date(startDate.getTime() + (Number(s.duration_min||60) + 30) * 60 * 1000);
+          let vstatus = 'scheduled';
+          if (new Date() >= startDate && new Date() < endDate) vstatus = 'live';
+          else if (new Date() >= endDate) vstatus = 'completed';
+          // Apply status filter if provided
+          if (status && status !== vstatus) return;
+          sessions.push({
+            id: 'lc-' + s.id,                                  // prefix to avoid id collision with live_sessions
+            source: 'lc_slot',
+            instructor_id: s.t_user_id,
+            title: s.title || (s.teacher_name + ' — Live Class'),
+            description: '',
+            scheduled_at: startDate.toISOString(),
+            duration_minutes: s.duration_min || 60,
+            meeting_url: s.meet_link,
+            meeting_id: 'tfr-slot-' + s.id,
+            status: vstatus,
+            max_participants: s.total_seats,
+            attendee_count: s.booked_seats || 0,
+            instructor_name: s.teacher_name,
+            instructor_initials: (s.teacher_name||'').split(' ').map(x => x[0]).join('').slice(0,2).toUpperCase(),
+            course_title: null
+          });
+        });
+      }
+    }
+    // Sort merged list by scheduled_at
+    sessions.sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
     res.json({ sessions });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -65,7 +105,7 @@ router.get('/:id', (req, res) => {
 });
 
 // POST /api/live-sessions  (instructor)
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     if (!['instructor', 'admin'].includes(req.user.role)) {
       return res.status(403).json({ error: 'Instructor access required' });
@@ -74,8 +114,36 @@ router.post('/', (req, res) => {
     const { title, description, course_id, masterclass_id, scheduled_at, duration_minutes, max_participants } = req.body;
     if (!title || !scheduled_at) return res.status(400).json({ error: 'title and scheduled_at are required' });
 
-    const meetingId = uuidv4().slice(0, 8);
-    const meetingUrl = `https://meet.archive.edu/room/${meetingId}`;
+    let meetingUrl;
+    let meetingId;
+
+    // If the instructor has connected Google Calendar, create a real Meet
+    // event. Any failure falls back to the legacy placeholder so a broken
+    // OAuth token never blocks scheduling.
+    try {
+      const calendarLib = require('../lib/google-calendar');
+      if (calendarLib.isConnected(req.user.id)) {
+        const ev = await calendarLib.createMeetEvent(req.user.id, {
+          title,
+          description: description || '',
+          startISO: scheduled_at,
+          durationMinutes: duration_minutes || 60,
+          attendees: [],
+        });
+        if (ev && ev.meetUrl) {
+          meetingUrl = ev.meetUrl;
+          meetingId = ev.eventId;
+        }
+      }
+    } catch (e) {
+      console.warn('[live-sessions] Google Meet creation failed, falling back to placeholder:', e.message);
+    }
+
+    if (!meetingUrl) {
+      // JITSI_FALLBACK_V1 — use our self-hosted Jitsi instead of fake meet.archive.edu
+      meetingId = uuidv4().slice(0, 8);
+      meetingUrl = `https://meet.tfrplay.com/tfr-live-${meetingId}`;
+    }
 
     const result = db.prepare(`
       INSERT INTO live_sessions (instructor_id, title, description, course_id, masterclass_id, scheduled_at, duration_minutes, meeting_url, meeting_id, max_participants, status)

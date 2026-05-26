@@ -126,19 +126,110 @@ router.get('/stats', adminOnly, (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════
+//  WAITLIST / NOTIFY-INTEREST
+// ═══════════════════════════════════════════════════
+
+// GET /api/admin/notify-interest?course=&type=&q=&limit=&offset=
+router.get('/notify-interest', adminOnly, (req, res) => {
+  try {
+    const { course, type, q } = req.query || {};
+    const limit = Math.min(parseInt(req.query.limit, 10) || 100, 500);
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    let sql = 'SELECT id, email, phone, course, tier, type, source_ip, admin_notified_at, responded_at, created_at FROM notify_interest WHERE 1=1';
+    const params = [];
+    if (course) { sql += ' AND course = ?'; params.push(course); }
+    if (type)   { sql += ' AND type = ?';   params.push(type); }
+    if (q) {
+      sql += ' AND (email LIKE ? OR phone LIKE ? OR course LIKE ?)';
+      const like = '%' + q + '%';
+      params.push(like, like, like);
+    }
+    sql += ' ORDER BY id DESC LIMIT ? OFFSET ?';
+    params.push(limit, offset);
+
+    const rows = db.prepare(sql).all(...params);
+    const total = db.prepare('SELECT COUNT(*) AS n FROM notify_interest').get().n;
+    res.json({ rows, total, limit, offset });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/notify-interest/export.csv — CSV download of all rows
+router.get('/notify-interest/export.csv', adminOnly, (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT id, email, phone, course, tier, type, source_ip, admin_notified_at, responded_at, created_at
+      FROM notify_interest ORDER BY id DESC
+    `).all();
+    const headers = ['id','email','phone','course','tier','type','source_ip','admin_notified_at','responded_at','created_at'];
+    const escapeCsv = (v) => {
+      const s = v == null ? '' : String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const csv = [headers.join(',')].concat(
+      rows.map(r => headers.map(h => escapeCsv(r[h])).join(','))
+    ).join('\n');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="notify-interest.csv"');
+    res.send(csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════
 //  CONFIGURATION
 // ═══════════════════════════════════════════════════
 
-// GET current config
-router.get('/config', (req, res) => {
+// If admin saves a form with the redacted placeholder still in a field, restore the
+// real existing value so we don't accidentally overwrite credentials with '••••xxxx'.
+function unredactPayload(incoming, existing) {
+  if (!incoming || typeof incoming !== 'object') return incoming;
+  const merged = Array.isArray(incoming) ? [...incoming] : { ...incoming };
+  for (const [k, v] of Object.entries(merged)) {
+    if (typeof v === 'string' && v.startsWith('••••')) {
+      merged[k] = (existing && existing[k] != null) ? existing[k] : '';
+    } else if (v && typeof v === 'object' && existing && typeof existing[k] === 'object') {
+      merged[k] = unredactPayload(v, existing[k]);
+    }
+  }
+  return merged;
+}
+
+// Redact secret-looking fields recursively. Keeps last 4 chars so admins can confirm
+// which credential is configured without leaking the full value.
+function redactSecrets(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const sensitiveKey = /secret|password|webhook|token|access_key|api_key|key_secret/i;
+  const out = Array.isArray(obj) ? [] : {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (sensitiveKey.test(k)) {
+      if (typeof v === 'string' && v.length > 0) {
+        out[k] = v.length > 4 ? '••••' + v.slice(-4) : '••••';
+      } else {
+        out[k] = v; // empty/null preserved
+      }
+    } else if (v && typeof v === 'object') {
+      out[k] = redactSecrets(v);
+    } else {
+      out[k] = v;
+    }
+  }
+  return out;
+}
+
+// GET current config — admin only; secrets redacted before send.
+router.get('/config', adminOnly, (req, res) => {
   try {
     const row = db.prepare('SELECT * FROM app_config WHERE id = 1').get();
     if (!row) return res.json({ s3: {}, smtp: {}, general: {}, razorpay: {} });
     res.json({
-      s3: JSON.parse(row.s3_config || '{}'),
-      smtp: JSON.parse(row.smtp_config || '{}'),
-      general: JSON.parse(row.general_config || '{}'),
-      razorpay: JSON.parse(row.razorpay_config || '{}')
+      s3: redactSecrets(JSON.parse(row.s3_config || '{}')),
+      smtp: redactSecrets(JSON.parse(row.smtp_config || '{}')),
+      general: redactSecrets(JSON.parse(row.general_config || '{}')),
+      razorpay: redactSecrets(JSON.parse(row.razorpay_config || '{}'))
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -148,9 +239,10 @@ router.get('/config', (req, res) => {
 // PUT S3 config
 router.put('/config/s3', adminOnly, (req, res) => {
   try {
-    const existing = db.prepare('SELECT id FROM app_config WHERE id = 1').get();
-    const json = JSON.stringify(req.body);
-    if (existing) {
+    const row = db.prepare('SELECT id, s3_config FROM app_config WHERE id = 1').get();
+    const existing = JSON.parse(row?.s3_config || '{}');
+    const json = JSON.stringify(unredactPayload(req.body, existing));
+    if (row) {
       db.prepare("UPDATE app_config SET s3_config = ?, updated_at = datetime('now') WHERE id = 1").run(json);
     } else {
       db.prepare('INSERT INTO app_config (id, s3_config) VALUES (1, ?)').run(json);
@@ -164,9 +256,10 @@ router.put('/config/s3', adminOnly, (req, res) => {
 // PUT SMTP config
 router.put('/config/smtp', adminOnly, (req, res) => {
   try {
-    const existing = db.prepare('SELECT id FROM app_config WHERE id = 1').get();
-    const json = JSON.stringify(req.body);
-    if (existing) {
+    const row = db.prepare('SELECT id, smtp_config FROM app_config WHERE id = 1').get();
+    const existing = JSON.parse(row?.smtp_config || '{}');
+    const json = JSON.stringify(unredactPayload(req.body, existing));
+    if (row) {
       db.prepare("UPDATE app_config SET smtp_config = ?, updated_at = datetime('now') WHERE id = 1").run(json);
     } else {
       db.prepare('INSERT INTO app_config (id, smtp_config) VALUES (1, ?)').run(json);
@@ -180,9 +273,10 @@ router.put('/config/smtp', adminOnly, (req, res) => {
 // PUT General config
 router.put('/config/general', adminOnly, (req, res) => {
   try {
-    const existing = db.prepare('SELECT id FROM app_config WHERE id = 1').get();
-    const json = JSON.stringify(req.body);
-    if (existing) {
+    const row = db.prepare('SELECT id, general_config FROM app_config WHERE id = 1').get();
+    const existing = JSON.parse(row?.general_config || '{}');
+    const json = JSON.stringify(unredactPayload(req.body, existing));
+    if (row) {
       db.prepare("UPDATE app_config SET general_config = ?, updated_at = datetime('now') WHERE id = 1").run(json);
     } else {
       db.prepare('INSERT INTO app_config (id, general_config) VALUES (1, ?)').run(json);
@@ -196,9 +290,10 @@ router.put('/config/general', adminOnly, (req, res) => {
 // PUT Razorpay config
 router.put('/config/razorpay', adminOnly, (req, res) => {
   try {
-    const existing = db.prepare('SELECT id FROM app_config WHERE id = 1').get();
-    const json = JSON.stringify(req.body);
-    if (existing) {
+    const row = db.prepare('SELECT id, razorpay_config FROM app_config WHERE id = 1').get();
+    const existing = JSON.parse(row?.razorpay_config || '{}');
+    const json = JSON.stringify(unredactPayload(req.body, existing));
+    if (row) {
       db.prepare("UPDATE app_config SET razorpay_config = ?, updated_at = datetime('now') WHERE id = 1").run(json);
     } else {
       db.prepare('INSERT INTO app_config (id, razorpay_config) VALUES (1, ?)').run(json);
@@ -321,14 +416,76 @@ router.delete('/users/:id', adminOnly, (req, res) => {
     if (user.role === 'admin') return res.status(403).json({ error: 'Cannot delete admin users' });
 
     db.transaction(() => {
-      // Nullify instructor references so courses are not lost
-      db.prepare('UPDATE courses SET instructor_id = NULL WHERE instructor_id = ?').run(req.params.id);
-      // Remove student/user data
-      db.prepare('DELETE FROM enrollments WHERE student_id = ?').run(req.params.id);
-      db.prepare('DELETE FROM notifications WHERE user_id = ?').run(req.params.id);
-      try { db.prepare('DELETE FROM user_subscriptions WHERE user_id = ?').run(req.params.id); } catch (_) {}
-      try { db.prepare('DELETE FROM purchases WHERE user_id = ?').run(req.params.id); } catch (_) {}
-      try { db.prepare('DELETE FROM practice_sessions WHERE user_id = ?').run(req.params.id); } catch (_) {}
+      const uid = req.params.id;
+      // FULL_CASCADE_DELETE_V2 — clear every FK that blocks users delete
+      // Strategy: NULL OUT audit-like refs (preserve content), DELETE personal data.
+      const tryRun = (sql) => { try { db.prepare(sql).run(uid); } catch (e) { console.warn('[delete user]', sql.slice(0,60), '→', e.message); } };
+
+      // Course content authored by user → keep but unlink
+      tryRun(`UPDATE courses SET instructor_id = NULL WHERE instructor_id = ?`);
+      tryRun(`UPDATE masterclasses SET instructor_id = NULL WHERE instructor_id = ?`);
+      tryRun(`UPDATE live_sessions SET instructor_id = NULL WHERE instructor_id = ?`);
+      tryRun(`UPDATE announcements SET instructor_id = NULL WHERE instructor_id = ?`);
+      tryRun(`UPDATE blogs SET author_id = NULL WHERE author_id = ?`);
+      tryRun(`UPDATE sheet_music SET uploaded_by = NULL WHERE uploaded_by = ?`);
+      tryRun(`UPDATE coupons SET created_by = NULL WHERE created_by = ?`);
+      tryRun(`UPDATE submissions SET graded_by = NULL WHERE graded_by = ?`);
+      tryRun(`UPDATE content_flags SET resolved_by = NULL WHERE resolved_by = ?`);
+      tryRun(`UPDATE content_flags SET reported_by = NULL WHERE reported_by = ?`);
+
+      // Personal learning data → delete
+      tryRun(`DELETE FROM enrollments WHERE student_id = ?`);
+      tryRun(`DELETE FROM notifications WHERE user_id = ?`);
+      tryRun(`DELETE FROM user_subscriptions WHERE user_id = ?`);
+      tryRun(`DELETE FROM purchases WHERE user_id = ?`);
+      tryRun(`DELETE FROM practice_sessions WHERE user_id = ?`);
+      tryRun(`DELETE FROM lesson_progress WHERE student_id = ?`);
+      tryRun(`DELETE FROM recordings WHERE student_id = ?`);
+      tryRun(`DELETE FROM masterclass_registrations WHERE student_id = ?`);
+      tryRun(`DELETE FROM submissions WHERE student_id = ?`);
+      tryRun(`DELETE FROM quiz_attempts WHERE student_id = ?`);
+      tryRun(`DELETE FROM live_session_attendees WHERE user_id = ?`);
+      tryRun(`DELETE FROM thread_participants WHERE user_id = ?`);
+      tryRun(`DELETE FROM calendar_events WHERE user_id = ?`);
+      tryRun(`DELETE FROM payments WHERE user_id = ?`);
+      tryRun(`DELETE FROM certificates WHERE student_id = ?`);
+      tryRun(`DELETE FROM coupon_redemptions WHERE user_id = ?`);
+      tryRun(`DELETE FROM user_profile WHERE user_id = ?`);
+      tryRun(`DELETE FROM instructor_google_tokens WHERE user_id = ?`);
+
+      // LC_CASCADE_DELETE_V1 — Live Classes module cleanup so email is fully freed
+      try {
+        // If user has a linked lc_teachers row, hard-cascade the whole teacher footprint
+        const teacherRow = db.prepare('SELECT id FROM lc_teachers WHERE user_id = ?').get(req.params.id);
+        if (teacherRow) {
+          const tId = teacherRow.id;
+          const slotIds = db.prepare('SELECT id FROM lc_slots WHERE teacher_id = ?').all(tId).map(s => s.id);
+          if (slotIds.length) {
+            const sph = slotIds.map(() => '?').join(',');
+            const bookingIds = db.prepare(`SELECT id FROM lc_bookings WHERE slot_id IN (${sph})`).all(...slotIds).map(b => b.id);
+            if (bookingIds.length) {
+              const bph = bookingIds.map(() => '?').join(',');
+              db.prepare(`DELETE FROM lc_assignments WHERE booking_id IN (${bph})`).run(...bookingIds);
+            }
+            db.prepare(`DELETE FROM lc_bookings WHERE slot_id IN (${sph})`).run(...slotIds);
+            db.prepare(`DELETE FROM lc_price_options WHERE slot_id IN (${sph})`).run(...slotIds);
+            db.prepare(`DELETE FROM lc_slots WHERE id IN (${sph})`).run(...slotIds);
+          }
+          db.prepare('DELETE FROM lc_raags WHERE teacher_id = ?').run(tId);
+          // Coordinators assigned to this teacher → also remove
+          const coordIds = db.prepare(`SELECT id FROM users WHERE role = 'coordinator' AND assigned_teacher_id = ?`).all(tId).map(u => u.id);
+          coordIds.forEach(cuid => {
+            db.prepare(`UPDATE lc_bookings SET user_id = NULL WHERE user_id = ?`).run(cuid);
+            db.prepare(`UPDATE lc_assignments SET assigned_by_user_id = NULL WHERE assigned_by_user_id = ?`).run(cuid);
+            db.prepare(`DELETE FROM users WHERE id = ?`).run(cuid);
+          });
+          db.prepare('DELETE FROM lc_teachers WHERE id = ?').run(tId);
+        }
+        // Final: nullify any remaining FK refs in lc_* pointing to this user
+        db.prepare(`UPDATE lc_bookings SET user_id = NULL WHERE user_id = ?`).run(req.params.id);
+        db.prepare(`UPDATE lc_assignments SET assigned_by_user_id = NULL WHERE assigned_by_user_id = ?`).run(req.params.id);
+      } catch (e) { console.warn('[admin/users/delete] LC cleanup warning:', e.message); }
+
       db.prepare('DELETE FROM users WHERE id = ?').run(req.params.id);
     })();
 
@@ -388,19 +545,30 @@ router.delete('/courses/:id', adminOnly, (req, res) => {
   try {
     const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
     if (!course) return res.status(404).json({ error: 'Course not found' });
-
     const cId = req.params.id;
-    db.prepare('DELETE FROM lesson_progress WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId);
-    db.prepare('UPDATE practice_sessions SET lesson_id = NULL WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId);
-    db.prepare('DELETE FROM submissions WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId);
-    db.prepare('UPDATE recordings SET lesson_id = NULL WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId);
-    db.prepare('UPDATE purchases SET foundation_id = NULL WHERE foundation_id IN (SELECT id FROM chapters WHERE course_id = ?)').run(cId);
-    db.prepare('DELETE FROM enrollments WHERE course_id = ?').run(cId);
-    db.prepare('DELETE FROM lessons WHERE course_id = ?').run(cId);
-    db.prepare('DELETE FROM chapters WHERE course_id = ?').run(cId);
-    db.prepare('DELETE FROM courses WHERE id = ?').run(cId);
 
-    res.json({ message: 'Course deleted' });
+    // Two-stage delete: archive first, permanently destroy on second click.
+    if (course.status !== 'archived') {
+      db.prepare("UPDATE courses SET status = 'archived', updated_at = datetime('now') WHERE id = ?").run(cId);
+      return res.json({ message: 'Course archived', archived: true });
+    }
+
+    // Already archived → admin confirmed permanent destruction.
+    const tx = db.transaction(() => {
+      db.prepare('DELETE FROM lesson_progress WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId);
+      db.prepare('DELETE FROM submissions WHERE course_id = ?').run(cId);
+      db.prepare('DELETE FROM enrollments WHERE course_id = ?').run(cId);
+      db.prepare('DELETE FROM sheet_music WHERE course_id = ?').run(cId);
+      db.prepare('UPDATE recordings SET course_id = NULL, lesson_id = NULL WHERE course_id = ? OR lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)').run(cId, cId);
+      db.prepare('UPDATE practice_sessions SET course_id = NULL WHERE course_id = ?').run(cId);
+      db.prepare('UPDATE purchases SET course_id = NULL, foundation_id = NULL WHERE course_id = ? OR foundation_id IN (SELECT id FROM chapters WHERE course_id = ?)').run(cId, cId);
+      db.prepare('UPDATE payments SET course_id = NULL WHERE course_id = ?').run(cId);
+      db.prepare('UPDATE coupons SET course_id = NULL WHERE course_id = ?').run(cId);
+      db.prepare('DELETE FROM courses WHERE id = ?').run(cId);
+    });
+    tx();
+
+    res.json({ message: 'Course permanently deleted', archived: false });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

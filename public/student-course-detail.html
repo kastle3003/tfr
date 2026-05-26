@@ -1200,6 +1200,15 @@
               <div class="skeleton-block"></div>
               <div class="skeleton-block"></div>
             </div>
+
+            <!-- Support Materials — populated by JS only when API returns links -->
+            <div id="sd-support-section" style="display:none;margin-top:32px;padding-top:24px;border-top:1px solid rgba(200,168,75,0.15);">
+              <div class="curriculum-header">
+                <h2 class="curriculum-title">Support Materials</h2>
+                <span class="lesson-count-badge" id="sd-support-count">—</span>
+              </div>
+              <div id="sd-support-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:14px;"></div>
+            </div>
           </div>
 
           <!-- Right: Info card -->
@@ -1390,10 +1399,42 @@
     }
   }
 
+  /* ── Support links: fetch + render. Silent on 403/empty. ── */
+  async function loadCourseSupportLinks(courseId) {
+    try {
+      const r = await fetch('/api/support-links?course_id=' + courseId, {
+        headers: { Authorization: 'Bearer ' + (localStorage.getItem('archive_token') || '') }
+      });
+      if (!r.ok) return;
+      const { links } = await r.json();
+      if (!Array.isArray(links) || !links.length) return;
+      const section = document.getElementById('sd-support-section');
+      const list = document.getElementById('sd-support-list');
+      const cnt = document.getElementById('sd-support-count');
+      if (!section || !list) return;
+      const escSL = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      list.innerHTML = links.map(l => `
+        <a href="${escSL(l.url)}" target="_blank" rel="noopener noreferrer"
+           style="display:block;padding:14px 16px;background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.2);border-radius:8px;text-decoration:none;color:inherit;transition:all .2s;"
+           onmouseover="this.style.background='rgba(200,168,75,0.12)';this.style.transform='translateY(-1px)';"
+           onmouseout="this.style.background='rgba(200,168,75,0.06)';this.style.transform='translateY(0)';">
+          <div style="font-size:11px;color:#C8A84B;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">${escSL(l.category || 'Resource')}</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:3px;">${escSL(l.title)}</div>
+          <div style="font-size:11px;opacity:0.7;word-break:break-all;">↗ ${escSL(l.url)}</div>
+        </a>
+      `).join('');
+      if (cnt) cnt.textContent = links.length + (links.length === 1 ? ' link' : ' links');
+      section.style.display = 'block';
+    } catch (_) { /* silent */ }
+  }
+
   /* ── Render course ── */
   function renderCourse(course, chapters) {
     document.getElementById('page-skeleton').style.display = 'none';
     document.getElementById('page-content').style.display  = 'block';
+
+    // Trigger support links fetch in parallel — non-blocking
+    loadCourseSupportLinks(course.id).catch(() => {});
 
     document.title = course.title + ' — The Foundation Room';
 

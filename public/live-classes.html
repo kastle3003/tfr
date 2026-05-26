@@ -439,20 +439,41 @@
       const cd = countdown(s.scheduled_at);
       const isLive = s.status === 'live';
       const isInstructor = currentUser && ['instructor', 'admin'].includes(currentUser.role);
+      const isLcSlot = s.source === 'lc_slot'; // UNIFIED_V1 — virtual session from lc_slots
+
+      // Time-window check (same logic as student dashboard) so "Join now" works for scheduled lc_slots
+      const nowMs = Date.now();
+      const startMs = d.getTime();
+      const endMs = startMs + (Number(s.duration_minutes||60) + 30) * 60 * 1000;
+      const openMs = startMs - 10 * 60 * 1000;
+      const inWindow = nowMs >= openMs && nowMs < endMs;
 
       let actionBtn = '';
-      if (isLive) {
-        actionBtn = `<a href="${s.meeting_url || '#'}" target="_blank" class="join-pill">
+      if (isLive || (isLcSlot && inWindow)) {
+        // STRICT_JWT_V1 — route lc_slots through TFR room page (JWT issued there); legacy live_sessions still direct
+        const href = isLcSlot
+          ? '/live-class-room.html?s=' + String(s.id).replace(/^lc-/, '')
+          : (s.meeting_url || '#');
+        actionBtn = `<a href="${href}" ${isLcSlot ? '' : 'target="_blank"'} class="join-pill">
           <span class="status-live"><span class="live-dot"></span> Join Now</span>
         </a>`;
-      } else if (s.status === 'scheduled') {
+      } else if (isLcSlot && nowMs >= endMs) {
+        actionBtn = `<span style="color:var(--text-3);font-size:12px;">Class ended</span>`;
+      } else if (s.status === 'scheduled' && !isLcSlot) {
         actionBtn = `<button class="join-pill" style="background:transparent;color:var(--gold);border:1.5px solid rgba(200,168,75,0.35);" onclick="registerSession(${s.id})">Register</button>`;
+      } else if (isLcSlot) {
+        // Scheduled lc_slot, before window opens — show countdown
+        actionBtn = `<span style="color:var(--text-3);font-size:12px;border:1px solid rgba(200,168,75,0.2);padding:4px 10px;border-radius:5px;">🔒 Opens 10 min before class</span>`;
       }
 
-      const instructorActions = isInstructor && s.instructor_id === currentUser.id ? `
+      // Instructor controls — only for legacy live_sessions (lc_slots auto-manage by time)
+      const instructorActions = (isInstructor && !isLcSlot && s.instructor_id === currentUser.id) ? `
         <button class="btn btn-ghost" style="font-size:12px;" onclick="setLive(${s.id})">Go Live</button>
         <button class="btn btn-ghost" style="font-size:12px;" onclick="endSession(${s.id})">End</button>
       ` : '';
+
+      // For lc_slot rows, show a small badge + link to teacher dashboard
+      const lcBadge = isLcSlot ? `<span style="font-size:10px;color:var(--gold);background:rgba(200,168,75,0.10);padding:2px 8px;border-radius:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-left:8px;">LC slot · auto</span>` : '';
 
       return `
         <div class="session-card">
@@ -462,7 +483,7 @@
             <div class="session-date-time">${formatTime(s.scheduled_at)}</div>
           </div>
           <div class="session-body">
-            <div class="session-title">${s.title}</div>
+            <div class="session-title">${s.title}${lcBadge}</div>
             <div class="session-meta">
               <span class="session-tag">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>

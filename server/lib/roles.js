@@ -2,6 +2,7 @@ const ROLES = Object.freeze({
   STUDENT: 'student',
   INSTRUCTOR: 'instructor',
   ADMIN: 'admin',
+  COORDINATOR: 'coordinator', // STAFF_REGISTER_V1 — read-only across live classes
 });
 
 const VALID_ROLES = Object.freeze(Object.values(ROLES));
@@ -14,6 +15,7 @@ const DISPLAY_LABELS = Object.freeze({
   student: 'User',
   instructor: 'Instructor',
   admin: 'Admin',
+  coordinator: 'Coordinator',
 });
 
 function displayLabel(role) {

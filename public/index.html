@@ -2438,7 +2438,7 @@
     <div class="hero-bg-gradient"></div>
     <div class="hero-grain"></div>
     <div class="hero-abstract" aria-hidden="true">
-      <img src="/assets/tfr-play/sitar-banner-hero.png" alt="" class="hero-artist-photo" loading="eager" style="object-position:center center; object-fit:cover;">
+      <img src="/assets/tfr-play/sitar-banner-hero.png" alt="" class="hero-artist-photo" loading="eager" data-cms-key="hero.image_url" style="object-position:center center; object-fit:cover;">
       <!-- Minimal gold glow overlay -->
       <svg class="hero-wave-art" viewBox="0 0 1400 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="opacity:1; z-index:4;">
         <defs>
@@ -2456,16 +2456,16 @@
       </svg>
     </div>
     <div class="hero-content">
-      <div class="hero-eyebrow reveal">India's Premier Arts Learning Platform</div>
+      <div class="hero-eyebrow reveal" data-cms-key="hero.eyebrow">India's Premier Arts Learning Platform</div>
       <h1 class="hero-h1 reveal reveal-delay-1">
-        <span>Training is a Science.</span>
-        <span>Performing is an Art.</span>
+        <span data-cms-key="hero.title_line1">Training is a Science.</span>
+        <span data-cms-key="hero.title_line2">Performing is an Art.</span>
       </h1>
-      <p class="hero-sub reveal reveal-delay-2">
+      <p class="hero-sub reveal reveal-delay-2" data-cms-key="hero.subtitle">
         India's Greatest Performing Arts Tradition — Now, becomes yours.<br>Build your foundation. Master your craft.
       </p>
       <div class="hero-ctas reveal reveal-delay-3">
-        <a href="#courses" class="btn-hero-primary" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'});return false;">
+        <a href="#courses" class="btn-hero-primary" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'});return false;" data-cms-key="hero.cta_text" data-cms-href-key="hero.cta_link">
           Begin Your Journey
         </a>
       </div>
@@ -2521,14 +2521,14 @@
         <div class="disc-row disc-row-locked reveal" id="disc-melody" data-disc="melody">
           <div class="disc-row-left">
             <div class="disc-row-meta">
-              <span class="disc-pill">Melody</span>
-              <h3 class="disc-row-title">Sitara&#8482; — Niladri Kumaar's Signature Sitar Program</h3>
-              <p class="disc-row-instr">Niladri Kumaar</p>
-              <p class="disc-row-desc">Sitara is a one of a kind experience. If you always wanted to play this beautiful instrument Sitar, this is a training program curated directly by the Maestro Niladri Kumaar. 5 generations of Sitar Music, now shared with you.</p>
+              <span class="disc-pill" data-cms-key="disc.melody.pill">Melody</span>
+              <h3 class="disc-row-title" data-cms-key="disc.melody.title">Sitara&#8482; — Niladri Kumaar's Signature Sitar Program</h3>
+              <p class="disc-row-instr" data-cms-key="disc.melody.instructor">Niladri Kumaar</p>
+              <p class="disc-row-desc" data-cms-key="disc.melody.description">Sitara is a one of a kind experience. If you always wanted to play this beautiful instrument Sitar, this is a training program curated directly by the Maestro Niladri Kumaar. 5 generations of Sitar Music, now shared with you.</p>
             </div>
             <div class="disc-row-cta-wrap">
               <div class="disc-wl" id="disc-wl-melody">
-                <button class="disc-wl-btn" type="button" onclick="discWlToggle('disc-wl-melody')">Join the Waitlist</button>
+                <a href="/live-classes/niladri-kumar" class="disc-wl-btn" style="display:inline-block;text-align:center;text-decoration:none;" data-cms-key="disc.melody.cta_text" data-cms-href-key="disc.melody.cta_link">Explore the Live Classes &rarr;</a>
                 <form class="disc-wl-form" onsubmit="discWlSubmit(event,'disc-wl-melody','Sitara — Niladri Kumaar')">
                   <input type="email" placeholder="your@email.com" required>
                   <button type="submit">Notify Me</button>
@@ -2537,17 +2537,25 @@
             </div>
           </div>
           <div class="disc-row-right" style="background:linear-gradient(135deg,#1a0a00 0%,#3D2600 100%);">
-            <img src="/assets/tfr-play/niladri-sitar-hero.png" alt="Niladri Kumaar — Sitara" style="object-position:center top;">
+            <picture>
+              <!-- WebP source: drop /assets/tfr-play/niladri-sitar-hero.webp at ~1600w next to the PNG to enable. PNG is the safe fallback. -->
+              <source srcset="/assets/tfr-play/niladri-sitar-hero.webp" type="image/webp">
+              <img src="/assets/tfr-play/niladri-sitar-hero.png"
+                   alt="Niladri Kumaar — Sitara"
+                   width="5400" height="3600"
+                   loading="lazy" decoding="async"
+                   style="object-position:center top;width:100%;height:auto;">
+            </picture>
           </div>
         </div>
 
         <a href="/experience/djembe-world-percussions" class="disc-row reveal" id="disc-rhythm" data-disc="rhythm">
           <div class="disc-row-left">
                         <div class="disc-row-meta">
-              <span class="disc-pill">Rhythm</span>
-              <h3 class="disc-row-title">Djembe and Indian Percussion</h3>
-              <p class="disc-row-instr">Taufiq Qureshi</p>
-              <p class="disc-row-desc">From absolute basics to advanced performance. This program is one of the most comprehensive Indian rhythm, grooves and percussion courses devised by the decades of training developed by the master himself.</p>
+              <span class="disc-pill" data-cms-key="disc.rhythm.pill">Rhythm</span>
+              <h3 class="disc-row-title" data-cms-key="disc.rhythm.title">Djembe and Indian Percussion</h3>
+              <p class="disc-row-instr" data-cms-key="disc.rhythm.instructor">Taufiq Qureshi</p>
+              <p class="disc-row-desc" data-cms-key="disc.rhythm.description">From absolute basics to advanced performance. This program is one of the most comprehensive Indian rhythm, grooves and percussion courses devised by the decades of training developed by the master himself.</p>
             </div>
             <div class="disc-row-cta-wrap">
               <span class="disc-row-cta">Explore Course &nbsp;&rarr;</span>
@@ -2577,7 +2585,7 @@
             </div>
           </div>
           <div class="disc-row-right" style="background:#0a0007;">
-            <img src="/assets/tfr-play/saylee-vocals-hero.png" alt="Saylee Talwalkar — Vocals" style="object-fit:cover; object-position:center center;">
+            <img src="/assets/tfr-play/saylee-vocals-hero.jpg" alt="Saylee Talwalkar — Vocals" style="object-fit:cover; object-position:center center;">
           </div>
         </div>
 
@@ -4237,6 +4245,201 @@
     })();
 
   </script>
+<script src="/assets/js/cms-loader.js?v=1"></script>
+
+<!-- HOMEPAGE_LIVE_TEACHERS_V1 — dynamically inject teachers added via admin into the disciplines section -->
+<script>
+(function(){
+  // Map instrument → discipline tab
+  const INSTRUMENT_TO_DISC = {
+    sitar: 'melody', flute: 'melody', guitar: 'melody', harmonium: 'melody', violin: 'melody',
+    tabla: 'rhythm', djembey: 'rhythm', djembe: 'rhythm',
+    vocals: 'voice', vocal: 'voice',
+    kathak: 'dance'
+  };
+  const DISC_LABEL = { melody:'Melody', rhythm:'Rhythm', voice:'Voice', dance:'Dance' };
+  const DISC_BG = {
+    melody: 'linear-gradient(135deg,#1a0a00 0%,#3D2600 100%)',
+    rhythm: 'linear-gradient(135deg,#0a1400 0%,#1A3000 100%)',
+    voice:  'linear-gradient(135deg,#0a0a14 0%,#1A1A3E 100%)',
+    dance:  'linear-gradient(135deg,#140a14 0%,#3E1A3E 100%)'
+  };
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function buildCard(t, disc) {
+    const L = t.landing || {};
+    const photo = L.hero_photo_full || t.photo_url || '';
+    const title = (L.hero_title_line1 ? L.hero_title_line1 : t.name) + (L.hero_title_line2 ? ' — ' + L.hero_title_line2 : '');
+    const desc  = (t.bio || '').slice(0, 280);
+    return `
+      <div class="disc-row disc-row-locked reveal" id="disc-${disc}-${t.id}" data-disc="${disc}">
+        <div class="disc-row-left">
+          <div class="disc-row-meta">
+            <span class="disc-pill">${esc(DISC_LABEL[disc])}</span>
+            <h3 class="disc-row-title">${esc(title)}</h3>
+            <p class="disc-row-instr">${esc(t.name)}</p>
+            <p class="disc-row-desc">${esc(desc)}${(t.bio||'').length > 280 ? '…' : ''}</p>
+          </div>
+          <div class="disc-row-cta-wrap">
+            <div class="disc-wl">
+              <a href="/live-classes/${encodeURIComponent(t.slug)}" class="disc-wl-btn" style="display:inline-block;text-align:center;text-decoration:none;">Explore the Live Classes &rarr;</a>
+            </div>
+          </div>
+        </div>
+        <div class="disc-row-right" style="background:${DISC_BG[disc] || DISC_BG.melody};">
+          ${photo
+            ? `<img src="${esc(photo)}" alt="${esc(t.name)}" loading="lazy" decoding="async" style="object-position:center top;width:100%;height:auto;">`
+            : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(200,168,75,0.6);font-family:'Libre Baskerville',serif;font-size:32px;">${esc(t.name)}</div>`}
+        </div>
+      </div>`;
+  }
+
+  async function loadLiveTeachers(){
+    try {
+      console.log('[LC] Loading live teachers from /api/lc/teachers…');
+      const r = await fetch('/api/lc/teachers', { cache: 'no-store' });
+      if (!r.ok) { console.warn('[LC] API failed:', r.status); return; }
+      const { teachers } = await r.json();
+      console.log('[LC] Got', (teachers||[]).length, 'teachers:', (teachers||[]).map(t => t.name + '/' + t.instrument).join(', '));
+      if (!teachers || !teachers.length) return;
+
+      // Group by discipline
+      const byDisc = {};
+      teachers.forEach(t => {
+        if (!t) return;
+        const disc = INSTRUMENT_TO_DISC[(t.instrument||'').toLowerCase()];
+        if (!disc) { console.warn('[LC] Unknown instrument:', t.instrument); return; }
+        (byDisc[disc] = byDisc[disc] || []).push(t);
+      });
+      console.log('[LC] Grouped:', Object.keys(byDisc).map(d => d + '=' + byDisc[d].length).join(', '));
+
+      // For each discipline with DB teachers, replace existing static row with FIRST teacher's data in-place
+      ['melody','rhythm','voice','dance'].forEach(disc => {
+        const list = byDisc[disc];
+        if (!list || !list.length) return;
+        const existing = document.querySelector('#disc-' + disc);
+        if (!existing) { console.warn('[LC] No #disc-' + disc + ' element'); return; }
+        list.sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
+        const t = list[0]; // primary teacher for this discipline
+        const L = t.landing || {};
+        const photo = L.hero_photo_full || t.photo_url || '';
+        const title = (L.hero_title_line1 ? L.hero_title_line1 : t.name) + (L.hero_title_line2 ? ' — ' + L.hero_title_line2 : '');
+        const desc  = (t.bio || '').slice(0, 280) + ((t.bio||'').length > 280 ? '…' : '');
+
+        // CMS_OVERRIDE_FIX_V2 — strip CMS data-attrs so /assets/js/cms-loader.js doesn't overwrite us
+        existing.querySelectorAll('[data-cms-key],[data-cms-href-key],[data-cms-bg-key],[data-cms-attr]').forEach(el => {
+          el.removeAttribute('data-cms-key');
+          el.removeAttribute('data-cms-href-key');
+          el.removeAttribute('data-cms-bg-key');
+          el.removeAttribute('data-cms-attr');
+        });
+
+        // Mutate existing card in-place
+        const setText = (sel, txt) => { const el = existing.querySelector(sel); if (el) el.textContent = txt; };
+        setText('.disc-row-title', title);
+        setText('.disc-row-instr', t.name);
+        if (desc) setText('.disc-row-desc', desc);
+
+        // Replace CTA with "Explore the Live Classes →" link to teacher page
+        const ctaWrap = existing.querySelector('.disc-row-cta-wrap');
+        if (ctaWrap) {
+          ctaWrap.innerHTML = `<a href="/live-classes/${encodeURIComponent(t.slug)}" class="disc-wl-btn" style="display:inline-block;text-align:center;text-decoration:none;padding:14px 26px;background:transparent;border:1px solid rgba(200,168,75,0.4);color:#C8A84B;font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px;border-radius:4px;">Explore the Live Classes &rarr;</a>`;
+        }
+
+        // Replace image if photo URL provided
+        if (photo) {
+          const right = existing.querySelector('.disc-row-right');
+          if (right) {
+            right.innerHTML = `<img src="${photo}" alt="${t.name}" loading="lazy" decoding="async" style="object-position:center top;width:100%;height:100%;object-fit:cover;">`;
+          }
+        }
+        console.log('[LC] Replaced #disc-' + disc + ' with:', t.name);
+
+        // PAGINATION_V1 — show 5 cards per page (primary card counts as #1 on page 1)
+        // For 5+ teachers, paginate. For ≤5, show all without pager.
+        if (list.length > 1) {
+          const PAGE_SIZE = 5;
+          const totalPages = Math.ceil(list.length / PAGE_SIZE);
+
+          // Build extra cards (teachers index 1..N) as siblings after primary
+          const extraNodes = [];
+          for (let i = 1; i < list.length; i++) {
+            const t2 = list[i];
+            const L2 = t2.landing || {};
+            const photo2 = L2.hero_photo_full || t2.photo_url || '';
+            const title2 = (L2.hero_title_line1 ? L2.hero_title_line1 : t2.name) + (L2.hero_title_line2 ? ' — ' + L2.hero_title_line2 : '');
+            const desc2 = (t2.bio || '').slice(0, 280) + ((t2.bio||'').length > 280 ? '…' : '');
+            const extraCard = existing.cloneNode(true);
+            extraCard.id = 'disc-' + disc + '-' + t2.id;
+            extraCard.dataset.pageIdx = i; // 0 = primary, 1..N = extras
+            extraCard.querySelector('.disc-row-title') && (extraCard.querySelector('.disc-row-title').textContent = title2);
+            extraCard.querySelector('.disc-row-instr') && (extraCard.querySelector('.disc-row-instr').textContent = t2.name);
+            const dEl = extraCard.querySelector('.disc-row-desc'); if (dEl) dEl.textContent = desc2;
+            const right2 = extraCard.querySelector('.disc-row-right');
+            if (right2 && photo2) right2.innerHTML = `<img src="${photo2}" alt="${t2.name}" loading="lazy" decoding="async" style="object-position:center top;width:100%;height:100%;object-fit:cover;">`;
+            const ctaWrap2 = extraCard.querySelector('.disc-row-cta-wrap');
+            if (ctaWrap2) ctaWrap2.innerHTML = `<a href="/live-classes/${encodeURIComponent(t2.slug)}" class="disc-wl-btn" style="display:inline-block;text-align:center;text-decoration:none;padding:14px 26px;background:transparent;border:1px solid rgba(200,168,75,0.4);color:#C8A84B;font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px;border-radius:4px;">Explore the Live Classes &rarr;</a>`;
+            existing.parentNode.insertBefore(extraCard, existing.nextSibling);
+            extraNodes.push(extraCard);
+          }
+          // Mark primary
+          existing.dataset.pageIdx = 0;
+          const allCards = [existing, ...extraNodes];
+
+          // Build pager only if more than PAGE_SIZE total
+          if (list.length > PAGE_SIZE) {
+            const pager = document.createElement('div');
+            pager.className = 'disc-pager';
+            pager.dataset.disc = disc;
+            pager.style.cssText = 'display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap;';
+            for (let p = 1; p <= totalPages; p++) {
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.textContent = p;
+              btn.dataset.page = p;
+              btn.style.cssText = 'padding:8px 14px;background:transparent;border:1px solid rgba(200,168,75,0.32);color:#C8A84B;border-radius:4px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;';
+              btn.addEventListener('click', () => showPage(disc, p));
+              pager.appendChild(btn);
+            }
+            // Insert pager after the last card
+            const lastCard = allCards[allCards.length - 1];
+            lastCard.parentNode.insertBefore(pager, lastCard.nextSibling);
+          }
+
+          // Show first page initially
+          showPage(disc, 1);
+        }
+      });
+
+      function showPage(disc, page) {
+        const PAGE_SIZE = 5;
+        const cards = document.querySelectorAll('.disc-row[data-disc="' + disc + '"]');
+        const startIdx = (page - 1) * PAGE_SIZE;
+        const endIdx   = startIdx + PAGE_SIZE - 1;
+        cards.forEach(c => {
+          const idx = Number(c.dataset.pageIdx || 0);
+          c.style.display = (idx >= startIdx && idx <= endIdx) ? '' : 'none';
+        });
+        const pager = document.querySelector('.disc-pager[data-disc="' + disc + '"]');
+        if (pager) {
+          pager.querySelectorAll('button').forEach(b => {
+            const isActive = Number(b.dataset.page) === page;
+            b.style.background    = isActive ? '#C8A84B' : 'transparent';
+            b.style.color         = isActive ? '#080706' : '#C8A84B';
+            b.style.borderColor   = isActive ? '#C8A84B' : 'rgba(200,168,75,0.32)';
+          });
+        }
+      }
+      console.log('[LC] Done injecting live teachers into homepage.');
+    } catch (e) {
+      console.error('[LC] Error:', e);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadLiveTeachers);
+  else loadLiveTeachers();
+})();
+</script>
 </body>
 
 </html>

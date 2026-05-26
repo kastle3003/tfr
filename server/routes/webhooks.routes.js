@@ -7,6 +7,8 @@ const crypto = require('crypto');
 const router = express.Router();
 const db = require('../db');
 const { finalizePurchase } = require('./purchases.routes');
+let finalizeLcBooking = null;
+try { finalizeLcBooking = require('./lc.routes').finalizeLcBooking; } catch (_) {}
 
 const DRY_RUN = (process.env.RAZORPAY_WEBHOOK_DRY_RUN || 'false').toLowerCase() === 'true';
 
@@ -47,16 +49,25 @@ router.post(
 
       if (!orderId) return res.json({ ignored: true, reason: 'no_order_id' });
 
+      let lcBooking = null;
+      try { lcBooking = db.prepare('SELECT id, status FROM lc_bookings WHERE razorpay_order_id = ?').get(orderId); } catch (_) {}
+      if (lcBooking) {
+        if (event === 'payment.captured' && lcBooking.status !== 'paid' && finalizeLcBooking) finalizeLcBooking(orderId, paymentId);
+        else if (event === 'payment.failed' && lcBooking.status === 'pending') { try { db.prepare("UPDATE lc_bookings SET status='failed' WHERE id = ?").run(lcBooking.id); } catch (_) {} }
+        return res.json({ ok: true, module: 'lc_booking' });
+      }
+
       const purchase = db.prepare('SELECT * FROM purchases WHERE razorpay_order_id = ?').get(orderId);
       if (!purchase) return res.json({ ignored: true, reason: 'order_not_found' });
 
-      // Idempotency: if we've already completed this purchase via /verify, skip.
+      // Idempotency: only the writer that flips status to 'completed' fires side effects.
+      // The conditional WHERE clause makes the update atomic w.r.t. /verify route.
       if (event === 'payment.captured' && purchase.status !== 'completed') {
-        db.prepare(`
+        const upd = db.prepare(`
           UPDATE purchases SET status = 'completed', razorpay_payment_id = ?, updated_at = datetime('now')
-          WHERE id = ?
+          WHERE id = ? AND status != 'completed'
         `).run(paymentId || null, purchase.id);
-        finalizePurchase(purchase.id);
+        if (upd.changes > 0) finalizePurchase(purchase.id);
       } else if (event === 'payment.failed' && purchase.status === 'pending') {
         db.prepare("UPDATE purchases SET status = 'failed', updated_at = datetime('now') WHERE id = ?")
           .run(purchase.id);

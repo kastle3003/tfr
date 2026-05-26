@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Live Class Room — The Foundation Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080706; --bg-2:#0F0D0B; --bg-card:#161412; --bg-elevated:#1E1B17;
+    --gold:#C8A84B; --gold-bright:#E8C96E; --text:#F0E6D3; --text-2:#B8A898; --text-3:#6B5E50;
+    --ruby:#C8362A; --emerald:#3E8E5A;
+    --serif:'Libre Baskerville',Georgia,serif; --sans:'DM Sans',system-ui,sans-serif;
+  }
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:#000; color:var(--text); font-family:var(--sans); height:100vh; overflow:hidden; display:flex; flex-direction:column; }
+  .topbar{ background:var(--bg-2); border-bottom:1px solid rgba(200,168,75,.16); padding:10px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .topbar img{ height:24px; }
+  .topbar .info{ font-size:13px; color:var(--text-2); }
+  .topbar .info b{ color:var(--gold); }
+  .btn{ padding:7px 14px; background:transparent; border:1px solid rgba(200,168,75,.32); color:var(--text); border-radius:5px; cursor:pointer; font-size:12px; font-family:var(--sans); font-weight:600; text-decoration:none; display:inline-block; }
+  .btn-danger{ border-color:rgba(200,54,42,.4); color:var(--ruby); }
+  .room{ flex:1; position:relative; background:#000; }
+  #jitsi-container{ width:100%; height:100%; }
+  .external-meet{ display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; padding:40px; text-align:center; }
+  .external-meet h2{ font-family:var(--serif); color:var(--gold); font-size:28px; font-weight:400; margin-bottom:14px; }
+  .external-meet p{ color:var(--text-2); font-size:14px; max-width:520px; line-height:1.7; margin-bottom:24px; }
+  .external-meet .open-btn{ padding:14px 36px; background:var(--gold); color:#080706; border:none; border-radius:8px; font-size:14px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); }
+  .external-meet .open-btn:hover{ background:var(--gold-bright); }
+  .loading{ display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-3); font-style:italic; }
+  .error{ color:var(--ruby); padding:40px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <a href="/"><img src="/assets/tfr-play/tfr-logo-main.png" alt="TFR"></a>
+    <div class="info" id="info">Loading session…</div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <a href="/my-live-classes.html" class="btn">← Back</a>
+    <button class="btn btn-danger" onclick="leaveRoom()">Leave Class</button>
+  </div>
+</div>
+
+<div class="room" id="room"><div class="loading">Preparing classroom…</div></div>
+
+<script src="https://meet.tfrplay.com/external_api.js" defer></script>
+<script>
+  (function(){
+    const t = localStorage.getItem('archive_token');
+    if (!t) { window.location.replace('/signin.html'); return; }
+  })();
+
+  function getJoinParams(){
+    const p = new URLSearchParams(location.search);
+    return { bookingId: p.get('b'), slotId: p.get('s') };  // STRICT_JWT_V1 — ?b=booking (student) or ?s=slot (teacher)
+  }
+  function getBookingId(){ return new URLSearchParams(location.search).get('b'); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(s){ if(!s) return ''; const [y,m,d]=s.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
+
+  let jitsiApi = null;
+
+  function leaveRoom(){
+    if (jitsiApi) try { jitsiApi.dispose(); } catch(_){}
+    window.location.href = '/my-live-classes.html';
+  }
+  window.leaveRoom = leaveRoom;
+
+  function isJitsiLink(url){ try { return new URL(url).hostname === 'meet.tfrplay.com'; } catch(_){ return false; } }
+  function jitsiRoomFromUrl(url){ try { return new URL(url).pathname.replace(/^\//,'') || ''; } catch(_){ return ''; } }
+
+  async function recordJoin(bookingId){
+    try {
+      const token = localStorage.getItem('archive_token');
+      await fetch('/api/lc/me/joined/' + bookingId, { method:'POST', headers:{ Authorization:'Bearer ' + token } });
+    } catch(_){}
+  }
+
+  function renderJitsi(meetUrl, b){
+    const room = jitsiRoomFromUrl(meetUrl);
+    const userStr = localStorage.getItem('archive_user');
+    let displayName = b.name || 'Student';
+    try { const u = JSON.parse(userStr||'null'); if (u && u.first_name) displayName = u.first_name + ' ' + (u.last_name||''); } catch(_){}
+
+    const container = document.getElementById('room');
+    container.innerHTML = '<div id="jitsi-container"></div>';
+    if (!window.JitsiMeetExternalAPI) {
+      container.innerHTML = '<div class="error">Jitsi API failed to load. Please refresh.</div>';
+      return;
+    }
+    jitsiApi = new JitsiMeetExternalAPI('meet.tfrplay.com', {
+      roomName: room,
+      jwt: b.jitsi_jwt,                       // JITSI_JWT_V1 — only server-issued tokens allowed
+      parentNode: document.getElementById('jitsi-container'),
+      width: '100%', height: '100%',
+      userInfo: { displayName, email: b.email || '' },
+      configOverwrite: {
+        prejoinPageEnabled: false,                // skip prejoin → faster join, less Jitsi branding
+        startWithAudioMuted: true,
+        startWithVideoMuted: false,
+        enableLobby: true,
+        enableInsecureRoomNameWarning: false,
+        disableProfile: true,
+        defaultLogoUrl: '/assets/tfr-play/tfr-logo-main.png',
+        defaultLocalDisplayName: displayName,
+        hideConferenceSubject: true,
+        hideConferenceTimer: false,
+        toolbarConfig: { autoHideWhileChatIsOpen: true },
+        disableInviteFunctions: true,
+        doNotStoreRoom: true,
+        readOnlyName: true,
+        prejoinConfig: { enabled: false }
+      },
+      interfaceConfigOverwrite: {
+        // TFR_BRANDING_V1 — strip all Jitsi branding
+        SHOW_JITSI_WATERMARK: false,
+        SHOW_WATERMARK_FOR_GUESTS: false,
+        SHOW_BRAND_WATERMARK: false,
+        SHOW_POWERED_BY: false,
+        JITSI_WATERMARK_LINK: '',
+        BRAND_WATERMARK_LINK: '',
+        DEFAULT_LOGO_URL: '/assets/tfr-play/tfr-logo-main.png',
+        DEFAULT_WELCOME_PAGE_LOGO_URL: '/assets/tfr-play/tfr-logo-main.png',
+        DEFAULT_BACKGROUND: '#080706',
+        DEFAULT_REMOTE_DISPLAY_NAME: 'TFR Student',
+        DEFAULT_LOCAL_DISPLAY_NAME: displayName,
+        APP_NAME: 'TFR Live Class',
+        NATIVE_APP_NAME: 'TFR Live Class',
+        PROVIDER_NAME: 'The Foundation Room',
+        MOBILE_APP_PROMO: false,
+        HIDE_INVITE_MORE_HEADER: true,
+        DISABLE_JOIN_LEAVE_NOTIFICATIONS: false,
+        DISABLE_VIDEO_BACKGROUND: false,
+        SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+        SHOW_CHROME_EXTENSION_BANNER: false,
+        DISABLE_RINGING: true,
+        DISABLE_TRANSCRIPTION_SUBTITLES: false,
+        TOOLBAR_BUTTONS: [
+          'microphone','camera','closedcaptions','desktop','fullscreen',
+          'hangup','chat','participants-pane','raisehand','tileview',
+          'select-background','toggle-camera','help','settings'
+        ]
+      }
+    });
+    jitsiApi.addEventListener('videoConferenceJoined', () => {
+      recordJoin(b.booking_id);
+      // SECURE_ROOM_V1 — first joiner (becomes moderator) auto-enables lobby + sets password
+      // so subsequent joiners are gated even if URL leaks.
+      try {
+        // Generate a session password from the booking + slot so it's reproducible per-class
+        const pwd = 'tfr-' + (b.slot_id || '') + '-' + (Math.floor(Date.now()/3600000));
+        jitsiApi.executeCommand('password', pwd);                         // lock room
+        jitsiApi.executeCommand('toggleLobby', true);                     // open lobby (gate later joiners)
+      } catch (_) {}
+    });
+    // Auto-input password when joining if Jitsi prompts (for late joiners)
+    jitsiApi.addEventListener('passwordRequired', () => {
+      try {
+        const pwd = 'tfr-' + (b.slot_id || '') + '-' + (Math.floor(Date.now()/3600000));
+        jitsiApi.executeCommand('password', pwd);
+      } catch (_) {}
+    });
+    jitsiApi.addEventListener('readyToClose', () => leaveRoom());
+  }
+
+  function renderExternal(meetUrl, b){
+    document.getElementById('room').innerHTML = `
+      <div class="external-meet">
+        <h2>External Meeting Room</h2>
+        <p>Your class with <b style="color:var(--gold);">${esc(b.teacher_name)}</b> is hosted on an external platform (Google Meet or similar). Click below to join in a new tab.</p>
+        <p style="color:var(--text-3);font-size:12px;">${esc(b.slot_date)} · ${esc(b.start_time)} IST · ${b.duration_min||60} min</p>
+        <a href="${esc(meetUrl)}" target="_blank" rel="noopener" class="open-btn" onclick="recordJoin(${b.booking_id})">Open meeting in new tab →</a>
+      </div>`;
+  }
+
+  // TIME_GATE_V1 — only allow join 10 min before start until 30 min after class end
+  function classWindow(slotDate, startTime, durationMin){
+    const [y,m,d] = slotDate.split('-').map(Number);
+    const [hh,mm] = startTime.split(':').map(Number);
+    const start = new Date(y, m-1, d, hh, mm);
+    const open  = new Date(start.getTime() - 10 * 60 * 1000);
+    const close = new Date(start.getTime() + (Number(durationMin||60) + 30) * 60 * 1000);
+    return { start, open, close };
+  }
+  function fmtCountdown(ms){
+    if (ms <= 0) return '0s';
+    const s = Math.floor(ms/1000);
+    const days = Math.floor(s/86400), hrs = Math.floor((s%86400)/3600), mins = Math.floor((s%3600)/60), secs = s%60;
+    if (days > 0) return days + 'd ' + hrs + 'h';
+    if (hrs > 0)  return hrs + 'h ' + mins + 'm';
+    if (mins > 0) return mins + 'm ' + secs + 's';
+    return secs + 's';
+  }
+
+  function renderLocked(b){
+    const { start, open, close } = classWindow(b.slot_date, b.start_time, b.duration_min);
+    const now = new Date();
+    if (now >= close) {
+      document.getElementById('room').innerHTML = `
+        <div class="external-meet">
+          <h2>Class ended</h2>
+          <p>This live session ended on ${esc(fmtDate(b.slot_date))} at ${esc(b.start_time)} IST. Your assigned materials (if any) are in your dashboard.</p>
+          <a href="/my-live-class-materials.html" class="open-btn" style="margin-top:14px;">View My Materials →</a>
+        </div>`;
+      return;
+    }
+    // Locked — class hasn't opened yet
+    document.getElementById('room').innerHTML = `
+      <div class="external-meet">
+        <h2>🔒 Class Locked</h2>
+        <p>Your live session with <b style="color:var(--gold);">${esc(b.teacher_name)}</b> is on <b>${esc(fmtDate(b.slot_date))}</b> at <b>${esc(b.start_time)} IST</b>.</p>
+        <p style="margin-top:18px;">The Join button unlocks <strong>10 minutes before</strong> the scheduled start. Please come back then.</p>
+        <div style="margin-top:24px;padding:18px 28px;background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.18);border-radius:8px;display:inline-block;">
+          <div style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Opens in</div>
+          <div id="countdown" style="font-family:'Libre Baskerville',serif;font-size:32px;color:var(--gold);">${fmtCountdown(open - now)}</div>
+        </div>
+        <p style="margin-top:18px;"><a href="/my-live-classes.html" class="btn">← Back to My Live Classes</a></p>
+      </div>`;
+    // Tick down + auto-reload when window opens
+    const tick = () => {
+      const ms = open - new Date();
+      const el = document.getElementById('countdown');
+      if (!el) return;
+      if (ms <= 0) { location.reload(); return; }
+      el.textContent = fmtCountdown(ms);
+    };
+    setInterval(tick, 1000);
+  }
+
+  async function init(){
+    const { bookingId, slotId } = getJoinParams();
+    if (!bookingId && !slotId) { document.getElementById('room').innerHTML = '<div class="error">Missing booking or slot id.</div>'; return; }
+    // STRICT_JWT_V1 — student goes via /me/class-room, teacher via /teacher/class-room
+    const endpoint = slotId
+      ? '/api/lc/teacher/class-room/' + slotId
+      : '/api/lc/me/class-room/' + bookingId;
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch(endpoint, { headers:{ Authorization:'Bearer ' + token } });
+      if (r.status === 401) { window.location.replace('/signin.html'); return; }
+      if (r.status === 410) {
+        // STRICT_TIME_GATE_V1 — class ended, backend refused to serve meet link
+        document.getElementById('room').innerHTML = `
+          <div class="external-meet">
+            <h2>🔒 Class Ended</h2>
+            <p>This live session has ended. The meeting room is closed.</p>
+            <a href="/my-live-class-materials.html" class="open-btn" style="margin-top:14px;">View My Materials →</a>
+          </div>`;
+        return;
+      }
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      const b = data.booking;
+      document.getElementById('info').innerHTML = '<b>' + esc(b.teacher_name || 'Teacher') + '</b> · ' + esc(b.instrument || 'live') + ' · ' + fmtDate(b.slot_date) + ' ' + esc(b.start_time) + ' IST';
+      if (!b.meet_link) { document.getElementById('room').innerHTML = '<div class="error">No meeting link configured yet. Please ask the admin.</div>'; return; }
+
+      // TIME_GATE_V1 — only enter the room when the class window is open
+      const { open, close } = classWindow(b.slot_date, b.start_time, b.duration_min);
+      const now = new Date();
+      if (now < open || now >= close) { renderLocked(b); return; }
+
+      if (isJitsiLink(b.meet_link)) {
+        if (typeof window.JitsiMeetExternalAPI !== 'undefined') renderJitsi(b.meet_link, b);
+        else {
+          const wait = setInterval(() => { if (window.JitsiMeetExternalAPI){ clearInterval(wait); renderJitsi(b.meet_link, b); } }, 200);
+        }
+      } else {
+        renderExternal(b.meet_link, b);
+      }
+    } catch (e){
+      document.getElementById('room').innerHTML = '<div class="error">' + esc(e.message) + '</div>';
+    }
+  }
+
+  window.recordJoin = recordJoin;
+  init();
+</script>
+</body>
+</html>

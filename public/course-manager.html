@@ -1168,6 +1168,7 @@
               <button class="editor-tab active" onclick="switchEditorTab('overview', this)">Overview</button>
               <button class="editor-tab" onclick="switchEditorTab('chapters', this)">Chapters &amp; Lessons</button>
               <button class="editor-tab" onclick="switchEditorTab('assignments', this)">Assignments</button>
+              <button class="editor-tab" onclick="switchEditorTab('support-links', this)">Support Links</button>
             </div>
 
             <div class="editor-body">
@@ -1315,6 +1316,21 @@
                   </button>
                 </div>
                 <div id="assignments-list"></div>
+              </div>
+
+              <!-- ── Support Links Tab ── -->
+              <div class="editor-tab-panel" id="etab-support-links">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                  <div style="font-size:13px;color:var(--text-3);" id="sl-count-label">Loading…</div>
+                  <button class="btn btn-primary btn-sm" onclick="addSupportLink()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Link
+                  </button>
+                </div>
+                <div style="font-size:12px;color:var(--text-3);margin-bottom:12px;line-height:1.5;">
+                  External URLs visible to enrolled students under the course's Resources / Support Materials section. Use this for raag content, reference documents, or external practice tools hosted off-platform.
+                </div>
+                <div id="support-links-list"></div>
               </div>
             </div>
           </div>
@@ -1545,7 +1561,7 @@
   async function loadCourses() {
     try {
       const data = await api.get('/api/courses?status=all');
-      allCourses = data.courses || [];
+      allCourses = (data.courses || []).filter(c => c.status !== 'archived');
       renderCourseList(allCourses);
       // Allow deep-linking to a specific course via /course-manager.html#<id>
       const wanted = parseInt(window.location.hash.replace('#', ''));
@@ -1671,6 +1687,91 @@
     const panel = document.getElementById('etab-' + name);
     panel.classList.add('active');
     gsap.from(panel, { opacity: 0, y: 10, duration: 0.3, ease: 'power2.out' });
+    if (name === 'support-links' && selectedCourseId) loadSupportLinks(selectedCourseId);
+  }
+
+  // ────────── Support Links ──────────
+  let supportLinksData = [];
+
+  function escSL(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  async function loadSupportLinks(courseId) {
+    try {
+      const data = await api.get('/api/support-links?course_id=' + courseId);
+      supportLinksData = data.links || [];
+      renderSupportLinks();
+    } catch (e) {
+      document.getElementById('support-links-list').innerHTML =
+        '<div style="padding:24px;text-align:center;color:var(--text-3);font-size:13px;">Failed to load support links: ' + escSL(e.message) + '</div>';
+    }
+  }
+
+  function renderSupportLinks() {
+    const wrap = document.getElementById('support-links-list');
+    document.getElementById('sl-count-label').textContent =
+      supportLinksData.length + ' link' + (supportLinksData.length !== 1 ? 's' : '');
+    if (!supportLinksData.length) {
+      wrap.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-3);font-size:13px;border:1px dashed var(--border);border-radius:6px;">No support links yet. Click "New Link" to add the first one.</div>';
+      return;
+    }
+    wrap.innerHTML = supportLinksData.map(l => `
+      <div style="display:grid;grid-template-columns:1fr 1.6fr 0.7fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;">
+        <input type="text" value="${escSL(l.title)}" placeholder="Title" id="sl-title-${l.id}"
+          style="padding:6px 10px;font-size:13px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text);"
+          onchange="updateSupportLink(${l.id})">
+        <input type="url" value="${escSL(l.url)}" placeholder="https://…" id="sl-url-${l.id}"
+          style="padding:6px 10px;font-size:13px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text);"
+          onchange="updateSupportLink(${l.id})">
+        <input type="text" value="${escSL(l.category || '')}" placeholder="Category" id="sl-cat-${l.id}"
+          style="padding:6px 10px;font-size:13px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text);"
+          onchange="updateSupportLink(${l.id})">
+        <button onclick="deleteSupportLink(${l.id})" style="padding:6px 10px;font-size:12px;background:transparent;color:#c44;border:1px solid #c44;border-radius:4px;cursor:pointer;">Delete</button>
+      </div>
+    `).join('');
+  }
+
+  async function addSupportLink() {
+    if (!selectedCourseId) { toast('Save the course first.', 'error'); return; }
+    try {
+      const data = await api.post('/api/support-links', {
+        course_id: selectedCourseId,
+        title: 'New Link',
+        url: 'https://',
+        category: '',
+      });
+      if (data && data.link) {
+        supportLinksData.push(data.link);
+        renderSupportLinks();
+        const inp = document.getElementById('sl-title-' + data.link.id);
+        if (inp) { inp.select(); inp.focus(); }
+      }
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function updateSupportLink(id) {
+    const link = supportLinksData.find(l => l.id === id);
+    if (!link) return;
+    const title = document.getElementById('sl-title-' + id).value.trim();
+    const url = document.getElementById('sl-url-' + id).value.trim();
+    const category = document.getElementById('sl-cat-' + id).value.trim();
+    if (link.title === title && link.url === url && (link.category || '') === category) return;
+    try {
+      const data = await api.put('/api/support-links/' + id, { title, url, category });
+      if (data && data.link) {
+        Object.assign(link, data.link);
+        toast('Link saved');
+      }
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function deleteSupportLink(id) {
+    if (!confirm('Delete this support link?')) return;
+    try {
+      await api.del('/api/support-links/' + id);
+      supportLinksData = supportLinksData.filter(l => l.id !== id);
+      renderSupportLinks();
+      toast('Link deleted');
+    } catch (e) { toast(e.message, 'error'); }
   }
 
   // ── Swatch picker ──
@@ -1712,7 +1813,7 @@
         selectedCourseId = course.id;
         isNewCourse = false;
         const freshData = await api.get('/api/courses?status=all');
-        allCourses = freshData.courses || [];
+        allCourses = (freshData.courses || []).filter(c => c.status !== 'archived');
         renderCourseList(allCourses, false);
         toast('Course created successfully!');
         loadChapters(selectedCourseId);

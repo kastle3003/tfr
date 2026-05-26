@@ -61,8 +61,8 @@
           <ul class="footer-links">
             <li><span class="footer-link-inactive">Sitara&#8482; — Niladri Kumaar's Signature Sitar Program</span></li>
             <li><a href="/experience/djembe-world-percussions">Djembe and Indian Percussion — Taufiq Qureshi</a></li>
-            <li><span class="footer-link-inactive">Vocals — Saylee Talwalkar</span></li>
-            <li><span class="footer-link-inactive">Kathak — Guruma Sangita Sinha</span></li>
+            <li><span class="footer-link-inactive" data-cms-key="footer.course3_text">Vocals — Saylee Talwalkar</span></li>
+            <li><span class="footer-link-inactive" data-cms-key="footer.course4_text">Kathak — Guruma Sangita Sinha</span></li>
             <li><span class="footer-link-inactive">All Courses</span></li>
           </ul>
         </div>
@@ -71,35 +71,35 @@
           <p class="footer-col-title">Platform</p>
           <ul class="footer-links">
             <li><a href="/">Home</a></li>
-            <li><a href="/experience/djembe-world-percussions">TFR Play</a></li>
-            <li><span class="footer-link-inactive">TFR Kids</span></li>
+            <li><a href="/experience/djembe-world-percussions" data-cms-key="footer.platform2_text" data-cms-href-key="footer.platform2_link">TFR Play</a></li>
+            <li><span class="footer-link-inactive" data-cms-key="footer.platform3_text">TFR Kids</span></li>
           </ul>
         </div>
 
         <div>
           <p class="footer-col-title">Connect</p>
-          <p class="footer-connect-tagline">Ready to begin? We'd love to hear from you.</p>
-          <a href="mailto:join@thefoundationroom.in" class="footer-connect-cta">Start a Conversation &rarr;</a>
+          <p class="footer-connect-tagline"><span data-cms-key="footer.connect_tagline">Ready to begin? We'd love to hear from you.</span></p>
+          <a href="mailto:join@thefoundationroom.in" class="footer-connect-cta" data-cms-key="footer.connect_cta_text" data-cms-href-key="footer.connect_cta_link">Start a Conversation &rarr;</a>
           <div class="footer-connect-item">
             <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
-            <span><a href="tel:+919920615500">+91 99206 15500</a></span>
+            <span data-cms-key="footer.phone_html"><a href="tel:+919920615500">+91 99206 15500</a></span>
           </div>
           <div class="footer-connect-item">
             <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            <span><a href="mailto:join@thefoundationroom.in">join@thefoundationroom.in</a></span>
+            <span data-cms-key="footer.email_html"><a href="mailto:join@thefoundationroom.in">join@thefoundationroom.in</a></span>
           </div>
           <div class="footer-connect-item">
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>504, 505, Bal Gandharva Rang Mandir Auditorium,<br>Linking Road, Bandra West, Mumbai 400050</span>
+            <span data-cms-key="footer.address_html">504, 505, Bal Gandharva Rang Mandir Auditorium,<br>Linking Road, Bandra West, Mumbai 400050</span>
           </div>
           <div class="footer-connect-item">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
-            <span><a href="https://instagram.com/thisistfr" target="_blank" rel="noopener">@thisistfr on Instagram</a></span>
+            <span data-cms-key="footer.instagram_html"><a href="https://instagram.com/thisistfr" target="_blank" rel="noopener">@thisistfr on Instagram</a></span>
           </div>
         </div>
       </div>
       <div class="footer-bar">
-        <p class="footer-copy">&copy; 2026 THE FOUNDATION ROOM. ALL RIGHTS RESERVED. &nbsp;&middot;&nbsp; Designed &amp; Developed by Techinfinity</p>
+        <p class="footer-copy" data-cms-key="footer.copyright">&copy; 2026 THE FOUNDATION ROOM. ALL RIGHTS RESERVED. &nbsp;&middot;&nbsp; Designed &amp; Developed by Techinfinity</p>
         <div class="footer-legal">
           <span class="footer-link-inactive">Privacy Policy</span>
           <span class="footer-link-inactive">Refund Policy</span>

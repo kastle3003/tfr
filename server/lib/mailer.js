@@ -262,9 +262,40 @@ const FALLBACK_TEMPLATES = {
       <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;">Well done.</h2>
       <p>You've completed <strong>{{title}}</strong>. Keep the rhythm going.</p>`),
   },
+  interest_received: {
+    subject: 'Thanks for your interest — {{course_name}}',
+    html_body: wrap('Interest received', `
+      <h2 style="font-family:Georgia,serif;font-style:italic;color:#8B2E26;font-size:22px;margin:0 0 12px;">{{greeting}}</h2>
+      <p style="margin:0 0 16px;">We've received your interest in <strong>{{course_name}}</strong>{{tier_line}}, and your details are safely with us.</p>
+      <p style="margin:0 0 20px;">Our team will reach out personally with course openings, schedules, and next steps. In the meantime, feel free to explore the rest of the studio.</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr><td style="border-radius:4px;background-color:#8B2E26;">
+          <a href="{{course_url}}" style="display:inline-block;background-color:#8B2E26;color:#FAF7EE;text-decoration:none;padding:13px 30px;border-radius:4px;font-family:Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:0.04em;">Explore the studio →</a>
+        </td></tr>
+      </table>
+      <p style="margin:24px 0 0;font-size:13px;color:#9A8A72;">If you didn't fill out our form, you can safely ignore this email — no account has been created and no payment has been taken.</p>`),
+  },
 };
+
+// Admin notification — reads ADMIN_EMAIL (comma-separated for multiple recipients).
+// Used for lead/interest forms, purchase notifications, and any internal alert.
+// Fails silent: returns { ok:false } so callers don't break user flows.
+function adminRecipients() {
+  const raw = (process.env.ADMIN_EMAIL || '').trim();
+  if (!raw) return [];
+  return raw.split(',').map(s => s.trim()).filter(s => s.includes('@'));
+}
+
+async function notifyAdmin({ subject, html, text }) {
+  const to = adminRecipients();
+  if (to.length === 0) {
+    console.warn('[mailer] notifyAdmin skipped — ADMIN_EMAIL not set');
+    return { ok: false, reason: 'no_admin_email' };
+  }
+  return send({ to: to.join(', '), subject, html, text, template_name: 'admin_notification' });
+}
 
 // Warm up transporter so verify runs at server start
 getTransporter();
 
-module.exports = { send, sendTemplate, isConfigured, status, mergeVariables, frontendUrl };
+module.exports = { send, sendTemplate, notifyAdmin, isConfigured, status, mergeVariables, frontendUrl };

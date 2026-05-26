@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Teacher Dashboard — Live Classes · The Foundation Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080706; --bg-2:#0F0D0B; --bg-card:#161412; --bg-elevated:#1E1B17;
+    --gold:#C8A84B; --gold-bright:#E8C96E; --gold-dim:#7A6530;
+    --text:#F0E6D3; --text-2:#B8A898; --text-3:#6B5E50;
+    --ruby:#C8362A; --emerald:#3E8E5A;
+    --serif:'Libre Baskerville',Georgia,serif; --sans:'DM Sans',system-ui,sans-serif;
+    --r-sm:6px; --r-md:10px;
+  }
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; }
+  a{ color:inherit; text-decoration:none; }
+  .topbar{
+    background:linear-gradient(180deg,var(--bg-2) 0%,var(--bg) 100%);
+    border-bottom:1px solid rgba(200,168,75,.16);
+    padding:18px 32px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
+  }
+  .topbar-brand{ display:flex; align-items:center; gap:16px; }
+  .topbar-brand img{ height:32px; }
+  .topbar-brand .eyebrow{ font-size:11px; letter-spacing:.24em; color:var(--gold); text-transform:uppercase; font-weight:600; }
+  .topbar-actions{ display:flex; gap:10px; align-items:center; }
+  .btn{ padding:10px 18px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid transparent; transition:all .15s ease; font-family:var(--sans); }
+  .btn-outline{ background:transparent; border-color:rgba(200,168,75,.32); color:var(--text); text-decoration:none; display:inline-block; }
+  .btn-outline:hover{ border-color:var(--gold); background:rgba(200,168,75,0.06); color:var(--gold); }
+  .btn-danger{ background:transparent; border-color:rgba(200,54,42,.4); color:var(--ruby); }
+  .btn-danger:hover{ background:rgba(200,54,42,0.08); border-color:var(--ruby); }
+  .container{ max-width:1200px; margin:0 auto; padding:36px 32px 60px; }
+  .page-title{ font-family:var(--serif); font-size:32px; margin-bottom:6px; background:linear-gradient(135deg,var(--text) 0%,var(--gold-bright) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .page-sub{ color:var(--text-3); font-size:14px; margin-bottom:30px; }
+  .stat-row{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:32px; }
+  .stat-card{ background:linear-gradient(135deg,var(--bg-card) 0%,var(--bg-elevated) 100%); border:1px solid rgba(200,168,75,.12); border-radius:12px; padding:24px 26px; position:relative; overflow:hidden; transition:transform .2s ease, border-color .2s ease; }
+  .stat-card::before{ content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%); opacity:0.4; }
+  .stat-card:hover{ transform:translateY(-2px); border-color:rgba(200,168,75,.28); }
+  .stat-label{ font-size:11px; letter-spacing:.20em; text-transform:uppercase; color:var(--text-3); margin-bottom:10px; font-weight:600; }
+  .stat-value{ font-family:var(--serif); font-size:36px; color:var(--gold); font-weight:600; }
+  .tabs{ display:flex; gap:4px; border-bottom:1px solid rgba(200,168,75,.16); margin-bottom:24px; overflow-x:auto; }
+  .tab-btn{ background:transparent; border:none; color:var(--text-2); padding:14px 24px; font-size:14px; font-weight:500; cursor:pointer; border-bottom:2px solid transparent; font-family:var(--sans); transition:all .15s ease; white-space:nowrap; }
+  .tab-btn:hover{ color:var(--text); background:rgba(200,168,75,0.04); }
+  .tab-btn.active{ color:var(--gold); border-bottom-color:var(--gold); background:rgba(200,168,75,0.05); }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; animation:fadeIn .25s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes pulseGold { 0%,100% { box-shadow:0 4px 12px rgba(200,168,75,0.3); } 50% { box-shadow:0 4px 20px rgba(200,168,75,0.6); } }
+  .data-table{ width:100%; border-collapse:collapse; background:var(--bg-card); border:1px solid rgba(200,168,75,.10); border-radius:12px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.2); }
+  .data-table th{ text-align:left; padding:16px 18px; background:var(--bg-2); color:var(--gold-dim); font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-weight:700; border-bottom:1px solid rgba(200,168,75,.16); }
+  .data-table td{ padding:16px 18px; font-size:13px; color:var(--text-2); border-bottom:1px solid rgba(200,168,75,.06); vertical-align:middle; }
+  .data-table tr{ transition:background .15s ease; }
+  .data-table tr:hover{ background:rgba(200,168,75,0.03); }
+  .data-table tr:last-child td{ border-bottom:none; }
+  .badge{ display:inline-block; padding:3px 10px; border-radius:10px; font-size:11px; font-weight:600; letter-spacing:.04em; }
+  .badge.active{ background:rgba(62,142,90,.16); color:var(--emerald); }
+  .badge.inactive{ background:rgba(200,168,75,.10); color:var(--text-3); }
+  .badge.paid{ background:rgba(62,142,90,.16); color:var(--emerald); }
+  .badge.pending{ background:rgba(200,168,75,.16); color:var(--gold); }
+  .badge.failed{ background:rgba(200,54,42,.16); color:var(--ruby); }
+  .empty-state{ text-align:center; padding:40px 20px; color:var(--text-3); font-style:italic; }
+  .error{ color:var(--ruby); padding:20px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-brand">
+    <a href="/"><img src="/assets/tfr-play/tfr-logo-main.png" alt="TFR"></a>
+    <div>
+      <div class="eyebrow">Teacher Dashboard</div>
+      <div style="font-family:var(--serif);font-size:16px;" id="teacher-name-top">—</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <a href="/portal-hub.html" class="btn btn-outline" style="text-decoration:none;">⇄ Switch Portal</a>
+    <button class="btn btn-danger" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="page-title" id="welcome">Welcome</div>
+  <div class="page-sub" id="welcome-sub">Manage your upcoming live sessions and students.</div>
+
+  <div class="stat-row">
+    <div class="stat-card"><div class="stat-label">Upcoming slots</div><div class="stat-value" id="stat-upcoming">—</div></div>
+    <div class="stat-card"><div class="stat-label">Paid bookings</div><div class="stat-value" id="stat-bookings">—</div></div>
+    <div class="stat-card"><div class="stat-label">Total revenue</div><div class="stat-value" id="stat-revenue">—</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="slots">My Slots</button>
+    <button class="tab-btn" data-tab="students">My Students</button>
+    <button class="tab-btn" data-tab="bookings">All Bookings</button>
+    <button class="tab-btn" data-tab="coordinators">My Coordinators</button>
+    <button class="tab-btn" data-tab="activity">Activity</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-slots">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:13px;color:var(--text-3);">Create slots for your live classes. Each slot gets a secure auto-Jitsi room.</div>
+      <button onclick="openSlotModal()" style="padding:11px 22px;background:linear-gradient(135deg,var(--gold),var(--gold-bright));color:#080706;border:none;border-radius:6px;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 12px rgba(200,168,75,0.2);">+ New Slot</button>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Time</th><th>Duration</th><th>Seats</th><th style="text-align:center;">Join Meeting</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="slots-tbody"><tr><td colspan="7" class="empty-state">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="tab-panel" id="tab-students">
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Session Date</th><th>Plan</th><th>Content</th><th>Actions</th></tr></thead>
+      <tbody id="students-tbody"><tr><td colspan="7" class="empty-state">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="tab-panel" id="tab-bookings">
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th><th>Booked At</th></tr></thead>
+      <tbody id="bookings-tbody"><tr><td colspan="8" class="empty-state">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- TEACHER_CREATE_COORDINATOR_V1 -->
+  <div class="tab-panel" id="tab-coordinators">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:13px;color:var(--text-3);">Coordinators help manage your slots and prices. Only the ones you create are linked to you.</div>
+      <button class="btn btn-primary" onclick="openCoordModal()" style="padding:9px 16px;background:var(--gold);color:#080706;border:1px solid var(--gold);">+ Add Coordinator</button>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Email</th><th>Added</th><th>Actions</th></tr></thead>
+      <tbody id="coords-tbody"><tr><td colspan="4" class="empty-state">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- ACTIVITY_FEED_V1 -->
+  <div class="tab-panel" id="tab-activity">
+    <div style="font-size:13px;color:var(--text-3);margin-bottom:14px;">Recent activity in your scope — bookings, joins, coordinators, content assignments.</div>
+    <div id="activity-feed" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="empty-state">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT_DELETE_V1 confirm modal -->
+<div id="del-student-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-card);border:1px solid var(--ruby);border-radius:10px;padding:32px;max-width:520px;width:100%;">
+    <div style="font-family:var(--serif);font-size:24px;color:var(--ruby);margin-bottom:10px;">⚠ Delete Student Account</div>
+    <div style="font-size:14px;color:var(--text-2);margin-bottom:18px;line-height:1.6;">
+      You are about to <b style="color:var(--ruby);">permanently delete</b> this student's entire account from the database.
+    </div>
+    <div style="background:var(--bg-elevated);padding:14px 16px;border-radius:6px;margin-bottom:18px;">
+      <div style="font-size:13px;color:var(--text-3);">Student:</div>
+      <div id="del-student-name" style="font-size:16px;color:var(--text);font-weight:600;">—</div>
+      <div id="del-student-email" style="font-size:13px;color:var(--text-3);margin-top:4px;">—</div>
+    </div>
+    <div style="font-size:12px;color:var(--text-3);line-height:1.7;margin-bottom:20px;background:rgba(200,54,42,0.06);padding:12px 14px;border-radius:6px;border-left:3px solid var(--ruby);">
+      <b style="color:var(--ruby);">This will REMOVE forever:</b><br>
+      • Their login account · all bookings (yours AND any other teacher's)<br>
+      • All assigned content (PDFs / videos / notes)<br>
+      • Course enrollments, lesson progress, payments, certificates<br>
+      • Profile data — cannot be recovered
+    </div>
+    <div style="font-size:11px;color:var(--text-3);margin-bottom:8px;">Type the student's email to confirm:</div>
+    <input id="del-student-confirm-input" placeholder="email@example.com" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);margin-bottom:14px;">
+    <div id="del-student-msg" style="display:none;margin-bottom:10px;padding:8px 10px;border-radius:4px;font-size:12px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closeDelStudent()" class="btn btn-outline">Cancel</button>
+      <button id="del-student-go" onclick="doDeleteStudent()" class="btn btn-danger" style="background:var(--ruby);color:#fff;border:1px solid var(--ruby);">Delete Forever</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEACHER_SLOT_CRUD_V1 modal -->
+<div id="slot-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-card);border:1px solid rgba(200,168,75,0.18);border-radius:12px;padding:32px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto;">
+    <div style="font-family:var(--serif);font-size:24px;color:var(--gold);margin-bottom:6px;" id="sm-title">New Live Class Slot</div>
+    <div style="font-size:12px;color:var(--text-3);margin-bottom:18px;">A secure Jitsi room is auto-created for each slot.</div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Title <span style="color:var(--ruby);">*</span></div>
+      <input id="sm-title-input" required placeholder="e.g. Raag Jhinjoti — Aaroh & Avaroh" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);">
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Description <span style="color:var(--ruby);">*</span></div>
+      <textarea id="sm-description" required placeholder="What will students learn in this session?" rows="3" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);resize:vertical;min-height:70px;"></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div>
+        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Date <span style="color:var(--ruby);">*</span></div>
+        <input id="sm-date" type="date" required style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);">
+      </div>
+      <div>
+        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Start time (IST) <span style="color:var(--ruby);">*</span></div>
+        <input id="sm-time" type="time" required style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div>
+        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Duration (min) <span style="color:var(--ruby);">*</span></div>
+        <input id="sm-duration" type="number" required min="15" max="240" value="60" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);">
+      </div>
+      <div>
+        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Total seats <span style="color:var(--ruby);">*</span></div>
+        <input id="sm-seats" type="number" required min="1" max="500" value="15" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);">
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;">Price options</div>
+      <div id="sm-prices" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <button onclick="addPriceRow()" type="button" style="margin-top:8px;padding:6px 12px;background:transparent;border:1px solid rgba(200,168,75,0.32);color:var(--gold);border-radius:5px;font-size:11px;cursor:pointer;">+ Add price option</button>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="font-size:13px;color:var(--text-2);cursor:pointer;">
+        <input id="sm-active" type="checkbox" checked> Active (visible to students)
+      </label>
+    </div>
+    <div id="sm-msg" style="display:none;margin-bottom:12px;padding:10px;border-radius:6px;font-size:12px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closeSlotModal()" class="btn btn-outline">Cancel</button>
+      <button id="sm-save" onclick="saveSlot()" class="btn btn-primary" style="background:linear-gradient(135deg,var(--gold),var(--gold-bright));color:#080706;border:none;font-weight:700;">Save Slot</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEET_LINK_EDIT_V1 modal -->
+<div id="meet-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-card);border:1px solid rgba(200,168,75,0.18);border-radius:10px;padding:28px;max-width:520px;width:100%;">
+    <div style="font-family:var(--serif);font-size:22px;color:var(--gold);margin-bottom:4px;">Edit Meeting Link</div>
+    <div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">Slot:</div>
+    <div id="me-slot-info" style="font-size:14px;color:var(--text);margin-bottom:18px;">—</div>
+    <div style="display:flex;gap:18px;margin-bottom:12px;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-2);">
+        <input type="radio" name="me-mode" value="jitsi" onchange="toggleMeetEditMode()" checked> <b style="color:var(--gold);">Jitsi</b> (auto)
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-2);">
+        <input type="radio" name="me-mode" value="custom" onchange="toggleMeetEditMode()"> Google Meet / custom
+      </label>
+    </div>
+    <div id="me-info" style="font-size:11px;color:var(--text-3);padding:8px 12px;background:rgba(200,168,75,0.04);border-radius:4px;border-left:2px solid var(--gold);">Jitsi room auto: <code style="color:var(--gold);">meet.tfrplay.com/tfr-slot-{id}</code> — embedded in student dashboard.</div>
+    <div id="me-url-wrap" style="display:none;margin-top:8px;">
+      <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Meeting URL</div>
+      <input id="me-url" placeholder="https://meet.google.com/..." style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);">
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px;">Custom URL opens in a new tab (e.g. Google Meet blocks iframe embed).</div>
+    </div>
+    <div id="me-msg"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+      <button onclick="closeMeetEdit()" class="btn btn-outline">Cancel</button>
+      <button onclick="saveMeetEdit()" class="btn btn-primary" style="background:var(--gold);color:#080706;border:1px solid var(--gold);">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGNMENTS_V1 modal -->
+<div id="assign-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-card);border:1px solid rgba(200,168,75,0.18);border-radius:10px;padding:28px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;">
+    <div style="font-family:var(--serif);font-size:22px;color:var(--gold);margin-bottom:4px;">Assign Content</div>
+    <div style="font-size:12px;color:var(--text-3);margin-bottom:6px;">Student:</div>
+    <div id="a-student-info" style="font-size:14px;color:var(--text);margin-bottom:18px;">—</div>
+
+    <div id="a-existing" style="margin-bottom:16px;"></div>
+
+    <div style="border-top:1px solid rgba(200,168,75,0.16);padding-top:14px;margin-top:8px;">
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:10px;">Add new:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">Type</div>
+          <select id="a-type" onchange="toggleAssignFields()" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:8px 10px;font-family:var(--sans);">
+            <option value="pdf">PDF</option>
+            <option value="video">Video</option>
+            <option value="link">Link</option>
+            <option value="text">Text note</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">Title *</div>
+          <input id="a-title" maxlength="120" placeholder="e.g. Raag Jhinjoti — basics PDF" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:8px 10px;font-family:var(--sans);">
+        </div>
+      </div>
+      <div id="a-url-wrap">
+        <div id="a-url-label" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">PDF URL</div>
+        <input id="a-url" placeholder="https://..." style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:8px 10px;font-family:var(--sans);">
+      </div>
+      <div id="a-text-wrap" style="display:none;">
+        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">Content</div>
+        <textarea id="a-text" rows="4" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:8px 10px;font-family:var(--sans);"></textarea>
+      </div>
+      <div id="a-msg"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
+        <button onclick="closeAssignModal()" class="btn btn-outline">Close</button>
+        <button onclick="saveAssignment()" class="btn btn-primary" style="background:var(--gold);color:#080706;border:1px solid var(--gold);">+ Assign</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Coordinator modal -->
+<div id="coord-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card);border:1px solid rgba(200,168,75,0.18);border-radius:10px;padding:28px;max-width:480px;width:90%;">
+    <div style="font-family:var(--serif);font-size:22px;color:var(--gold);margin-bottom:6px;">Add Coordinator</div>
+    <div style="font-size:13px;color:var(--text-3);margin-bottom:18px;">Creates a coordinator account linked to your teacher profile. They can see your slots, students and edit your prices — but cannot see other teachers' data.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div><div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">First name *</div><input id="c-first" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);"></div>
+      <div><div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Last name *</div><input id="c-last" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);"></div>
+    </div>
+    <div style="margin-top:12px;"><div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Email *</div><input id="c-email" type="email" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);"></div>
+    <div style="margin-top:12px;"><div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Password * (min 6)</div><input id="c-pass" type="text" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);"></div>
+    <div id="coord-msg" style="margin-top:14px;font-size:13px;display:none;padding:10px;border-radius:6px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+      <button onclick="closeCoordModal()" class="btn btn-outline">Cancel</button>
+      <button id="coord-submit" onclick="createCoord()" class="btn btn-primary" style="background:var(--gold);color:#080706;border:1px solid var(--gold);">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── Auth guard ───
+  (function(){
+    const token = localStorage.getItem('archive_token');
+    const userStr = localStorage.getItem('archive_user');
+    if (!token || !userStr) { window.location.replace('/signin.html'); return; }
+    let user; try { user = JSON.parse(userStr); } catch (_) {}
+    if (!user || user.role !== 'instructor') { window.location.replace('/signin.html'); return; }
+  })();
+
+  function logout(){
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/signin.html';
+  }
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(s){ if(!s) return '—'; const [y,m,d]=s.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
+  function fmtDateTime(s){ if(!s) return '—'; try { return new Date(s).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); } catch(_){ return s; } }
+  function fmtINR(p){ return '₹' + ((p||0)/100).toLocaleString('en-IN'); }
+
+  async function api(path){
+    const token = localStorage.getItem('archive_token');
+    const r = await fetch(path, { headers:{ Authorization:'Bearer ' + token } });
+    if (r.status === 401) { logout(); return; }
+    const data = await r.json().catch(()=>({}));
+    if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+    return data;
+  }
+
+  // ─── Tabs ───
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ─── Load ───
+  async function loadAll(){
+    try {
+      const me = await api('/api/lc/teacher/me');
+      const t = me.teacher;
+      document.getElementById('teacher-name-top').textContent = t.name;
+      document.getElementById('welcome').textContent = 'Welcome, ' + t.name;
+      document.getElementById('welcome-sub').textContent = 'Manage your upcoming ' + (t.instrument||'live') + ' sessions and students.';
+    } catch (e) {
+      document.getElementById('welcome').textContent = 'Access denied';
+      document.getElementById('welcome-sub').innerHTML = '<span class="error">' + esc(e.message) + '</span><br><br>Your account is not linked to any live-class teacher profile. Ask the admin to link your account from the admin → Live Class Bookings → Teachers panel.';
+      return;
+    }
+    try {
+      const s = await api('/api/lc/teacher/stats');
+      document.getElementById('stat-upcoming').textContent = s.upcoming_slots;
+      document.getElementById('stat-bookings').textContent = s.total_bookings;
+      document.getElementById('stat-revenue').textContent = fmtINR(s.total_revenue_paise);
+    } catch (e) { /* keep dashes */ }
+    loadSlots(); loadBookings(); loadCoordinators(); loadActivity();
+  }
+
+  /* STUDENT_DELETE_V1 */
+  let _delStudent = null;
+  function confirmDeleteStudent(userId, name, email){
+    _delStudent = { userId, name, email };
+    document.getElementById('del-student-name').textContent = name;
+    document.getElementById('del-student-email').textContent = email;
+    document.getElementById('del-student-confirm-input').value = '';
+    document.getElementById('del-student-msg').style.display = 'none';
+    document.getElementById('del-student-modal').style.display = 'flex';
+  }
+  function closeDelStudent(){
+    document.getElementById('del-student-modal').style.display = 'none';
+    _delStudent = null;
+  }
+  async function doDeleteStudent(){
+    if (!_delStudent) return;
+    const typed = document.getElementById('del-student-confirm-input').value.trim().toLowerCase();
+    if (typed !== _delStudent.email.toLowerCase()) {
+      const m = document.getElementById('del-student-msg');
+      m.style.display = 'block'; m.style.background = 'rgba(200,54,42,0.10)'; m.style.color = 'var(--ruby)';
+      m.textContent = 'Email does not match. Type the exact email to confirm.';
+      return;
+    }
+    const btn = document.getElementById('del-student-go');
+    btn.disabled = true; btn.textContent = 'Deleting…';
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch('/api/lc/teacher/students/' + _delStudent.userId, { method:'DELETE', headers:{ Authorization:'Bearer ' + token } });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      const m = document.getElementById('del-student-msg');
+      m.style.display = 'block'; m.style.background = 'rgba(62,142,90,0.10)'; m.style.color = 'var(--emerald)';
+      m.textContent = '✓ ' + _delStudent.name + ' has been permanently deleted from the database.';
+      loadBookings();
+      setTimeout(closeDelStudent, 1600);
+    } catch (e) {
+      const m = document.getElementById('del-student-msg');
+      m.style.display = 'block'; m.style.background = 'rgba(200,54,42,0.10)'; m.style.color = 'var(--ruby)';
+      m.textContent = e.message;
+    } finally {
+      btn.disabled = false; btn.textContent = 'Delete Forever';
+    }
+  }
+  window.confirmDeleteStudent = confirmDeleteStudent;
+  window.closeDelStudent = closeDelStudent;
+  window.doDeleteStudent = doDeleteStudent;
+
+  /* ACTIVITY_FEED_V1 */
+  async function loadActivity(){
+    try {
+      const r = await api('/api/lc/teacher/activity');
+      const items = r.activity || [];
+      const el = document.getElementById('activity-feed');
+      if (!items.length){ el.innerHTML = '<div class="empty-state">No activity yet.</div>'; return; }
+      el.innerHTML = items.map(a => `
+        <div style="display:flex;gap:14px;padding:14px 18px;background:var(--bg-card);border:1px solid rgba(200,168,75,.08);border-radius:8px;">
+          <div style="font-size:22px;line-height:1;flex-shrink:0;width:36px;text-align:center;">${a.icon||'•'}</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;color:var(--text);font-weight:500;">${esc(a.title)}</div>
+            ${a.detail ? `<div style="font-size:12px;color:var(--text-3);margin-top:4px;">${esc(a.detail)}</div>` : ''}
+            <div style="font-size:11px;color:var(--text-3);margin-top:6px;">${fmtDateTime(a.ts)}</div>
+          </div>
+        </div>`).join('');
+    } catch (e){ document.getElementById('activity-feed').innerHTML = '<div class="error">' + esc(e.message) + '</div>'; }
+  }
+
+  /* TEACHER_CREATE_COORDINATOR_V1 */
+  async function loadCoordinators(){
+    try {
+      const r = await api('/api/lc/teacher/coordinators');
+      const list = r.coordinators || [];
+      if (!list.length){ document.getElementById('coords-tbody').innerHTML = '<tr><td colspan="4" class="empty-state">No coordinators yet. Click "+ Add Coordinator" to create one.</td></tr>'; return; }
+      document.getElementById('coords-tbody').innerHTML = list.map(c => `
+        <tr>
+          <td>${esc(c.first_name)} ${esc(c.last_name)}</td>
+          <td>${esc(c.email)}</td>
+          <td style="color:var(--text-3);font-size:12px;">${fmtDateTime(c.created_at)}</td>
+          <td><button onclick="removeCoord(${c.id})" style="padding:6px 12px;background:transparent;border:1px solid rgba(200,54,42,0.4);color:var(--ruby);border-radius:6px;font-size:12px;cursor:pointer;">Remove</button></td>
+        </tr>`).join('');
+    } catch (e){ document.getElementById('coords-tbody').innerHTML = '<tr><td colspan="4" class="error">' + esc(e.message) + '</td></tr>'; }
+  }
+
+  function openCoordModal(){
+    ['c-first','c-last','c-email','c-pass'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('coord-msg').style.display = 'none';
+    document.getElementById('coord-modal').style.display = 'flex';
+  }
+  function closeCoordModal(){ document.getElementById('coord-modal').style.display = 'none'; }
+  window.openCoordModal = openCoordModal;
+  window.closeCoordModal = closeCoordModal;
+
+  async function createCoord(){
+    const btn = document.getElementById('coord-submit');
+    const msg = document.getElementById('coord-msg');
+    const body = {
+      first_name: document.getElementById('c-first').value.trim(),
+      last_name: document.getElementById('c-last').value.trim(),
+      email: document.getElementById('c-email').value.trim(),
+      password: document.getElementById('c-pass').value
+    };
+    if (!body.first_name || !body.last_name || !body.email || !body.password) {
+      msg.style.display = 'block'; msg.style.background = 'rgba(200,54,42,0.10)'; msg.style.color = 'var(--ruby)';
+      msg.textContent = 'Please fill all fields.'; return;
+    }
+    if (body.password.length < 6) {
+      msg.style.display = 'block'; msg.style.background = 'rgba(200,54,42,0.10)'; msg.style.color = 'var(--ruby)';
+      msg.textContent = 'Password must be at least 6 characters.'; return;
+    }
+    btn.disabled = true; btn.textContent = 'Creating…';
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch('/api/lc/teacher/coordinators', {
+        method:'POST', headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token },
+        body: JSON.stringify(body)
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      msg.style.display = 'block'; msg.style.background = 'rgba(62,142,90,0.10)'; msg.style.color = 'var(--emerald)';
+      msg.textContent = '✓ Coordinator created. Share these credentials with them.';
+      loadCoordinators();
+      setTimeout(closeCoordModal, 1600);
+    } catch (e) {
+      msg.style.display = 'block'; msg.style.background = 'rgba(200,54,42,0.10)'; msg.style.color = 'var(--ruby)';
+      msg.textContent = e.message;
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create';
+    }
+  }
+  window.createCoord = createCoord;
+
+  async function removeCoord(id){
+    if (!confirm('Remove this coordinator? Their account will be deactivated.')) return;
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch('/api/lc/teacher/coordinators/' + id, { method:'DELETE', headers:{ Authorization:'Bearer ' + token } });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      loadCoordinators();
+    } catch (e) { alert(e.message); }
+  }
+  window.removeCoord = removeCoord;
+
+  async function loadSlots(){
+    try {
+      const r = await api('/api/lc/teacher/slots');
+      const slots = r.slots || [];
+      if (!slots.length){ document.getElementById('slots-tbody').innerHTML = '<tr><td colspan="7" class="empty-state">No slots yet. Admin can add slots from the admin panel.</td></tr>'; return; }
+      window._teacherSlots = slots;
+      const now = new Date();
+      document.getElementById('slots-tbody').innerHTML = slots.map(s => {
+        const isJitsi = s.meet_link && s.meet_link.indexOf('meet.tfrplay.com') !== -1;
+        const platform = !s.meet_link ? '<span style="color:var(--text-3);">—</span>' : (isJitsi ? '<span style="color:var(--gold);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;background:rgba(200,168,75,0.10);padding:2px 8px;border-radius:10px;">⚡ Jitsi</span>' : '<span style="color:var(--text-2);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;background:rgba(184,168,152,0.08);padding:2px 8px;border-radius:10px;">Custom</span>');
+        // Time window: enable Join from 10 min before until 30 min after end
+        const [y,m,d] = (s.slot_date||'2099-01-01').split('-').map(Number);
+        const [hh,mm] = (s.start_time||'00:00').split(':').map(Number);
+        const start = new Date(y, m-1, d, hh, mm);
+        const open  = new Date(start.getTime() - 10 * 60 * 1000);
+        const close = new Date(start.getTime() + (Number(s.duration_min||60) + 30) * 60 * 1000);
+        const isLive = now >= open && now < close;
+        const isPast = now >= close;
+        let joinBtn;
+        if (!s.meet_link) {
+          joinBtn = '<span style="color:var(--text-3);font-size:11px;font-style:italic;">No meeting link</span>';
+        } else if (isLive) {
+          joinBtn = `<a href="/live-class-room.html?s=${s.id}" style="display:inline-block;padding:10px 18px;background:linear-gradient(135deg,var(--gold),var(--gold-bright));color:#080706;border-radius:6px;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 4px 12px rgba(200,168,75,0.3);animation:pulseGold 2s ease-in-out infinite;">▶ Start Class</a>`;
+        } else if (isPast) {
+          joinBtn = '<span style="color:var(--text-3);font-size:11px;">Class ended</span>';
+        } else {
+          // Show how long until class opens
+          const mins = Math.round((open - now) / 60000);
+          let label;
+          if (mins > 60 * 24) label = 'Opens ' + fmtDate(s.slot_date);
+          else if (mins > 60) label = 'Opens in ' + Math.floor(mins/60) + 'h';
+          else label = 'Opens in ' + mins + 'm';
+          joinBtn = `<button disabled style="padding:8px 14px;background:rgba(200,168,75,0.06);color:var(--text-3);border:1px solid rgba(200,168,75,0.16);border-radius:6px;font-size:11px;cursor:not-allowed;font-weight:600;letter-spacing:.04em;">🔒 ${esc(label)}</button>`;
+        }
+        return `<tr>
+          <td><div style="font-family:var(--serif);font-size:15px;color:var(--text);">${fmtDate(s.slot_date)}</div></td>
+          <td><div style="color:var(--gold);font-weight:600;">${esc(s.start_time)} <span style="color:var(--text-3);font-weight:400;font-size:11px;">IST</span></div></td>
+          <td>${s.duration_min||60} min</td>
+          <td><span style="font-family:var(--serif);font-size:15px;color:var(--text);">${s.booked_seats||0}</span><span style="color:var(--text-3);"> / ${s.total_seats}</span></td>
+          <td style="text-align:center;">${joinBtn}<div style="margin-top:6px;">${platform}</div></td>
+          <td>${s.is_active ? '<span class="badge active">Active</span>' : '<span class="badge inactive">Inactive</span>'}</td>
+          <td style="white-space:nowrap;">
+            <button onclick="openSlotModal(${s.id})" style="padding:6px 10px;background:transparent;border:1px solid rgba(200,168,75,0.32);color:var(--text);border-radius:6px;font-size:11px;cursor:pointer;margin-right:4px;">✏ Edit</button>
+            <button onclick="openMeetEdit(${s.id})" style="padding:6px 10px;background:transparent;border:1px solid rgba(200,168,75,0.32);color:var(--text);border-radius:6px;font-size:11px;cursor:pointer;margin-right:4px;">🎥 Link</button>
+            <button onclick="deleteSlot(${s.id})" style="padding:6px 10px;background:transparent;border:1px solid rgba(200,54,42,0.4);color:var(--ruby);border-radius:6px;font-size:11px;cursor:pointer;">🗑</button>
+          </td>
+        </tr>`;
+      }).join('');
+    } catch (e){
+      document.getElementById('slots-tbody').innerHTML = '<tr><td colspan="7" class="error">' + esc(e.message) + '</td></tr>';
+    }
+  }
+
+  /* MEET_LINK_EDIT_V1 */
+  let _meetEditSlotId = null;
+  function openMeetEdit(slotId){
+    const s = (window._teacherSlots||[]).find(x => x.id === slotId);
+    if (!s) return;
+    _meetEditSlotId = slotId;
+    document.getElementById('me-slot-info').textContent = fmtDate(s.slot_date) + ' · ' + s.start_time + ' IST';
+    const isJitsi = !s.meet_link || s.meet_link.indexOf('meet.tfrplay.com') !== -1;
+    document.querySelector('input[name="me-mode"][value="' + (isJitsi ? 'jitsi' : 'custom') + '"]').checked = true;
+    document.getElementById('me-url').value = isJitsi ? '' : (s.meet_link || '');
+    toggleMeetEditMode();
+    document.getElementById('me-msg').style.display = 'none';
+    document.getElementById('meet-edit-modal').style.display = 'flex';
+  }
+  function closeMeetEdit(){ document.getElementById('meet-edit-modal').style.display = 'none'; }
+  function toggleMeetEditMode(){
+    const mode = document.querySelector('input[name="me-mode"]:checked').value;
+    document.getElementById('me-url-wrap').style.display = (mode === 'jitsi') ? 'none' : 'block';
+    document.getElementById('me-info').style.display = (mode === 'jitsi') ? 'block' : 'none';
+  }
+  async function saveMeetEdit(){
+    const mode = document.querySelector('input[name="me-mode"]:checked').value;
+    const url = mode === 'jitsi' ? null : (document.getElementById('me-url').value.trim() || null);
+    if (mode === 'custom' && !url) { showMeetEditMsg('URL required for custom mode', 'err'); return; }
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch('/api/lc/teacher/slots/' + _meetEditSlotId + '/meet-link', {
+        method:'PUT', headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token },
+        body: JSON.stringify({ meet_link: url })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      showMeetEditMsg('✓ Saved: ' + data.meet_link, 'ok');
+      loadSlots();
+      setTimeout(closeMeetEdit, 1200);
+    } catch (e) { showMeetEditMsg(e.message, 'err'); }
+  }
+  function showMeetEditMsg(text, type){
+    const el = document.getElementById('me-msg');
+    el.style.display = 'block'; el.style.padding = '8px 10px'; el.style.borderRadius = '4px'; el.style.fontSize = '12px'; el.style.marginTop = '10px';
+    if (type === 'ok'){ el.style.background = 'rgba(62,142,90,0.10)'; el.style.color = 'var(--emerald)'; }
+    else { el.style.background = 'rgba(200,54,42,0.10)'; el.style.color = 'var(--ruby)'; }
+    el.textContent = text;
+  }
+  window.openMeetEdit = openMeetEdit;
+  window.closeMeetEdit = closeMeetEdit;
+  window.toggleMeetEditMode = toggleMeetEditMode;
+  window.saveMeetEdit = saveMeetEdit;
+
+  /* TEACHER_SLOT_CRUD_V1 */
+  let _editingSlotId = null;
+  function addPriceRow(label, amount){
+    const wrap = document.getElementById('sm-prices');
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+    row.innerHTML = `
+      <input class="sm-price-label" placeholder="Label (e.g. Basic)" value="${esc(label||'')}" style="flex:1;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:5px;padding:8px 10px;font-family:var(--sans);font-size:13px;">
+      <span style="color:var(--text-3);">₹</span>
+      <input class="sm-price-amount" type="number" placeholder="999" value="${amount||''}" style="width:100px;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:5px;padding:8px 10px;font-family:var(--sans);font-size:13px;">
+      <button type="button" onclick="this.parentNode.remove()" style="background:transparent;border:none;color:var(--ruby);cursor:pointer;font-size:16px;">✕</button>
+    `;
+    wrap.appendChild(row);
+  }
+  function openSlotModal(slotId){
+    _editingSlotId = slotId || null;
+    document.getElementById('sm-title').textContent = slotId ? 'Edit Slot' : 'New Live Class Slot';
+    document.getElementById('sm-prices').innerHTML = '';
+    document.getElementById('sm-msg').style.display = 'none';
+    if (slotId) {
+      const s = (window._teacherSlots||[]).find(x => x.id === slotId);
+      if (!s) return;
+      document.getElementById('sm-title-input').value = s.title || '';
+      document.getElementById('sm-description').value = s.description || '';
+      document.getElementById('sm-date').value = s.slot_date || '';
+      document.getElementById('sm-time').value = s.start_time || '';
+      document.getElementById('sm-duration').value = s.duration_min || 60;
+      document.getElementById('sm-seats').value = s.total_seats || 15;
+      document.getElementById('sm-active').checked = !!s.is_active;
+      (s.price_options || []).forEach(p => addPriceRow(p.label, (p.amount_paise||0)/100));
+      if (!(s.price_options || []).length) { addPriceRow('Basic', 999); }
+    } else {
+      ['sm-title-input','sm-description','sm-date','sm-time'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('sm-duration').value = 60;
+      document.getElementById('sm-seats').value = 15;
+      document.getElementById('sm-active').checked = true;
+      addPriceRow('Basic', 999);
+    }
+    document.getElementById('slot-modal').style.display = 'flex';
+  }
+  function closeSlotModal(){ document.getElementById('slot-modal').style.display = 'none'; }
+  function showSlotMsg(text, type){
+    const el = document.getElementById('sm-msg');
+    el.style.display = 'block';
+    el.style.background = type === 'ok' ? 'rgba(62,142,90,0.10)' : 'rgba(200,54,42,0.10)';
+    el.style.color = type === 'ok' ? 'var(--emerald)' : 'var(--ruby)';
+    el.textContent = text;
+  }
+  async function saveSlot(){
+    const prices = Array.from(document.querySelectorAll('#sm-prices > div')).map(row => ({
+      label: row.querySelector('.sm-price-label').value.trim(),
+      amount_paise: Math.round(Number(row.querySelector('.sm-price-amount').value || 0) * 100)
+    })).filter(p => p.label && p.amount_paise > 0);
+    const title = document.getElementById('sm-title-input').value.trim();
+    const description = document.getElementById('sm-description').value.trim();
+    const slot_date = document.getElementById('sm-date').value;
+    const start_time = document.getElementById('sm-time').value;
+    const duration_min = Number(document.getElementById('sm-duration').value);
+    const total_seats = Number(document.getElementById('sm-seats').value);
+    // ALL_FIELDS_REQUIRED_V1 — strict validation
+    if (!title)        return showSlotMsg('Title is required.', 'err');
+    if (!description)  return showSlotMsg('Description is required.', 'err');
+    if (!slot_date)    return showSlotMsg('Date is required.', 'err');
+    if (!start_time)   return showSlotMsg('Start time is required.', 'err');
+    if (!duration_min || duration_min < 15) return showSlotMsg('Duration must be at least 15 minutes.', 'err');
+    if (!total_seats || total_seats < 1)    return showSlotMsg('Total seats must be at least 1.', 'err');
+    if (!prices.length) return showSlotMsg('Add at least one price option (label + amount).', 'err');
+    const body = {
+      title, description, slot_date, start_time, duration_min, total_seats,
+      is_active: document.getElementById('sm-active').checked ? 1 : 0,
+      price_options: prices
+    };
+    try {
+      const token = localStorage.getItem('archive_token');
+      const url = _editingSlotId ? '/api/lc/teacher/slots/' + _editingSlotId : '/api/lc/teacher/slots';
+      const method = _editingSlotId ? 'PUT' : 'POST';
+      const r = await fetch(url, { method, headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token }, body: JSON.stringify(body) });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      showSlotMsg('✓ Slot saved', 'ok');
+      loadSlots();
+      setTimeout(closeSlotModal, 800);
+    } catch (e) { showSlotMsg(e.message, 'err'); }
+  }
+  async function deleteSlot(slotId){
+    const s = (window._teacherSlots||[]).find(x => x.id === slotId);
+    const msg = s && s.booked_seats > 0
+      ? 'This slot has ' + s.booked_seats + ' booking(s). Deleting will DEACTIVATE it (history preserved). Continue?'
+      : 'Delete this slot permanently?';
+    if (!confirm(msg)) return;
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch('/api/lc/teacher/slots/' + slotId, { method:'DELETE', headers:{ Authorization:'Bearer ' + token } });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      loadSlots();
+    } catch (e) { alert(e.message); }
+  }
+  window.openSlotModal = openSlotModal;
+  window.closeSlotModal = closeSlotModal;
+  window.saveSlot = saveSlot;
+  window.deleteSlot = deleteSlot;
+  window.addPriceRow = addPriceRow;
+
+  async function loadBookings(){
+    try {
+      const r = await api('/api/lc/teacher/bookings');
+      const all = r.bookings || [];
+      const paid = all.filter(b => b.status === 'paid');
+
+      // Students tab (paid only) — assign content + DELETE STUDENT_DELETE_V1
+      if (!paid.length) document.getElementById('students-tbody').innerHTML = '<tr><td colspan="7" class="empty-state">No paid bookings yet.</td></tr>';
+      else document.getElementById('students-tbody').innerHTML = paid.map(b => {
+        const safeName = esc(b.name).replace(/'/g,"\\'");
+        const safeEmail = esc(b.email).replace(/'/g,"\\'");
+        return `
+        <tr>
+          <td>${esc(b.name)}</td>
+          <td>${esc(b.email)}</td>
+          <td>${esc(b.phone||'—')}</td>
+          <td>${fmtDate(b.slot_date)} · ${esc(b.start_time||'')}</td>
+          <td>${esc(b.price_label||'—')}</td>
+          <td><button onclick="openAssignModal(${b.id}, '${safeName}', '${safeEmail}')" style="padding:6px 12px;background:var(--gold);color:#080706;border:1px solid var(--gold);border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;">+ Assign content</button></td>
+          <td>${b.user_id ? `<button onclick="confirmDeleteStudent(${b.user_id}, '${safeName}', '${safeEmail}')" style="padding:6px 12px;background:transparent;border:1px solid rgba(200,54,42,0.4);color:var(--ruby);border-radius:6px;font-size:12px;cursor:pointer;">Delete</button>` : '<span style="color:var(--text-3);font-size:11px;">(guest)</span>'}</td>
+        </tr>`;
+      }).join('');
+
+      // All bookings tab
+      if (!all.length) document.getElementById('bookings-tbody').innerHTML = '<tr><td colspan="8" class="empty-state">No bookings yet.</td></tr>';
+      else document.getElementById('bookings-tbody').innerHTML = all.map(b => `
+        <tr>
+          <td>#${b.id}</td>
+          <td>${esc(b.name)}</td>
+          <td>${esc(b.email)}</td>
+          <td>${fmtDate(b.slot_date)} · ${esc(b.start_time||'')}</td>
+          <td>${esc(b.price_label||'—')}</td>
+          <td>${fmtINR(b.amount_paid_paise)}</td>
+          <td><span class="badge ${b.status||'pending'}">${esc(b.status||'pending')}</span></td>
+          <td style="color:var(--text-3);font-size:12px;">${fmtDateTime(b.created_at)}</td>
+        </tr>`).join('');
+    } catch (e){
+      document.getElementById('students-tbody').innerHTML = '<tr><td colspan="6" class="error">' + esc(e.message) + '</td></tr>';
+      document.getElementById('bookings-tbody').innerHTML = '<tr><td colspan="8" class="error">' + esc(e.message) + '</td></tr>';
+    }
+  }
+
+  /* ASSIGNMENTS_V1 — per-booking content assignment */
+  let assignContext = { bookingId: null, studentName: '', studentEmail: '' };
+  function openAssignModal(bookingId, name, email){
+    assignContext = { bookingId, studentName: name, studentEmail: email };
+    document.getElementById('a-student-info').textContent = name + ' · ' + email;
+    document.getElementById('a-title').value = '';
+    document.getElementById('a-url').value = '';
+    document.getElementById('a-text').value = '';
+    document.getElementById('a-type').value = 'pdf';
+    document.getElementById('a-msg').style.display = 'none';
+    toggleAssignFields();
+    loadAssignmentsForBooking(bookingId);
+    document.getElementById('assign-modal').style.display = 'flex';
+  }
+  function closeAssignModal(){ document.getElementById('assign-modal').style.display = 'none'; }
+  function toggleAssignFields(){
+    const t = document.getElementById('a-type').value;
+    document.getElementById('a-url-wrap').style.display = (t === 'text') ? 'none' : 'block';
+    document.getElementById('a-text-wrap').style.display = (t === 'text') ? 'block' : 'none';
+    const labelMap = { pdf:'PDF URL', video:'Video URL (YouTube/Vimeo/MP4)', link:'Link URL' };
+    document.getElementById('a-url-label').textContent = labelMap[t] || 'URL';
+  }
+  window.openAssignModal = openAssignModal;
+  window.closeAssignModal = closeAssignModal;
+  window.toggleAssignFields = toggleAssignFields;
+
+  async function loadAssignmentsForBooking(bookingId){
+    document.getElementById('a-existing').innerHTML = '<div style="color:var(--text-3);font-size:12px;">Loading existing assignments…</div>';
+    try {
+      const r = await api('/api/lc/teacher/assignments');
+      const own = (r.assignments || []).filter(a => a.booking_id === bookingId);
+      if (!own.length){ document.getElementById('a-existing').innerHTML = '<div style="color:var(--text-3);font-size:12px;font-style:italic;">No content assigned yet for this booking.</div>'; return; }
+      document.getElementById('a-existing').innerHTML = own.map(a => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg-elevated);padding:8px 12px;border-radius:6px;margin-bottom:6px;">
+          <div style="font-size:12px;">
+            <span style="text-transform:uppercase;color:var(--gold);font-size:10px;letter-spacing:.12em;">${esc(a.type)}</span>
+            <span style="color:var(--text);margin-left:8px;">${esc(a.title)}</span>
+          </div>
+          <button onclick="delAssignment(${a.id})" style="background:transparent;border:none;color:var(--ruby);cursor:pointer;font-size:18px;line-height:1;">×</button>
+        </div>`).join('');
+    } catch (e) { document.getElementById('a-existing').innerHTML = '<div class="error">' + esc(e.message) + '</div>'; }
+  }
+
+  async function saveAssignment(){
+    const type = document.getElementById('a-type').value;
+    const body = {
+      booking_id: assignContext.bookingId,
+      type,
+      title: document.getElementById('a-title').value.trim(),
+      file_url: type !== 'text' ? document.getElementById('a-url').value.trim() : null,
+      body_text: type === 'text' ? document.getElementById('a-text').value.trim() : null
+    };
+    if (!body.title) return showAssignMsg('Title required', 'err');
+    if (type === 'text' && !body.body_text) return showAssignMsg('Content text required', 'err');
+    if (type !== 'text' && !body.file_url) return showAssignMsg('URL required', 'err');
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch('/api/lc/teacher/assignments', {
+        method: 'POST', headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token },
+        body: JSON.stringify(body)
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      showAssignMsg('✓ Content assigned', 'ok');
+      document.getElementById('a-title').value = '';
+      document.getElementById('a-url').value = '';
+      document.getElementById('a-text').value = '';
+      loadAssignmentsForBooking(assignContext.bookingId);
+    } catch (e) { showAssignMsg(e.message, 'err'); }
+  }
+  window.saveAssignment = saveAssignment;
+
+  async function delAssignment(id){
+    if (!confirm('Delete this assignment?')) return;
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch('/api/lc/teacher/assignments/' + id, { method:'DELETE', headers:{ Authorization:'Bearer ' + token } });
+      if (!r.ok) { const d = await r.json().catch(()=>({})); throw new Error(d.error || 'Failed'); }
+      loadAssignmentsForBooking(assignContext.bookingId);
+    } catch (e) { alert(e.message); }
+  }
+  window.delAssignment = delAssignment;
+
+  function showAssignMsg(text, type){
+    const el = document.getElementById('a-msg');
+    el.style.display = 'block';
+    el.style.padding = '8px 10px';
+    el.style.borderRadius = '4px';
+    el.style.fontSize = '12px';
+    el.style.marginTop = '10px';
+    if (type === 'ok'){ el.style.background = 'rgba(62,142,90,0.10)'; el.style.color = 'var(--emerald)'; }
+    else { el.style.background = 'rgba(200,54,42,0.10)'; el.style.color = 'var(--ruby)'; }
+    el.textContent = text;
+  }
+
+  loadAll();
+</script>
+</body>
+</html>
