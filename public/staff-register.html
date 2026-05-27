@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<title>Staff Register — Internal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080706; --bg-2:#0F0D0B; --bg-card:#161412;
+    --gold:#C8A84B; --gold-bright:#E8C96E; --gold-dim:#7A6530;
+    --text:#F0E6D3; --text-2:#B8A898; --text-3:#6B5E50;
+    --ruby:#C8362A; --emerald:#3E8E5A;
+    --serif:'Libre Baskerville',Georgia,serif; --sans:'DM Sans',system-ui,sans-serif;
+    --r-sm:6px; --r-md:10px;
+  }
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; padding:40px 20px; }
+  .wrap{ max-width:560px; margin:0 auto; }
+  .brand{ text-align:center; margin-bottom:30px; }
+  .brand img{ height:36px; }
+  .brand .eyebrow{ font-size:11px; letter-spacing:.32em; color:var(--gold); text-transform:uppercase; margin-top:14px; }
+  .brand h1{ font-family:var(--serif); font-size:28px; margin-top:6px; }
+  .brand .sub{ color:var(--text-3); font-size:13px; margin-top:6px; }
+  .card{ background:var(--bg-card); border:1px solid rgba(200,168,75,.10); border-radius:var(--r-md); padding:32px; }
+  .role-tiles{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+  @media (max-width: 560px) { .role-tiles{ grid-template-columns:1fr; } }
+  .admin-banner{ background:rgba(200,168,75,0.10); border:1px solid rgba(200,168,75,0.32); border-radius:var(--r-sm); padding:14px 18px; margin-bottom:16px; display:none; }
+  .admin-banner.show{ display:block; }
+  .admin-banner h3{ color:var(--gold); font-family:var(--serif); font-size:18px; margin-bottom:4px; }
+  .admin-banner p{ font-size:12px; color:var(--text-2); margin:0; }
+  .role-tile{ background:transparent; border:1px solid rgba(200,168,75,.16); border-radius:var(--r-sm); padding:14px 12px; cursor:pointer; text-align:center; transition:.15s; color:var(--text-2); }
+  .role-tile:hover{ border-color:rgba(200,168,75,.4); }
+  .role-tile.active{ border-color:var(--gold); background:rgba(200,168,75,.05); color:var(--gold); }
+  .role-tile-label{ font-weight:600; font-size:13px; letter-spacing:.04em; }
+  .role-tile-desc{ font-size:11px; color:var(--text-3); margin-top:4px; }
+  .role-tile.active .role-tile-desc{ color:var(--text-2); }
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:12px; }
+  .form-group{ display:flex; flex-direction:column; }
+  .form-label{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-3); margin-bottom:6px; }
+  .form-input, .form-select{ background:var(--bg); color:var(--text); border:1px solid rgba(200,168,75,.16); border-radius:var(--r-sm); padding:10px 12px; font-size:14px; font-family:var(--sans); }
+  .form-input:focus, .form-select:focus{ outline:none; border-color:var(--gold); }
+  .form-group.full{ grid-column:1/-1; }
+  .conditional{ display:none; padding:14px; border-left:2px solid var(--gold); background:rgba(200,168,75,.04); border-radius:0 var(--r-sm) var(--r-sm) 0; margin:10px 0 14px; }
+  .conditional.show{ display:block; }
+  .btn{ padding:12px 22px; border-radius:var(--r-sm); font-size:14px; font-weight:600; cursor:pointer; border:1px solid transparent; transition:.15s; font-family:var(--sans); width:100%; }
+  .btn-primary{ background:var(--gold); color:#080706; border-color:var(--gold); }
+  .btn-primary:hover{ background:var(--gold-bright); }
+  .btn-primary:disabled{ opacity:.5; cursor:wait; }
+  .msg{ padding:10px 12px; border-radius:var(--r-sm); margin:12px 0; font-size:13px; display:none; }
+  .msg.error{ background:rgba(200,54,42,.10); border:1px solid rgba(200,54,42,.32); color:var(--ruby); display:block; }
+  .msg.success{ background:rgba(62,142,90,.10); border:1px solid rgba(62,142,90,.32); color:var(--emerald); display:block; }
+  .footer-link{ text-align:center; margin-top:16px; font-size:12px; color:var(--text-3); }
+  .footer-link a{ color:var(--gold); }
+  .access-denied{ text-align:center; padding:60px 20px; color:var(--text-3); }
+  .access-denied h2{ font-family:var(--serif); color:var(--ruby); margin-bottom:10px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <div class="brand">
+    <img src="/assets/tfr-play/tfr-logo-main.png" alt="TFR">
+    <div class="eyebrow">Internal · Staff</div>
+    <h1>Create a staff account</h1>
+    <div class="sub">Admin-only · not linked from public navigation</div>
+  </div>
+
+  <div id="guard-check" class="card access-denied">
+    <h2>Checking access…</h2>
+    <p>One moment.</p>
+  </div>
+
+  <div class="card" id="register-card" style="display:none;">
+    <div class="admin-banner" id="admin-banner">
+      <h3>Creating Admin account</h3>
+      <p>This will create a new user with full admin access. Use carefully — admin can create / edit / delete all data including other admins.</p>
+    </div>
+    <div class="form-group full" id="role-selector" style="margin-bottom:14px;">
+      <div class="form-label">Role</div>
+      <div class="role-tiles">
+        <div class="role-tile active" data-role="instructor"><div class="role-tile-label">Instructor</div><div class="role-tile-desc">Course teacher (existing portal)</div></div>
+        <div class="role-tile" data-role="teacher"><div class="role-tile-label">Teacher</div><div class="role-tile-desc">Live class teacher (own dashboard)</div></div>
+        <div class="role-tile" data-role="coordinator"><div class="role-tile-label">Coordinator</div><div class="role-tile-desc">Scoped to one teacher</div></div>
+        <!-- Admin tile hidden — only accessible via ?role=admin URL (admin sidebar link) -->
+        <div class="role-tile" data-role="admin" style="display:none;"><div class="role-tile-label">Admin</div><div class="role-tile-desc">Full access</div></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">First name *</label><input class="form-input" id="first_name" maxlength="60"></div>
+      <div class="form-group"><label class="form-label">Last name *</label><input class="form-input" id="last_name" maxlength="60"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email *</label><input class="form-input" id="email" type="email"></div>
+      <div class="form-group"><label class="form-label">Password * (min 6)</label><input class="form-input" id="password" type="text" autocomplete="new-password"></div>
+    </div>
+
+    <div class="conditional" id="teacher-extra">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Instrument</label>
+          <select class="form-select" id="instrument">
+            <option value="sitar">Sitar</option>
+            <option value="kathak">Kathak</option>
+            <option value="vocals">Vocals</option>
+            <option value="tabla">Tabla</option>
+            <option value="djembey">Djembey</option>
+            <option value="flute">Flute</option>
+            <option value="guitar">Guitar</option>
+            <option value="harmonium">Harmonium</option>
+            <option value="violin">Violin</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Link existing teacher profile</label>
+          <select class="form-select" id="link_to_teacher_id">
+            <option value="">— Auto-create new profile —</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:2px;">If left to "Auto-create", a live-class teacher profile will be created with the same name and the chosen instrument. You can fill bio/photo later from the admin panel.</div>
+    </div>
+
+    <!-- STAFF_REGISTER_V2 — coordinator must be assigned to a teacher -->
+    <div class="conditional" id="coordinator-extra">
+      <div class="form-group full">
+        <label class="form-label">Assign to teacher * <span style="color:var(--text-3);font-weight:400;">(coordinator works only for this teacher)</span></label>
+        <select class="form-select" id="assigned_teacher_id">
+          <option value="">— select a teacher —</option>
+        </select>
+      </div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:6px;">This coordinator will be able to see and manage only the selected teacher's slots, students and prices. Other teachers' data remains invisible.</div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <button class="btn btn-primary" id="submit-btn" onclick="register()">Create staff account</button>
+
+    <div class="footer-link">
+      <a href="/admin-panel.html">← Back to admin panel</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── Auth guard: admin only ───
+  function isAdmin(){
+    try {
+      const u = JSON.parse(localStorage.getItem('archive_user') || 'null');
+      return u && u.role === 'admin';
+    } catch(_) { return false; }
+  }
+
+  function showAccessDenied(){
+    document.getElementById('guard-check').innerHTML = `
+      <h2>Access denied</h2>
+      <p>This page is only for admin users. <a href="/signin.html" style="color:var(--gold);">Log in as admin →</a></p>
+    `;
+  }
+
+  if (!localStorage.getItem('archive_token') || !isAdmin()) {
+    showAccessDenied();
+  } else {
+    document.getElementById('guard-check').style.display = 'none';
+    document.getElementById('register-card').style.display = 'block';
+    loadTeacherProfiles();
+  }
+
+  // ─── Role selection ───
+  let selectedRole = 'instructor';
+  function selectRole(role){
+    const validRoles = ['instructor','teacher','coordinator','admin'];
+    if (!validRoles.includes(role)) return;
+    document.querySelectorAll('.role-tile').forEach(t => {
+      t.classList.toggle('active', t.dataset.role === role);
+    });
+    selectedRole = role;
+    // STAFF_REGISTER_V4 — admin mode: show banner, hide role-tiles entirely
+    const isAdminMode = (role === 'admin');
+    document.getElementById('admin-banner').classList.toggle('show', isAdminMode);
+    document.getElementById('role-selector').style.display = isAdminMode ? 'none' : '';
+    document.getElementById('teacher-extra').classList.toggle('show', selectedRole === 'teacher');
+    document.getElementById('coordinator-extra').classList.toggle('show', selectedRole === 'coordinator');
+  }
+  document.querySelectorAll('.role-tile').forEach(tile => {
+    tile.addEventListener('click', () => selectRole(tile.dataset.role));
+  });
+  // STAFF_REGISTER_V4 — auto-select from URL ?role=teacher|coordinator|admin|instructor
+  (function(){
+    const params = new URLSearchParams(location.search);
+    const r = params.get('role');
+    if (r) selectRole(r);
+  })();
+
+  // ─── Load all teacher profiles for both link + coordinator-assign dropdowns ───
+  async function loadTeacherProfiles(){
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch('/api/lc/admin/teachers', { headers:{ Authorization:'Bearer ' + token } });
+      const data = await r.json();
+      const all = data.teachers || [];
+
+      const linkSel = document.getElementById('link_to_teacher_id');
+      linkSel.innerHTML = '<option value="">— Auto-create new profile —</option>';
+      all.filter(t => !t.user_id).forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = `${t.name} (${t.instrument})`;
+        linkSel.appendChild(opt);
+      });
+
+      const assignSel = document.getElementById('assigned_teacher_id');
+      assignSel.innerHTML = '<option value="">— select a teacher —</option>';
+      all.filter(t => t.is_active).forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = `${t.name} (${t.instrument})`;
+        assignSel.appendChild(opt);
+      });
+    } catch(_) {}
+  }
+
+  function showMsg(text, type){
+    const el = document.getElementById('msg');
+    el.className = 'msg ' + type;
+    el.textContent = text;
+  }
+
+  async function register(){
+    const btn = document.getElementById('submit-btn');
+    const body = {
+      first_name: document.getElementById('first_name').value.trim(),
+      last_name: document.getElementById('last_name').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value,
+      role: selectedRole
+    };
+    if (selectedRole === 'teacher') {
+      body.instrument = document.getElementById('instrument').value;
+      const linkId = document.getElementById('link_to_teacher_id').value;
+      if (linkId) body.link_to_teacher_id = Number(linkId);
+      else body.create_teacher_profile = true;
+    }
+    if (selectedRole === 'coordinator') {
+      const assignId = document.getElementById('assigned_teacher_id').value;
+      if (!assignId) return showMsg('Coordinator must be assigned to a teacher. Pick one from the dropdown.', 'error');
+      body.assigned_teacher_id = Number(assignId);
+    }
+    if (!body.first_name || !body.last_name || !body.email || !body.password) {
+      return showMsg('Please fill all fields.', 'error');
+    }
+    if (body.password.length < 6) return showMsg('Password must be at least 6 characters.', 'error');
+
+    btn.disabled = true; btn.textContent = 'Creating…';
+    try {
+      const token = localStorage.getItem('archive_token');
+      const r = await fetch('/api/lc/admin/staff-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify(body)
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+      let ok = `✓ Account created. Email: ${body.email} · Role: ${data.role}`;
+      if (data.teacher_id) ok += ` · Live-class profile ID: ${data.teacher_id}`;
+      showMsg(ok, 'success');
+      // Reset form (keep role choice)
+      ['first_name','last_name','email','password'].forEach(id => document.getElementById(id).value = '');
+      loadTeacherProfiles();
+    } catch (e) {
+      showMsg(e.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create staff account';
+    }
+  }
+  window.register = register;
+</script>
+</body>
+</html>

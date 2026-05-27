@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Coordinator Dashboard — Live Classes · The Foundation Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080706; --bg-2:#0F0D0B; --bg-card:#161412; --bg-elevated:#1E1B17;
+    --gold:#C8A84B; --gold-bright:#E8C96E; --gold-dim:#7A6530;
+    --text:#F0E6D3; --text-2:#B8A898; --text-3:#6B5E50;
+    --ruby:#C8362A; --emerald:#3E8E5A;
+    --serif:'Libre Baskerville',Georgia,serif; --sans:'DM Sans',system-ui,sans-serif;
+    --r-sm:6px; --r-md:10px;
+  }
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; }
+  a{ color:inherit; text-decoration:none; }
+  .topbar{ background:var(--bg-2); border-bottom:1px solid rgba(200,168,75,.16); padding:18px 32px; display:flex; align-items:center; justify-content:space-between; }
+  .topbar-brand{ display:flex; align-items:center; gap:14px; }
+  .topbar-brand img{ height:30px; }
+  .topbar-brand .eyebrow{ font-size:11px; letter-spacing:.24em; color:var(--gold); text-transform:uppercase; }
+  .btn{ padding:9px 16px; border-radius:var(--r-sm); font-size:13px; font-weight:600; cursor:pointer; border:1px solid transparent; transition:.15s; font-family:var(--sans); }
+  .btn-outline{ background:transparent; border-color:rgba(200,168,75,.32); color:var(--text); }
+  .btn-primary{ background:var(--gold); color:#080706; border-color:var(--gold); }
+  .btn-primary:hover{ background:var(--gold-bright); }
+  .btn-danger{ background:transparent; border-color:rgba(200,54,42,.4); color:var(--ruby); }
+  .btn.sm{ padding:6px 12px; font-size:12px; }
+  .container{ max-width:1200px; margin:0 auto; padding:36px 32px 60px; }
+  .page-title{ font-family:var(--serif); font-size:28px; margin-bottom:6px; }
+  .page-sub{ color:var(--text-3); font-size:14px; margin-bottom:30px; }
+  .stat-row{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:32px; }
+  .stat-card{ background:var(--bg-card); border:1px solid rgba(200,168,75,.10); border-radius:var(--r-md); padding:22px 24px; }
+  .stat-label{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--text-3); margin-bottom:8px; }
+  .stat-value{ font-family:var(--serif); font-size:32px; color:var(--gold); }
+  .tabs{ display:flex; gap:4px; border-bottom:1px solid rgba(200,168,75,.16); margin-bottom:22px; }
+  .tab-btn{ background:transparent; border:none; color:var(--text-2); padding:12px 22px; font-size:14px; font-weight:500; cursor:pointer; border-bottom:2px solid transparent; font-family:var(--sans); }
+  .tab-btn:hover{ color:var(--text); }
+  .tab-btn.active{ color:var(--gold); border-bottom-color:var(--gold); }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+  .data-table{ width:100%; border-collapse:collapse; background:var(--bg-card); border:1px solid rgba(200,168,75,.10); border-radius:var(--r-md); overflow:hidden; }
+  .data-table th{ text-align:left; padding:14px 16px; background:var(--bg-2); color:var(--text-3); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; border-bottom:1px solid rgba(200,168,75,.10); }
+  .data-table td{ padding:14px 16px; font-size:13px; color:var(--text-2); border-bottom:1px solid rgba(200,168,75,.06); vertical-align:top; }
+  .data-table tr:last-child td{ border-bottom:none; }
+  .badge{ display:inline-block; padding:3px 10px; border-radius:10px; font-size:11px; font-weight:600; letter-spacing:.04em; }
+  .badge.active{ background:rgba(62,142,90,.16); color:var(--emerald); }
+  .badge.inactive{ background:rgba(200,168,75,.10); color:var(--text-3); }
+  .badge.paid{ background:rgba(62,142,90,.16); color:var(--emerald); }
+  .badge.pending{ background:rgba(200,168,75,.16); color:var(--gold); }
+  .badge.failed{ background:rgba(200,54,42,.16); color:var(--ruby); }
+  .empty-state{ text-align:center; padding:40px 20px; color:var(--text-3); font-style:italic; }
+  .error{ color:var(--ruby); padding:20px; text-align:center; }
+  .price-row{ background:var(--bg-elevated); padding:8px 12px; border-radius:var(--r-sm); margin-bottom:6px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .price-row input{ background:var(--bg); border:1px solid rgba(200,168,75,.16); color:var(--text); padding:6px 10px; border-radius:4px; font-size:13px; font-family:var(--sans); }
+  .toast{ position:fixed; bottom:24px; right:24px; background:var(--bg-card); border:1px solid var(--gold); padding:12px 18px; border-radius:var(--r-sm); font-size:13px; color:var(--text); box-shadow:0 8px 24px rgba(0,0,0,.5); opacity:0; transition:.3s; z-index:9999; }
+  .toast.show{ opacity:1; }
+  .toast.err{ border-color:var(--ruby); color:var(--ruby); }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-brand">
+    <a href="/"><img src="/assets/tfr-play/tfr-logo-main.png" alt="TFR"></a>
+    <div>
+      <div class="eyebrow">Coordinator</div>
+      <div style="font-family:var(--serif);font-size:16px;" id="teacher-name-top">—</div>
+    </div>
+  </div>
+  <button class="btn btn-danger" onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+  <div class="page-title" id="welcome">Welcome</div>
+  <div class="page-sub" id="welcome-sub">Manage slots, prices and bookings for your assigned teacher.</div>
+
+  <div class="stat-row">
+    <div class="stat-card"><div class="stat-label">Upcoming slots</div><div class="stat-value" id="stat-upcoming">—</div></div>
+    <div class="stat-card"><div class="stat-label">Paid bookings</div><div class="stat-value" id="stat-bookings">—</div></div>
+    <div class="stat-card"><div class="stat-label">Total revenue</div><div class="stat-value" id="stat-revenue">—</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="slots">Slots &amp; Prices</button>
+    <button class="tab-btn" data-tab="students">Students</button>
+    <button class="tab-btn" data-tab="bookings">All Bookings</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-slots">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Time</th><th>Duration</th><th>Seats</th><th>Prices (editable)</th><th>Meeting</th><th>Status</th></tr></thead>
+      <tbody id="slots-tbody"><tr><td colspan="7" class="empty-state">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="tab-panel" id="tab-students">
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Session Date</th><th>Plan</th><th>Content</th></tr></thead>
+      <tbody id="students-tbody"><tr><td colspan="6" class="empty-state">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="tab-panel" id="tab-bookings">
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th><th>Booked At</th></tr></thead>
+      <tbody id="bookings-tbody"><tr><td colspan="8" class="empty-state">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- MEET_LINK_EDIT_V1 modal -->
+<div id="meet-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-card);border:1px solid rgba(200,168,75,0.18);border-radius:10px;padding:28px;max-width:520px;width:100%;">
+    <div style="font-family:var(--serif);font-size:22px;color:var(--gold);margin-bottom:4px;">Edit Meeting Link</div>
+    <div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">Slot:</div>
+    <div id="me-slot-info" style="font-size:14px;color:var(--text);margin-bottom:18px;">—</div>
+    <div style="display:flex;gap:18px;margin-bottom:12px;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-2);">
+        <input type="radio" name="me-mode" value="jitsi" onchange="toggleMeetEditMode()" checked> <b style="color:var(--gold);">Jitsi</b> (auto)
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-2);">
+        <input type="radio" name="me-mode" value="custom" onchange="toggleMeetEditMode()"> Google Meet / custom
+      </label>
+    </div>
+    <div id="me-info" style="font-size:11px;color:var(--text-3);padding:8px 12px;background:rgba(200,168,75,0.04);border-radius:4px;border-left:2px solid var(--gold);">Jitsi room auto-generated · embedded in student dashboard.</div>
+    <div id="me-url-wrap" style="display:none;margin-top:8px;">
+      <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Meeting URL</div>
+      <input id="me-url" placeholder="https://meet.google.com/..." style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:10px 12px;font-family:var(--sans);">
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px;">Custom URL opens in a new tab.</div>
+    </div>
+    <div id="me-msg"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+      <button onclick="closeMeetEdit()" class="btn btn-outline">Cancel</button>
+      <button onclick="saveMeetEdit()" class="btn btn-primary" style="background:var(--gold);color:#080706;border:1px solid var(--gold);">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGNMENTS_V1 modal -->
+<div id="assign-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-card);border:1px solid rgba(200,168,75,0.18);border-radius:10px;padding:28px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;">
+    <div style="font-family:var(--serif);font-size:22px;color:var(--gold);margin-bottom:4px;">Assign Content</div>
+    <div style="font-size:12px;color:var(--text-3);margin-bottom:6px;">Student:</div>
+    <div id="a-student-info" style="font-size:14px;color:var(--text);margin-bottom:18px;">—</div>
+    <div id="a-existing" style="margin-bottom:16px;"></div>
+    <div style="border-top:1px solid rgba(200,168,75,0.16);padding-top:14px;margin-top:8px;">
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:10px;">Add new:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">Type</div>
+          <select id="a-type" onchange="toggleAssignFields()" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:8px 10px;font-family:var(--sans);">
+            <option value="pdf">PDF</option>
+            <option value="video">Video</option>
+            <option value="link">Link</option>
+            <option value="text">Text note</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">Title *</div>
+          <input id="a-title" maxlength="120" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:8px 10px;font-family:var(--sans);">
+        </div>
+      </div>
+      <div id="a-url-wrap">
+        <div id="a-url-label" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">PDF URL</div>
+        <input id="a-url" placeholder="https://..." style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:8px 10px;font-family:var(--sans);">
+      </div>
+      <div id="a-text-wrap" style="display:none;">
+        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">Content</div>
+        <textarea id="a-text" rows="4" style="width:100%;background:var(--bg);color:var(--text);border:1px solid rgba(200,168,75,0.16);border-radius:6px;padding:8px 10px;font-family:var(--sans);"></textarea>
+      </div>
+      <div id="a-msg"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
+        <button onclick="closeAssignModal()" class="btn btn-outline">Close</button>
+        <button onclick="saveAssignment()" class="btn btn-primary" style="background:var(--gold);color:#080706;border:1px solid var(--gold);">+ Assign</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const t = localStorage.getItem('archive_token');
+    const u = localStorage.getItem('archive_user');
+    if (!t || !u) { window.location.replace('/signin.html'); return; }
+    try {
+      const user = JSON.parse(u);
+      if (user.role !== 'coordinator') { window.location.replace('/signin.html'); return; }
+    } catch(_) { window.location.replace('/signin.html'); }
+  })();
+
+  function logout(){
+    localStorage.removeItem('archive_token');
+    localStorage.removeItem('archive_user');
+    window.location.href = '/signin.html';
+  }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(s){ if(!s) return '—'; const [y,m,d]=s.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
+  function fmtDateTime(s){ if(!s) return '—'; try { return new Date(s).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); } catch(_){ return s; } }
+  function fmtINR(p){ return '₹' + ((p||0)/100).toLocaleString('en-IN'); }
+  function toast(msg, type){ const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show' + (type==='err'?' err':''); setTimeout(()=>t.classList.remove('show'), 2400); }
+
+  async function api(path, method, body){
+    const token = localStorage.getItem('archive_token');
+    const opt = { method: method||'GET', headers:{ Authorization:'Bearer ' + token } };
+    if (body){ opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body); }
+    const r = await fetch(path, opt);
+    if (r.status === 401) { logout(); return; }
+    const data = await r.json().catch(()=>({}));
+    if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+    return data;
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  async function loadAll(){
+    try {
+      const me = await api('/api/lc/coordinator/me');
+      const t = me.teacher;
+      document.getElementById('teacher-name-top').textContent = 'For: ' + t.name;
+      const userStr = localStorage.getItem('archive_user');
+      const user = userStr ? JSON.parse(userStr) : {};
+      document.getElementById('welcome').textContent = 'Welcome, ' + (user.first_name||'Coordinator');
+      document.getElementById('welcome-sub').textContent = 'Managing slots, prices and bookings for ' + t.name + ' (' + (t.instrument||'') + ').';
+    } catch (e) {
+      document.getElementById('welcome').textContent = 'Access denied';
+      document.getElementById('welcome-sub').innerHTML = '<span class="error">' + esc(e.message) + '</span>';
+      return;
+    }
+    try {
+      const s = await api('/api/lc/coordinator/stats');
+      document.getElementById('stat-upcoming').textContent = s.upcoming_slots;
+      document.getElementById('stat-bookings').textContent = s.total_bookings;
+      document.getElementById('stat-revenue').textContent = fmtINR(s.total_revenue_paise);
+    } catch (_) {}
+    loadSlots(); loadBookings();
+  }
+
+  async function loadSlots(){
+    try {
+      const r = await api('/api/lc/coordinator/slots');
+      const slots = r.slots || [];
+      if (!slots.length){ document.getElementById('slots-tbody').innerHTML = '<tr><td colspan="7" class="empty-state">No slots yet.</td></tr>'; return; }
+      window._coordSlots = slots;
+      document.getElementById('slots-tbody').innerHTML = slots.map(s => {
+        const isJitsi = s.meet_link && s.meet_link.indexOf('meet.tfrplay.com') !== -1;
+        const platform = !s.meet_link ? '<span style="color:var(--text-3);">—</span>' : (isJitsi ? '<span style="color:var(--gold);font-size:11px;letter-spacing:.1em;text-transform:uppercase;">Jitsi (auto)</span>' : '<span style="color:var(--text-2);font-size:11px;letter-spacing:.1em;text-transform:uppercase;">Custom</span>');
+        return `<tr>
+          <td>${fmtDate(s.slot_date)}</td>
+          <td>${esc(s.start_time)}</td>
+          <td>${s.duration_min||60} min</td>
+          <td>${s.booked_seats||0} / ${s.total_seats}</td>
+          <td>
+            ${(s.price_options || []).map(p => `
+              <div class="price-row">
+                <input type="text" data-pid="${p.id}" data-f="label" value="${esc(p.label)}" style="width:140px;">
+                <span style="color:var(--text-3);">₹</span>
+                <input type="number" data-pid="${p.id}" data-f="amount" value="${(p.amount_paise||0)/100}" style="width:90px;">
+                <button class="btn btn-primary sm" onclick="savePrice(${p.id})">Save</button>
+              </div>`).join('') || '<span style="color:var(--text-3);font-style:italic;">No prices</span>'}
+          </td>
+          <td>${platform}<br><button onclick="openMeetEdit(${s.id})" style="margin-top:4px;padding:4px 10px;background:transparent;border:1px solid rgba(200,168,75,0.32);color:var(--text);border-radius:4px;font-size:11px;cursor:pointer;">Edit meeting</button></td>
+          <td>${s.is_active ? '<span class="badge active">Active</span>' : '<span class="badge inactive">Inactive</span>'}</td>
+        </tr>`;
+      }).join('');
+    } catch (e){ document.getElementById('slots-tbody').innerHTML = '<tr><td colspan="7" class="error">' + esc(e.message) + '</td></tr>'; }
+  }
+
+  /* MEET_LINK_EDIT_V1 */
+  let _meetEditSlotId = null;
+  function openMeetEdit(slotId){
+    const s = (window._coordSlots||[]).find(x => x.id === slotId);
+    if (!s) return;
+    _meetEditSlotId = slotId;
+    document.getElementById('me-slot-info').textContent = fmtDate(s.slot_date) + ' · ' + s.start_time + ' IST';
+    const isJitsi = !s.meet_link || s.meet_link.indexOf('meet.tfrplay.com') !== -1;
+    document.querySelector('input[name="me-mode"][value="' + (isJitsi ? 'jitsi' : 'custom') + '"]').checked = true;
+    document.getElementById('me-url').value = isJitsi ? '' : (s.meet_link || '');
+    toggleMeetEditMode();
+    document.getElementById('me-msg').style.display = 'none';
+    document.getElementById('meet-edit-modal').style.display = 'flex';
+  }
+  function closeMeetEdit(){ document.getElementById('meet-edit-modal').style.display = 'none'; }
+  function toggleMeetEditMode(){
+    const mode = document.querySelector('input[name="me-mode"]:checked').value;
+    document.getElementById('me-url-wrap').style.display = (mode === 'jitsi') ? 'none' : 'block';
+    document.getElementById('me-info').style.display = (mode === 'jitsi') ? 'block' : 'none';
+  }
+  async function saveMeetEdit(){
+    const mode = document.querySelector('input[name="me-mode"]:checked').value;
+    const url = mode === 'jitsi' ? null : (document.getElementById('me-url').value.trim() || null);
+    if (mode === 'custom' && !url) { showMeetEditMsg('URL required for custom mode', 'err'); return; }
+    try {
+      await api('/api/lc/coordinator/slots/' + _meetEditSlotId + '/meet-link', 'PUT', { meet_link: url });
+      showMeetEditMsg('✓ Saved', 'ok');
+      loadSlots();
+      setTimeout(closeMeetEdit, 1200);
+    } catch (e) { showMeetEditMsg(e.message, 'err'); }
+  }
+  function showMeetEditMsg(text, type){
+    const el = document.getElementById('me-msg');
+    el.style.display = 'block'; el.style.padding = '8px 10px'; el.style.borderRadius = '4px'; el.style.fontSize = '12px'; el.style.marginTop = '10px';
+    if (type === 'ok'){ el.style.background = 'rgba(62,142,90,0.10)'; el.style.color = 'var(--emerald)'; }
+    else { el.style.background = 'rgba(200,54,42,0.10)'; el.style.color = 'var(--ruby)'; }
+    el.textContent = text;
+  }
+  window.openMeetEdit = openMeetEdit;
+  window.closeMeetEdit = closeMeetEdit;
+  window.toggleMeetEditMode = toggleMeetEditMode;
+  window.saveMeetEdit = saveMeetEdit;
+
+  async function savePrice(pid){
+    const labelEl = document.querySelector(`input[data-pid="${pid}"][data-f="label"]`);
+    const amountEl = document.querySelector(`input[data-pid="${pid}"][data-f="amount"]`);
+    const label = labelEl.value.trim();
+    const amount = Math.round(Number(amountEl.value) * 100);
+    if (isNaN(amount) || amount < 0) return toast('Invalid amount', 'err');
+    try {
+      await api('/api/lc/coordinator/price-options/' + pid, 'PUT', { label, amount_paise: amount });
+      toast('Price updated');
+    } catch (e) { toast(e.message, 'err'); }
+  }
+  window.savePrice = savePrice;
+
+  async function loadBookings(){
+    try {
+      const r = await api('/api/lc/coordinator/bookings');
+      const all = r.bookings || [];
+      const paid = all.filter(b => b.status === 'paid');
+
+      if (!paid.length) document.getElementById('students-tbody').innerHTML = '<tr><td colspan="6" class="empty-state">No paid bookings yet.</td></tr>';
+      else document.getElementById('students-tbody').innerHTML = paid.map(b => `
+        <tr>
+          <td>${esc(b.name)}</td>
+          <td>${esc(b.email)}</td>
+          <td>${esc(b.phone||'—')}</td>
+          <td>${fmtDate(b.slot_date)} · ${esc(b.start_time||'')}</td>
+          <td>${esc(b.price_label||'—')}</td>
+          <td><button onclick="openAssignModal(${b.id}, '${esc(b.name).replace(/'/g,"\\'")}', '${esc(b.email).replace(/'/g,"\\'")}')" style="padding:6px 12px;background:var(--gold);color:#080706;border:1px solid var(--gold);border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;">+ Assign</button></td>
+        </tr>`).join('');
+
+      if (!all.length) document.getElementById('bookings-tbody').innerHTML = '<tr><td colspan="8" class="empty-state">No bookings yet.</td></tr>';
+      else document.getElementById('bookings-tbody').innerHTML = all.map(b => `
+        <tr>
+          <td>#${b.id}</td>
+          <td>${esc(b.name)}</td>
+          <td>${esc(b.email)}</td>
+          <td>${fmtDate(b.slot_date)} · ${esc(b.start_time||'')}</td>
+          <td>${esc(b.price_label||'—')}</td>
+          <td>${fmtINR(b.amount_paid_paise)}</td>
+          <td><span class="badge ${b.status||'pending'}">${esc(b.status||'pending')}</span></td>
+          <td style="color:var(--text-3);font-size:12px;">${fmtDateTime(b.created_at)}</td>
+        </tr>`).join('');
+    } catch (e){
+      document.getElementById('students-tbody').innerHTML = '<tr><td colspan="6" class="error">' + esc(e.message) + '</td></tr>';
+      document.getElementById('bookings-tbody').innerHTML = '<tr><td colspan="8" class="error">' + esc(e.message) + '</td></tr>';
+    }
+  }
+
+  /* ASSIGNMENTS_V1 — coordinator can also assign (same UX as teacher) */
+  let assignContext = { bookingId: null };
+  function openAssignModal(bookingId, name, email){
+    assignContext.bookingId = bookingId;
+    document.getElementById('a-student-info').textContent = name + ' · ' + email;
+    document.getElementById('a-title').value = '';
+    document.getElementById('a-url').value = '';
+    document.getElementById('a-text').value = '';
+    document.getElementById('a-type').value = 'pdf';
+    document.getElementById('a-msg').style.display = 'none';
+    toggleAssignFields();
+    loadAssignmentsForBooking(bookingId);
+    document.getElementById('assign-modal').style.display = 'flex';
+  }
+  function closeAssignModal(){ document.getElementById('assign-modal').style.display = 'none'; }
+  function toggleAssignFields(){
+    const t = document.getElementById('a-type').value;
+    document.getElementById('a-url-wrap').style.display = (t === 'text') ? 'none' : 'block';
+    document.getElementById('a-text-wrap').style.display = (t === 'text') ? 'block' : 'none';
+    const labelMap = { pdf:'PDF URL', video:'Video URL (YouTube/Vimeo/MP4)', link:'Link URL' };
+    document.getElementById('a-url-label').textContent = labelMap[t] || 'URL';
+  }
+  window.openAssignModal = openAssignModal;
+  window.closeAssignModal = closeAssignModal;
+  window.toggleAssignFields = toggleAssignFields;
+
+  async function loadAssignmentsForBooking(bookingId){
+    document.getElementById('a-existing').innerHTML = '<div style="color:var(--text-3);font-size:12px;">Loading…</div>';
+    try {
+      const r = await api('/api/lc/coordinator/assignments');
+      const own = (r.assignments || []).filter(a => a.booking_id === bookingId);
+      if (!own.length){ document.getElementById('a-existing').innerHTML = '<div style="color:var(--text-3);font-size:12px;font-style:italic;">No content assigned yet.</div>'; return; }
+      document.getElementById('a-existing').innerHTML = own.map(a => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg-elevated);padding:8px 12px;border-radius:6px;margin-bottom:6px;">
+          <div style="font-size:12px;">
+            <span style="text-transform:uppercase;color:var(--gold);font-size:10px;letter-spacing:.12em;">${esc(a.type)}</span>
+            <span style="color:var(--text);margin-left:8px;">${esc(a.title)}</span>
+          </div>
+          <button onclick="delAssignment(${a.id})" style="background:transparent;border:none;color:var(--ruby);cursor:pointer;font-size:18px;line-height:1;">×</button>
+        </div>`).join('');
+    } catch (e) { document.getElementById('a-existing').innerHTML = '<div class="error">' + esc(e.message) + '</div>'; }
+  }
+
+  async function saveAssignment(){
+    const type = document.getElementById('a-type').value;
+    const body = {
+      booking_id: assignContext.bookingId, type,
+      title: document.getElementById('a-title').value.trim(),
+      file_url: type !== 'text' ? document.getElementById('a-url').value.trim() : null,
+      body_text: type === 'text' ? document.getElementById('a-text').value.trim() : null
+    };
+    if (!body.title) return showAssignMsg('Title required', 'err');
+    if (type === 'text' && !body.body_text) return showAssignMsg('Content text required', 'err');
+    if (type !== 'text' && !body.file_url) return showAssignMsg('URL required', 'err');
+    try {
+      await api('/api/lc/coordinator/assignments', 'POST', body);
+      showAssignMsg('✓ Content assigned', 'ok');
+      document.getElementById('a-title').value = '';
+      document.getElementById('a-url').value = '';
+      document.getElementById('a-text').value = '';
+      loadAssignmentsForBooking(assignContext.bookingId);
+    } catch (e) { showAssignMsg(e.message, 'err'); }
+  }
+  window.saveAssignment = saveAssignment;
+
+  async function delAssignment(id){
+    if (!confirm('Delete this assignment?')) return;
+    try {
+      await api('/api/lc/coordinator/assignments/' + id, 'DELETE');
+      loadAssignmentsForBooking(assignContext.bookingId);
+    } catch (e) { alert(e.message); }
+  }
+  window.delAssignment = delAssignment;
+
+  function showAssignMsg(text, type){
+    const el = document.getElementById('a-msg');
+    el.style.display = 'block'; el.style.padding = '8px 10px'; el.style.borderRadius = '4px'; el.style.fontSize = '12px'; el.style.marginTop = '10px';
+    if (type === 'ok'){ el.style.background = 'rgba(62,142,90,0.10)'; el.style.color = 'var(--emerald)'; }
+    else { el.style.background = 'rgba(200,54,42,0.10)'; el.style.color = 'var(--ruby)'; }
+    el.textContent = text;
+  }
+
+  loadAll();
+</script>
+</body>
+</html>

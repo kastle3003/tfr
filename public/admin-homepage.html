@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage CMS — Admin · The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080706; --bg-2: #0F0D0B; --bg-card: #161412; --bg-elevated: #1E1B17; --bg-hover: #252119;
+      --gold: #C8A84B; --gold-bright: #E8C96E; --gold-dim: #7A6530; --gold-glow: rgba(200,168,75,0.12);
+      --text: #F0E6D3; --text-2: #B8A898; --text-3: #6B5E50; --ruby: #bf0000; --green: #7dc87d;
+      --serif: 'Libre Baskerville', Georgia, serif; --sans: 'DM Sans', sans-serif;
+      --sidebar-w: 240px; --topbar-h: 60px; --radius: 6px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--sans); background: var(--bg); color: var(--text); }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .shell { display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--bg-card); display: flex; flex-direction: column; height: 100vh; position: fixed; left: 0; top: 0; z-index: 100; border-right: 1px solid rgba(200,168,75,0.06); }
+    .main-wrap { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .topbar { height: var(--topbar-h); background: var(--bg-card); border-bottom: 1px solid rgba(200,168,75,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; }
+    .topbar-title { font-family: var(--serif); font-size: 22px; color: var(--gold); }
+    .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+    .split { display: flex; flex: 1; overflow: hidden; }
+    .editor-pane { width: 50%; min-width: 480px; overflow-y: auto; padding: 22px 24px; background: var(--bg); border-right: 1px solid rgba(200,168,75,0.08); }
+    .preview-pane { flex: 1; background: var(--bg-2); display: flex; flex-direction: column; overflow: hidden; }
+    .preview-bar { display: flex; gap: 8px; padding: 12px 16px; background: var(--bg-card); border-bottom: 1px solid rgba(200,168,75,0.08); align-items: center; }
+    .preview-bar .group { display: flex; gap: 4px; }
+    .preview-frame-wrap { flex: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding: 20px; background: #0a0908; }
+    .preview-frame {
+      background: white; border: 1px solid rgba(200,168,75,0.15);
+      transition: width .25s ease, height .25s ease;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+    }
+    .preview-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+    .btn { padding: 8px 14px; border-radius: 5px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all .15s; }
+    .btn-primary { background: var(--gold); color: var(--bg); }
+    .btn-primary:hover { background: var(--gold-bright); }
+    .btn-outline { background: transparent; color: var(--text-2); border: 1px solid rgba(200,168,75,0.25); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-outline.active { background: var(--gold-glow); border-color: var(--gold); color: var(--gold); }
+    .btn-ghost { background: transparent; color: var(--text-3); }
+    .btn-ghost:hover { color: var(--gold); }
+    .btn.sm { padding: 4px 10px; font-size: 12px; }
+
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.10);
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .section-head {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 18px;
+      cursor: pointer;
+      border-bottom: 1px solid transparent;
+      transition: background .15s;
+    }
+    .section-card.open .section-head { background: var(--bg-2); border-bottom-color: rgba(200,168,75,0.10); }
+    .section-head:hover { background: var(--bg-2); }
+    .section-title { font-family: var(--serif); font-size: 16px; color: var(--text); }
+    .section-meta { font-size: 11px; color: var(--text-3); letter-spacing: .04em; text-transform: uppercase; }
+    .section-chev { transition: transform .25s; }
+    .section-card.open .section-chev { transform: rotate(90deg); }
+    .section-body { padding: 16px 18px 18px; display: none; }
+    .section-card.open .section-body { display: block; }
+
+    .field { margin-bottom: 14px; }
+    .field-label { display: block; font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    .field-key { font-family: monospace; font-size: 10px; color: var(--gold-dim); margin-left: 8px; }
+    .field-input, .field-textarea {
+      width: 100%; background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.15); color: var(--text);
+      padding: 9px 11px; border-radius: 4px;
+      font-family: inherit; font-size: 13px;
+    }
+    .field-textarea { resize: vertical; min-height: 70px; }
+    .field-input:focus, .field-textarea:focus { outline: none; border-color: var(--gold); }
+    .field-input.dirty, .field-textarea.dirty { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(200,168,75,0.10); }
+    .field-input.image-input { font-family: monospace; font-size: 12px; }
+    .field-hint { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+    .image-preview {
+      margin-top: 6px; max-width: 220px; max-height: 100px;
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.10);
+      border-radius: 4px;
+      object-fit: cover; display: block;
+    }
+
+    .section-actions {
+      display: flex; gap: 8px; justify-content: flex-end;
+      padding-top: 12px; margin-top: 4px;
+      border-top: 1px dashed rgba(200,168,75,0.08);
+    }
+
+    .save-pill {
+      font-size: 11px; color: var(--green);
+      opacity: 0; transition: opacity .3s;
+    }
+    .save-pill.show { opacity: 1; }
+
+    /* Sidebar internals */
+    .sidebar-brand { padding: 20px 16px 14px; border-bottom: 1px solid rgba(200,168,75,0.06); }
+    .brand-title { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--gold); }
+    .brand-sub { font-size: 10px; color: var(--text-3); margin-top: 3px; letter-spacing: .08em; text-transform: uppercase; }
+    .sidebar-nav { flex: 1; padding: 10px; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; color: var(--text-3); font-size: 13px; margin-bottom: 2px; }
+    .nav-item:hover { background: var(--bg-elevated); color: var(--text-2); }
+    .nav-item.active { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(200,168,75,0.15); }
+    .nav-icon { width: 16px; height: 16px; }
+    .sidebar-footer { padding: 12px 10px 16px; border-top: 1px solid rgba(200,168,75,0.06); }
+    .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; }
+    .sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-glow); border: 1px solid rgba(200,168,75,0.25); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--gold); }
+    .sidebar-user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .user-role { font-size: 10px; color: var(--text-3); }
+
+    /* Toast */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+    .toast { background: var(--bg-elevated); border: 1px solid rgba(200,168,75,0.15); border-left: 3px solid var(--gold); border-radius: 6px; padding: 12px 16px; font-size: 13px; color: var(--text); min-width: 240px; }
+    .toast.error { border-left-color: var(--ruby); }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrap">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Homepage CMS</div>
+        <div style="font-size: 11px; color: var(--text-3); margin-top: 2px;" id="meta-count">Loading…</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-outline" onclick="reloadPreview()">↻ Refresh Preview</button>
+        <button class="btn btn-primary" onclick="saveAllChanges()">💾 Save All Changes</button>
+      </div>
+    </header>
+    <div class="split">
+      <div class="editor-pane" id="editor-pane">
+        <div style="color: var(--text-3); padding: 40px; text-align: center;">Loading sections…</div>
+      </div>
+      <div class="preview-pane">
+        <div class="preview-bar">
+          <span style="font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-right: 8px;">Live Preview</span>
+          <div class="group">
+            <button class="btn btn-outline sm" data-w="375" data-h="812" onclick="setPreviewSize(375, 812, this)">📱 Phone</button>
+            <button class="btn btn-outline sm" data-w="768" data-h="1024" onclick="setPreviewSize(768, 1024, this)">📱 Tablet</button>
+            <button class="btn btn-outline sm active" data-w="1280" data-h="900" onclick="setPreviewSize(1280, 900, this)">🖥 Desktop</button>
+          </div>
+          <span style="flex:1;"></span>
+          <a href="/" target="_blank" class="btn btn-ghost sm">↗ Open in new tab</a>
+        </div>
+        <div class="preview-frame-wrap">
+          <div class="preview-frame" id="preview-frame" style="width: 1280px; height: 900px;">
+            <iframe id="preview-iframe" src="/?cms_preview=1" sandbox="allow-same-origin allow-scripts allow-forms" loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/assets/js/api.js?v=2"></script>
+<script src="/assets/js/auth-guard.js?v=2"></script>
+<script>requireRole(['admin']);</script>
+<script src="/assets/js/admin-sidebar.js?v=2"></script>
+<script>
+  let DATA = { sections: {} };
+  const DIRTY = new Map(); // key → new value
+
+  function toast(msg, type = 'success') {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast${type === 'error' ? ' error' : ''}`;
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+  const SECTION_TITLES = {
+    hero:         { title: 'Hero (top banner)',          meta: 'main title, subtitle, CTA' },
+    disc_melody:  { title: 'Melody — Sitar / Niladri',   meta: 'discipline card' },
+    disc_rhythm:  { title: 'Rhythm — Djembe / Taufiq',   meta: 'discipline card' },
+    disc_voice:   { title: 'Voice',                       meta: 'discipline card' },
+    disc_dance:   { title: 'Dance',                       meta: 'discipline card' },
+    disc_practice:{ title: 'Practice Room',               meta: 'discipline card' },
+    community:    { title: 'Community',                   meta: 'how it works' },
+    cta_banner:   { title: 'CTA Banner (bottom)',         meta: 'final call-to-action' },
+    footer:       { title: 'Footer',                      meta: 'contact info & social' },
+    other:        { title: 'Other',                       meta: 'uncategorised' },
+  };
+
+  async function load() {
+    try {
+      DATA = await api.get('/api/homepage-cms/admin');
+      document.getElementById('meta-count').textContent = `${DATA.total} editable fields across ${Object.keys(DATA.sections).length} sections`;
+      render();
+    } catch (e) {
+      document.getElementById('editor-pane').innerHTML =
+        `<div style="color: var(--ruby); padding: 40px;">Failed to load: ${esc(e.message)}</div>`;
+    }
+  }
+
+  function fieldHtml(row) {
+    const dirty = DIRTY.has(row.key) ? ' dirty' : '';
+    const current = DIRTY.has(row.key) ? DIRTY.get(row.key) : row.value;
+    const isHtml = row.value_type === 'html';
+    const isImage = row.value_type === 'image';
+    const isLong = isHtml || (row.value && row.value.length > 80);
+    const inputEl = isLong
+      ? `<textarea class="field-textarea${dirty}" data-key="${esc(row.key)}" rows="3">${esc(current || '')}</textarea>`
+      : `<input class="field-input${isImage ? ' image-input' : ''}${dirty}" data-key="${esc(row.key)}" value="${esc(current || '')}" placeholder="${esc(row.value_type === 'url' ? 'https://… or /path' : '')}">`;
+    const preview = isImage && current
+      ? `<img class="image-preview" src="${esc(current)}" alt="preview" onerror="this.style.display=&apos;none&apos;">`
+      : '';
+    const fileInputBtn = isImage ? `
+      <div style="display:flex;gap:6px;margin-top:6px;align-items:center;">
+        <button class="btn btn-outline sm" onclick="document.getElementById('fp-${esc(row.key)}').click()">Upload image</button>
+        <input type="file" accept="image/*" id="fp-${esc(row.key)}" style="display:none" onchange="handleImageUpload('${esc(row.key)}', this)">
+        <span style="font-size:11px;color:var(--text-3);">JPG, PNG, WebP - max 10MB</span>
+      </div>` : '';
+    const typeHint = row.value_type && row.value_type !== 'text'
+      ? `<span class="field-hint">type: ${esc(row.value_type)}</span>` : '';
+    return `
+      <div class="field" data-field-key="${esc(row.key)}">
+        <label class="field-label">${esc(row.label || row.key)}<span class="field-key">${esc(row.key)}</span></label>
+        ${inputEl}
+        ${preview}
+        ${fileInputBtn}
+        ${typeHint}
+      </div>`;
+  }
+
+  function render() {
+    const order = ['hero', 'disc_melody', 'disc_rhythm', 'disc_voice', 'disc_dance', 'disc_practice', 'community', 'cta_banner', 'footer', 'other'];
+    const sectionKeys = [...new Set([...order.filter(k => DATA.sections[k]), ...Object.keys(DATA.sections).filter(k => !order.includes(k))])];
+
+    const html = sectionKeys.map(sectionKey => {
+      const rows = DATA.sections[sectionKey] || [];
+      if (!rows.length) return '';
+      const meta = SECTION_TITLES[sectionKey] || { title: sectionKey, meta: '' };
+      return `
+        <div class="section-card" data-section="${sectionKey}">
+          <div class="section-head" onclick="toggleSection('${sectionKey}')">
+            <div>
+              <div class="section-title">${esc(meta.title)}</div>
+              <div class="section-meta">${esc(meta.meta)} · ${rows.length} fields</div>
+            </div>
+            <svg class="section-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="section-body">
+            ${rows.map(fieldHtml).join('')}
+            <div class="section-actions">
+              <span class="save-pill" data-pill-section="${sectionKey}">✓ Saved</span>
+              <button class="btn btn-outline sm" onclick="revertSection('${sectionKey}')">Revert</button>
+              <button class="btn btn-primary sm" onclick="saveSection('${sectionKey}')">Save Section</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    document.getElementById('editor-pane').innerHTML = html;
+
+    // Wire up input change tracking
+    document.querySelectorAll('[data-key]').forEach(input => {
+      input.addEventListener('input', () => {
+        const key = input.dataset.key;
+        const newVal = input.value;
+        // Find original value
+        let original = '';
+        Object.values(DATA.sections).forEach(arr => arr.forEach(r => { if (r.key === key) original = r.value || ''; }));
+        if (newVal === original) {
+          DIRTY.delete(key);
+          input.classList.remove('dirty');
+        } else {
+          DIRTY.set(key, newVal);
+          input.classList.add('dirty');
+        }
+      });
+    });
+
+    // Open Hero by default
+    if (DATA.sections.hero) toggleSection('hero');
+  }
+
+  function toggleSection(sectionKey) {
+    const card = document.querySelector(`.section-card[data-section="${sectionKey}"]`);
+    if (card) card.classList.toggle('open');
+  }
+  window.toggleSection = toggleSection;
+
+  async function saveSection(sectionKey) {
+    const rows = DATA.sections[sectionKey] || [];
+    const updates = [];
+    rows.forEach(r => {
+      if (DIRTY.has(r.key)) updates.push({ key: r.key, value: DIRTY.get(r.key) });
+    });
+    if (!updates.length) { toast('No changes in this section'); return; }
+    try {
+      await api.post('/api/homepage-cms/admin/bulk', { updates });
+      // Update local cache
+      updates.forEach(u => {
+        rows.forEach(r => { if (r.key === u.key) r.value = u.value; });
+        DIRTY.delete(u.key);
+      });
+      toast(`Saved ${updates.length} field${updates.length===1?'':'s'} in ${sectionKey}`);
+      const pill = document.querySelector(`[data-pill-section="${sectionKey}"]`);
+      if (pill) { pill.classList.add('show'); setTimeout(() => pill.classList.remove('show'), 2000); }
+      reloadPreview();
+      // Refresh DIRTY indicators in the UI
+      document.querySelectorAll(`[data-key]`).forEach(input => {
+        if (!DIRTY.has(input.dataset.key)) input.classList.remove('dirty');
+      });
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+  window.saveSection = saveSection;
+
+  async function saveAllChanges() {
+    if (!DIRTY.size) { toast('No changes to save'); return; }
+    const updates = [...DIRTY.entries()].map(([key, value]) => ({ key, value }));
+    try {
+      await api.post('/api/homepage-cms/admin/bulk', { updates });
+      // Update local cache
+      updates.forEach(u => {
+        Object.values(DATA.sections).forEach(arr => arr.forEach(r => { if (r.key === u.key) r.value = u.value; }));
+      });
+      DIRTY.clear();
+      document.querySelectorAll('[data-key]').forEach(i => i.classList.remove('dirty'));
+      toast(`Saved ${updates.length} field${updates.length===1?'':'s'}`);
+      reloadPreview();
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+  window.saveAllChanges = saveAllChanges;
+
+  function revertSection(sectionKey) {
+    const rows = DATA.sections[sectionKey] || [];
+    rows.forEach(r => {
+      if (DIRTY.has(r.key)) {
+        DIRTY.delete(r.key);
+        const input = document.querySelector(`[data-key="${CSS.escape(r.key)}"]`);
+        if (input) { input.value = r.value || ''; input.classList.remove('dirty'); }
+      }
+    });
+    toast(`Reverted ${sectionKey}`);
+  }
+  window.revertSection = revertSection;
+
+  // ── Preview ──
+  function setPreviewSize(w, h, btn) {
+    document.querySelectorAll('.preview-bar .btn-outline').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const frame = document.getElementById('preview-frame');
+    frame.style.width = w + 'px';
+    frame.style.height = h + 'px';
+  }
+  window.setPreviewSize = setPreviewSize;
+
+  function reloadPreview() {
+    const iframe = document.getElementById('preview-iframe');
+    const t = Date.now();
+    iframe.src = `/?cms_preview=1&t=${t}`;
+  }
+  window.reloadPreview = reloadPreview;
+
+  // ── Boot ──
+  load();
+</script>
+</body>
+</html>

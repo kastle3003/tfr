@@ -1,0 +1,196 @@
+// Access-control helpers for the Course → Foundation → Lecture hierarchy.
+//
+// Term mapping (existing schema → spec):
+//   Course     = courses
+//   Foundation = chapters            (ordered by order_index: A, B, C, D, E …)
+//   Lecture    = lessons             (ordered by order_index within a foundation)
+//   Asset      = lesson_materials    (pdf / image / url / video)
+//
+// Rules enforced:
+//   - A preview lecture is accessible to anyone authed.
+//   - Otherwise, the user must either own the course bundle OR own the parent foundation.
+//   - Foundations must be purchased in sequence (A → E).
+//     A foundation can be bought only if the previous foundation is OWNED (bundle or individual).
+//     Completion of the previous foundation is NOT required for purchase.
+//   - VIEWING is always sequential, even for bundle owners:
+//     lessons in foundation N are viewable only after foundation N-1 is 100% complete.
+//   - A non-preview lecture in a purchased foundation unlocks only after the previous lecture
+//     in the same foundation is "completed" (completion_percentage >= 90).
+//   - Instructors & admins bypass all of this.
+//
+// All functions return plain data — no throwing. Callers decide status codes.
+
+const db = require('../db');
+
+const COMPLETION_THRESHOLD = 100;  // % — must watch complete video
+
+function isStaff(user) {
+  return user && (user.role === 'admin' || user.role === 'instructor');
+}
+
+// ── Lookups ────────────────────────────────────────────────────────────────
+function getLesson(lessonId) {
+  return db.prepare('SELECT * FROM lessons WHERE id = ?').get(lessonId);
+}
+function getFoundation(chapterId) {
+  return db.prepare('SELECT * FROM chapters WHERE id = ?').get(chapterId);
+}
+function getCourse(courseId) {
+  return db.prepare('SELECT * FROM courses WHERE id = ?').get(courseId);
+}
+function getLessonProgress(userId, lessonId) {
+  return db.prepare(
+    'SELECT * FROM lesson_progress WHERE student_id = ? AND lesson_id = ?'
+  ).get(userId, lessonId);
+}
+
+// Returns the lessons inside a foundation, ordered.
+function foundationLessons(chapterId) {
+  return db.prepare(
+    'SELECT * FROM lessons WHERE chapter_id = ? ORDER BY order_index, id'
+  ).all(chapterId);
+}
+// Returns the foundations inside a course, ordered.
+function courseFoundations(courseId) {
+  return db.prepare(
+    'SELECT * FROM chapters WHERE course_id = ? ORDER BY order_index, id'
+  ).all(courseId);
+}
+
+// ── Ownership ──────────────────────────────────────────────────────────────
+function ownsBundle(userId, courseId) {
+  if (!userId || !courseId) return false;
+  const row = db.prepare(
+    `SELECT 1 FROM purchases
+     WHERE user_id = ? AND course_id = ? AND type = 'bundle' AND status = 'completed' LIMIT 1`
+  ).get(userId, courseId);
+  return !!row;
+}
+function ownsFoundation(userId, foundationId) {
+  if (!userId || !foundationId) return false;
+  const row = db.prepare(
+    `SELECT 1 FROM purchases
+     WHERE user_id = ? AND foundation_id = ? AND type = 'individual' AND status = 'completed' LIMIT 1`
+  ).get(userId, foundationId);
+  return !!row;
+}
+function isEnrolled(userId, courseId) {
+  if (!userId || !courseId) return false;
+  return !!db.prepare(
+    'SELECT 1 FROM enrollments WHERE student_id = ? AND course_id = ? LIMIT 1'
+  ).get(userId, courseId);
+}
+// True if the user owns the parent course bundle OR the specific foundation.
+function hasFoundationAccess(userId, foundationId) {
+  const f = getFoundation(foundationId);
+  if (!f) return false;
+  if (ownsBundle(userId, f.course_id)) return true;
+  if (ownsFoundation(userId, foundationId)) return true;
+  return false;
+}
+function hasCourseAccess(userId, courseId) {
+  if (!userId || !courseId) return false;
+  if (ownsBundle(userId, courseId)) return true;
+  // If the user owns every foundation individually, treat as full access.
+  const fs = courseFoundations(courseId);
+  if (!fs.length) return false;
+  return fs.every(f => ownsFoundation(userId, f.id));
+}
+
+// ── Completion ─────────────────────────────────────────────────────────────
+function isLessonCompleted(userId, lessonId) {
+  const p = getLessonProgress(userId, lessonId);
+  if (!p) return false;
+  if (p.completed === 1) return true;
+  return (p.completion_percentage || 0) >= COMPLETION_THRESHOLD;
+}
+function isFoundationCompleted(userId, foundationId) {
+  const lessons = foundationLessons(foundationId);
+  if (!lessons.length) return false;
+  return lessons.every(l => isLessonCompleted(userId, l.id));
+}
+
+// Returns true when this lesson is the very first lesson in the first foundation
+// of its course — automatically free for any authenticated user.
+function isFirstLessonOfCourse(lesson) {
+  const foundations = courseFoundations(lesson.course_id);
+  if (!foundations.length) return false;
+  const firstFoundation = foundations[0];
+  if (lesson.chapter_id !== firstFoundation.id) return false;
+  const lessons = foundationLessons(firstFoundation.id);
+  return lessons.length > 0 && lessons[0].id === lesson.id;
+}
+
+// ── Lecture access ─────────────────────────────────────────────────────────
+// Returns { allowed, reason? } so the route can send a helpful 403 body.
+function canAccessLecture(user, lessonId) {
+  const lesson = getLesson(lessonId);
+  if (!lesson) return { allowed: false, reason: 'lesson_not_found' };
+  if (!user)   return { allowed: false, reason: 'not_authenticated' };
+
+  // Staff always get in.
+  if (isStaff(user)) return { allowed: true, reason: 'staff' };
+
+  // Preview lectures are open for any authed user.
+  if (lesson.is_preview) return { allowed: true, reason: 'preview' };
+
+  // First lesson of Foundation A is always free — auto free trial.
+  if (isFirstLessonOfCourse(lesson)) {
+    return { allowed: true, reason: 'first_lesson_free' };
+  }
+
+  // Own the foundation or bundle → all lessons inside unlock immediately, no sequential gate.
+  if (hasFoundationAccess(user.id, lesson.chapter_id)) {
+    return { allowed: true, reason: 'owned' };
+  }
+  // Admin-granted enrollment also unlocks all lessons immediately.
+  if (isEnrolled(user.id, lesson.course_id)) {
+    return { allowed: true, reason: 'enrolled' };
+  }
+  return { allowed: false, reason: 'not_purchased', course_id: lesson.course_id };
+}
+
+// ── Foundation purchase eligibility ────────────────────────────────────────
+// Any foundation can be purchased in any order — no sequential gate.
+function canPurchaseFoundation(userId, foundationId) {
+  const f = getFoundation(foundationId);
+  if (!f) return { allowed: false, reason: 'foundation_not_found' };
+  if (ownsBundle(userId, f.course_id)) return { allowed: false, reason: 'already_owned_via_bundle' };
+  if (ownsFoundation(userId, foundationId)) return { allowed: false, reason: 'already_owned' };
+  return { allowed: true, reason: 'open_purchase' };
+}
+
+// ── Misc helpers used by the summary endpoints ─────────────────────────────
+function lessonCompletionPct(userId, lessonId) {
+  const p = getLessonProgress(userId, lessonId);
+  return p ? (p.completion_percentage || 0) : 0;
+}
+function foundationProgressPct(userId, foundationId) {
+  const lessons = foundationLessons(foundationId);
+  if (!lessons.length) return 0;
+  const total = lessons.reduce((a, l) => a + (l.duration_seconds || 0), 0);
+  // If durations are zero, fall back to lesson-count ratio.
+  if (total === 0) {
+    const done = lessons.filter(l => isLessonCompleted(userId, l.id)).length;
+    return Math.round((done / lessons.length) * 100);
+  }
+  const watched = lessons.reduce((a, l) => {
+    const p = getLessonProgress(userId, l.id);
+    return a + Math.min(p?.watched_seconds || 0, l.duration_seconds || 0);
+  }, 0);
+  return Math.round((watched / total) * 100);
+}
+
+module.exports = {
+  COMPLETION_THRESHOLD,
+  isStaff,
+  getLesson, getFoundation, getCourse,
+  getLessonProgress,
+  foundationLessons, courseFoundations,
+  ownsBundle, ownsFoundation, isEnrolled,
+  hasFoundationAccess, hasCourseAccess,
+  isLessonCompleted, isFoundationCompleted,
+  isFirstLessonOfCourse,
+  canAccessLecture, canPurchaseFoundation,
+  lessonCompletionPct, foundationProgressPct,
+};

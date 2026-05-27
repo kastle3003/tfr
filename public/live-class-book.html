@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Book Your Live Class — The Foundation Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site-chrome.css">
+  <style>
+    :root {
+      --bg: #080706; --bg-2: #0F0D0B; --bg-card: #161412; --bg-elevated: #1E1B17;
+      --gold: #C8A84B; --gold-bright: #E8C96E; --gold-dim: #7A6530;
+      --text: #F0E6D3; --text-2: #B8A898; --text-3: #6B5E50;
+      --ruby: #bf0000;
+      --serif: 'Libre Baskerville', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+
+    .wrap {
+      max-width: 980px; margin: 0 auto; padding: 110px 32px 80px;
+      display: grid; grid-template-columns: 1fr 360px; gap: 36px; align-items: start;
+    }
+    @media (max-width: 800px) { .wrap { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid rgba(200,168,75,0.10);
+      border-radius: 10px;
+      padding: 28px 30px;
+    }
+    .card h1 {
+      font-family: var(--serif); font-weight: 400;
+      font-size: 28px; color: var(--gold); margin-bottom: 6px;
+    }
+    .card .subtitle {
+      font-size: 13px; color: var(--text-3); margin-bottom: 22px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block; font-size: 11px; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%; background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.18); color: var(--text);
+      padding: 11px 13px; border-radius: 5px; font-family: inherit; font-size: 14px;
+    }
+    .form-input:focus { outline: none; border-color: var(--gold); }
+
+    .price-options {
+      display: grid; gap: 10px; margin-top: 6px;
+    }
+    .price-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.14);
+      border-radius: 6px;
+      cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .price-row:hover { border-color: rgba(200,168,75,0.32); }
+    .price-row.selected {
+      border-color: var(--gold);
+      background: rgba(200,168,75,0.06);
+    }
+    .price-row input { accent-color: var(--gold); }
+    .price-row .label { flex: 1; font-size: 14px; color: var(--text); font-weight: 500; }
+    .price-row .desc { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+    .price-row .amount { font-family: var(--serif); color: var(--gold); font-size: 18px; }
+
+    .coupon-row {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .coupon-row input { flex: 1; text-transform: uppercase; }
+    .coupon-btn {
+      background: transparent; border: 1px solid rgba(200,168,75,0.30);
+      color: var(--gold); padding: 11px 16px; border-radius: 5px;
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s;
+    }
+    .coupon-btn:hover { background: rgba(200,168,75,0.10); border-color: var(--gold); }
+    .coupon-msg {
+      margin-top: 6px; font-size: 12px;
+    }
+    .coupon-msg.ok { color: #7dc87d; }
+    .coupon-msg.err { color: #e78a8a; }
+
+    .summary { padding: 24px 26px; position: sticky; top: 90px; }
+    .summary h2 {
+      font-family: var(--serif); font-size: 18px; color: var(--text);
+      margin-bottom: 14px; padding-bottom: 12px;
+      border-bottom: 1px solid rgba(200,168,75,0.10);
+    }
+    .summary-line {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 5px 0; font-size: 13px; color: var(--text-2);
+    }
+    .summary-line.total {
+      border-top: 1px solid rgba(200,168,75,0.10);
+      padding-top: 12px; margin-top: 8px;
+      font-size: 16px; color: var(--text);
+      font-family: var(--serif);
+    }
+    .summary-line .v { color: var(--text); }
+    .summary-line.discount .v { color: #7dc87d; }
+    .summary .grand {
+      font-family: var(--serif); color: var(--gold); font-size: 24px;
+    }
+    .btn-primary {
+      width: 100%; margin-top: 16px;
+      background: var(--gold); color: var(--bg);
+      border: none; border-radius: 6px;
+      padding: 13px 18px; font-weight: 700; font-size: 14px;
+      letter-spacing: 0.04em; cursor: pointer; transition: background .15s;
+    }
+    .btn-primary:hover { background: var(--gold-bright); }
+    .btn-primary:disabled { background: var(--bg-elevated); color: var(--text-3); cursor: not-allowed; }
+
+    .meta-card {
+      margin-bottom: 14px; padding: 16px 18px;
+      background: var(--bg-2);
+      border: 1px solid rgba(200,168,75,0.10);
+      border-radius: 6px;
+    }
+    .meta-card .date {
+      font-family: var(--serif); font-size: 18px; color: var(--text); margin-bottom: 4px;
+    }
+    .meta-card .info {
+      font-size: 12px; color: var(--text-3);
+    }
+    .pay-note {
+      margin-top: 12px; font-size: 11px; color: var(--text-3); line-height: 1.5;
+    }
+
+    .error-banner {
+      background: rgba(191,0,0,0.10); border: 1px solid rgba(191,0,0,0.35);
+      color: #e78a8a; padding: 10px 14px; border-radius: 5px;
+      font-size: 13px; margin-bottom: 14px; display: none;
+    }
+    .error-banner.show { display: block; }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="/" class="site-nav-logo"><img src="/assets/tfr-play/tfr-logo-main.png" alt="TFR" style="height:30px;width:auto;"></a>
+    <div class="site-nav-links">
+      <a href="/courses.html">Courses</a>
+      <a href="/live-classes" style="color:var(--gold);">Live Classes</a>
+      <a href="/blog.html">Blog</a>
+      <a href="/signin.html">Sign in</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="card" id="form-card">
+      <h1>Book your seat</h1>
+      <div class="subtitle">Reserve your live session. You'll receive a Google Meet link by email after payment.</div>
+
+      <div class="error-banner" id="err"></div>
+
+      <div class="form-group">
+        <label class="form-label">Full name</label>
+        <input class="form-input" id="f-name" maxlength="120" autocomplete="name" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="f-email" type="email" maxlength="200" autocomplete="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone number</label>
+        <input class="form-input" id="f-phone" type="tel" maxlength="20" autocomplete="tel" placeholder="+91 99999 99999">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Choose your plan</label>
+        <div class="price-options" id="price-options"><div style="color:var(--text-3);font-size:13px;">Loading…</div></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Coupon code <span style="color:var(--text-3);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+        <div class="coupon-row">
+          <input class="form-input" id="f-coupon" placeholder="WELCOME10" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')">
+          <button class="coupon-btn" onclick="applyCoupon()">Apply</button>
+        </div>
+        <div class="coupon-msg" id="coupon-msg"></div>
+      </div>
+    </div>
+
+    <aside class="card summary" id="summary">
+      <h2>Your booking</h2>
+      <div class="meta-card" id="slot-meta">
+        <div style="color:var(--text-3);font-size:13px;">Loading slot details…</div>
+      </div>
+      <div class="summary-line"><span>Plan</span><span class="v" id="s-plan">—</span></div>
+      <div class="summary-line"><span>Subtotal</span><span class="v" id="s-subtotal">—</span></div>
+      <div class="summary-line discount" id="s-discount-row" style="display:none;"><span>Discount</span><span class="v" id="s-discount">—</span></div>
+      <div class="summary-line total"><span>Total</span><span class="grand" id="s-total">—</span></div>
+      <button class="btn-primary" id="pay-btn" onclick="proceedToPay()" disabled>Proceed to Payment</button>
+      <div class="pay-note">Payments are processed securely by Razorpay. By proceeding you agree to our <a href="/terms" style="color:var(--gold);">terms</a> and <a href="/refund-policy" style="color:var(--gold);">refund policy</a>.</div>
+    </aside>
+  </div>
+
+  <script src="/assets/js/live-classes-public.js"></script>
+  <script>
+    // LOGIN_BEFORE_PAY_V1 — require login before booking page loads (no guest checkout)
+    (function(){
+      const tok = localStorage.getItem('archive_token');
+      const usr = localStorage.getItem('archive_user');
+      if (!tok || !usr) {
+        try { sessionStorage.setItem('tfr_lc_book_after_login', window.location.pathname); } catch (_) {}
+        window.location.replace('/signin.html#panel-login');
+      }
+    })();
+
+    const m = window.location.pathname.match(/^\/live-classes\/book\/(\d+)\/?$/);
+    const slotId = m ? Number(m[1]) : null;
+
+    let slot = null;
+    let priceOptions = [];
+    let selectedPriceId = null;
+    let appliedCoupon = null; // { code, discount_paise, final_amount_paise }
+    let busy = false;
+
+    function showError(msg) {
+      const el = document.getElementById('err');
+      el.textContent = msg;
+      el.classList.toggle('show', !!msg);
+    }
+
+    async function load() {
+      if (!slotId) {
+        window.location.href = '/live-classes';
+        return;
+      }
+      try {
+        const data = await lcApi.get(`/api/lc/slots/${slotId}`);
+        slot = data.slot;
+        priceOptions = data.price_options || [];
+        if (slot.seats_left <= 0) {
+          showError('Sorry — this slot is sold out.');
+          document.getElementById('pay-btn').disabled = true;
+        }
+        renderSlotMeta();
+        renderPriceOptions();
+        // Pre-fill if logged in
+        try {
+          const u = JSON.parse(localStorage.getItem('archive_user') || 'null');
+          if (u && u.email) {
+            document.getElementById('f-email').value = u.email;
+            document.getElementById('f-name').value = [u.first_name, u.last_name].filter(Boolean).join(' ');
+          }
+        } catch {}
+      } catch (e) {
+        showError(e.message);
+      }
+    }
+
+    function renderSlotMeta() {
+      const html = `
+        <div class="date">${lcFmt.fmtDate(slot.slot_date)}</div>
+        <div class="info">
+          ${lcFmt.esc(slot.start_time)} IST · ${slot.duration_min || 60} min<br>
+          ${lcFmt.esc(slot.teacher_name || '')}
+        </div>`;
+      document.getElementById('slot-meta').innerHTML = html;
+    }
+
+    function renderPriceOptions() {
+      if (!priceOptions.length) {
+        document.getElementById('price-options').innerHTML =
+          '<div style="color:var(--text-3);font-size:13px;">No price options configured for this slot.</div>';
+        return;
+      }
+      document.getElementById('price-options').innerHTML = priceOptions.map((p, i) => `
+        <label class="price-row" data-id="${p.id}">
+          <input type="radio" name="price" value="${p.id}" ${i === 0 ? 'checked' : ''}>
+          <div style="flex:1;">
+            <div class="label">${lcFmt.esc(p.label)}</div>
+            ${p.description ? `<div class="desc">${lcFmt.esc(p.description)}</div>` : ''}
+          </div>
+          <div class="amount">${lcFmt.fmtINR(p.amount_paise)}</div>
+        </label>`).join('');
+      // Wire selection
+      document.querySelectorAll('.price-row').forEach(row => {
+        row.addEventListener('click', () => selectPrice(Number(row.dataset.id)));
+      });
+      selectPrice(priceOptions[0].id);
+    }
+
+    function selectPrice(id) {
+      selectedPriceId = id;
+      document.querySelectorAll('.price-row').forEach(r => {
+        const on = Number(r.dataset.id) === id;
+        r.classList.toggle('selected', on);
+        const radio = r.querySelector('input[type="radio"]');
+        if (radio) radio.checked = on;
+      });
+      // Reset coupon when plan changes
+      appliedCoupon = null;
+      document.getElementById('f-coupon').value = '';
+      document.getElementById('coupon-msg').textContent = '';
+      document.getElementById('coupon-msg').className = 'coupon-msg';
+      updateSummary();
+    }
+
+    function selectedPrice() { return priceOptions.find(p => p.id === selectedPriceId); }
+
+    function updateSummary() {
+      const p = selectedPrice();
+      if (!p) {
+        document.getElementById('pay-btn').disabled = true;
+        return;
+      }
+      document.getElementById('s-plan').textContent = p.label;
+      document.getElementById('s-subtotal').textContent = lcFmt.fmtINR(p.amount_paise);
+      let total = p.amount_paise;
+      if (appliedCoupon) {
+        document.getElementById('s-discount-row').style.display = 'flex';
+        document.getElementById('s-discount').textContent = '− ' + lcFmt.fmtINR(appliedCoupon.discount_paise);
+        total = appliedCoupon.final_amount_paise;
+      } else {
+        document.getElementById('s-discount-row').style.display = 'none';
+      }
+      document.getElementById('s-total').textContent = lcFmt.fmtINR(total);
+      document.getElementById('pay-btn').disabled = slot.seats_left <= 0 || (total > 0 && total < 100) || busy;
+      document.getElementById('pay-btn').textContent = total === 0 ? 'Confirm Free Booking' : 'Proceed to Payment';
+    }
+
+    async function applyCoupon() {
+      const code = document.getElementById('f-coupon').value.trim();
+      const msg = document.getElementById('coupon-msg');
+      msg.className = 'coupon-msg';
+      msg.textContent = '';
+      if (!code) return;
+      if (!selectedPriceId) return;
+      try {
+        const r = await lcApi.post('/api/lc/coupon/validate', { code, price_option_id: selectedPriceId });
+        if (!r.valid) {
+          appliedCoupon = null;
+          msg.className = 'coupon-msg err';
+          msg.textContent = 'Coupon ' + (r.reason ? `not valid (${r.reason})` : 'not valid.');
+          updateSummary();
+          return;
+        }
+        appliedCoupon = { code, discount_paise: r.discount_paise, final_amount_paise: r.final_amount_paise };
+        msg.className = 'coupon-msg ok';
+        msg.textContent = `Coupon applied — saved ${lcFmt.fmtINR(r.discount_paise)}.`;
+        updateSummary();
+      } catch (e) {
+        msg.className = 'coupon-msg err';
+        msg.textContent = e.message;
+      }
+    }
+    window.applyCoupon = applyCoupon;
+
+    async function proceedToPay() {
+      if (busy) return;
+      showError('');
+      const name = document.getElementById('f-name').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const phone = document.getElementById('f-phone').value.trim();
+      if (!name) return showError('Please enter your name.');
+      if (!/.+@.+\..+/.test(email)) return showError('Please enter a valid email.');
+      if (!phone || phone.length < 7) return showError('Please enter a valid phone number.');
+      if (!selectedPriceId) return showError('Please choose a plan.');
+
+      busy = true;
+      document.getElementById('pay-btn').disabled = true;
+      document.getElementById('pay-btn').textContent = 'Creating order…';
+
+      try {
+        const order = await lcApi.post('/api/lc/create-order', {
+          slot_id: slotId,
+          price_option_id: selectedPriceId,
+          coupon_code: appliedCoupon ? appliedCoupon.code : null,
+          name, email, phone
+        });
+
+        // Free order (100% off coupon) - skip Razorpay, verify directly
+        if (order.is_free) {
+          document.getElementById('pay-btn').textContent = 'Confirming free booking...';
+          try {
+            await lcApi.post('/api/lc/verify', {
+              razorpay_order_id: order.order_id,
+              razorpay_payment_id: 'free_' + Date.now(),
+              razorpay_signature: 'free',
+              booking_id: order.booking_id
+            });
+            window.location.href = `/live-classes/thank-you?bookingId=${order.booking_id}`;
+          } catch (e) {
+            busy = false;
+            document.getElementById('pay-btn').textContent = 'Proceed to Payment';
+            document.getElementById('pay-btn').disabled = false;
+            showError('Free booking failed: ' + e.message);
+          }
+          return;
+        }
+
+        await lcCheckout.openCheckout({
+          order,
+          name, email, phone,
+          description: `${slot.teacher_name || 'Live'}`,
+          onSuccess: async (response) => {
+            document.getElementById('pay-btn').textContent = 'Verifying payment…';
+            try {
+              await lcApi.post('/api/lc/verify', {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                booking_id: order.booking_id
+              });
+              window.location.href = `/live-classes/thank-you?bookingId=${order.booking_id}`;
+            } catch (e) {
+              busy = false;
+              document.getElementById('pay-btn').textContent = 'Proceed to Payment';
+              document.getElementById('pay-btn').disabled = false;
+              showError('Payment verification failed: ' + e.message + ' — if you were charged, please contact support.');
+            }
+          },
+          onDismiss: () => {
+            busy = false;
+            document.getElementById('pay-btn').textContent = 'Proceed to Payment';
+            document.getElementById('pay-btn').disabled = false;
+          }
+        });
+      } catch (e) {
+        busy = false;
+        document.getElementById('pay-btn').textContent = 'Proceed to Payment';
+        document.getElementById('pay-btn').disabled = false;
+        showError(e.message);
+      }
+    }
+    window.proceedToPay = proceedToPay;
+
+    load();
+  </script>
+</body>
+</html>

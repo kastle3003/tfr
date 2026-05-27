@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loading… · The Foundation Room</title>
+<link rel="icon" type="image/png" href="/assets/tfr-play/favicon-tfr.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site-chrome.css">
+<link rel="stylesheet" href="/assets/css/enroll-modal.css">
+<style>
+  :root {
+    --ink:         #080706;
+    --ink-soft:    #0f0e0c;
+    --ink-mid:     #1a1916;
+    --ink-deep:    #050403;
+    --gold:        #C8A84B;
+    --gold-bright: #E8C96E;
+    --gold-dim:    #7A6830;
+    --cream:       #F0E6D3;
+    --cream-dim:   #b8ad9e;
+    --accent-red:  #E24A3F;
+    --accent-red-bright: #F05A50;
+    --accent-red-deep:   #A82E28;
+    --border:      rgba(200,168,75,0.12);
+    --border-hi:   rgba(200,168,75,0.28);
+    --ghost:       rgba(200,168,75,0.04);
+    --ghost-mid:   rgba(200,168,75,0.08);
+    --font-display: 'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
+    --font-body:    'DM Sans', -apple-system, sans-serif;
+    --serif: var(--font-display);
+    --sans:  var(--font-body);
+    --text-2: var(--cream-dim);
+    --text-3: rgba(184,173,158,0.55);
+    --radius: 8px;
+    --max: 1280px;
+  }
+  em, i { font-style: normal; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; overflow-x: clip; }
+  body {
+    background: var(--ink);
+    color: var(--cream);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  h1, h2, h3, h4, h5 { font-family: var(--font-display); }
+
+  /* ─────────── Top nav ─────────── */
+  nav {
+    display: flex; align-items: center; gap: 28px;
+    padding: 0 40px;
+    height: 76px;
+    background: rgba(8,7,6,0.55);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(240,228,196,0.08);
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  }
+  .nav-logo-link { display: inline-flex; align-items: center; gap: 10px; }
+  .nav-logo-img { height: 42px; width: auto; }
+  .nav-logo-text {
+    font-family: var(--font-display); font-size: 20px; color: var(--gold);
+    font-weight: 600; letter-spacing: .04em; line-height: 1;
+  }
+  .nav-logo-text span {
+    display: block; margin-top: 2px;
+    font-family: var(--font-body); font-size: 9px; font-weight: 500;
+    color: var(--cream-dim); letter-spacing: .24em; text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 24px; margin-left: 16px;
+  }
+  .nav-link {
+    font-size: 13px; color: var(--cream-dim); font-weight: 500;
+    letter-spacing: .04em;
+    transition: color .15s;
+  }
+  .nav-link:hover, .nav-link.active { color: var(--cream); }
+  .nav-spacer { flex: 1; }
+  .nav-btn {
+    padding: 9px 20px; border-radius: 4px;
+    font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    transition: all .18s;
+  }
+  .nav-ghost { border: 1px solid var(--border-hi); color: var(--cream); }
+  .nav-ghost:hover { border-color: var(--gold); color: var(--gold); }
+  .nav-red { background: var(--gold); color: var(--ink); border: none; }
+  .nav-red:hover { background: var(--gold-bright); }
+
+  /* ─────────── Hero ─────────── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; align-items: flex-end; justify-content: flex-end;
+    padding: 100px 5% 80px 50%;
+    overflow: hidden;
+    text-align: center;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background-size: cover; background-position: left center;
+  }
+  .hero-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(8,7,6,0.08) 0%, transparent 18%, transparent 78%, rgba(8,7,6,0.4) 100%),
+      linear-gradient(to left, rgba(8,7,6,0.55) 0%, rgba(8,7,6,0.3) 38%, transparent 62%);
+  }
+  .hero-content { position: relative; z-index: 2; width: 100%; max-width: 52vw; text-align: center; }
+  .hero-eyebrow {
+    font-size: 10px; font-weight: 500; letter-spacing: .32em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  .hero-eyebrow::before,
+  .hero-eyebrow::after { content: ''; display: block; width: 32px; height: 1px; background: var(--gold-dim); flex-shrink: 0; }
+  .hero-eyebrow:empty { display: none; }
+  .hero-pretitle {
+    font-family: var(--font-display);
+    font-size: clamp(20px, 2.6vw, 36px);
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 6.5vw, 92px);
+    font-weight: 300; line-height: 0.9;
+    color: #fff; margin-bottom: 28px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .title-red { color: #fff; }
+  .hero-sub {
+    font-family: var(--font-body);
+    font-size: clamp(15px, 1.4vw, 20px);
+    color: #fff; opacity: .92;
+    margin: 0 0 16px auto;
+    line-height: 1.45;
+    text-align: center;
+    max-width: 42vw;
+  }
+  .hero-sub-note {
+    font-size: 10px; letter-spacing: .22em;
+    color: rgba(255,255,255,0.5); margin-bottom: 32px;
+    font-style: normal; text-transform: uppercase;
+    text-align: center;
+  }
+  .train-btn {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 17px 44px;
+    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+    color: var(--ink);
+    border: 0; border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .train-btn:hover { background: linear-gradient(180deg, #F0D277 0%, var(--gold-bright) 100%); }
+  .train-btn svg { width: 13px; height: 13px; fill: currentColor; }
+
+  /* ─── Video modal ─── */
+  .video-modal {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    align-items: center; justify-content: center;
+  }
+  .video-modal.open { display: flex; }
+  .video-modal-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(5,4,3,0.93);
+    backdrop-filter: blur(10px);
+  }
+  .video-modal-box {
+    position: relative; z-index: 1;
+    width: min(960px, 92vw);
+  }
+  .video-modal-close {
+    position: absolute; top: -44px; right: 0;
+    background: none; border: none;
+    color: rgba(255,255,255,0.65); font-size: 24px; line-height: 1;
+    cursor: pointer; padding: 4px 8px; border-radius: 4px;
+    transition: color .15s;
+  }
+  .video-modal-close:hover { color: #fff; }
+  .video-modal-player {
+    position: relative; padding-bottom: 56.25%;
+    background: #000; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,.7);
+  }
+  .video-modal-player iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+  }
+
+  /* Hero bottom accent */
+  .hero-drum-accent {
+    position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 14px;
+    background: linear-gradient(90deg, transparent, var(--gold) 40%, var(--gold) 60%, transparent);
+    opacity: .3; z-index: 2;
+  }
+
+  /* Artist panel — full-viewport photo with gradient overlay */
+  .hero-artist-panel {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 25% center;
+    z-index: 1;
+  }
+  .hero-artist-panel::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at center, rgba(8,7,6,0.55) 0%, rgba(8,7,6,0.2) 55%, transparent 80%),
+      linear-gradient(to bottom,
+        rgba(8,7,6,0.25) 0%,
+        transparent 15%,
+        transparent 80%,
+        rgba(8,7,6,0.35) 100%
+      );
+  }
+  /* Dark base behind the artist panel */
+  .hero.has-artist-panel .hero-bg {
+    background-image: none !important;
+    background: #080706;
+  }
+
+  /* Upcoming card — features block fills the blank top-left area */
+  .upcoming-card-features {
+    grid-column: 1; grid-row: 1;
+    align-self: start;
+    padding: 52px 0 0 56px;
+    position: relative; z-index: 2;
+  }
+  .upcoming-feat-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .18em; text-transform: uppercase;
+    padding: 5px 14px; border-radius: 3px;
+    margin-bottom: 28px;
+  }
+  .upcoming-feat-list {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 16px;
+    max-width: 360px;
+  }
+  .upcoming-feat-list li {
+    font-size: 14px; color: var(--cream-dim);
+    padding-left: 22px; position: relative;
+    line-height: 1.5;
+  }
+  .upcoming-feat-list li::before {
+    content: '';
+    position: absolute; left: 0; top: 7px;
+    width: 7px; height: 7px;
+    background: var(--gold); border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ─────────── Section shell ─────────── */
+  .section {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 90px 40px;
+  }
+  .section-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 14px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 600; line-height: 1.15;
+    color: #fff; margin-bottom: 30px;
+  }
+  .section-title em { color: var(--accent-red); font-weight: 600; }
+  .section-divider {
+    max-width: var(--max);
+    margin: 0 auto;
+    border: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-hi), transparent);
+  }
+
+  /* ─────────── Golden border animation ─────────── */
+  @keyframes gb-spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+  .gb-wrap {
+    position: relative;
+    overflow: hidden;
+    padding: 2px;
+    border-radius: calc(var(--radius) + 2px);
+    clip-path: inset(0 round calc(var(--radius) + 2px));
+  }
+  .gb-wrap::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 260%; height: 260%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    background: conic-gradient(
+      #1e0f00 0deg, #c8880a 48deg, #ffda4a 62deg, #fff8a0 72deg, #ffda4a 82deg, #c8880a 96deg, #1e0f00 144deg,
+      #1e0f00 180deg, #c8880a 228deg, #ffda4a 242deg, #fff8a0 252deg, #ffda4a 262deg, #c8880a 276deg, #1e0f00 324deg, #1e0f00 360deg
+    );
+    animation: gb-spin 5s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .gb-wrap > * {
+    position: relative;
+    z-index: 1;
+    border-radius: var(--radius);
+  }
+  /* Smaller spin-border for buttons (4px radius) */
+  .gb-wrap-sm {
+    display: inline-flex;
+    position: relative;
+    overflow: hidden;
+    padding: 2px;
+    border-radius: 6px;
+  }
+  .gb-wrap-sm::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 260%; height: 260%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    background: conic-gradient(
+      #1e0f00 0deg, #c8880a 48deg, #ffda4a 62deg, #fff8a0 72deg, #ffda4a 82deg, #c8880a 96deg, #1e0f00 144deg,
+      #1e0f00 180deg, #c8880a 228deg, #ffda4a 242deg, #fff8a0 252deg, #ffda4a 262deg, #c8880a 276deg, #1e0f00 324deg, #1e0f00 360deg
+    );
+    animation: gb-spin 5s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .gb-wrap-sm > * {
+    position: relative;
+    z-index: 1;
+    border-radius: 4px;
+    border: none !important;
+  }
+
+  /* ─────────── TFR Play intro ─────────── */
+  .play-intro {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 56px;
+    align-items: stretch;
+  }
+  .play-intro-text { display: flex; flex-direction: column; justify-content: center; }
+  .play-intro-text p {
+    color: var(--cream-dim); font-size: 15px; margin-bottom: 14px;
+  }
+  .play-intro-text p strong { color: var(--cream); font-weight: 600; }
+  .play-intro-text .play-brand-mark {
+    font-family: var(--font-display); color: var(--gold);
+    font-size: 18px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .play-intro-text .play-brand-mark svg { width: 11px; height: 11px; fill: var(--accent-red); }
+  .play-card-wrap {
+    display: block;
+    align-self: center;
+  }
+  .play-card {
+    position: relative;
+    background: var(--ink-mid);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    transition: transform .3s, box-shadow .3s;
+  }
+  .play-card:hover { transform: translateY(-2px); box-shadow: 0 20px 48px rgba(0,0,0,.5); }
+  .play-card-img {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    opacity: .55;
+    transition: transform .5s, opacity .3s;
+  }
+  .play-card:hover .play-card-img { transform: scale(1.05); opacity: .7; }
+  .play-card-img::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(8,7,6,.35) 0%, rgba(8,7,6,.8) 100%);
+  }
+  .play-card-img.play-card-img-branded {
+    opacity: 1;
+  }
+  .play-card-img.play-card-img-branded::after { background: transparent; }
+  .play-card:hover .play-card-img.play-card-img-branded { opacity: 1; }
+  .play-card-inner {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+    padding: 24px; text-align: center;
+    width: 100%; height: 100%;
+    justify-content: flex-end;
+  }
+  .play-card-logo {
+    height: 58px; width: auto;
+    filter: drop-shadow(0 2px 14px rgba(0,0,0,.6));
+  }
+  .play-card-play {
+    width: 66px; height: 66px; border-radius: 50%;
+    background: var(--accent-red);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 32px rgba(226,74,63,.45);
+    transition: transform .2s;
+  }
+  .play-card:hover .play-card-play { transform: scale(1.1); }
+  .play-card-play svg { width: 24px; height: 24px; fill: #fff; margin-left: 3px; }
+  .play-card-label {
+    font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,0.65);
+    padding: 6px 16px; background: rgba(8,7,6,0.45); border-radius: 3px;
+  }
+  .yt-embed-wrap {
+    position: relative; width: 100%; height: 100%;
+    background: #000; border-radius: inherit; overflow: hidden;
+  }
+  .yt-embed-wrap iframe {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border: none; display: block;
+  }
+  /* Play card — YouTube embed, proper 16:9, no blank space */
+  .play-card-wrap.yt-active { min-height: 0; display: block; }
+  .play-card.yt-card {
+    padding: 0; min-height: 0; height: auto; flex: none;
+    display: block; transform: none !important; cursor: default;
+  }
+  .play-card.yt-card .yt-embed-wrap { position: relative; height: 0; padding-top: 56.25%; overflow: hidden; }
+  .play-card.yt-card .yt-embed-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; transform: none; border: none; }
+  .play-card.yt-card:hover { box-shadow: none; transform: none !important; }
+  /* Card tag overlay (Watch Preview / Practice Today) */
+  .yt-card-tag {
+    position: absolute; z-index: 12;
+    bottom: 14px; left: 14px;
+    background: rgba(8,7,6,0.72); backdrop-filter: blur(4px);
+    color: var(--cream); font-size: 10px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    padding: 5px 12px; border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.14);
+    pointer-events: none;
+  }
+  /* Practice room — fill entire visual column */
+  .pr-card-visual.yt-card::before { display: none; }
+  .pr-card-visual.yt-card {
+    position: relative; min-height: 320px; height: 100%;
+    border-radius: 0; overflow: hidden;
+    padding: 0; cursor: default; align-self: stretch;
+  }
+  .pr-card-visual.yt-card .yt-embed-wrap {
+    position: absolute; inset: 0;
+    height: 100%; min-height: 0; overflow: hidden;
+  }
+  .pr-card-visual.yt-card .yt-embed-wrap iframe {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border: none; min-width: 100%; min-height: 100%;
+  }
+  /* Ensure Special Feature ribbon sits above the iframe */
+  .pr-ribbon { z-index: 20; }
+
+  /* ─────────── Instructor ─────────── */
+  .instructor-block {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .instructor-photo-wrap {
+    align-self: start;
+  }
+  .instructor-photo {
+    position: relative;
+    border-radius: calc(var(--radius) - 2px);
+    overflow: hidden;
+    aspect-ratio: 4/5;
+    border: none;
+    background: var(--ink-mid);
+  }
+  .instructor-photo img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center 15%;
+    transition: transform .6s;
+  }
+  .instructor-photo:hover img { transform: scale(1.03); }
+  .instructor-photo::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 55%, rgba(8,7,6,.55) 100%);
+    pointer-events: none;
+  }
+  .instructor-initials {
+    font-family: var(--font-display); font-size: 80px; font-weight: 500;
+    color: var(--gold); letter-spacing: .04em;
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .instructor-bio-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 600; line-height: 1.15;
+    color: #fff; margin-bottom: 10px;
+  }
+  .upcoming-strip h3,
+  .series-block h3,
+  .pr-card-title,
+  .pr-promo-banner {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3vw, 38px) !important;
+    font-weight: 600 !important;
+    line-height: 1.15;
+    color: #fff;
+  }
+  .instructor-bio-title em { color: var(--accent-red); }
+  .instructor-bio-sub {
+    font-size: 14px; color: var(--gold); margin-bottom: 24px;
+    font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  }
+  .instructor-bio-text {
+    color: var(--cream-dim); font-size: 15px; margin-bottom: 16px; line-height: 1.8;
+  }
+  .instructor-bio-text strong { color: var(--cream); font-weight: 500; }
+
+  /* ─────────── Practice Room promo ─────────── */
+  .pr-promo-banner {
+    text-align: center;
+    font-family: var(--font-display); font-size: clamp(30px, 3.5vw, 44px);
+    color: #fff; font-weight: 500;
+    margin-bottom: 48px;
+  }
+  .pr-promo-banner em { color: var(--accent-red); font-weight: 600; }
+  .pr-card-wrap { margin-top: 0; }
+  .pr-intro-layout { align-items: center; }
+  .pr-ribbon-inline {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 100%);
+    color: var(--ink);
+    font-size: 8px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 3px;
+    margin-bottom: 18px;
+  }
+  .pr-card {
+    position: relative;
+    background: linear-gradient(135deg, var(--ink-mid) 0%, var(--ink-deep) 100%);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .pr-card-body { padding: 48px 44px; }
+  .pr-card-title {
+    font-family: var(--font-display); font-size: 32px; font-weight: 600;
+    color: #fff; margin-bottom: 16px;
+  }
+  .pr-card-title .title-red { color: var(--accent-red); }
+  .pr-card-body p {
+    color: var(--cream-dim); font-size: 14px; margin-bottom: 10px;
+  }
+  .pr-card-body p strong { color: var(--gold); font-weight: 500; }
+  .pr-card-visual {
+    position: relative;
+    min-height: 260px;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    overflow: hidden;
+    background: #0a0a0a;
+  }
+  .pr-card-visual-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center top;
+    transition: transform 0.5s ease;
+  }
+  .pr-card-visual:hover .pr-card-visual-img { transform: scale(1.04); }
+  .pr-card-visual::before {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(to top, rgba(8,7,6,.92) 0%, rgba(8,7,6,.5) 35%, rgba(8,7,6,.15) 65%, transparent 85%);
+  }
+  .pr-card-visual-inner {
+    position: relative; z-index: 2; text-align: center;
+    padding: 0 24px 24px;
+    width: 100%;
+  }
+  .pr-card-visual .pr-card-play {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--accent-red);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 12px 36px rgba(226,74,63,.55);
+    margin: 0 auto 14px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .pr-card-visual:hover .pr-card-play { transform: scale(1.08); box-shadow: 0 18px 48px rgba(226,74,63,.65); }
+  .pr-card-visual .pr-card-play svg { width: 22px; height: 22px; fill: #fff; margin-left: 3px; }
+  .pr-card-visual-label {
+    margin-top: 0;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .pr-card-visual-sublabel {
+    margin-top: 4px;
+    font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--cream-dim);
+  }
+  .pr-watch-preview {
+    margin-top: 10px;
+    font-size: 11px; letter-spacing: .12em;
+    color: rgba(255,255,255,0.55);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pr-watch-preview::before {
+    content: '▶';
+    font-size: 8px;
+    color: var(--gold);
+  }
+  .pr-locked-btn {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 10px;
+    margin-top: 24px;
+    padding: 14px 32px;
+    background: var(--gold);
+    color: var(--ink);
+    border: 0; border-radius: 4px;
+    font-family: inherit;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    cursor: not-allowed; opacity: .78;
+    transition: opacity .2s, background .2s, box-shadow .2s;
+  }
+  .pr-locked-btn:hover { opacity: 1; background: var(--gold-bright); box-shadow: 0 8px 24px rgba(200,168,75,.3); }
+  .pr-locked-btn::after {
+    content: "Coming soon"; position: absolute;
+    bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    background: #141312; color: var(--cream);
+    padding: 6px 12px; font-size: 11px; text-transform: none; letter-spacing: 0;
+    border: 1px solid var(--border); border-radius: 3px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity .15s;
+  }
+  .pr-locked-btn:hover::after, .pr-locked-btn.tapped::after { opacity: 1; }
+  .pr-locked-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+  /* ─────────── Rainbow gradient bar ─────────── */
+  .tier-rainbow-bar {
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg,
+      #F8C726 0%, #F58430 12%,
+      #9CD63C 25%, #2DA84F 37%,
+      #5CADFD 50%, #B946D8 62%,
+      #E62F75 75%, #321456 87%,
+      #DD9036 100%
+    );
+    display: block;
+    border: none;
+    outline: none;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    font-size: 0;
+  }
+
+  /* ─────────── Tier cards ─────────── */
+  .tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-top: 36px;
+  }
+  .tier-card {
+    position: relative;
+    background: var(--ink-mid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: transform .25s, border-color .25s, box-shadow .25s;
+  }
+  .tier-card:hover { transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 12px 32px rgba(200,168,75,.15); }
+  .tier-card.featured { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+  .tier-strip {
+    height: 12px;
+    background: linear-gradient(90deg, var(--tier-start, #5B8DEF), var(--tier-end, #9B51E0));
+  }
+  .tier-body {
+    padding: 24px 22px;
+    flex: 1;
+    display: flex; flex-direction: column;
+  }
+  .tier-title {
+    font-family: var(--font-display); font-size: 18px; font-weight: 600;
+    color: #fff; margin-bottom: 4px; line-height: 1.2;
+  }
+  .tier-subtitle {
+    font-size: 11px; color: var(--cream-dim);
+    font-style: normal; margin-bottom: 16px;
+  }
+  .tier-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--gold); margin: 12px 0 10px; padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .tier-section-label:first-of-type { border-top: 0; padding-top: 0; margin-top: 8px; }
+  .tier-list {
+    list-style: none; display: flex; flex-direction: column; gap: 9px;
+    margin-bottom: 6px;
+  }
+  .tier-list li {
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 11.5px; color: var(--cream-dim); line-height: 1.55;
+  }
+  .tier-list li::before {
+    content: ''; flex-shrink: 0;
+    width: 12px; height: 12px; margin-top: 3px;
+    background: var(--gold);
+    -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="black" stroke-width="3" fill="none"/></svg>') center/contain no-repeat;
+            mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="black" stroke-width="3" fill="none"/></svg>') center/contain no-repeat;
+  }
+  .tier-list li.special { color: var(--gold); }
+  .tier-list li.special::before { background: var(--accent-red); }
+  /* Spinning-border wrapper for tier buttons */
+  .tier-cta-wrap {
+    display: block !important;
+    width: 100%;
+    margin-top: auto;
+    border-radius: 6px;
+  }
+  .tier-cta-wrap > .tier-notify-btn {
+    width: 100%;
+  }
+
+  .tier-notify-btn {
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    color: var(--cream);
+    border: 1px solid var(--border-hi);
+    border-radius: 4px;
+    font-family: inherit; font-size: 10px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .tier-notify-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(200,168,75,0.07);
+    box-shadow: 0 0 14px rgba(200,168,75,0.18), inset 0 0 8px rgba(200,168,75,0.06);
+    transform: translateY(-1px);
+  }
+  /* Filled gold — Start Training (first tier only) */
+  .tier-start-btn {
+    background: linear-gradient(180deg, var(--gold-bright) 0%, #a87224 100%);
+    color: #0d0900;
+    border-color: var(--gold);
+    letter-spacing: .16em;
+  }
+  .tier-start-btn:hover {
+    background: linear-gradient(180deg, #ffe078 0%, var(--gold-bright) 100%);
+    color: #0d0900;
+    box-shadow: 0 6px 24px rgba(200,168,75,0.35);
+    transform: translateY(-2px);
+  }
+  /* Dimmed ghost — Enrol Now on locked tiers */
+  .tier-dim-btn {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+  /* Practice Room button — interactive, shows Coming Soon on hover */
+  .tier-pr-btn {
+    opacity: 0.55;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .tier-pr-btn .pr-btn-label { transition: opacity .15s; }
+  .tier-pr-btn::after {
+    content: 'Coming Soon';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity .15s;
+    font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .tier-pr-btn:hover { opacity: 1; border-color: var(--gold); color: transparent; }
+  .tier-pr-btn:hover::after { opacity: 1; }
+
+  /* ─────────── Upcoming strip ─────────── */
+  .upcoming-strip {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 40px 70px;
+  }
+  .upcoming-strip h3 {
+    font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); color: #fff; font-weight: 500;
+    margin-bottom: 24px;
+  }
+  .play-mark { color: var(--accent-red) !important; font-style: normal; }
+  .section-eyebrow span { color: #fff; }
+  .upcoming-strip h3 em { color: #fff; }
+  .upcoming-strip h3 .play-mark, .series-block h3 .play-mark { color: var(--accent-red) !important; }
+  .upcoming-card {
+    position: relative;
+    background: linear-gradient(135deg, #1a1714 0%, var(--ink-deep) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    grid-template-rows: 1fr auto auto;
+    gap: 0 48px;
+    min-height: 460px;
+  }
+  .upcoming-text {
+    position: relative; z-index: 2;
+    grid-column: 1; grid-row: 2;
+    text-align: left;
+    padding: 24px 0 0 56px;
+    align-self: end;
+  }
+  .upcoming-text h4 {
+    font-family: var(--font-display); font-size: clamp(26px, 2.6vw, 34px);
+    color: #fff; font-weight: 500; margin-bottom: 10px; line-height: 1.2;
+  }
+  .upcoming-text h4 .mentor-red { color: var(--accent-red); font-weight: 600; display: block; }
+  .upcoming-text p { font-size: 14px; color: var(--cream-dim); max-width: 460px; }
+  .upcoming-card .signup-form {
+    position: relative; z-index: 2;
+    grid-column: 1; grid-row: 3;
+    max-width: 460px;
+    padding: 16px 0 56px 56px;
+    align-self: start;
+  }
+  .upcoming-card-img {
+    position: relative;
+    grid-column: 2; grid-row: 1 / span 3;
+    align-self: stretch;
+    background-color: #000;
+    background-size: cover;
+    background-position: center 15%;
+    background-repeat: no-repeat;
+    overflow: hidden;
+  }
+  .upcoming-card-img::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, rgba(8,7,6,0.92) 0%, rgba(8,7,6,0.45) 14%, transparent 38%, transparent 100%),
+      linear-gradient(180deg, rgba(8,7,6,0.25) 0%, transparent 25%, transparent 75%, rgba(8,7,6,0.45) 100%);
+    pointer-events: none;
+  }
+  .signup-form {
+    position: relative; z-index: 1;
+    display: flex; gap: 10px;
+  }
+  .signup-form input {
+    flex: 1;
+    padding: 13px 16px;
+    background: var(--ink-soft);
+    border: 1px solid var(--border-hi);
+    border-radius: 4px;
+    color: var(--cream);
+    font-family: inherit; font-size: 13px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .signup-form input:focus { border-color: var(--gold); }
+  .signup-form button {
+    padding: 13px 24px;
+    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+    color: var(--ink);
+    border: 0; border-radius: 4px;
+    font-family: inherit; font-size: 12px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background .15s, box-shadow .15s;
+  }
+  .signup-form button:hover { background: linear-gradient(180deg, #F0D277 0%, var(--gold-bright) 100%); box-shadow: 0 6px 20px rgba(200,168,75,.35); }
+
+  /* ─────────── Legacy / next up cards ─────────── */
+  .series-block { max-width: var(--max); margin: 0 auto; padding: 40px 40px 80px; }
+  .series-block h3 {
+    font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); color: #fff; font-weight: 500;
+    margin-bottom: 24px;
+  }
+  .series-block h3 em { color: #fff; }
+  .series-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 22px;
+  }
+  .series-card {
+    position: relative;
+    background: var(--ink-mid);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform .25s;
+  }
+  .gb-wrap .series-card { border-radius: calc(var(--radius) - 2px); }
+  .series-card:hover { transform: translateY(-4px); }
+  .ribbon-shell {
+    position: relative;
+    display: flex; flex-direction: column;
+    width: 100%;
+  }
+  .ribbon-shell > .gb-wrap,
+  .ribbon-shell > .tier-card { flex: 1; width: 100%; }
+  .series-ribbon,
+  .pr-ribbon,
+  .tier-featured-ribbon {
+    position: absolute;
+    width: 180px; padding: 7px 0;
+    text-align: center;
+    white-space: nowrap;
+    background: linear-gradient(180deg, #ffe680 0%, #d4a818 55%, #b88810 100%);
+    color: #1a0e00;
+    font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+    border-radius: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55);
+    pointer-events: none;
+    z-index: 6;
+  }
+  /* top-left corner */
+  .series-ribbon { top: 30px; left: -48px; transform: rotate(-45deg); transform-origin: center; }
+  .pr-ribbon     { top: 30px; left: -48px; transform: rotate(-45deg); transform-origin: center; }
+  /* top-right corner */
+  .tier-featured-ribbon { top: 30px; right: -48px; transform: rotate(45deg); transform-origin: center; }
+  .series-ribbon::before, .series-ribbon::after,
+  .pr-ribbon::before, .pr-ribbon::after,
+  .tier-featured-ribbon::before, .tier-featured-ribbon::after { content: none; }
+  .series-img {
+    aspect-ratio: 4/3;
+    background-size: cover; background-position: center top;
+    background-color: var(--ink-deep);
+    filter: grayscale(22%) brightness(.9);
+    transition: filter .3s;
+  }
+  .series-card:hover .series-img { filter: grayscale(0%) brightness(1); }
+  .series-body { padding: 18px 22px 24px; text-align: center; border-top: 1px solid var(--border); }
+  .series-name { font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .series-desc { font-size: 12px; color: var(--cream-dim); line-height: 1.6; }
+
+  .kids-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    align-items: stretch;
+  }
+  .kids-row .gb-wrap,
+  .kids-row .ribbon-shell > .gb-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+  .kids-row .gb-wrap > * {
+    flex: 1;
+  }
+  .kids-row .ribbon-shell { height: 100%; }
+  .kids-card {
+    background: linear-gradient(135deg, #1a1830 0%, #090715 100%);
+    border-radius: var(--radius);
+    padding: 48px 36px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; gap: 14px;
+  }
+  .gb-wrap .kids-card { border-radius: calc(var(--radius) - 2px); }
+  .kids-logo {
+    font-family: var(--font-display);
+    font-size: 56px; font-weight: 700;
+    letter-spacing: .03em; line-height: 1;
+  }
+  .kids-logo .r1 { color: #5E89F5; }
+  .kids-logo .r2 { color: #E24A3F; }
+  .kids-logo .r3 { color: #F2C14E; }
+  .kids-logo .kids-word {
+    font-size: 32px; color: var(--cream); font-weight: 500;
+    margin-left: 8px;
+  }
+  .kids-logo-sub {
+    font-size: 10px; letter-spacing: .28em; text-transform: uppercase;
+    color: var(--cream-dim); margin-top: -2px;
+  }
+  .kids-card h4 {
+    font-family: var(--font-display); font-size: 22px; color: #fff; font-weight: 500;
+    margin-top: 10px;
+  }
+
+  /* ─────────── Footer ─────────── */
+  footer {
+    background: rgba(240,228,196,0.22);
+    border-top: 1px solid rgba(240,228,196,0.12);
+    padding: 64px 40px 0;
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+    gap: 48px; max-width: 1200px; margin: 0 auto 48px;
+  }
+  .footer-tagline { font-family: var(--serif); font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
+  .footer-socials { display: flex; gap: 12px; }
+  .footer-social { width: 34px; height: 34px; border: 1px solid rgba(200,168,75,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s, background 0.2s; text-decoration: none; }
+  .footer-social:hover { border-color: var(--gold); background: rgba(200,168,75,0.08); }
+  .footer-social svg { width: 14px; height: 14px; fill: var(--gold); }
+  .footer-col-title { font-family: var(--sans); font-size: 10px; font-weight: 700; letter-spacing: 0.2em; color: var(--text-3); text-transform: uppercase; margin-bottom: 20px; }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .footer-links a { font-family: var(--sans); font-size: 13px; color: var(--text-2); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-connect-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+  .footer-connect-item svg { width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px; }
+  .footer-connect-text { font-family: var(--sans); font-size: 13px; color: var(--text-2); line-height: 1.5; }
+  .footer-connect-text a { color: var(--text-2); text-decoration: none; transition: color 0.2s; }
+  .footer-connect-text a:hover { color: var(--gold); }
+  .footer-bar { max-width: 1200px; margin: 0 auto; border-top: 1px solid rgba(200,168,75,0.12); padding: 20px 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .footer-copy { font-family: var(--sans); font-size: 12px; color: var(--text-3); }
+  .footer-legal { display: flex; gap: 20px; }
+  .footer-legal a { font-family: var(--sans); font-size: 12px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+  .footer-legal a:hover { color: var(--gold); }
+
+  /* ─────────── Responsive ─────────── */
+  @media (max-width: 960px) {
+    nav { padding: 0 20px; gap: 14px; }
+    .nav-links { display: none; }
+    .nav-logo-text { font-size: 16px; } .nav-logo-text span { font-size: 8px; }
+    .hero { padding: 100px 22px 70px; min-height: 80vh; justify-content: center; }
+    .hero-content { text-align: center; }
+    .hero-pretitle, .hero-title { text-align: center; }
+    .hero-sub { max-width: 100%; margin: 0 0 16px; text-align: center; }
+    .hero-sub-note { text-align: center; }
+    .section { padding: 60px 24px; }
+    .play-intro { grid-template-columns: 1fr; gap: 32px; }
+    .play-card-wrap { aspect-ratio: 16/9; }
+    .instructor-block { grid-template-columns: 1fr; gap: 28px; }
+    .instructor-photo { max-width: 320px; margin: 0 auto; aspect-ratio: 1/1; }
+    .pr-card { grid-template-columns: 1fr; }
+    .pr-card-body { padding: 32px 24px; }
+    .pr-card-visual { min-height: 240px; }
+    .tiers-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .upcoming-strip { padding: 0 24px 48px; }
+    .upcoming-card { padding: 28px 24px; grid-template-columns: 1fr; grid-template-rows: auto auto auto; gap: 18px; min-height: 0; }
+    .upcoming-card-features { padding: 0; grid-column: 1; grid-row: 1; }
+    .upcoming-text { padding: 0; grid-column: 1; grid-row: 2; }
+    .upcoming-card .signup-form { padding: 0; grid-column: 1; grid-row: 3; }
+    .upcoming-card-img { display: none; }
+    .signup-form { flex-direction: column; }
+    .series-block { padding: 24px 24px 60px; }
+    .kids-row { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  }
+  @media (max-width: 768px) {
+    footer { padding: 48px 24px 0; }
+    .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+    .footer-bar { flex-direction: column; align-items: flex-start; }
+  }
+  @media (max-width: 560px) {
+    .nav-btn { padding: 7px 14px; font-size: 11px; letter-spacing: .06em; }
+    .nav-logo-text span { display: none; }
+    .train-btn { padding: 14px 28px; font-size: 12px; }
+    .pr-card-body { padding: 24px 18px; }
+    .tier-body { padding: 20px 16px; }
+
+    /* Stack image above text — no overlap on mobile */
+    .hero.has-artist-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      min-height: auto;
+      padding: 0;
+      justify-content: flex-start;
+    }
+    .hero.has-artist-panel .hero-artist-panel {
+      position: relative;
+      height: 72vw;
+      min-height: 260px;
+      flex-shrink: 0;
+    }
+    .hero.has-artist-panel .hero-artist-panel::after {
+      background: linear-gradient(to bottom, rgba(8,7,6,0.15) 0%, transparent 40%, rgba(8,7,6,0.4) 100%);
+    }
+    .hero.has-artist-panel .hero-bg { display: none; }
+    .hero.has-artist-panel .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 36px 20px 52px;
+      background: #0F0D0B;
+      width: 100%;
+      max-width: 100%;
+      text-align: center;
+    }
+    .hero.has-artist-panel .hero-drum-accent { display: none; }
+  }
+  @media (max-width: 960px) {
+    .hero-content { max-width: 100%; }
+  }
+  @media (max-width: 480px) {
+    .hero { padding: 80px 16px 60px; }
+    .section { padding: 48px 16px; }
+    .tiers-grid { grid-template-columns: 1fr; }
+    .play-card-wrap { aspect-ratio: 16/9; }
+    .upcoming-strip { padding: 0 16px 40px; }
+    .series-block { padding: 16px 16px 48px; }
+    .disc-tabs { flex-wrap: wrap; gap: 0; justify-content: flex-start; }
+    .disc-tab { padding: 10px 14px 12px; font-size: 9px; }
+  }
+
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* Loading/error */
+  .loading-state { min-height: 60vh; display: flex; align-items: center; justify-content: center; padding: 40px; margin-top: 76px; }
+  .loading-state p { font-family: var(--font-display); font-size: 24px; color: var(--cream-dim); }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION (shared) -->
+<div data-site-nav data-active="courses"></div>
+
+<!-- Shared site chrome (must run before public-nav-auth) -->
+<script src="/assets/js/site-chrome.js"></script>
+
+<!-- Loading placeholder -->
+<div class="loading-state" id="loading-state">
+  <p>Loading course…</p>
+</div>
+
+<!-- Page body — populated by JS -->
+<div id="page-body" class="hidden">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-content reveal">
+      <p class="hero-eyebrow" id="hero-eyebrow">Course</p>
+      <p class="hero-pretitle" id="hero-pretitle"></p>
+      <h1 class="hero-title" id="hero-title">Course title</h1>
+      <p class="hero-sub" id="hero-sub">Subtitle</p>
+      <p class="hero-sub-note" id="hero-sub-note">Mentor-led course</p>
+      <a class="train-btn" id="train-btn-top" href="#">
+        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21"/></svg>
+        Train Now
+      </a>
+    </div>
+  </section>
+
+  <!-- TFR PLAY INTRO -->
+  <section class="section">
+    <div class="play-intro">
+      <div class="play-intro-text reveal">
+        <p class="section-eyebrow">
+          <span>TFR PL</span><span class="play-mark">▶&#xFE0E;</span><span>Y</span>
+        </p>
+        <h2 class="section-title">A better step towards <em>learning</em></h2>
+        <p id="play-intro-text">
+          Where and how does a journey in music begin? Have you always wanted to learn music but are not sure
+          where to start? Or have you been searching for that one place where you can actually train, get your
+          foundation steps correct and receive the knowledge of Indian music intricately step by step?
+        </p>
+        <p>
+          Have you ever wondered how you can get access to the Masters of their field and receive training from
+          them, and be in an environment of music?
+        </p>
+        <p>
+          A subset of The Foundation Room, <strong>TFR PL<span class="play-mark">▶&#xFE0E;</span>Y</strong> is a platform for you to take a better step
+          towards learning and enter the amazing world of Indian music, in a way you haven't before.
+        </p>
+      </div>
+      <div class="gb-wrap play-card-wrap reveal">
+        <a class="play-card" id="play-card-link" href="#">
+          <div class="play-card-img" id="play-card-img"></div>
+          <div class="play-card-inner">
+            <img class="play-card-logo" src="/assets/tfr-play/tfr-play-logo.png" alt="TFR PLAY" onerror="this.style.display='none'">
+            <div class="play-card-play">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21"/></svg>
+            </div>
+            <div class="play-card-label" id="play-card-label">Watch preview →</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- INSTRUCTOR -->
+  <section class="section" style="padding-top:70px;">
+    <div class="instructor-block">
+      <div class="gb-wrap instructor-photo-wrap reveal">
+        <div class="instructor-photo" id="instructor-photo">
+          <span class="instructor-initials" id="instructor-initials">??</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <p class="instructor-bio-sub" id="instructor-bio-sub-label">Your Instructor</p>
+        <h2 class="instructor-bio-title" id="instructor-bio-title">Meet <em>your mentor</em></h2>
+        <div id="instructor-bio-text-wrap">
+          <p class="instructor-bio-text" id="instructor-bio-text">Instructor bio goes here.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- PRACTICE ROOM PROMO -->
+  <section class="section">
+    <p class="pr-promo-banner reveal">Don't just press play. <em>PLAY</em></p>
+    <div class="play-intro pr-intro-layout reveal">
+      <div class="play-intro-text">
+        <div class="pr-ribbon-inline">Special Feature</div>
+        <h3 class="pr-card-title">The Practice <span class="title-red">Room</span></h3>
+        <p id="pr-card-intro">
+          <strong style="color:var(--cream);">Prepare to practice in the coolest feature of your training at TFR PL<span class="play-mark" style="color:var(--accent-red);">▶&#xFE0E;</span>Y.</strong> Get inside, get ready for
+          drills, thrills, and experience the power and effect of what practice can really do.
+        </p>
+        <p><strong>What to practice? When to practice?</strong></p>
+        <p><strong>How much time to practice? Need company to practice?</strong></p>
+        <p>Just enter this room and start practising.</p>
+        <button class="pr-locked-btn" type="button" onclick="window._xCourseId ? openEnrollModal(window._xCourseId) : _practiceRoomTap(this)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Enrol to Unlock
+        </button>
+      </div>
+      <div class="gb-wrap play-card-wrap" style="align-self:center;">
+        <div class="play-card pr-card-visual" id="pr-card-visual" style="aspect-ratio:16/9; min-height:0; cursor:default;">
+          <img class="pr-card-visual-img" id="pr-card-visual-img" src="" alt="" style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+          <div class="pr-card-visual-inner" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding:0 24px 24px; z-index:2;">
+            <div class="pr-card-play">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="pr-card-visual-label">The Practice Room</div>
+            <div class="pr-card-visual-sublabel" id="pr-card-visual-sublabel">Get ready to practice</div>
+            <div class="pr-watch-preview">Watch Preview</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHOOSE YOUR COURSE -->
+  <section class="section">
+    <h2 class="section-title">Choose Your <em>Course</em></h2>
+    <div class="tiers-grid" id="tiers-grid"></div>
+  </section>
+
+  <!-- UPCOMING -->
+  <div class="upcoming-strip reveal" id="practise-room-signup">
+    <h3>Upcoming at <em>TFR PL<span class="play-mark">▶&#xFE0E;</span>Y</em></h3>
+    <div class="gb-wrap" style="width:100%;border-radius:calc(var(--radius) + 2px);">
+    <div class="upcoming-card" style="border:none;">
+      <div class="upcoming-card-img" id="upcoming-card-img"></div>
+      <div class="upcoming-card-features">
+        <div class="upcoming-feat-badge">Coming Soon</div>
+        <ul class="upcoming-feat-list">
+          <li>Practice sessions directly with the Master</li>
+          <li>Exclusive exercises not found in the main course</li>
+          <li>Real feedback</li>
+          <li>Session recordings to review and improve at your pace</li>
+        </ul>
+      </div>
+      <div class="upcoming-text">
+        <h4>Enter The Practice Room with <strong class="mentor-red" id="upcoming-instructor-name">your mentor</strong></h4>
+        <p id="upcoming-tagline">Exclusive practice sessions directly with the Maestro.</p>
+      </div>
+      <form class="signup-form" id="notify-signup" onsubmit="return _submitNotify(event)">
+        <input type="email" placeholder="Enter your email id" required>
+        <button type="submit">Notify Me</button>
+      </form>
+    </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER (shared) -->
+<div data-site-footer></div>
+
+<!-- Auth-aware nav (swaps Login/Join Now for an avatar pill when signed in) -->
+<script src="/assets/js/public-nav-auth.js"></script>
+
+<script>
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function escF(s) { return esc(s).replace(/▶/g, '<span class="play-mark">▶&#xFE0E;</span>'); }
+
+  function _practiceRoomTap(btn) {
+    btn.classList.add('tapped');
+    setTimeout(() => btn.classList.remove('tapped'), 1800);
+  }
+
+  async function _submitNotify(e) {
+    e.preventDefault();
+    const input = e.target.querySelector('input');
+    const btn = e.target.querySelector('button');
+    const email = (input.value || '').trim();
+    if (!email) return false;
+    const slug = getSlug();
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    try {
+      await fetch('/api/notify-interest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, course: (COURSE_ASSETS[slug]?.sheetLabel || slug) })
+      });
+    } catch (_) {}
+    btn.textContent = 'Notified!';
+    setTimeout(() => { btn.textContent = 'Notify Me'; btn.disabled = false; input.value = ''; }, 2500);
+    return false;
+  }
+
+  // Tier palette — 5 stripes matching the rainbow reference
+  const TIER_PALETTE = [
+    { start: '#F8C726', end: '#F58430' },  // yellow → orange
+    { start: '#9CD63C', end: '#2DA84F' },  // lime → green
+    { start: '#5CADFD', end: '#B946D8' },  // blue → purple
+    { start: '#E62F75', end: '#321456' },  // pink → dark purple
+    { start: '#DD9036', end: '#B66C28' },  // gold → dark gold
+  ];
+
+  const DJEMBE_TIERS = [
+    {
+      title: 'Basic Foundation Course',
+      subtitle: 'New to Djembe? New to a rhythm instrument?',
+      btnText: 'Start Training',
+      link: '/courses/djembe-world-percussions',
+      highlights: [
+        'Designed for anybody who wishes to start playing a rhythm instrument',
+        'Train on any instrument — Djembe, Cajon, Darbuka, Duff',
+        'Start training without an instrument using specified household items',
+        '4-Level foundation course from Level A to Level D',
+        'Introduction to basic playing and popular world grooves',
+        "Indian rhythm concepts (Taal, Bols, Kayda, Tihai, Gharana & Tukda)",
+      ],
+    },
+    {
+      title: 'Beginner Course',
+      subtitle: 'Already learning?',
+      highlights: [
+        'Designed to increase fluency, familiarity and musical sense towards rhythm',
+        '4-Level training course from Beginner A to Beginner D',
+        'Cover slightly complex grooves and applications to popular songs',
+        "Further Indian rhythm concepts (Sam, Khaali, Chakradhara, Rela, Challan, Jati…)",
+      ],
+    },
+    {
+      title: 'Intermediate Course',
+      subtitle: 'Already playing?',
+      highlights: [
+        'Designed to hone further skills on the instrument',
+        'Develop more control, musicality, application and performance confidence',
+        '4-Level course from Intermediate A to Intermediate D',
+        'Cover further applications to popular world grooves',
+        "Detailed study of The Tabla Repertoire (Punjab, Delhi, Ajrada Gharana, Peshkar…)",
+      ],
+    },
+    {
+      title: 'Advanced Course',
+      subtitle: 'Deeper study into Indian rhythms?',
+      highlights: [
+        'Designed for those who wish to learn deeper aspects of music',
+        'Complex grooves, sound quality development, speed training, recitations',
+        'Deeper study of Indian rhythm',
+        { text: 'Special — Learn popular Ustad Alla Rakha compositions', special: true },
+      ],
+    },
+    {
+      title: 'The Practice Room',
+      subtitle: 'Ready to enter the Grind?',
+      featured: true,
+      highlights: [
+        'Exclusive feature of TFR PL▶Y',
+        'Practice thoroughly and repeatedly in an engaging manner',
+        'Accessible to students learning any course — plus open to practitioners',
+        'Practices designed for every level: newcomers → professionals',
+        'New practices constantly updated',
+      ],
+    },
+  ];
+
+  const TIER_FEATURES = [
+    'Step-by-step detailed guidance',
+    'Access at your own time',
+    'Open to all age groups',
+    'Part of a worldwide rhythm community',
+    'Get monitored and receive feedback',
+    'Performance training, showcases & progress tests',
+    'Eligible for exclusive live trainings with the Master',
+    'In-class support with expert trainers',
+    'Train at TFR PL▶Y and then practice thoroughly in the Practice Room',
+  ];
+
+  const GENERIC_TIERS = [
+    { title: "Foundation 'A'", subtitle: 'New to this discipline?', highlights: [
+      'Step-by-step detailed guidance', 'Designed for complete beginners',
+      'Build a solid foundation, slow and steady', 'Understand core technique',
+    ]},
+    { title: "Foundation 'B'", subtitle: 'Already learning?', highlights: [
+      'Designed to increase fluency and musicality', 'Cover slightly more complex material',
+      'Apply technique to real repertoire',
+    ]},
+    { title: "Foundation 'C'", subtitle: 'Already playing?', highlights: [
+      'Hone further skills on the instrument', 'Develop control, musicality and performance confidence',
+      'Cover further applications and styles',
+    ]},
+    { title: "Foundation 'D'", subtitle: 'Ready for deeper study?', highlights: [
+      'Designed for those learning deeper aspects of music', 'Complex technique, speed training, recitations',
+      'Deeper study of traditional forms',
+    ]},
+    { title: "Foundation 'E' — The Practice Room", subtitle: 'Ready to enter the Grind?', featured: true, highlights: [
+      'Exclusive practice-first feature of TFR PL▶Y',
+      'Open to all levels — newcomers through professionals',
+      'New practices constantly added',
+    ]},
+  ];
+
+  function renderTierCards(tiers) {
+    const grid = document.getElementById('tiers-grid');
+    if (!grid) return;
+    const html = tiers.slice(0, 5).map((t, i) => {
+      const palette = TIER_PALETTE[i] || TIER_PALETTE[TIER_PALETTE.length - 1];
+      const featured = t.featured || (i === 4);
+      const highlights = (t.highlights || []).map(h => {
+        if (typeof h === 'string') return `<li>${escF(h)}</li>`;
+        return `<li class="${h.special ? 'special' : ''}">${esc(h.text || '')}</li>`;
+      }).join('');
+      return `
+        <div class="tier-card${featured ? ' featured' : ''}" style="--tier-start:${palette.start}; --tier-end:${palette.end};">
+          <div class="tier-strip"></div>
+          ${featured ? '<div class="tier-featured-ribbon">Ready to Practice?</div>' : ''}
+          <div class="tier-body">
+            <div class="tier-title">${esc(t.title)}</div>
+            <div class="tier-subtitle">${esc(t.subtitle || '')}</div>
+            <div class="tier-section-label">Course Highlights</div>
+            <ul class="tier-list">${highlights}</ul>
+            <div class="tier-section-label">Features</div>
+            <ul class="tier-list">
+              ${TIER_FEATURES.slice(0, 5).map(f => '<li>' + escF(f) + '</li>').join('')}
+            </ul>
+            <div class="tier-cta-wrap" style="margin-top:auto;display:block;width:100%;">
+              <button type="button" class="tier-notify-btn${i === 0 ? ' tier-start-btn' : featured ? ' tier-pr-btn' : ' tier-dim-btn'}" style="width:100%;" onclick="${t.link ? `window.location.href='${t.link}'` : `window._xCourseId ? openEnrollModal(window._xCourseId) : scrollToNotify()`}">
+                ${t.link ? esc(t.btnText || 'Start Training') : 'Enrol Now'}
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    grid.innerHTML = html;
+  }
+
+  function scrollToNotify() {
+    const el = document.getElementById('notify-signup');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function notifyTier(btn, tierTitle) {
+    const slug = getSlug();
+    const email = prompt('Enter your email to be notified about: ' + tierTitle);
+    if (!email || !email.includes('@')) return;
+    fetch('/api/notify-interest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, course: slug, tier: tierTitle })
+    }).catch(() => {});
+    btn.textContent = 'Notified!';
+    setTimeout(() => { btn.textContent = btn.dataset.orig || 'Notify'; }, 2500);
+  }
+
+  function initReveal() {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: .1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  }
+
+  function getSlug() {
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    const idx = parts.indexOf('experience');
+    if (idx >= 0 && parts[idx + 1]) return parts[idx + 1];
+    const q = new URLSearchParams(window.location.search).get('slug');
+    return q || null;
+  }
+
+  const COURSE_ASSETS = {
+    'djembe-world-percussions': {
+      hero:           '/assets/tfr-play/taufiq-hero-wide.png',
+      portrait:       '/assets/tfr-play/taufiq-portrait.jpg',
+      previewCard:    'https://img.youtube.com/vi/En8fsz2uQ7k/maxresdefault.jpg',
+      previewVideo:   'En8fsz2uQ7k',
+      practiceVideo:  'u8tbx8-KOdM',
+      practice:       'https://img.youtube.com/vi/u8tbx8-KOdM/maxresdefault.jpg',
+      upcoming:       '/assets/tfr-play/notify-box-bg.jpg',
+      heroTitle:      'DJEMBE WITH TAUFIQ QURESHI',
+      heroSub:        'One of the most comprehensive Indian rhythm, grooves and percussion courses',
+      tiers:          DJEMBE_TIERS,
+      sheetLabel:     'Practise Room — Djembe',
+    },
+  };
+
+  (async () => {
+    const slug = getSlug();
+    if (!slug) {
+      document.getElementById('loading-state').innerHTML = '<p>Course not specified.</p>';
+      return;
+    }
+    try {
+      const r = await fetch('/api/public/courses/' + encodeURIComponent(slug));
+      if (!r.ok) throw new Error('not found');
+      const data = await r.json();
+      const course = data.course;
+      const overrides = COURSE_ASSETS[slug] || null;
+
+      document.title = (overrides?.heroTitle || course.title) + ' · The Foundation Room';
+
+      // Hero
+      const heroBg = document.getElementById('hero-bg');
+      if (overrides?.heroArtist) {
+        // Use a dedicated left-panel element so the artist is definitively on the left
+        const heroSection = document.querySelector('.hero');
+        heroSection.classList.add('has-artist-panel');
+        const panel = document.createElement('div');
+        panel.className = 'hero-artist-panel';
+        panel.style.backgroundImage = 'url("' + overrides.heroArtist + '")';
+        heroSection.insertBefore(panel, heroSection.firstChild);
+      } else if (overrides?.hero) {
+        heroBg.style.backgroundImage = 'url("' + overrides.hero + '")';
+      } else if (course.cover_image_url) {
+        heroBg.style.backgroundImage = 'url("' + course.cover_image_url + '")';
+      } else {
+        heroBg.style.background = 'linear-gradient(135deg,' + (course.cover_color || '#1a0d00') + ',#060301)';
+      }
+
+      // Parse hero title: "DJEMBE WITH TAUFIQ QURESHI" → pretitle + title with last word red
+      const rawTitle = overrides?.heroTitle || course.title || '';
+      const withMatch = rawTitle.match(/^(.+\s+WITH\s+)(.+)$/i);
+      let preTitle = '', mainTitle = rawTitle;
+      if (withMatch) {
+        preTitle = withMatch[1].trim();
+        mainTitle = withMatch[2].trim();
+      }
+      const titleWords = mainTitle.split(/\s+/);
+      const lastWord = titleWords.pop();
+      const firstWords = titleWords.join(' ');
+      document.getElementById('hero-pretitle').textContent = preTitle;
+      document.getElementById('hero-title').innerHTML = esc(mainTitle);
+
+      document.getElementById('hero-eyebrow').textContent = slug === 'djembe-world-percussions'
+        ? 'Rhythm'
+        : (course.instrument || 'Course') + ' · ' + (course.level || 'All levels');
+      document.getElementById('hero-sub').textContent = overrides?.heroSub || course.subtitle || 'Begin your journey';
+      document.getElementById('hero-sub-note').textContent = 'Mentor-led course';
+      const courseId = course.id;
+      window._xCourseId = courseId;
+      const trainBtn = document.getElementById('train-btn-top');
+      trainBtn.setAttribute('href', '/courses/' + encodeURIComponent(course.slug || slug));
+      trainBtn.style.cursor = 'pointer';
+
+      // Sizes an iframe inside a .yt-embed-wrap to cover-fill (no black bars).
+      function fitYtCover(wrap) {
+        const iframe = wrap.querySelector('iframe');
+        if (!iframe) return;
+        const apply = () => {
+          const W = wrap.offsetWidth, H = wrap.offsetHeight;
+          if (!W || !H) return;
+          const ratio = 16 / 9;
+          let iW, iH;
+          if (W / H > ratio) { iW = W; iH = W / ratio; }
+          else                { iH = H; iW = H * ratio; }
+          iframe.style.width  = iW + 'px';
+          iframe.style.height = iH + 'px';
+        };
+        // Delay until after paint so offsetWidth/Height are real layout values
+        requestAnimationFrame(() => requestAnimationFrame(apply));
+        window.addEventListener('resize', apply);
+      }
+
+      // Play card — embed YouTube iframe directly for djembe
+      const playCardLink = document.getElementById('play-card-link');
+      if (overrides?.previewVideo) {
+        playCardLink.classList.add('yt-card');
+        playCardLink.removeAttribute('href');
+        playCardLink.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.previewVideo}?rel=0&modestbranding=1&autoplay=1&mute=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        playCardLink.closest('.play-card-wrap')?.classList.add('yt-active');
+      } else {
+        playCardLink.setAttribute('href', trainUrl);
+        document.getElementById('play-card-label').textContent = 'Watch preview →';
+      }
+
+      const upImg = document.getElementById('upcoming-card-img');
+      if (overrides?.upcoming) upImg.style.backgroundImage = 'url("' + overrides.upcoming + '")';
+      else if (course.cover_image_url) upImg.style.backgroundImage = 'url("' + course.cover_image_url + '")';
+
+      // Practice room card — embed YouTube iframe directly
+      const prVisual = document.getElementById('pr-card-visual');
+      if (overrides?.practiceVideo) {
+        prVisual.classList.add('yt-card');
+        prVisual.innerHTML = `<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${overrides.practiceVideo}?rel=0&modestbranding=1&autoplay=1&mute=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><div class="yt-card-tag">Practice Today</div>`;
+        fitYtCover(prVisual.querySelector('.yt-embed-wrap'));
+      }
+      const firstName = (course.instructor_name || 'the Maestro').split(' ')[0];
+      const sublabel = document.getElementById('pr-card-visual-sublabel');
+      if (sublabel) sublabel.textContent = 'Get ready to practice with ' + firstName;
+
+      if (!overrides && course.description) {
+        document.getElementById('play-intro-text').textContent = course.description;
+      }
+
+      // Instructor block
+      const portraitEl = document.getElementById('instructor-photo');
+      if (overrides?.portrait) {
+        portraitEl.innerHTML = '<img src="' + overrides.portrait + '" alt="' + esc(course.instructor_name || '') + '">';
+      } else {
+        const initials = (course.instructor_name || '').split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase() || '??';
+        document.getElementById('instructor-initials').textContent = initials;
+      }
+      if (slug === 'djembe-world-percussions') {
+        document.getElementById('instructor-bio-sub-label').textContent = '';
+        document.getElementById('instructor-bio-title').innerHTML = 'Djembe with <em>Taufiq Qureshi</em>';
+      } else {
+        document.getElementById('instructor-bio-title').innerHTML = 'Meet <em>' + esc(firstName) + '</em>';
+      }
+      document.getElementById('upcoming-instructor-name').textContent = course.instructor_name || firstName;
+
+      if (slug === 'djembe-world-percussions') {
+        document.getElementById('instructor-bio-text-wrap').innerHTML = `
+          <p class="instructor-bio-text">
+            Train and Learn the Instrument, world grooves, Indian rhythms and the Tabla repertoire on the Djembe.
+            <strong>Not just a short course. Not just an overnight promise of music.</strong> A detailed, step-by-step
+            training module for you — from your foundation steps to advanced training right from the Rhythm Master himself.
+          </p>
+          <p class="instructor-bio-text">
+            India's Ace percussionist and Rhythm Master <strong>Taufiq Qureshi</strong> has pioneered a whole new
+            trend and distinct technique by playing the African Djembe in the context of Indian intricate rhythms,
+            in his own path-breaking way — which has inspired a whole new breed of percussion in India. Being the
+            son and disciple of the legendary <strong>Ustad Alla Rakha</strong> and brother of the maestro
+            <strong>Ustad Zakir Hussain</strong>, he is a worthy torchbearer of a rich legacy of percussion.
+          </p>
+          <p class="instructor-bio-text">
+            At TFR Play he brings to you all his knowledge gathered over 5 decades, his <strong>R.A.W.R</strong> content
+            which he has created and trained students with over 15 years — exclusively to you now in a newly created
+            and different digital format.
+          </p>
+        `;
+      } else {
+        document.getElementById('instructor-bio-text').textContent = course.instructor_bio || 'A passionate mentor bringing decades of experience to your practice.';
+      }
+
+      renderTierCards(overrides?.tiers || GENERIC_TIERS);
+
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('page-body').classList.remove('hidden');
+      initReveal();
+    } catch (e) {
+      document.getElementById('loading-state').innerHTML = '<p>Course not found. <a href="/courses" style="color:var(--gold);">Browse all courses →</a></p>';
+    }
+  })();
+</script>
+
+<!-- Video modal -->
+<div class="video-modal" id="video-modal" aria-hidden="true">
+  <div class="video-modal-backdrop" id="video-modal-backdrop"></div>
+  <div class="video-modal-box">
+    <button class="video-modal-close" id="video-modal-close" aria-label="Close video">&#x2715;</button>
+    <div class="video-modal-player">
+      <iframe id="video-modal-iframe" src="" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+<script>
+  (function(){
+    function openVideoModal(videoId) {
+      const modal = document.getElementById('video-modal');
+      document.getElementById('video-modal-iframe').src =
+        'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeVideoModal() {
+      const modal = document.getElementById('video-modal');
+      document.getElementById('video-modal-iframe').src = '';
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('video-modal-backdrop').addEventListener('click', closeVideoModal);
+    document.getElementById('video-modal-close').addEventListener('click', closeVideoModal);
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeVideoModal(); });
+    window.__openVideoModal = openVideoModal;
+  })();
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="/assets/js/enroll-modal.js"></script>
+</body>
+</html>
