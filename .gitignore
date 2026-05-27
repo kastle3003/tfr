@@ -9,3 +9,9 @@ data/
 *.bak-*
 test-*.js
 .tmp/
+.env.*
+!.env.example
+*.db
+*.sqlite
+*.sqlite3
+server.err
